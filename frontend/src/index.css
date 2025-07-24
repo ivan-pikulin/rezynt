@@ -1,0 +1,51 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* --- Cropper (react-image-crop) custom styles --- */
+.ReactCrop {
+  background: #181a1b;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px 0 rgba(0,0,0,0.18), 0 1.5px 6px 0 rgba(255,87,34,0.08);
+  padding: 16px;
+  border: 1.5px solid #333;
+  max-width: 420px;
+}
+.ReactCrop__child-img {
+  border-radius: 12px;
+  box-shadow: 0 2px 12px 0 rgba(0,0,0,0.10);
+  transition: box-shadow 0.2s;
+}
+.ReactCrop__crop-selection {
+  border-radius: 8px !important;
+  border: 2px solid #FF5722 !important;
+  box-shadow: 0 0 0 2px #FF572288 !important;
+  background: rgba(255,87,34,0.08) !important;
+}
+.ReactCrop__drag-handle {
+  width: 16px !important;
+  height: 16px !important;
+  background: #FF5722 !important;
+  border-radius: 50% !important;
+  border: 2px solid #fff !important;
+  box-shadow: 0 2px 8px 0 rgba(255,87,34,0.18);
+  transition: background 0.2s;
+}
+.ReactCrop__drag-handle:hover {
+  background: #FF8A65 !important;
+}
+.ReactCrop__grid {
+  stroke: #FF5722 !important;
+  opacity: 0.25 !important;
+}
+/* --- End Cropper custom styles --- */

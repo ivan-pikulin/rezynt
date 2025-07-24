@@ -1,0 +1,19 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+This is a project of AI resume builder Rezynt with a separated frontend and backend architecture.
+
+rezynt/
+├── backend/         # Backend server directory
+├── frontend/        # Frontend application directory
+├── nginx/           # Nginx service configuration for deployment
+├── .github/         # github action workflows configuration for CI/CD
+└── .git/            # Git version control
+
+Each meaningfull folder cintains `spec.xml` file with feature description and technical specifications for this piece of code. Always use this files to understand the code structure in the corresponding folder.
+
+When you change the code, you MUST update the corresponding `spec.xml` so that it reflects the present code state.
+
+When you add some functionality described in `spec.xml` files, use as few changes as possible, just add new functionality and keep the structure as was.

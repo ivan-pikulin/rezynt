@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<api_services>
+    <info>
+        <desc>API Integration Services</desc>
+        <tech>Axios, React Query, TypeScript</tech>
+    </info>
+
+    <folder_structure>
+        /services/api
+        ├── baseApi.ts # Base API configuration and interceptors
+        ├── types.ts # API types and interfaces
+        ├── utils.ts # API utility functions
+        ├── authApi.ts # Authentication endpoints
+        ├── userApi.ts # User management endpoints
+        ├── personApi.ts # Person management endpoints
+        ├── treeApi.ts # Family tree endpoints
+        ├── marriageApi.ts # Marriage record endpoints
+        ├── draftApi.ts # Draft content endpoints
+        └── accountLinkRequestApi.ts # Account linking endpoints
+    </folder_structure>
+
+    <components>
+        <service name="base" desc="Base API configuration">
+            <component name="axios" desc="HTTP client setup"/>
+            <component name="interceptors" desc="Request/response interceptors"/>
+            <component name="errorHandler" desc="Global error handling"/>
+        </service>
+
+        <service name="auth" desc="Authentication services">
+            <endpoint name="login" desc="User authentication"/>
+            <endpoint name="refresh" desc="Token refresh"/>
+            <endpoint name="logout" desc="User logout"/>
+        </service>
+
+        <service name="user" desc="User management">
+            <endpoint name="profile" desc="User profile operations"/>
+            <endpoint name="settings" desc="User settings"/>
+        </service>
+
+        <service name="person" desc="Person management">
+            <endpoint name="list" desc="List people"/>
+            <endpoint name="create" desc="Create person"/>
+            <endpoint name="update" desc="Update person"/>
+            <endpoint name="delete" desc="Delete person"/>
+            <endpoint name="avatar" desc="Avatar management"/>
+        </service>
+
+        <service name="tree" desc="Family tree operations">
+            <endpoint name="structure" desc="Get tree structure"/>
+            <endpoint name="positions" desc="Update node positions"/>
+            <endpoint name="relationships" desc="Manage relationships"/>
+        </service>
+
+        <service name="marriage" desc="Marriage records">
+            <endpoint name="create" desc="Create marriage"/>
+            <endpoint name="update" desc="Update marriage"/>
+            <endpoint name="delete" desc="Delete marriage"/>
+        </service>
+
+        <service name="draft" desc="Draft management">
+            <endpoint name="list" desc="List user's drafts"/>
+            <endpoint name="create" desc="Create new draft"/>
+            <endpoint name="get" desc="Get draft content"/>
+            <endpoint name="rename" desc="Rename draft"/>
+            <endpoint name="delete" desc="Delete draft"/>
+            <endpoint name="publish" desc="Publish draft"/>
+            <endpoint name="updatePositions" desc="Update draft positions"/>
+            <endpoint name="newPerson" desc="Create new person in draft"/>
+            <endpoint name="newMarriage" desc="Create new marriage in draft"/>
+        </service>
+    </components>
+
+    <deps>
+        <dep name="Axios" purpose="HTTP client"/>
+        <dep name="React Query" purpose="Data fetching and caching"/>
+        <dep name="TypeScript" purpose="Type safety"/>
+        <dep name="camelcase-keys" purpose="Response transformation"/>
+    </deps>
+
+    <features>
+        <feature name="errorHandling" desc="Global error handling and retry logic"/>
+        <feature name="caching" desc="Response caching and invalidation"/>
+        <feature name="authentication" desc="JWT token management"/>
+        <feature name="typeSafety" desc="TypeScript type definitions"/>
+    </features>
+</api_services> 

@@ -1,0 +1,144 @@
+x-common-variables: &common-variables
+  POSTGRES_HOST: postgres
+  POSTGRES_PORT: ${POSTGRES_PORT}
+  POSTGRES_USER: ${POSTGRES_USER}
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+  POSTGRES_DB: ${POSTGRES_DB}
+  MINIO_HOST: ${MINIO_HOST}
+  MINIO_PORT: ${MINIO_PORT}
+  MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+  MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+  MINIO_BUCKET_NAME: ${MINIO_BUCKET_NAME}
+
+services:
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - /etc/letsencrypt/live/zhivorodnic.ru/fullchain.pem:/etc/nginx/ssl/fullchain.pem:ro
+      - /etc/letsencrypt/live/zhivorodnic.ru/privkey.pem:/etc/nginx/ssl/privkey.pem:ro
+    depends_on:
+      - backend
+      - frontend
+      - minio
+    networks:
+      - app-network
+      - backend-network
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL}
+    expose:
+      - "80"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      VITE_API_URL: ${VITE_API_URL}
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    expose:
+      - "8000"
+    environment:
+      <<: *common-variables
+      SECRET_KEY: ${SECRET_KEY}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES}
+      REFRESH_TOKEN_EXPIRE_MINUTES: ${REFRESH_TOKEN_EXPIRE_MINUTES}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_started
+    volumes:
+      - ./backend:/app
+    user: "0"
+    command: |
+      sh -c "
+        if [ ! -e /opt/migrations/versions ]; then
+          mkdir -p /opt/migrations/versions;
+        fi
+        cp -r /opt/migrations/versions/ /app/app/database/migrations/
+        chmod +x /app/app/scripts/run_migrations.sh
+        /app/app/scripts/run_migrations.sh
+        cp -rT /app/app/database/migrations/versions/ /opt/migrations/versions/
+        su appuser -c 'uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --log-level debug'
+      "
+    networks:
+      - app-network
+      - backend-network
+
+  postgres:
+    image: postgres:15-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      <<: *common-variables
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+      - backend-network
+
+  minio:
+    image: minio/minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    environment:
+      <<: *common-variables
+    command: server --console-address ":9001" /data
+    networks:
+      - backend-network
+
+  minio-init:
+    image: minio/mc
+    depends_on:
+      - minio
+    environment:
+      <<: *common-variables
+    entrypoint: >
+      /bin/sh -c "
+        sleep 10;
+        mc alias set myminio http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD} &&
+        mc mb --ignore-existing myminio/family-tree &&
+        mc anonymous set download myminio/family-tree
+      "
+    networks:
+      - backend-network
+
+volumes:
+  postgres_data:
+  minio_data: 
+
+networks:
+  app-network:
+    driver: bridge 
+  backend-network:
+    driver: bridge 

@@ -1,0 +1,27 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+Use python classes whereever possible.
+Make as short and simple code as possible for the proposed functionality, do not expand functionality without approve from user. 
+
+Use uv for packages management.
+`uv add package` for adding new packages
+
+For alembic commands use a prefix: $env:PYTHONPATH='.';
+For example:
+```powershell
+$env:PYTHONPATH='.'; alembic upgrade head
+```
+
+<tech_stack>
+    <framework>FastAPI</framework>
+    <orm>SQLAlchemy + Alembic для миграций</orm>
+    <validation>Pydantic</validation>
+    <api_docs>Swagger UI (встроенный в FastAPI)</api_docs>
+    <auth>PyJWT</auth>
+    <async_tasks>Celery + Redis</async_tasks>
+    <storage>MinIO</storage>
+    <database>PostgreSQL</database>
+</tech_stack>

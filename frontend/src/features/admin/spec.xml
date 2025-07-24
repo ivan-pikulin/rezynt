@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<admin_feature>
+    <info>
+        <desc>Administrative Features for Family Tree Application</desc>
+        <tech>React, Material-UI, React Query, i18next</tech>
+    </info>
+
+    <folder_structure>
+        /features/admin
+        ├── routes.tsx # Admin routes and access control
+        ├── pages/
+        │   └── AdminPage.tsx # Main admin dashboard with two panels
+        └── components/
+            ├── AdminUsers.tsx # User management component
+            ├── LinkRequests.tsx # Account linking management
+            └── AccessDenied.tsx # Access denied view
+    </folder_structure>
+
+    <functionality>
+        <feature name="accessControl" desc="Admin access control">
+            <capability name="routeProtection" desc="Protected admin routes">
+                <action name="check" desc="Check user admin status"/>
+                <action name="redirect" desc="Redirect non-admin users"/>
+            </capability>
+        </feature>
+
+        <feature name="userManagement" desc="User administration">
+            <capability name="userList" desc="View and manage users">
+                <action name="view" desc="View user list"/>
+                <action name="update" desc="Change user role (admin/user)"/>
+            </capability>
+        </feature>
+
+        <feature name="accountLinking" desc="User-Person relationship management">
+            <capability name="linkRequests" desc="Manage account link requests">
+                <action name="view" desc="View pending link requests"/>
+                <action name="approve" desc="Approve user-person link"/>
+                <action name="reject" desc="Reject user-person link"/>
+            </capability>
+        </feature>
+    </functionality>
+
+    <components>
+        <component name="AdminPage" desc="Main admin dashboard">
+            <subcomponent name="Layout" desc="Two-panel layout with equal width"/>
+            <subcomponent name="LinkRequests" desc="Left panel for link requests"/>
+            <subcomponent name="AdminUsers" desc="Right panel for user management"/>
+        </component>
+
+        <component name="AdminUsers" desc="User management interface">
+            <subcomponent name="UserList" desc="List of users with role management"/>
+            <subcomponent name="RoleToggle" desc="Admin role toggle control"/>
+        </component>
+
+        <component name="LinkRequests" desc="Account linking management">
+            <subcomponent name="RequestList" desc="List of pending link requests"/>
+            <subcomponent name="RequestActions" desc="Approve/Reject controls"/>
+        </component>
+
+        <component name="AccessDenied" desc="Access control">
+            <subcomponent name="Message" desc="Access denied message"/>
+            <subcomponent name="Redirect" desc="Redirect to home"/>
+        </component>
+    </components>
+
+    <deps>
+        <dep name="Material-UI" purpose="UI components and layout"/>
+        <dep name="React Query" purpose="Data fetching and caching"/>
+        <dep name="React Router" purpose="Route protection"/>
+        <dep name="i18next" purpose="Internationalization"/>
+    </deps>
+
+    <security>
+        <requirement name="adminAccess" desc="Requires admin privileges"/>
+        <requirement name="authentication" desc="Requires valid authentication"/>
+    </security>
+
+    <features>
+        <feature name="layout" desc="Responsive two-panel layout"/>
+        <feature name="i18n" desc="Internationalization support"/>
+        <feature name="suspense" desc="Loading state handling"/>
+    </features>
+</admin_feature> 

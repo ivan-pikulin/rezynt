@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+All the texts should be stored in the `i18n` folder. 

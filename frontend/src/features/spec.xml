@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<features>
+    <info>
+        <desc>Feature-based modules for Family Tree application</desc>
+        <tech>React, TypeScript, Material-UI</tech>
+    </info>
+
+    <folder_structure>
+        /features
+        ├── familyTree/ # Family tree visualization and management
+        │   ├── components/ # Tree-specific components
+        │   ├── hooks/ # Custom hooks for tree operations
+        │   └── utils/ # Tree-specific utilities
+        ├── admin/ # Administrative features
+        │   ├── components/ # Admin-specific components
+        │   └── utils/ # Admin-specific utilities
+        └── auth/ # Authentication and authorization
+            ├── components/ # Auth-specific components
+            └── utils/ # Auth-specific utilities
+    </folder_structure>
+
+    <components>
+        <feature name="familyTree" desc="Family tree visualization and management">
+            <component name="TreeView" desc="Main tree visualization component"/>
+            <component name="NodeEditor" desc="Person node editing interface"/>
+            <component name="RelationshipManager" desc="Family relationship management"/>
+            <component name="TreeControls" desc="Tree navigation and controls"/>
+        </feature>
+
+        <feature name="admin" desc="Administrative features">
+            <component name="UserManagement" desc="User administration interface"/>
+            <component name="SystemSettings" desc="System configuration"/>
+            <component name="AuditLog" desc="System activity monitoring"/>
+        </feature>
+
+        <feature name="auth" desc="Authentication and authorization">
+            <component name="Login" desc="User login interface"/>
+            <component name="Register" desc="User registration"/>
+            <component name="PasswordReset" desc="Password recovery"/>
+            <component name="AuthGuard" desc="Route protection"/>
+        </feature>
+    </components>
+
+    <deps>
+        <dep name="ReactFlow" purpose="Tree visualization"/>
+        <dep name="Material-UI" purpose="UI components"/>
+        <dep name="React Query" purpose="Data management"/>
+        <dep name="React Router" purpose="Navigation"/>
+    </deps>
+</features> 
