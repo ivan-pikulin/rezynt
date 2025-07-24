@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chat_feature>
+    <info>
+        <desc>Chat feature placeholder</desc>
+        <tech>React, TypeScript, Material-UI</tech>
+    </info>
+    <folder_structure>
+        /features/chat
+        ├── components/ # Chat-specific components
+        ├── hooks/ # Custom hooks for chat operations
+        ├── services/ # Chat-related services
+        └── pages/ # Chat pages
+    </folder_structure>
+    <components>
+        <feature name="chat" desc="Chat feature placeholder">
+            <component name="ChatPage" desc="Main chat page placeholder"/>
+            <component name="ChatWindow" desc="Окно чата, используется в основной диалоговой странице"/>
+            <component name="MainDialogPage" desc="Общая страница с прогресс-баром, чатом и превью"/>
+        </feature>
+    </components>
+</chat_feature> 

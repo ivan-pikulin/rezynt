@@ -7,42 +7,37 @@
 
     <folder_structure>
         /features
-        ├── familyTree/ # Family tree visualization and management
-        │   ├── components/ # Tree-specific components
-        │   ├── hooks/ # Custom hooks for tree operations
-        │   └── utils/ # Tree-specific utilities
-        ├── admin/ # Administrative features
-        │   ├── components/ # Admin-specific components
-        │   └── utils/ # Admin-specific utilities
-        └── auth/ # Authentication and authorization
-            ├── components/ # Auth-specific components
-            └── utils/ # Auth-specific utilities
+        ├── chat/ # Chat feature
+        │   ├── components/ # Chat-specific components
+        │   ├── hooks/ # Custom hooks for chat operations
+        │   ├── services/ # Chat-related services
+        │   └── pages/ # Chat pages
+        ├── preview/ # Preview feature
+        │   ├── components/ # Preview-specific components
+        │   ├── hooks/ # Custom hooks for preview operations
+        │   ├── services/ # Preview-related services
+        │   └── pages/ # Preview pages
+        └── export/ # Export feature
+            ├── components/ # Export-specific components
+            ├── hooks/ # Custom hooks for export operations
+            ├── services/ # Export-related services
+            └── pages/ # Export pages
     </folder_structure>
 
     <components>
-        <feature name="familyTree" desc="Family tree visualization and management">
-            <component name="TreeView" desc="Main tree visualization component"/>
-            <component name="NodeEditor" desc="Person node editing interface"/>
-            <component name="RelationshipManager" desc="Family relationship management"/>
-            <component name="TreeControls" desc="Tree navigation and controls"/>
+        <component name="App" desc="Главный компонент приложения, экспортируется по умолчанию из App.tsx" />
+        <feature name="chat" desc="Chat feature placeholder">
+            <component name="ChatPage" desc="Main chat page placeholder"/>
         </feature>
-
-        <feature name="admin" desc="Administrative features">
-            <component name="UserManagement" desc="User administration interface"/>
-            <component name="SystemSettings" desc="System configuration"/>
-            <component name="AuditLog" desc="System activity monitoring"/>
+        <feature name="preview" desc="Preview feature placeholder">
+            <component name="PreviewPage" desc="Main preview page placeholder"/>
         </feature>
-
-        <feature name="auth" desc="Authentication and authorization">
-            <component name="Login" desc="User login interface"/>
-            <component name="Register" desc="User registration"/>
-            <component name="PasswordReset" desc="Password recovery"/>
-            <component name="AuthGuard" desc="Route protection"/>
+        <feature name="export" desc="Export feature placeholder">
+            <component name="ExportPage" desc="Main export page placeholder"/>
         </feature>
     </components>
 
     <deps>
-        <dep name="ReactFlow" purpose="Tree visualization"/>
         <dep name="Material-UI" purpose="UI components"/>
         <dep name="React Query" purpose="Data management"/>
         <dep name="React Router" purpose="Navigation"/>

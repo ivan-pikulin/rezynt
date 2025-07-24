@@ -9,8 +9,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install uv
+COPY pyproject.toml uv.lock ./
+RUN uv sync --frozen
 
 # Copy application code
 COPY . .
@@ -26,4 +27,4 @@ USER appuser
 EXPOSE 8000
 
 # Run the application
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--log-level", "debug"] 
+CMD ["uv", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--log-level", "debug"]

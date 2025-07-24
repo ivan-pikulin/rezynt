@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<preview_feature>
+    <info>
+        <desc>Preview feature placeholder</desc>
+        <tech>React, TypeScript, Material-UI</tech>
+    </info>
+    <folder_structure>
+        /features/preview
+        ├── components/ # Preview-specific components
+        ├── hooks/ # Custom hooks for preview operations
+        ├── services/ # Preview-related services
+        └── pages/ # Preview pages
+    </folder_structure>
+    <components>
+        <feature name="preview" desc="Preview feature placeholder">
+            <component name="PreviewPage" desc="Main preview page placeholder"/>
+            <component name="ResumeTemplate" desc="Шаблон резюме для превью, используется в основной диалоговой странице"/>
+        </feature>
+    </components>
+</preview_feature> 

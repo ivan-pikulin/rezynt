@@ -7,8 +7,8 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 
 # Install dependencies first (for better caching)
-COPY package.json package-lock.json ./
-RUN npm ci
+COPY package.json yarn.lock ./
+RUN yarn install --frozen-lockfile
 
 # Copy source files
 COPY . .
@@ -16,7 +16,7 @@ COPY . .
 # Build the application with environment variables
 ARG VITE_API_URL
 ENV VITE_API_URL=${VITE_API_URL}
-RUN npm run build
+RUN yarn build
 
 # Stage 2: Production
 FROM nginx:alpine
@@ -31,4 +31,4 @@ COPY --from=builder /app/build /usr/share/nginx/html
 EXPOSE 80
 
 # Start nginx
-CMD ["nginx", "-g", "daemon off;"] 
+CMD ["nginx", "-g", "daemon off;"]

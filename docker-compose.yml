@@ -4,11 +4,6 @@ x-common-variables: &common-variables
   POSTGRES_USER: ${POSTGRES_USER}
   POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
   POSTGRES_DB: ${POSTGRES_DB}
-  MINIO_HOST: ${MINIO_HOST}
-  MINIO_PORT: ${MINIO_PORT}
-  MINIO_ROOT_USER: ${MINIO_ROOT_USER}
-  MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
-  MINIO_BUCKET_NAME: ${MINIO_BUCKET_NAME}
 
 services:
   nginx:
@@ -25,7 +20,6 @@ services:
     depends_on:
       - backend
       - frontend
-      - minio
     networks:
       - app-network
       - backend-network
@@ -67,8 +61,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      minio:
-        condition: service_started
     volumes:
       - ./backend:/app
     user: "0"
@@ -104,38 +96,8 @@ services:
       - app-network
       - backend-network
 
-  minio:
-    image: minio/minio
-    ports:
-      - "9000:9000"
-      - "9001:9001"
-    volumes:
-      - minio_data:/data
-    environment:
-      <<: *common-variables
-    command: server --console-address ":9001" /data
-    networks:
-      - backend-network
-
-  minio-init:
-    image: minio/mc
-    depends_on:
-      - minio
-    environment:
-      <<: *common-variables
-    entrypoint: >
-      /bin/sh -c "
-        sleep 10;
-        mc alias set myminio http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD} &&
-        mc mb --ignore-existing myminio/family-tree &&
-        mc anonymous set download myminio/family-tree
-      "
-    networks:
-      - backend-network
-
 volumes:
   postgres_data:
-  minio_data: 
 
 networks:
   app-network:

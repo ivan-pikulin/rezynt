@@ -1,7 +1,0 @@
-<feature name="CreateDraftButton">
-    <description>На кнопке создания черновика отображается только иконка + без кружка, обводка — это сама кнопка. Tooltip с надписью появляется при наведении на всю область кнопки.</description>
-</feature>
-
-<feature name="PublishDraftButton">
-    <description>Кнопка опубликования черновика теперь использует иконку CheckCircle и белый цвет текста для современного и более привлекательного внешнего вида.</description>
-</feature> 
