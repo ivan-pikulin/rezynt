@@ -17,3 +17,33 @@ Each meaningfull folder cintains `spec.xml` file with feature description and te
 When you change the code, you MUST update the corresponding `spec.xml` so that it reflects the present code state.
 
 When you add some functionality described in `spec.xml` files, use as few changes as possible, just add new functionality and keep the structure as was.
+
+<backend>
+    Use python classes whereever possible.
+    Make as short and simple code as possible for the proposed functionality, do not expand functionality without approve from user. 
+
+    Use uv for packages management.
+    `uv add package` for adding new packages
+
+    For alembic commands use a prefix: $env:PYTHONPATH='.';
+    For example:
+    ```powershell
+    $env:PYTHONPATH='.'; alembic upgrade head
+    ```
+
+    <tech_stack>
+        <framework>FastAPI</framework>
+        <orm>SQLAlchemy + Alembic для миграций</orm>
+        <validation>Pydantic</validation>
+        <api_docs>Swagger UI (встроенный в FastAPI)</api_docs>
+        <auth>PyJWT</auth>
+        <async_tasks>Celery + Redis</async_tasks>
+        <storage>MinIO</storage>
+        <database>PostgreSQL</database>
+    </tech_stack>
+</backend>
+
+<frontend>
+All the texts should be stored in the `i18n` folder. 
+Always use yarn + vite, not npm.
+</frontend>

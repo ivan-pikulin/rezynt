@@ -7,7 +7,6 @@ import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 const queryClient = new QueryClient();
 
 // Lazy load new feature pages
-const ChatPage = React.lazy(() => import('./features/chat/pages/ChatPage'));
 const PreviewPage = React.lazy(() => import('./features/preview/pages/PreviewPage'));
 const ExportPage = React.lazy(() => import('./features/export/pages/ExportPage'));
 const MainDialogPage = React.lazy(() => import('./features/chat/pages/MainDialogPage'));
@@ -16,7 +15,6 @@ function AppRoutes() {
   return (
     <React.Suspense fallback={<div>Loading...</div>}>
       <Routes>
-        <Route path="/chat" element={<ChatPage />} />
         <Route path="/preview" element={<PreviewPage />} />
         <Route path="/export" element={<ExportPage />} />
         <Route path="/" element={<MainDialogPage />} />
