@@ -6,11 +6,13 @@ import StepLabel from '@mui/material/StepLabel';
 import Button from '@mui/material/Button';
 import ChatWindow from '../components/ChatWindow';
 import ResumeTemplate from '../../preview/components/ResumeTemplate';
+import { TemplateService } from '../../preview/services/templateService';
 
 const steps = ['Ввод данных', 'Обсуждение', 'Правых', 'Экспорт'];
 
 const MainDialogPage: React.FC = () => {
   const [activeStep, setActiveStep] = React.useState(1); // пример: шаг 2 активен
+  const demoData = TemplateService.createDemoData();
 
   const getNextStepTitle = () => {
     if (activeStep < steps.length - 1) {
@@ -87,13 +89,13 @@ const MainDialogPage: React.FC = () => {
         display: 'flex', 
         p: 2, 
         gap: 2,
-        alignItems: 'center',
+        alignItems: 'flex-start', // Изменено с center на flex-start
         justifyContent: 'center'
       }}>
         {/* Основной контейнер со скруглением */}
         <Box sx={{
           width: '95%',
-          height: '95%',
+          maxHeight: '600px', // Ограничиваем максимальную высоту
           bgcolor: 'white',
           borderRadius: '8px',
           boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
@@ -107,8 +109,8 @@ const MainDialogPage: React.FC = () => {
           
           {/* Правая часть: превью + кнопка */}
           <Box sx={{ 
-            flex: 1, 
-            minWidth: 0, 
+            width: '400px', // Фиксированная ширина вместо flex: 1
+            minWidth: '400px',
             display: 'flex', 
             flexDirection: 'column',
             gap: 2,
@@ -116,12 +118,15 @@ const MainDialogPage: React.FC = () => {
           }}>
             {/* Превью резюме */}
             <Box sx={{ 
-              flex: 1,
+              height: '400px', // Фиксированная высота вместо flex: 1
               display: 'flex', 
               justifyContent: 'center', 
-              alignItems: 'flex-start' 
+              alignItems: 'flex-start',
+              position: 'relative',
+              overflow: 'hidden',
+              '--resume-scale': '0.35' // Масштаб для превью в чате
             }}>
-              <ResumeTemplate />
+              <ResumeTemplate data={demoData} />
             </Box>
             
             {/* Кнопка Next */}
