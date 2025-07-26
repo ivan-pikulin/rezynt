@@ -1,11 +1,12 @@
 import React from 'react';
-import Box from '@mui/material/Box';
-import Avatar from '@mui/material/Avatar';
-import TextField from '@mui/material/TextField';
-import IconButton from '@mui/material/IconButton';
-import SendIcon from '@mui/icons-material/Send';
+import { Box } from '@mui/material';
+import { ChatMessage } from './ChatMessage';
+import { ChatInput } from './ChatInput';
+import { useChat } from '../hooks/useChat';
 
 const ChatWindow: React.FC = () => {
+  const { messages, isLoading, sendUserMessage } = useChat();
+  
   return (
     <Box sx={{ 
       height: '100%', 
@@ -26,104 +27,17 @@ const ChatWindow: React.FC = () => {
         flexDirection: 'column',
         gap: 2
       }}>
-        {/* Сообщение ассистента */}
-        <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-start' }}>
-          <Avatar sx={{ 
-            width: 32, 
-            height: 32, 
-            bgcolor: '#9c27b0',
-            fontSize: '0.875rem'
-          }}>
-            A
-          </Avatar>
-          <Box sx={{ 
-            bgcolor: 'white',
-            p: 1.5,
-            borderRadius: '8px',
-            maxWidth: '70%',
-            fontSize: '0.875rem'
-          }}>
-            Hello! I am a smart assistant for resume creation
-          </Box>
-        </Box>
-
-        {/* Сообщение пользователя */}
-        <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-start', justifyContent: 'flex-end' }}>
-          <Box sx={{ 
-            bgcolor: '#1976d2',
-            color: 'white',
-            p: 1.5,
-            borderRadius: '8px',
-            maxWidth: '70%',
-            fontSize: '0.875rem'
-          }}>
-            Hi, ok, lets start! Ask me questions please
-          </Box>
-          <Avatar sx={{ 
-            width: 32, 
-            height: 32,
-            bgcolor: '#ff9800'
-          }}>
-            U
-          </Avatar>
-        </Box>
-
-        {/* Сообщение ассистента */}
-        <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-start' }}>
-          <Avatar sx={{ 
-            width: 32, 
-            height: 32, 
-            bgcolor: '#9c27b0',
-            fontSize: '0.875rem'
-          }}>
-            A
-          </Avatar>
-          <Box sx={{ 
-            bgcolor: 'white',
-            p: 1.5,
-            borderRadius: '8px',
-            maxWidth: '70%',
-            fontSize: '0.875rem'
-          }}>
-            Please tell me about your experience, where did you work?
-          </Box>
-        </Box>
+        {messages.map((message) => (
+          <ChatMessage 
+            key={message.id} 
+            message={message} 
+            isLoading={isLoading}
+          />
+        ))}
       </Box>
 
       {/* Поле ввода */}
-      <Box sx={{ 
-        p: 1,
-        display: 'flex',
-        gap: 1,
-        alignItems: 'center'
-      }}>
-        <TextField
-          fullWidth
-          size="small"
-          placeholder="I have worked in different places"
-          sx={{
-            '& .MuiOutlinedInput-root': {
-              borderRadius: '4px',
-              bgcolor: 'white',
-              '& fieldset': {
-                borderColor: '#ddd'
-              }
-            }
-          }}
-        />
-        <IconButton 
-          size="small"
-          sx={{ 
-            bgcolor: '#1976d2',
-            color: 'white',
-            '&:hover': {
-              bgcolor: '#1565c0'
-            }
-          }}
-        >
-          <SendIcon fontSize="small" />
-        </IconButton>
-      </Box>
+      <ChatInput onSendMessage={sendUserMessage} disabled={isLoading} />
     </Box>
   );
 };

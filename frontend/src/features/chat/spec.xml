@@ -1,21 +1,56 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <chat_feature>
     <info>
-        <desc>Chat feature placeholder</desc>
-        <tech>React, TypeScript, Material-UI</tech>
+        <desc>Interactive chat feature for resume creation assistant</desc>
+        <tech>React, TypeScript, Material-UI, Custom Hooks</tech>
     </info>
     <folder_structure>
         /features/chat
-        ├── components/ # Chat-specific components
-        ├── hooks/ # Custom hooks for chat operations
-        ├── services/ # Chat-related services
+        ├── components/ # Chat UI components
+        │   ├── ChatWindow.tsx # Main chat container
+        │   ├── ChatMessage.tsx # Individual message component
+        │   ├── ChatInput.tsx # Message input component
+        │   └── index.ts # Component exports
+        ├── hooks/ # Custom hooks for chat logic
+        │   └── useChat.ts # Main chat hook with state management
+        ├── services/ # API services
+        │   └── chatApi.ts # Chat API with mock implementation
+        ├── types/ # TypeScript interfaces
+        │   └── chat.ts # Chat message and API types
         └── pages/ # Chat pages
+            └── MainDialogPage.tsx # Main dialog page with progress bar
     </folder_structure>
     <components>
-        <feature name="chat" desc="Chat feature placeholder">
-            <component name="ChatPage" desc="Main chat page placeholder"/>
-            <component name="ChatWindow" desc="Окно чата, используется в основной диалоговой странице"/>
-            <component name="MainDialogPage" desc="Общая страница с прогресс-баром, чатом и превью"/>
+        <feature name="chat" desc="Interactive chat with AI assistant">
+            <component name="MainDialogPage" desc="Main page with progress bar, chat window and resume preview"/>
+            <component name="ChatWindow" desc="Chat container with messages and input"/>
+            <component name="ChatMessage" desc="Individual message display with avatar and loading states"/>
+            <component name="ChatInput" desc="Message input field with send button"/>
         </feature>
     </components>
+    <functionality>
+        <feature name="message_sending" desc="Send user messages and receive AI responses">
+            <flow>
+                1. User types message in ChatInput
+                2. Message appears immediately in chat
+                3. Placeholder assistant message shows with loading animation
+                4. API call is made to chatApi (mock implementation)
+                5. Assistant response replaces placeholder message
+            </flow>
+        </feature>
+        <feature name="loading_states" desc="Visual feedback during message processing">
+            <states>
+                - Loading spinner in assistant messages
+                - Disabled input during processing
+                - "Thinking..." text during API call
+            </states>
+        </feature>
+        <feature name="mock_api" desc="Simulated backend API">
+            <implementation>
+                - Random response selection from predefined messages
+                - Simulated network delay (1-3 seconds)
+                - Error handling for failed requests
+            </implementation>
+        </feature>
+    </functionality>
 </chat_feature> 
