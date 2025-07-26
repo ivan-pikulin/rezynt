@@ -90,7 +90,7 @@ const MainDialogPage: React.FC = () => {
         alignItems: 'center',
         justifyContent: 'center'
       }}>
-        {/* Основной контейнер с уменьшенными полями и скруглением */}
+        {/* Основной контейнер со скруглением */}
         <Box sx={{
           width: '95%',
           height: '95%',
@@ -101,7 +101,7 @@ const MainDialogPage: React.FC = () => {
           overflow: 'hidden'
         }}>
           {/* Левая+центральная часть: чат */}
-          <Box sx={{ flex: 2, minWidth: 0 }}>
+          <Box sx={{ flex: 2, minWidth: 0, p: 2 }}>
             <ChatWindow />
           </Box>
           

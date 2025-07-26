@@ -11,7 +11,7 @@ const ChatWindow: React.FC = () => {
     <Box sx={{ 
       height: '100%', 
       width: '100%', 
-      p: 1, 
+      p: 2, 
       display: 'flex', 
       flexDirection: 'column', 
       bgcolor: '#f8f9fa',
@@ -22,7 +22,6 @@ const ChatWindow: React.FC = () => {
       <Box sx={{ 
         flex: 1, 
         overflowY: 'auto',
-        p: 2,
         display: 'flex',
         flexDirection: 'column',
         gap: 2
