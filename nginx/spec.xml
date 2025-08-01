@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<specification>
+    <name>Nginx Configuration for Rezynt.com</name>
+    <description>
+        Nginx reverse proxy configuration for the Rezynt AI resume builder application.
+        Handles SSL termination, load balancing, and routing between frontend, backend, and MinIO services.
+    </description>
+    
+    <features>
+        <feature>
+            <name>SSL/TLS Termination</name>
+            <description>
+                - SSL certificate management for rezynt.com and www.rezynt.com
+                - Automatic HTTP to HTTPS redirect
+                - Modern SSL configuration with TLS 1.2/1.3
+                - HSTS header for enhanced security
+            </description>
+        </feature>
+        
+        <feature>
+            <name>Reverse Proxy</name>
+            <description>
+                - Frontend routing to React SPA
+                - Backend API routing to FastAPI
+                - MinIO storage routing for file uploads
+                - WebSocket support for real-time features
+            </description>
+        </feature>
+        
+        <feature>
+            <name>Security Headers</name>
+            <description>
+                - X-Frame-Options: SAMEORIGIN
+                - X-XSS-Protection: 1; mode=block
+                - X-Content-Type-Options: nosniff
+                - Content-Security-Policy with appropriate directives
+                - Referrer-Policy: no-referrer-when-downgrade
+            </description>
+        </feature>
+        
+        <feature>
+            <name>Health Monitoring</name>
+            <description>
+                - /health endpoint for nginx status
+                - SSL certificate validation script
+                - Integration with deployment pipeline health checks
+            </description>
+        </feature>
+        
+        <feature>
+            <name>Performance Optimization</name>
+            <description>
+                - Gzip compression for text-based content
+                - Optimized proxy timeouts
+                - Client max body size configuration
+                - Keep-alive connections
+            </description>
+        </feature>
+    </features>
+    
+    <configuration>
+        <domains>
+            <domain>rezynt.com</domain>
+            <domain>www.rezynt.com</domain>
+        </domains>
+        
+        <ssl_certificates>
+            <path>/etc/letsencrypt/live/rezynt.com/fullchain.pem</path>
+            <private_key>/etc/letsencrypt/live/rezynt.com/privkey.pem</private_key>
+        </ssl_certificates>
+        
+        <upstream_services>
+            <service name="frontend" port="80"/>
+            <service name="backend" port="8000"/>
+            <service name="minio" port="9000"/>
+        </upstream_services>
+        
+        <routes>
+            <route path="/" target="frontend" description="React SPA"/>
+            <route path="/api" target="backend" description="FastAPI backend"/>
+            <route path="/storage" target="minio" description="File storage"/>
+            <route path="/health" target="nginx" description="Health check"/>
+        </routes>
+    </configuration>
+    
+    <deployment>
+        <docker_image>nginx:alpine</docker_image>
+        <ports>
+            <port>80:80</port>
+            <port>443:443</port>
+        </ports>
+        <volumes>
+            <volume>./nginx.conf:/etc/nginx/nginx.conf:ro</volume>
+            <volume>/etc/letsencrypt/live/rezynt.com/fullchain.pem:/etc/nginx/ssl/rezynt.com/fullchain.pem:ro</volume>
+            <volume>/etc/letsencrypt/live/rezynt.com/privkey.pem:/etc/nginx/ssl/rezynt.com/privkey.pem:ro</volume>
+        </volumes>
+    </deployment>
+    
+    <maintenance>
+        <ssl_renewal>
+            <method>Let's Encrypt with certbot</method>
+            <frequency>90 days</frequency>
+            <automation>cron job</automation>
+        </ssl_renewal>
+        
+        <monitoring>
+            <health_check>/health</health_check>
+            <ssl_check>/usr/local/bin/check-ssl.sh</ssl_check>
+            <log_location>/var/log/nginx/</log_location>
+        </monitoring>
+    </maintenance>
+</specification> 

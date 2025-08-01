@@ -1,56 +1,96 @@
-# name: Deploy to Production
+name: Deploy to Production
 
-# on:
-#   push:
-#     branches:
-#       - main
+on:
+  push:
+    branches:
+      - main
 
-# jobs:
-#   deploy:
-#     runs-on: ubuntu-latest
-#     timeout-minutes: 60  # Increase if needed for long builds/migrations
-#     steps:
-#       - uses: actions/checkout@v4
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60  # Increase if needed for long builds/migrations
+    steps:
+      - uses: actions/checkout@v4
       
-#       - name: Deploy to Server
-#         uses: appleboy/ssh-action@v1.0.0
-#         with:
-#           host: ${{ vars.SSH_HOST }}
-#           username: ${{ vars.SSH_USER }}
-#           key: ${{ secrets.SSH_PRIVATE_KEY }}
-#           timeout: 3600s  # 1 hour, increase if needed
-#           script: |
-#             set -e
+      - name: Deploy to Server
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ vars.SSH_HOST }}
+          username: ${{ vars.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          timeout: 3600s  # 1 hour, increase if needed
+          script: |
+            set -e
 
-#             # Navigate to project directory
-#             cd /root/family-tree
+            echo "Starting deployment to production..."
+
+            # Navigate to project directory
+            cd /root/rezynt
             
-#             # Backup current .env if exists
-#             if [ -f .env ]; then
-#               cp .env .env.backup
-#             fi
+            # Backup current .env if exists
+            if [ -f .env ]; then
+              cp .env .env.backup
+            fi
             
-#             # Create new .env from GitHub variable
-#             echo "${{ vars.PROD_ENV }}" > .env
+            # Create new .env from GitHub variable
+            echo "${{ vars.PROD_ENV }}" > .env
             
-#             # Pull latest changes
-#             git pull origin main
+            # Pull latest changes
+            echo "Pulling latest changes from git..."
+            git pull origin main
             
-#             # Build new images in the background (does not stop running containers)
-#             docker compose -f docker-compose.yml build
+            # Build new images in the background (does not stop running containers)
+            echo "Building Docker images..."
+            docker compose -f docker-compose.yml build
             
-#             # Start new containers with zero-downtime (recreate only changed)
-#             docker compose --env-file .env up -d --remove-orphans
+            # Start new containers with zero-downtime (recreate only changed)
+            echo "Starting containers..."
+            docker compose --env-file .env up -d --remove-orphans
             
-#             # Wait for backend to be healthy (replace with your health endpoint if different)
-#             for i in {1..30}; do
-#               if curl -fs http://localhost:8000/health; then
-#                 echo "Backend is healthy!"
-#                 break
-#               fi
-#               echo "Waiting for backend to be healthy..."
-#               sleep 5
-#             done
+            # Wait for backend to be healthy
+            echo "Waiting for backend to be healthy..."
+            for i in {1..30}; do
+              if curl -fs http://localhost:8000/api/health > /dev/null 2>&1; then
+                echo "Backend is healthy!"
+                break
+              fi
+              echo "Waiting for backend to be healthy... (attempt $i/30)"
+              sleep 5
+            done
             
-#             # Cleanup old images
-#             docker image prune -f
+            # Check if backend is still not healthy after all attempts
+            if ! curl -fs http://localhost:8000/api/health > /dev/null 2>&1; then
+              echo "ERROR: Backend failed to become healthy after 30 attempts"
+              docker compose logs backend
+              exit 1
+            fi
+            
+            # Wait for nginx to be ready
+            echo "Waiting for nginx to be healthy..."
+            for i in {1..10}; do
+              if curl -fs http://localhost/health > /dev/null 2>&1; then
+                echo "Nginx is healthy!"
+                break
+              fi
+              echo "Waiting for nginx to be healthy... (attempt $i/10)"
+              sleep 3
+            done
+            
+            # Check if nginx is still not healthy after all attempts
+            if ! curl -fs http://localhost/health > /dev/null 2>&1; then
+              echo "ERROR: Nginx failed to become healthy after 10 attempts"
+              docker compose logs nginx
+              exit 1
+            fi
+            
+            # Check SSL certificate
+            echo "Checking SSL certificate..."
+            docker compose exec nginx /usr/local/bin/check-ssl.sh || {
+              echo "WARNING: SSL certificate check failed, but continuing deployment"
+            }
+            
+            # Cleanup old images
+            echo "Cleaning up old Docker images..."
+            docker image prune -f
+            
+            echo "Deployment completed successfully!"
