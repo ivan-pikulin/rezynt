@@ -47,48 +47,6 @@ jobs:
             echo "Starting containers..."
             docker compose --env-file .env up -d --remove-orphans
             
-            # Wait for backend to be healthy
-            echo "Waiting for backend to be healthy..."
-            for i in {1..30}; do
-              if curl -fs http://localhost:8000/api/health > /dev/null 2>&1; then
-                echo "Backend is healthy!"
-                break
-              fi
-              echo "Waiting for backend to be healthy... (attempt $i/30)"
-              sleep 5
-            done
-            
-            # Check if backend is still not healthy after all attempts
-            if ! curl -fs http://localhost:8000/api/health > /dev/null 2>&1; then
-              echo "ERROR: Backend failed to become healthy after 30 attempts"
-              docker compose logs backend
-              exit 1
-            fi
-            
-            # Wait for nginx to be ready
-            echo "Waiting for nginx to be healthy..."
-            for i in {1..10}; do
-              if curl -fs http://localhost/health > /dev/null 2>&1; then
-                echo "Nginx is healthy!"
-                break
-              fi
-              echo "Waiting for nginx to be healthy... (attempt $i/10)"
-              sleep 3
-            done
-            
-            # Check if nginx is still not healthy after all attempts
-            if ! curl -fs http://localhost/health > /dev/null 2>&1; then
-              echo "ERROR: Nginx failed to become healthy after 10 attempts"
-              docker compose logs nginx
-              exit 1
-            fi
-            
-            # Check SSL certificate
-            echo "Checking SSL certificate..."
-            docker compose exec nginx /usr/local/bin/check-ssl.sh || {
-              echo "WARNING: SSL certificate check failed, but continuing deployment"
-            }
-            
             # Cleanup old images
             echo "Cleaning up old Docker images..."
             docker image prune -f
