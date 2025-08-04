@@ -39,26 +39,16 @@ const MainDialogPage: React.FC = () => {
         justifyContent: 'space-between'
       }}>
         {/* Логотип */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Box sx={{ 
-            width: 24, 
-            height: 24, 
-            borderRadius: '50%', 
-            bgcolor: '#1976d2',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
-            <Box sx={{ 
-              width: 8, 
-              height: 8, 
-              borderRadius: '50%', 
-              bgcolor: 'white' 
-            }} />
-          </Box>
-          <Box sx={{ fontSize: '1.5rem', fontWeight: 600, color: '#333' }}>
-            Rezynt
-          </Box>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <img 
+            src="/rezynt-logo-with-name.svg" 
+            alt="Rezynt" 
+            style={{ 
+              height: '32px', 
+              width: 'auto',
+              maxWidth: '160px'
+            }} 
+          />
         </Box>
 
         {/* Прогресс-бар */}
