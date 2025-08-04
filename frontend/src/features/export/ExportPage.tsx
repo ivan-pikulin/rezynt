@@ -1,7 +1,7 @@
 import React from 'react';
 import Box from '@mui/material/Box';
 import Header from '../../shared/components/Header/Header';
-import PricingTable from './components/PricingTable';
+import DownloadOptions from './components/DownloadOptions';
 
 const ExportPage: React.FC = () => {
   return (
@@ -22,7 +22,7 @@ const ExportPage: React.FC = () => {
         alignItems: 'center',
         p: 4
       }}>
-        <PricingTable />
+        <DownloadOptions />
       </Box>
     </Box>
   );

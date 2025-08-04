@@ -9,25 +9,48 @@
     <folder_structure>
         /features/export
         ├── components/
-        │   ├── PricingTable.tsx    # Main pricing table
-        │   └── PricingCard.tsx     # Individual pricing card
+        │   ├── DownloadOptions.tsx  # Main download options component
+        │   ├── ProModal.tsx         # Pro subscription modal
+        │   ├── PricingTable.tsx    # Legacy pricing table (kept for reference)
+        │   └── PricingCard.tsx     # Legacy pricing card (kept for reference)
         ├── ExportPage.tsx          # Main export page
         ├── exportApi.ts            # API for pricing and downloads
         └── spec.xml                # This file
     </folder_structure>
 
     <components>
-        <component name="ExportPage" desc="Main page with pricing table">
+        <component name="ExportPage" desc="Main page with download options">
             <props>
                 <prop name="none" desc="No props required" />
             </props>
         </component>
-        <component name="PricingTable" desc="Table with Free and Pro plans">
+        <component name="DownloadOptions" desc="Two download options: Watermarked and Clean">
+            <props>
+                <prop name="none" desc="No props required" />
+            </props>
+            <features>
+                <feature name="Watermarked Download" desc="Free download with watermarks" />
+                <feature name="Clean Download" desc="Pro feature - download without watermarks" />
+            </features>
+        </component>
+        <component name="ProModal" desc="Pro subscription modal with pricing plans">
+            <props>
+                <prop name="open" desc="Modal open state" />
+                <prop name="onClose" desc="Modal close handler" />
+            </props>
+            <features>
+                <feature name="Pro Features List" desc="List of Pro plan benefits" />
+                <feature name="Monthly Plan" desc="$29/month subscription" />
+                <feature name="Lifetime Plan" desc="$149 one-time payment" />
+                <feature name="Continue Button" desc="Proceed with selected plan" />
+            </features>
+        </component>
+        <component name="PricingTable" desc="Legacy pricing table (kept for reference)">
             <props>
                 <prop name="none" desc="No props required" />
             </props>
         </component>
-        <component name="PricingCard" desc="Individual pricing card with features">
+        <component name="PricingCard" desc="Legacy pricing card (kept for reference)">
             <props>
                 <prop name="title" desc="Plan title (Free/Pro)" />
                 <prop name="price" desc="Plan price" />
