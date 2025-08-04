@@ -22,8 +22,8 @@
     </folder_structure>
     <components>
         <feature name="chat" desc="Interactive chat with AI assistant">
-            <component name="MainDialogPage" desc="Main page with progress bar, chat window and resume preview"/>
-            <component name="ChatWindow" desc="Chat container with messages and input"/>
+            <component name="MainDialogPage" desc="Main page with progress bar, full-height chat window and vertically centered resume preview with next button"/>
+            <component name="ChatWindow" desc="Chat container with messages and input that uses full available height"/>
             <component name="ChatMessage" desc="Individual message display with avatar and loading states"/>
             <component name="ChatInput" desc="Message input field with send button"/>
         </feature>

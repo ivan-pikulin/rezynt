@@ -8,7 +8,7 @@ import ChatWindow from '../components/ChatWindow';
 import ResumeTemplate from '../../preview/components/ResumeTemplate';
 import { TemplateService } from '../../preview/services/templateService';
 
-const steps = ['Ввод данных', 'Обсуждение', 'Правых', 'Экспорт'];
+const steps = ['Start', 'Generate', 'Refine', 'Export'];
 
 const MainDialogPage: React.FC = () => {
   const [activeStep, setActiveStep] = React.useState(1); // пример: шаг 2 активен
@@ -79,13 +79,13 @@ const MainDialogPage: React.FC = () => {
         display: 'flex', 
         p: 2, 
         gap: 2,
-        alignItems: 'flex-start', // Изменено с center на flex-start
+        alignItems: 'stretch', // Растягиваем на всю высоту
         justifyContent: 'center'
       }}>
         {/* Основной контейнер со скруглением */}
         <Box sx={{
           width: '95%',
-          maxHeight: '600px', // Ограничиваем максимальную высоту
+          height: '100%', // Занимаем всю доступную высоту
           bgcolor: 'white',
           borderRadius: '8px',
           boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
@@ -93,7 +93,7 @@ const MainDialogPage: React.FC = () => {
           overflow: 'hidden'
         }}>
           {/* Левая+центральная часть: чат */}
-          <Box sx={{ flex: 2, minWidth: 0, p: 2 }}>
+          <Box sx={{ flex: 2, minWidth: 0, p: 2, display: 'flex', flexDirection: 'column' }}>
             <ChatWindow />
           </Box>
           
@@ -103,12 +103,14 @@ const MainDialogPage: React.FC = () => {
             minWidth: '400px',
             display: 'flex', 
             flexDirection: 'column',
+            justifyContent: 'center', // Центрируем по вертикали
+            alignItems: 'center',
             gap: 2,
             p: 2
           }}>
             {/* Превью резюме */}
             <Box sx={{ 
-              height: '400px', // Фиксированная высота вместо flex: 1
+              height: '400px', // Фиксированная высота
               display: 'flex', 
               justifyContent: 'center', 
               alignItems: 'flex-start',
