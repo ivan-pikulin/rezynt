@@ -1,13 +1,7 @@
 import baseApi from './baseApi';
 import { UserLogin, UserSignup } from './types';
 
-/**
- * Authentication API service for handling login/signup operations
- */
 const authApi = {
-  /**
-   * Login with username and password
-   */
   login: async (credentials: UserLogin) => {
     const form = new URLSearchParams();
     form.append('username', credentials.username);
@@ -19,10 +13,7 @@ const authApi = {
     
     return response.data;
   },
-  
-  /**
-   * Register a new user and automatically login
-   */
+
   signup: async (userData: UserSignup) => {
     // First register the user
     const signupResponse = await baseApi.post('/auth/signup/', userData);

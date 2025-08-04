@@ -42,7 +42,6 @@ services:
         condition: service_healthy
     volumes:
       - ./backend:/app
-    user: "0"
     command: |
       sh -c "
         if [ ! -e /opt/migrations/versions ]; then

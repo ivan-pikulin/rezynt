@@ -1,6 +1,3 @@
-/**
- * User interface representing authenticated user
- */
 export type UserRole = 'user' | 'admin';
 
 export interface User {
@@ -8,5 +5,4 @@ export interface User {
   username: string;
   isAdmin: boolean;
   lastLogin: string | null;
-  personId: number | null;
 } 

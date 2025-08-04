@@ -8,7 +8,6 @@ class UserBase(BaseModel):
     username: str
     is_admin: bool = False
     last_login: Optional[datetime] = None
-    person_id: Optional[int] = None
 
 
 class UserCreate(BaseModel):
@@ -21,7 +20,6 @@ class UserUpdate(BaseModel):
     password: Optional[str] = None
     is_admin: Optional[bool] = None
     last_login: Optional[str] = None
-    person_id: Optional[int] = None
 
 
 class UserInDBBase(UserBase):

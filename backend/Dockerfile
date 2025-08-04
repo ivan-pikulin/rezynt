@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM python:3.12-slim
 
 WORKDIR /app
 
@@ -8,20 +8,20 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies
+# Install uv
 RUN pip install uv
+
+# Copy dependency files
 COPY pyproject.toml uv.lock ./
+
+# Create virtual environment and install dependencies
 RUN uv sync --frozen
 
 # Copy application code
 COPY . .
 
+# Make migration script executable
 RUN chmod +x /app/app/scripts/run_migrations.sh
-
-# Create non-root user
-RUN useradd -m -u 1000 appuser && \
-    chown -R appuser:appuser /app /opt
-USER appuser
 
 # Expose port
 EXPOSE 8000
