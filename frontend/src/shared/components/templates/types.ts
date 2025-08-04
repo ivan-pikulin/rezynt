@@ -1,4 +1,4 @@
-import { ResumeData } from '../../../../shared/types/resume';
+import { ResumeData } from '../../types/resume';
 
 export interface BaseTemplateProps {
   data: ResumeData;

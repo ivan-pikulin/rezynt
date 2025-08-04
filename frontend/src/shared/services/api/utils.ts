@@ -1,4 +1,4 @@
-import { User } from 'shared/types/user';
+import { User } from '../../types/user';
 import { UserFromApi } from './types';
 
 export const mapUserFromApi = (userFromApi: UserFromApi): User => {

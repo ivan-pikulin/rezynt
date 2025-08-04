@@ -1,19 +1,76 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<export_feature>
+<feature>
     <info>
-        <desc>Export feature placeholder</desc>
+        <name>Export Feature</name>
+        <desc>Pricing and export page with Free/Pro plans and download options</desc>
         <tech>React, TypeScript, Material-UI</tech>
     </info>
+
     <folder_structure>
         /features/export
-        ├── components/ # Export-specific components
-        ├── hooks/ # Custom hooks for export operations
-        ├── services/ # Export-related services
-        └── pages/ # Export pages
+        ├── components/
+        │   ├── PricingTable.tsx    # Main pricing table
+        │   └── PricingCard.tsx     # Individual pricing card
+        ├── ExportPage.tsx          # Main export page
+        ├── exportApi.ts            # API for pricing and downloads
+        └── spec.xml                # This file
     </folder_structure>
+
     <components>
-        <feature name="export" desc="Export feature placeholder">
-            <component name="ExportPage" desc="Main export page placeholder"/>
-        </feature>
+        <component name="ExportPage" desc="Main page with pricing table">
+            <props>
+                <prop name="none" desc="No props required" />
+            </props>
+        </component>
+        <component name="PricingTable" desc="Table with Free and Pro plans">
+            <props>
+                <prop name="none" desc="No props required" />
+            </props>
+        </component>
+        <component name="PricingCard" desc="Individual pricing card with features">
+            <props>
+                <prop name="title" desc="Plan title (Free/Pro)" />
+                <prop name="price" desc="Plan price" />
+                <prop name="currency" desc="Currency code" />
+                <prop name="features" desc="Array of feature names" />
+                <prop name="featureValues" desc="Array of boolean values for features" />
+                <prop name="buttonText" desc="Button text" />
+                <prop name="buttonVariant" desc="Button variant (contained/outlined)" />
+                <prop name="isPopular" desc="Whether this is the popular plan" />
+            </props>
+        </component>
     </components>
-</export_feature> 
+
+    <api>
+        <endpoint name="getPricing" method="GET" path="/export/pricing/">
+            <desc>Get available pricing plans</desc>
+            <request>None</request>
+            <response>Array of pricing plans</response>
+        </endpoint>
+        <endpoint name="downloadResume" method="POST" path="/export/download/">
+            <desc>Download resume with specified plan</desc>
+            <request>Plan type (free/pro)</request>
+            <response>Download URL and expiration</response>
+        </endpoint>
+        <endpoint name="exportToPDF" method="POST" path="/export/pdf/">
+            <desc>Export resume to PDF</desc>
+            <request>None</request>
+            <response>Download URL</response>
+        </endpoint>
+        <endpoint name="exportToWord" method="POST" path="/export/word/">
+            <desc>Export resume to Word</desc>
+            <request>None</request>
+            <response>Download URL</response>
+        </endpoint>
+        <endpoint name="exportToPNG" method="POST" path="/export/png/">
+            <desc>Export resume to PNG</desc>
+            <request>None</request>
+            <response>Download URL</response>
+        </endpoint>
+    </api>
+
+    <deps>
+        <dep name="Material-UI" purpose="UI components and icons" />
+        <dep name="Shared Header" purpose="Common header component" />
+    </deps>
+</feature> 

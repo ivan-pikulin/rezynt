@@ -1,20 +1,22 @@
 import React from 'react';
 import Box from '@mui/material/Box';
-import { ResumeData } from '../../../shared/types/resume';
+import { ResumeData } from '../types/resume';
 import { createTemplate } from './templates';
 
-interface ResumeTemplateProps {
+interface ResumeRendererProps {
   data: ResumeData;
   templateId?: string;
   isPreview?: boolean;
   onExport?: () => void;
+  scale?: number; // Добавляем поддержку масштабирования
 }
 
-const ResumeTemplate: React.FC<ResumeTemplateProps> = ({ 
+const ResumeRenderer: React.FC<ResumeRendererProps> = ({ 
   data, 
   templateId = 'alder', 
   isPreview = true,
-  onExport 
+  onExport,
+  scale = 1
 }) => {
   const templateElement = createTemplate(templateId, {
     data,
@@ -30,11 +32,13 @@ const ResumeTemplate: React.FC<ResumeTemplateProps> = ({
       flexDirection: 'column',
       justifyContent: 'center',
       alignItems: 'center',
-      padding: '10px'
+      padding: '10px',
+      transform: `scale(${scale})`,
+      transformOrigin: 'center center'
     }}>
       {templateElement}
     </Box>
   );
 };
 
-export default ResumeTemplate; 
+export default ResumeRenderer; 

@@ -1,5 +1,5 @@
 import { TEMPLATE_CONFIGS, TemplateConfig } from '../components/templates';
-import { ResumeData, ExportOptions } from '../../../shared/types/resume';
+import { ResumeData, ExportOptions } from '../types/resume';
 
 /**
  * Сервис для работы с шаблонами резюме
