@@ -53,6 +53,8 @@ services:
       dockerfile: Dockerfile
     expose:
       - "8000"
+    volumes:
+      - ./backend/app/database/migrations/versions/:/app/app/database/migrations/versions/
     environment:
       <<: *common-variables
       SECRET_KEY: ${SECRET_KEY}
