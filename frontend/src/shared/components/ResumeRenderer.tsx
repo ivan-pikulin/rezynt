@@ -27,14 +27,14 @@ const ResumeRenderer: React.FC<ResumeRendererProps> = ({
   return (
     <Box sx={{ 
       width: '100%',
-      height: '100%',
+      minHeight: '100%',
       display: 'flex',
       flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center',
-      padding: '10px',
+      justifyContent: 'flex-start',
+      alignItems: 'stretch',
       transform: `scale(${scale})`,
-      transformOrigin: 'center center'
+      transformOrigin: 'top center',
+      padding: '20px'
     }}>
       {templateElement}
     </Box>

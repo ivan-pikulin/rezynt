@@ -37,70 +37,74 @@ const RefinePage: React.FC = () => {
       <Box sx={{ 
         flex: 1, 
         display: 'flex', 
-        p: 2, 
         gap: 2,
-        alignItems: 'stretch'
+        alignItems: 'stretch',
+        overflow: 'hidden' // Предотвращаем прокрутку на уровне контейнера
       }}>
-        {/* Левая панель: селектор шаблонов */}
+        {/* Левая панель: селектор шаблонов - 1/4 ширины */}
         <Box sx={{ 
-          width: '300px',
-          minWidth: '300px',
+          width: '25%',
+          minWidth: '250px',
           bgcolor: 'white',
           borderRadius: '8px',
           boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-          p: 2
-        }}>
-          <TemplateSelector onTemplateChange={handleTemplateChange} />
-        </Box>
-        
-        {/* Центральная часть: превью резюме */}
-        <Box sx={{ 
-          flex: 1,
-          bgcolor: 'white',
-          borderRadius: '8px',
-          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-          p: 4,
           display: 'flex',
           flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          gap: 3
+          overflow: 'hidden'
         }}>
+          {/* Селектор шаблонов - с прокруткой */}
           <Box sx={{ 
-            width: '100%',
-            height: '100%',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'flex-start',
-            overflow: 'hidden'
+            flex: 1,
+            overflow: 'auto',
+            p: 2
           }}>
-            <ResumeRenderer 
-              data={demoData} 
-              scale={0.8} 
-              templateId={selectedTemplate?.id}
-            />
+            <TemplateSelector onTemplateChange={handleTemplateChange} />
           </Box>
           
-          {/* Кнопка Next */}
-          <Button 
-            variant="contained" 
-            size="large"
-            onClick={handleNextStep}
-            sx={{
-              borderRadius: '6px',
-              px: 3,
-              py: 1.5,
-              fontSize: '0.875rem',
-              fontWeight: 600,
-              textTransform: 'none',
-              bgcolor: '#666',
-              '&:hover': {
-                bgcolor: '#555'
-              }
-            }}
-          >
-            Next: Export
-          </Button>
+          {/* Кнопка Next - внизу левой панели */}
+          <Box sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            p: 2,
+            flexShrink: 0,
+            borderTop: '1px solid #e0e0e0'
+          }}>
+            <Button 
+              variant="contained" 
+              size="large"
+              onClick={handleNextStep}
+              sx={{
+                borderRadius: '6px',
+                px: 3,
+                py: 1.5,
+                fontSize: '0.875rem',
+                fontWeight: 600,
+                textTransform: 'none',
+                bgcolor: '#666',
+                '&:hover': {
+                  bgcolor: '#555'
+                }
+              }}
+            >
+              Next: Export
+            </Button>
+          </Box>
+        </Box>
+        
+        {/* Правая область: превью резюме - 3/4 ширины */}
+        <Box sx={{ 
+          flex: 1, // Занимает оставшиеся 3/4 ширины
+          overflow: 'auto',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'flex-start',
+          bgcolor: 'transparent' // Убираем фон
+        }}>
+          <ResumeRenderer 
+            data={demoData} 
+            scale={1} 
+            templateId={selectedTemplate?.id}
+          />
         </Box>
       </Box>
     </Box>
