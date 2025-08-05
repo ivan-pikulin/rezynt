@@ -2,7 +2,6 @@ import React from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
 import ResumeRenderer from '../../../shared/components/ResumeRenderer';
 import { TemplateConfig } from '../../../shared/types/resume';
 
@@ -20,66 +19,61 @@ const TemplateThumbnail: React.FC<TemplateThumbnailProps> = ({
   onSelect 
 }) => {
   return (
-    <Card 
-      onClick={onSelect}
-      sx={{ 
-        cursor: 'pointer',
-        transition: 'all 0.2s ease',
-        border: isSelected ? '2px solid #1976d2' : '2px solid transparent',
-        bgcolor: isSelected ? 'rgba(25, 118, 210, 0.04)' : 'white',
-        '&:hover': {
-          borderColor: '#1976d2',
-          transform: 'translateY(-2px)',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
-        }
-      }}
-    >
-      <CardContent sx={{ p: 2 }}>
-        {/* Название шаблона */}
-        <Typography 
-          variant="subtitle1" 
-          sx={{ 
-            mb: 1,
-            fontWeight: 600,
-            color: '#2c3e50',
-            textAlign: 'center'
-          }}
-        >
-          {template.name}
-        </Typography>
-        
-        {/* Описание */}
-        <Typography 
-          variant="caption" 
-          sx={{ 
-            mb: 2,
-            color: '#7f8c8d',
-            textAlign: 'center',
-            display: 'block'
-          }}
-        >
-          {template.description}
-        </Typography>
-        
-        {/* Миниатюра резюме */}
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', m: 0 }}>
+      {/* Карточка с шаблоном */}
+      <Card 
+        onClick={onSelect}
+        sx={{
+          p: 0,
+          m: 0,
+          cursor: 'pointer',
+          aspectRatio: '1/1.414',
+          transition: 'all 0.2s ease',
+          border: isSelected ? '2px solid #1976d2' : '2px solid transparent',
+          bgcolor: isSelected ? 'rgba(25, 118, 210, 0.04)' : 'white',
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          '&:hover': {
+            borderColor: '#1976d2',
+            transform: 'translateY(-2px)',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+          }
+        }}
+      >
         <Box sx={{ 
-          height: '120px',
+          width: '100%',
+          maxWidth: '120px',
+          aspectRatio: '1/1.414',
+          padding: '4px',
           display: 'flex',
           justifyContent: 'center',
-          alignItems: 'flex-start',
+          alignItems: 'center',
           overflow: 'hidden',
-          border: '1px solid #e0e0e0',
-          borderRadius: '4px',
-          bgcolor: '#fafafa'
+          bgcolor: '#fafafa',
         }}>
-          <ResumeRenderer 
+          <ResumeRenderer
             data={resumeData} 
             templateId={template.id}
-            scale={0.15}
+            // scale={0.15}
+            fitToContainer={true}
           />
         </Box>
-      </CardContent>
-    </Card>
+      </Card>
+      <Typography 
+        variant="caption"
+        sx={{ 
+          fontWeight: 500,
+          color: '#2c3e50',
+          textAlign: 'center',
+          mt: 1,
+          fontSize: '0.75rem',
+          lineHeight: 1.2
+        }}
+      >
+        {template.name}
+      </Typography>
+    </Box>
   );
 };
 

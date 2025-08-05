@@ -50,10 +50,10 @@ const RefinePage: React.FC = () => {
         alignItems: 'stretch',
         overflow: 'hidden' // Предотвращаем прокрутку на уровне контейнера
       }}>
-        {/* Левая панель: селектор шаблонов - 1/4 ширины */}
+        {/* Левая панель: селектор шаблонов - 1/3 ширины */}
         <Box sx={{ 
-          width: '25%',
-          minWidth: '250px',
+          width: '30%',
+          minWidth: '300px',
           bgcolor: 'white',
           borderRadius: '8px',
           boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',

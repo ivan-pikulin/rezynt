@@ -15,7 +15,7 @@ interface ResumeRendererProps {
 
 const ResumeRenderer: React.FC<ResumeRendererProps> = ({ 
   data, 
-  templateId = 'alder', 
+  templateId = 'nume', 
   isPreview = true,
   onExport,
   scale = 1,
@@ -65,10 +65,14 @@ const ResumeRenderer: React.FC<ResumeRendererProps> = ({
 
   // Обновляем масштаб при изменении размера контейнера
   useEffect(() => {
+    // Если fitToContainer отключен, используем переданный scale
+    if (!fitToContainer) {
+      setCalculatedScale(scale);
+      return;
+    }
+
     const updateScale = () => {
-      if (fitToContainer) {
-        setCalculatedScale(calculateOptimalScale());
-      }
+      setCalculatedScale(calculateOptimalScale());
     };
 
     updateScale();
@@ -91,6 +95,8 @@ const ResumeRenderer: React.FC<ResumeRendererProps> = ({
     scale: calculatedScale
   });
 
+
+
   return (
     <Box 
       ref={containerRef}
@@ -102,8 +108,9 @@ const ResumeRenderer: React.FC<ResumeRendererProps> = ({
         justifyContent: 'center',
         alignItems: 'center',
         overflow: 'hidden',
-        padding: '20px',
-        position: 'relative'
+        position: 'relative',
+        p: 0,
+        m: 0
       }}
     >
       {templateElement}

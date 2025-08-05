@@ -34,13 +34,15 @@ const TemplateSelector: React.FC<TemplateSelectorProps> = ({ onTemplateChange })
         Choose Template
       </Typography>
       
-      {/* Список шаблонов */}
+      {/* Сетка шаблонов - 2 столбца */}
       <Box sx={{ 
         flex: 1,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 2,
-        overflowY: 'auto'
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: 1.5,
+        overflowY: 'auto',
+        p: 1,
+        alignContent: 'start'
       }}>
         {templates.map((template) => (
           <TemplateThumbnail

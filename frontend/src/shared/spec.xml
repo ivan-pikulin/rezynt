@@ -60,7 +60,7 @@
           <name>templateId</name>
           <type>string</type>
           <required>false</required>
-          <default>alder</default>
+          <default>nume</default>
           <description>ID шаблона для рендеринга</description>
         </prop>
         

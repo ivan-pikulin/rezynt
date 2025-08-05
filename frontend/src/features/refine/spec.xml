@@ -9,8 +9,8 @@
     <folder_structure>
         /features/refine
         ├── components/
-        │   ├── TemplateSelector.tsx    # Vertical template list
-        │   └── TemplateThumbnail.tsx   # Individual template card
+        │   ├── TemplateSelector.tsx    # 2-column grid template selector
+        │   └── TemplateThumbnail.tsx   # Individual template card with A4 proportions
         ├── RefinePage.tsx              # Main refine page
         ├── refineApi.ts                # API for suggestions and updates
         └── spec.xml                    # This file
@@ -21,17 +21,32 @@
             <props>
                 <prop name="none" desc="No props required" />
             </props>
+            <layout>
+                <panel name="Template Selector" width="30%" desc="Left panel with 2-column template grid" />
+                <panel name="Resume Preview" width="70%" desc="Right panel with full-size resume preview" />
+            </layout>
         </component>
-        <component name="TemplateSelector" desc="Vertical list of template options">
+        <component name="TemplateSelector" desc="2-column grid of template options">
             <props>
-                <prop name="none" desc="No props required" />
+                <prop name="onTemplateChange" desc="Callback when template is selected" />
             </props>
+            <features>
+                <feature name="Grid Layout" desc="Templates displayed in 2 columns" />
+                <feature name="Scrollable" desc="Vertical scroll when templates overflow" />
+            </features>
         </component>
-        <component name="TemplateThumbnail" desc="Individual template card with preview">
+        <component name="TemplateThumbnail" desc="Individual template card with A4 proportions">
             <props>
                 <prop name="template" desc="Template configuration" />
                 <prop name="resumeData" desc="Resume data for preview" />
+                <prop name="isSelected" desc="Selection state" />
+                <prop name="onSelect" desc="Selection callback" />
             </props>
+            <features>
+                <feature name="A4 Proportions" desc="Container with 1:1.414 aspect ratio" />
+                <feature name="Template Name" desc="Template name displayed below preview" />
+                <feature name="Selection State" desc="Visual feedback for selected template" />
+            </features>
         </component>
     </components>
 

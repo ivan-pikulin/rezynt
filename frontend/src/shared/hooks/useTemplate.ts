@@ -6,7 +6,7 @@ import { TemplateService } from '../services/templateService';
  * Хук для работы с шаблонами резюме
  */
 export const useTemplate = () => {
-  const [selectedTemplateId, setSelectedTemplateId] = useState<string>('alder');
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string>('nume');
   const [resumeData, setResumeData] = useState<ResumeData>(TemplateService.createDemoData());
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

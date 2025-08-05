@@ -1,13 +1,8 @@
+import { Box, Typography } from '@mui/material';
 import React from 'react';
-import { Box, Typography, Divider } from '@mui/material';
 import { BaseTemplate } from './BaseTemplate';
-import { BaseTemplateProps } from './types';
 
-/**
- * Шаблон Alder - классический профессиональный дизайн
- * Соответствует дизайну резюме на картинке
- */
-export class AlderTemplate extends BaseTemplate {
+export class AltoTemplate extends BaseTemplate {
   renderTemplate(): React.ReactElement {
     const { data } = this.props;
     
@@ -16,35 +11,119 @@ export class AlderTemplate extends BaseTemplate {
         padding: '40px',
         fontFamily: 'Arial, sans-serif',
         lineHeight: 1.6,
-        color: '#333'
+        color: '#333',
+        backgroundColor: 'white'
       }}>
-        {/* Header */}
-        <Box sx={{ marginBottom: '24px' }}>
-          <Typography 
-            variant="h3" 
-            sx={{ 
-              fontSize: '28px',
-              fontWeight: 'bold',
-              marginBottom: '8px',
-              color: '#2c3e50'
-            }}
-          >
-            {this.getFullName()}
-          </Typography>
-          <Typography 
-            variant="body1" 
-            sx={{ 
-              fontSize: '14px',
-              color: '#7f8c8d',
-              marginBottom: '16px'
-            }}
-          >
-            {this.getContactInfo()}
-          </Typography>
+        {/* Header with Logo, Name and Contact */}
+        <Box sx={{ 
+          display: 'flex', 
+          justifyContent: 'space-between',
+          alignItems: 'flex-start',
+          marginBottom: '40px'
+        }}>
+          {/* Left side - Logo and Name */}
+          <Box sx={{ 
+            display: 'flex', 
+            alignItems: 'flex-start'
+          }}>
+            {/* Square Logo */}
+            <Box sx={{
+              width: '60px',
+              height: '60px',
+              border: '2px solid #8B4513',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginRight: '20px',
+              flexShrink: 0,
+              position: 'relative'
+            }}>
+              <Box sx={{
+                position: 'absolute',
+                top: '8px',
+                left: '8px',
+                fontSize: '16px',
+                fontWeight: 'bold',
+                color: '#8B4513'
+              }}>
+                {data.personalInfo.firstName.charAt(0)}
+              </Box>
+              <Box sx={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                width: '1px',
+                height: '30px',
+                backgroundColor: '#8B4513',
+                transform: 'translate(-50%, -50%) rotate(45deg)'
+              }} />
+              <Box sx={{
+                position: 'absolute',
+                bottom: '8px',
+                right: '8px',
+                fontSize: '16px',
+                fontWeight: 'bold',
+                color: '#8B4513'
+              }}>
+                {data.personalInfo.lastName.charAt(0)}
+              </Box>
+            </Box>
+            
+            {/* Name */}
+            <Box>
+              <Typography 
+                variant="h1" 
+                sx={{ 
+                  fontSize: '32px',
+                  fontWeight: 'bold',
+                  color: '#8B4513',
+                  lineHeight: 1.1,
+                  marginBottom: '4px'
+                }}
+              >
+                {data.personalInfo.firstName.toUpperCase()}
+              </Typography>
+              <Typography 
+                variant="h1" 
+                sx={{ 
+                  fontSize: '32px',
+                  fontWeight: 'bold',
+                  color: '#8B4513',
+                  lineHeight: 1.1
+                }}
+              >
+                {data.personalInfo.lastName.toUpperCase()}
+              </Typography>
+            </Box>
+          </Box>
+
+          {/* Right side - Contact Info */}
+          <Box sx={{ textAlign: 'right' }}>
+            <Typography 
+              variant="body1" 
+              sx={{ 
+                fontSize: '14px',
+                marginBottom: '4px',
+                color: '#333'
+              }}
+            >
+              {data.personalInfo.phone}
+            </Typography>
+            <Typography 
+              variant="body1" 
+              sx={{ 
+                fontSize: '14px',
+                color: '#333'
+              }}
+            >
+              {data.personalInfo.email}
+            </Typography>
+          </Box>
         </Box>
 
         {/* Professional Summary */}
-        <Box sx={{ marginBottom: '24px' }}>
+        <Box sx={{ marginBottom: '30px' }}>
           <Typography 
             variant="h6" 
             sx={{ 
@@ -71,7 +150,7 @@ export class AlderTemplate extends BaseTemplate {
         </Box>
 
         {/* Skills */}
-        <Box sx={{ marginBottom: '24px' }}>
+        <Box sx={{ marginBottom: '30px' }}>
           <Typography 
             variant="h6" 
             sx={{ 
@@ -85,7 +164,11 @@ export class AlderTemplate extends BaseTemplate {
           >
             Skills
           </Typography>
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+          <Box sx={{ 
+            display: 'grid', 
+            gridTemplateColumns: '1fr 1fr',
+            gap: '8px'
+          }}>
             {data.skills.map((skill, index) => (
               <Typography 
                 key={skill.id}
@@ -93,12 +176,10 @@ export class AlderTemplate extends BaseTemplate {
                 sx={{ 
                   fontSize: '14px',
                   color: '#555',
-                  '&:not(:last-child)': {
-                    '&::after': {
-                      content: '"•"',
-                      margin: '0 8px',
-                      color: '#bdc3c7'
-                    }
+                  '&::before': {
+                    content: '"•"',
+                    marginRight: '8px',
+                    color: '#8B4513'
                   }
                 }}
               >
@@ -109,7 +190,7 @@ export class AlderTemplate extends BaseTemplate {
         </Box>
 
         {/* Experience */}
-        <Box sx={{ marginBottom: '24px' }}>
+        <Box sx={{ marginBottom: '30px' }}>
           <Typography 
             variant="h6" 
             sx={{ 
@@ -124,7 +205,7 @@ export class AlderTemplate extends BaseTemplate {
             Experience
           </Typography>
           {data.experience.map((exp, index) => (
-            <Box key={exp.id} sx={{ marginBottom: '16px' }}>
+            <Box key={exp.id} sx={{ marginBottom: '20px' }}>
               <Box sx={{ 
                 display: 'flex', 
                 justifyContent: 'space-between', 
@@ -161,7 +242,7 @@ export class AlderTemplate extends BaseTemplate {
                   fontWeight: '500'
                 }}
               >
-                {exp.company}, {exp.location}
+                {exp.company} | {exp.location}
               </Typography>
               <Box component="ul" sx={{ 
                 margin: 0, 
