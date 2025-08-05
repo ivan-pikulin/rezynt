@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature>
+    <info>
+        <name>Refine Feature</name>
+        <desc>Page for refining resume with template selection and preview</desc>
+        <tech>React, TypeScript, Material-UI</tech>
+    </info>
+
+    <folder_structure>
+        /features/refine
+        ├── components/
+        │   ├── TemplateSelector.tsx    # Vertical template list
+        │   └── TemplateThumbnail.tsx   # Individual template card
+        ├── RefinePage.tsx              # Main refine page
+        ├── refineApi.ts                # API for suggestions and updates
+        └── spec.xml                    # This file
+    </folder_structure>
+
+    <components>
+        <component name="RefinePage" desc="Main page with template selector and resume preview">
+            <props>
+                <prop name="none" desc="No props required" />
+            </props>
+        </component>
+        <component name="TemplateSelector" desc="Vertical list of template options">
+            <props>
+                <prop name="none" desc="No props required" />
+            </props>
+        </component>
+        <component name="TemplateThumbnail" desc="Individual template card with preview">
+            <props>
+                <prop name="template" desc="Template configuration" />
+                <prop name="resumeData" desc="Resume data for preview" />
+            </props>
+        </component>
+    </components>
+
+    <api>
+        <endpoint name="getSuggestions" method="POST" path="/refine/suggestions/">
+            <desc>Get AI suggestions for resume improvement</desc>
+            <request>Context string</request>
+            <response>Array of suggestions</response>
+        </endpoint>
+        <endpoint name="updateResume" method="PUT" path="/refine/update-resume/">
+            <desc>Update resume data</desc>
+            <request>Resume data object</request>
+            <response>Success status</response>
+        </endpoint>
+        <endpoint name="applyTemplate" method="POST" path="/refine/apply-template/">
+            <desc>Apply template to resume</desc>
+            <request>Template ID</request>
+            <response>Success status</response>
+        </endpoint>
+    </api>
+
+    <deps>
+        <dep name="Material-UI" purpose="UI components" />
+        <dep name="Shared Header" purpose="Common header component" />
+        <dep name="Shared ResumeRenderer" purpose="Resume preview component" />
+        <dep name="Shared TemplateService" purpose="Template management" />
+    </deps>
+</feature> 

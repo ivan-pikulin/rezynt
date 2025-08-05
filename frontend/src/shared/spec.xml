@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<specification>
+  <title>Shared Components</title>
+  <description>
+    Общие компоненты, используемые во всем приложении Rezynt.
+  </description>
+  
+  <components>
+    <component>
+      <name>ResumeRenderer</name>
+      <description>
+        Основной компонент для рендеринга резюме с поддержкой адаптивного масштабирования.
+        Компонент автоматически подстраивает размер резюме под доступное пространство контейнера,
+        сохраняя пропорции A4 формата.
+      </description>
+      
+      <features>
+        <feature>
+          <name>Адаптивное масштабирование</name>
+          <description>
+            Резюме автоматически масштабируется для заполнения всей доступной ширины и высоты контейнера.
+            Использует ResizeObserver для отслеживания изменений размера контейнера.
+          </description>
+        </feature>
+        
+        <feature>
+          <name>Поддержка шаблонов</name>
+          <description>
+            Поддерживает различные шаблоны резюме через систему шаблонов.
+            Каждый шаблон может иметь свой уникальный дизайн и стиль.
+          </description>
+        </feature>
+        
+        <feature>
+          <name>Экспорт</name>
+          <description>
+            Поддерживает экспорт резюме в PDF и PNG форматы.
+            Экспорт выполняется с высоким качеством (2x масштаб).
+          </description>
+        </feature>
+        
+        <feature>
+          <name>Режим превью</name>
+          <description>
+            Поддерживает режим превью с тенью и скругленными углами,
+            а также режим экспорта с полным размером A4.
+          </description>
+        </feature>
+      </features>
+      
+      <props>
+        <prop>
+          <name>data</name>
+          <type>ResumeData</type>
+          <required>true</required>
+          <description>Данные резюме для рендеринга</description>
+        </prop>
+        
+        <prop>
+          <name>templateId</name>
+          <type>string</type>
+          <required>false</required>
+          <default>alder</default>
+          <description>ID шаблона для рендеринга</description>
+        </prop>
+        
+        <prop>
+          <name>isPreview</name>
+          <type>boolean</type>
+          <required>false</required>
+          <default>true</default>
+          <description>Режим превью (true) или экспорта (false)</description>
+        </prop>
+        
+        <prop>
+          <name>onExport</name>
+          <type>() => void</type>
+          <required>false</required>
+          <description>Callback для экспорта резюме</description>
+        </prop>
+        
+        <prop>
+          <name>scale</name>
+          <type>number</type>
+          <required>false</required>
+          <default>1</default>
+          <description>Фиксированный масштаб (используется если fitToContainer=false)</description>
+        </prop>
+        
+        <prop>
+          <name>fitToContainer</name>
+          <type>boolean</type>
+          <required>false</required>
+          <default>true</default>
+          <description>Включить адаптивное масштабирование под контейнер</description>
+        </prop>
+        
+        <prop>
+          <name>debug</name>
+          <type>boolean</type>
+          <required>false</required>
+          <default>false</default>
+          <description>Включить отладочную информацию в консоль</description>
+        </prop>
+      </props>
+      
+      <technical_details>
+        <detail>
+          <name>Размеры A4</name>
+          <value>794x1123 пикселей (при 96 DPI)</value>
+        </detail>
+        
+        <detail>
+          <name>Минимальный масштаб</name>
+          <value>0.1 (10%)</value>
+        </detail>
+        
+        <detail>
+          <name>Максимальный масштаб</name>
+          <value>1.0 (100%)</value>
+        </detail>
+        
+        <detail>
+          <name>Отступы</name>
+          <value>40px (20px с каждой стороны)</value>
+        </detail>
+        
+        <detail>
+          <name>Анимация</name>
+          <value>CSS transition для плавного изменения масштаба</value>
+        </detail>
+      </technical_details>
+    </component>
+  </components>
+</specification> 

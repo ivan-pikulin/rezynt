@@ -2,7 +2,7 @@ import React from 'react';
 import { BaseTemplate } from './BaseTemplate';
 import { BaseTemplateProps, TemplateMethods } from './types';
 import { AlderTemplate } from './AlderTemplate';
-import { TemplateConfig } from '../../../../shared/types/resume';
+import { TemplateConfig } from '../../types/resume';
 
 export { BaseTemplate };
 export type { BaseTemplateProps, TemplateMethods };

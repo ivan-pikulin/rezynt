@@ -46,4 +46,5 @@ When you add some functionality described in `spec.xml` files, use as few change
 <frontend>
 All the texts should be stored in the `i18n` folder. 
 Always use yarn + vite, not npm.
+Never build and start app by yourself: i always do it manually.
 </frontend>

@@ -1,19 +1,99 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<export_feature>
+<feature>
     <info>
-        <desc>Export feature placeholder</desc>
+        <name>Export Feature</name>
+        <desc>Pricing and export page with Free/Pro plans and download options</desc>
         <tech>React, TypeScript, Material-UI</tech>
     </info>
+
     <folder_structure>
         /features/export
-        ├── components/ # Export-specific components
-        ├── hooks/ # Custom hooks for export operations
-        ├── services/ # Export-related services
-        └── pages/ # Export pages
+        ├── components/
+        │   ├── DownloadOptions.tsx  # Main download options component
+        │   ├── ProModal.tsx         # Pro subscription modal
+        │   ├── PricingTable.tsx    # Legacy pricing table (kept for reference)
+        │   └── PricingCard.tsx     # Legacy pricing card (kept for reference)
+        ├── ExportPage.tsx          # Main export page
+        ├── exportApi.ts            # API for pricing and downloads
+        └── spec.xml                # This file
     </folder_structure>
+
     <components>
-        <feature name="export" desc="Export feature placeholder">
-            <component name="ExportPage" desc="Main export page placeholder"/>
-        </feature>
+        <component name="ExportPage" desc="Main page with download options">
+            <props>
+                <prop name="none" desc="No props required" />
+            </props>
+        </component>
+        <component name="DownloadOptions" desc="Two download options: Watermarked and Clean">
+            <props>
+                <prop name="none" desc="No props required" />
+            </props>
+            <features>
+                <feature name="Watermarked Download" desc="Free download with watermarks" />
+                <feature name="Clean Download" desc="Pro feature - download without watermarks" />
+            </features>
+        </component>
+        <component name="ProModal" desc="Pro subscription modal with pricing plans">
+            <props>
+                <prop name="open" desc="Modal open state" />
+                <prop name="onClose" desc="Modal close handler" />
+            </props>
+            <features>
+                <feature name="Pro Features List" desc="List of Pro plan benefits" />
+                <feature name="Monthly Plan" desc="$29/month subscription" />
+                <feature name="Lifetime Plan" desc="$149 one-time payment" />
+                <feature name="Continue Button" desc="Proceed with selected plan" />
+            </features>
+        </component>
+        <component name="PricingTable" desc="Legacy pricing table (kept for reference)">
+            <props>
+                <prop name="none" desc="No props required" />
+            </props>
+        </component>
+        <component name="PricingCard" desc="Legacy pricing card (kept for reference)">
+            <props>
+                <prop name="title" desc="Plan title (Free/Pro)" />
+                <prop name="price" desc="Plan price" />
+                <prop name="currency" desc="Currency code" />
+                <prop name="features" desc="Array of feature names" />
+                <prop name="featureValues" desc="Array of boolean values for features" />
+                <prop name="buttonText" desc="Button text" />
+                <prop name="buttonVariant" desc="Button variant (contained/outlined)" />
+                <prop name="isPopular" desc="Whether this is the popular plan" />
+            </props>
+        </component>
     </components>
-</export_feature> 
+
+    <api>
+        <endpoint name="getPricing" method="GET" path="/export/pricing/">
+            <desc>Get available pricing plans</desc>
+            <request>None</request>
+            <response>Array of pricing plans</response>
+        </endpoint>
+        <endpoint name="downloadResume" method="POST" path="/export/download/">
+            <desc>Download resume with specified plan</desc>
+            <request>Plan type (free/pro)</request>
+            <response>Download URL and expiration</response>
+        </endpoint>
+        <endpoint name="exportToPDF" method="POST" path="/export/pdf/">
+            <desc>Export resume to PDF</desc>
+            <request>None</request>
+            <response>Download URL</response>
+        </endpoint>
+        <endpoint name="exportToWord" method="POST" path="/export/word/">
+            <desc>Export resume to Word</desc>
+            <request>None</request>
+            <response>Download URL</response>
+        </endpoint>
+        <endpoint name="exportToPNG" method="POST" path="/export/png/">
+            <desc>Export resume to PNG</desc>
+            <request>None</request>
+            <response>Download URL</response>
+        </endpoint>
+    </api>
+
+    <deps>
+        <dep name="Material-UI" purpose="UI components and icons" />
+        <dep name="Shared Header" purpose="Common header component" />
+    </deps>
+</feature> 

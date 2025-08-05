@@ -1,9 +1,10 @@
-import { ResumeData } from '../../../../shared/types/resume';
+import { ResumeData } from '../../types/resume';
 
 export interface BaseTemplateProps {
   data: ResumeData;
   onExport?: () => void;
   isPreview?: boolean;
+  scale?: number; // Добавляем поддержку масштаба
 }
 
 export interface TemplateMethods {

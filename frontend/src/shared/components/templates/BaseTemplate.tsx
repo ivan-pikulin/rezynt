@@ -125,6 +125,9 @@ export abstract class BaseTemplate extends React.Component<BaseTemplateProps, {}
     const a4Width = 794; // ~210mm
     const a4Height = 1123; // ~297mm
     
+    // Получаем масштаб из пропсов или используем значение по умолчанию
+    const scale = this.props.scale || 0.4;
+    
     if (this.props.isPreview) {
       // Для превью - масштабируемый контейнер
       return (
@@ -134,7 +137,7 @@ export abstract class BaseTemplate extends React.Component<BaseTemplateProps, {}
             height: '100%',
             display: 'flex',
             justifyContent: 'center',
-            alignItems: 'flex-start',
+            alignItems: 'center',
             overflow: 'hidden',
           }}
         >
@@ -144,13 +147,14 @@ export abstract class BaseTemplate extends React.Component<BaseTemplateProps, {}
               width: a4Width,
               height: a4Height,
               backgroundColor: 'white',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
               borderRadius: '8px',
               overflow: 'hidden',
-              transform: 'scale(var(--resume-scale, 0.4))',
-              transformOrigin: 'top center',
+              transform: `scale(${scale})`,
+              transformOrigin: 'center center',
               flexShrink: 0,
-              border: '2px solid #e0e0e0'
+              border: '2px solid #e0e0e0',
+              transition: 'transform 0.3s ease-in-out'
             }}
           >
             {this.renderTemplate()}

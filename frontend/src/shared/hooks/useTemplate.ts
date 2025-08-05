@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { ResumeData } from '../../../shared/types/resume';
+import { ResumeData } from '../types/resume';
 import { TemplateService } from '../services/templateService';
 
 /**

@@ -1,45 +1,71 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <features>
     <info>
-        <desc>Feature-based modules for Family Tree application</desc>
+        <desc>Feature-based modules for Rezynt AI Resume Builder</desc>
         <tech>React, TypeScript, Material-UI</tech>
     </info>
 
     <folder_structure>
         /features
-        ├── chat/ # Chat feature
+        ├── start/ # Start feature - initial page with two options
+        │   ├── components/ # Start-specific components
+        │   ├── StartPage.tsx # Main start page
+        │   ├── startApi.ts # API for file upload and session creation
+        │   └── spec.xml # Start feature specification
+        ├── chat/ # Chat feature - AI-assisted resume creation
         │   ├── components/ # Chat-specific components
         │   ├── hooks/ # Custom hooks for chat operations
         │   ├── services/ # Chat-related services
-        │   └── pages/ # Chat pages
-        ├── preview/ # Preview feature
-        │   ├── components/ # Preview-specific components
-        │   ├── hooks/ # Custom hooks for preview operations
-        │   ├── services/ # Preview-related services
-        │   └── pages/ # Preview pages
-        └── export/ # Export feature
+        │   ├── types/ # Chat types
+        │   ├── ChatPage.tsx # Main chat page
+        │   └── spec.xml # Chat feature specification
+        ├── refine/ # Refine feature - template selection and preview
+        │   ├── components/ # Refine-specific components
+        │   ├── RefinePage.tsx # Main refine page
+        │   ├── refineApi.ts # API for suggestions and updates
+        │   └── spec.xml # Refine feature specification
+        └── export/ # Export feature - pricing and download
             ├── components/ # Export-specific components
-            ├── hooks/ # Custom hooks for export operations
-            ├── services/ # Export-related services
-            └── pages/ # Export pages
+            ├── ExportPage.tsx # Main export page
+            ├── exportApi.ts # API for pricing and downloads
+            └── spec.xml # Export feature specification
     </folder_structure>
 
     <components>
         <component name="App" desc="Главный компонент приложения, экспортируется по умолчанию из App.tsx" />
-        <feature name="chat" desc="Chat feature placeholder">
-            <component name="ChatPage" desc="Main chat page placeholder"/>
+        <feature name="start" desc="Initial page with two options: start from scratch or upload resume">
+            <component name="StartPage" desc="Main start page with header and centered options"/>
+            <component name="StartOptions" desc="Two cards for choosing resume creation method"/>
         </feature>
-        <feature name="preview" desc="Preview feature placeholder">
-            <component name="PreviewPage" desc="Main preview page placeholder"/>
+        <feature name="chat" desc="AI-assisted resume creation with chat interface">
+            <component name="ChatPage" desc="Main chat page with chat window and resume preview"/>
+            <component name="ChatWindow" desc="Chat interface component"/>
+            <component name="ChatInput" desc="Chat input component"/>
+            <component name="ChatMessage" desc="Individual chat message component"/>
         </feature>
-        <feature name="export" desc="Export feature placeholder">
-            <component name="ExportPage" desc="Main export page placeholder"/>
+        <feature name="refine" desc="Template selection and resume refinement">
+            <component name="RefinePage" desc="Main refine page with template selector and preview"/>
+            <component name="TemplateSelector" desc="Vertical list of template options"/>
+            <component name="TemplateThumbnail" desc="Individual template card with preview"/>
+        </feature>
+        <feature name="export" desc="Pricing and export functionality">
+            <component name="ExportPage" desc="Main export page with pricing table"/>
+            <component name="PricingTable" desc="Table with Free and Pro plans"/>
+            <component name="PricingCard" desc="Individual pricing card with features"/>
         </feature>
     </components>
+
+    <shared_components>
+        <component name="Header" desc="Common header with progress stepper used across all pages"/>
+        <component name="ResumeRenderer" desc="Universal resume rendering component with scaling support"/>
+        <service name="TemplateService" desc="Service for template management and demo data"/>
+        <hook name="useTemplate" desc="Hook for template state management"/>
+    </shared_components>
 
     <deps>
         <dep name="Material-UI" purpose="UI components"/>
         <dep name="React Query" purpose="Data management"/>
         <dep name="React Router" purpose="Navigation"/>
+        <dep name="Shared Components" purpose="Reusable components and services"/>
     </deps>
 </features> 
