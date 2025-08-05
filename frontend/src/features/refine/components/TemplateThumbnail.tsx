@@ -43,7 +43,7 @@ const TemplateThumbnail: React.FC<TemplateThumbnailProps> = ({
       >
         <Box sx={{ 
           width: '100%',
-          maxWidth: '120px',
+          maxWidth: '140px',
           aspectRatio: '1/1.414',
           padding: '4px',
           display: 'flex',
@@ -55,8 +55,7 @@ const TemplateThumbnail: React.FC<TemplateThumbnailProps> = ({
           <ResumeRenderer
             data={resumeData} 
             templateId={template.id}
-            // scale={0.15}
-            fitToContainer={true}
+            scale={0.15}
           />
         </Box>
       </Card>
