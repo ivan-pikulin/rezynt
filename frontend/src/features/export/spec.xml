@@ -3,7 +3,7 @@
     <info>
         <name>Export Feature</name>
         <desc>Pricing and export page with Free/Pro plans and download options</desc>
-        <tech>React, TypeScript, Material-UI</tech>
+        <tech>React, TypeScript, Material-UI, jsPDF, html2canvas</tech>
     </info>
 
     <folder_structure>
@@ -19,17 +19,23 @@
     </folder_structure>
 
     <components>
-        <component name="ExportPage" desc="Main page with download options">
-            <props>
-                <prop name="none" desc="No props required" />
-            </props>
-        </component>
-        <component name="DownloadOptions" desc="Two download options: Watermarked and Clean">
+        <component name="ExportPage" desc="Main page with download options and hidden template for export">
             <props>
                 <prop name="none" desc="No props required" />
             </props>
             <features>
-                <feature name="Watermarked Download" desc="Free download with watermarks" />
+                <feature name="Hidden Template" desc="Hidden NumeTemplate for PDF export" />
+                <feature name="PDF Export" desc="Direct PDF export using jsPDF and html2canvas" />
+            </features>
+        </component>
+        <component name="DownloadOptions" desc="Two download options: Watermarked and Clean">
+            <props>
+                <prop name="onExportPDF" desc="Function to handle PDF export" />
+                <prop name="isExporting" desc="Boolean to show loading state" />
+            </props>
+            <features>
+                <feature name="Watermarked Download" desc="Free download with watermarks - triggers PDF export" />
+                <feature name="Loading State" desc="Shows spinner and disables button during export" />
                 <feature name="Clean Download" desc="Pro feature - download without watermarks" />
             </features>
         </component>
@@ -95,5 +101,38 @@
     <deps>
         <dep name="Material-UI" purpose="UI components and icons" />
         <dep name="Shared Header" purpose="Common header component" />
+        <dep name="jsPDF" purpose="PDF generation library" />
+        <dep name="html2canvas" purpose="HTML to canvas conversion for PDF export" />
+        <dep name="NumeTemplate" purpose="Template for PDF export" />
+        <dep name="TemplateService" purpose="Demo data generation" />
     </deps>
+
+    <implementation>
+        <feature name="PDF Export">
+            <desc>Direct PDF export functionality using client-side libraries</desc>
+            <steps>
+                <step>1. Hidden NumeTemplate renders with demo data</step>
+                <step>2. html2canvas converts template to canvas</step>
+                <step>3. jsPDF creates PDF with A4 format</step>
+                <step>4. PDF is saved with filename based on user name</step>
+            </steps>
+            <files>
+                <file>ExportPage.tsx - Main export logic</file>
+                <file>DownloadOptions.tsx - Export trigger</file>
+            </files>
+        </feature>
+        <feature name="Loading Indicator">
+            <desc>User feedback during PDF generation process</desc>
+            <steps>
+                <step>1. Button shows spinner (CircularProgress) during export</step>
+                <step>2. Card becomes disabled and non-interactive</step>
+                <step>3. Text changes to "Generating PDF..." and "Processing..."</step>
+                <step>4. Hover effects are disabled during loading</step>
+            </steps>
+            <files>
+                <file>ExportPage.tsx - Loading state management</file>
+                <file>DownloadOptions.tsx - Loading UI components</file>
+            </files>
+        </feature>
+    </implementation>
 </feature> 

@@ -6,14 +6,25 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import DownloadIcon from '@mui/icons-material/Download';
 import LockIcon from '@mui/icons-material/Lock';
+import CircularProgress from '@mui/material/CircularProgress';
 import ProModal from './ProModal';
 
-const DownloadOptions: React.FC = () => {
+interface DownloadOptionsProps {
+  onExportPDF?: () => Promise<void>;
+  isExporting?: boolean;
+}
+
+const DownloadOptions: React.FC<DownloadOptionsProps> = ({ onExportPDF, isExporting = false }) => {
   const [isProModalOpen, setIsProModalOpen] = useState(false);
 
-  const handleWatermarkedDownload = () => {
-    // Логика для загрузки с водяными знаками
-    console.log('Downloading with watermarks');
+  const handleWatermarkedDownload = async () => {
+    try {
+      if (onExportPDF) {
+        await onExportPDF();
+      }
+    } catch (error) {
+      console.error('Error downloading PDF:', error);
+    }
   };
 
   const handleCleanDownload = () => {
@@ -36,16 +47,16 @@ const DownloadOptions: React.FC = () => {
         <Card 
           sx={{ 
             flex: 1,
-            cursor: 'pointer',
+            cursor: isExporting ? 'not-allowed' : 'pointer',
             transition: 'all 0.3s ease',
-            opacity: 0.6,
+            opacity: isExporting ? 0.7 : 0.6,
             '&:hover': {
-              transform: 'translateY(-4px)',
-              boxShadow: '0 8px 25px rgba(0,0,0,0.15)',
-              opacity: 0.8
+              transform: isExporting ? 'none' : 'translateY(-4px)',
+              boxShadow: isExporting ? '0 2px 8px rgba(0,0,0,0.1)' : '0 8px 25px rgba(0,0,0,0.15)',
+              opacity: isExporting ? 0.7 : 0.8
             }
           }}
-          onClick={handleWatermarkedDownload}
+          onClick={isExporting ? undefined : handleWatermarkedDownload}
         >
           <CardContent sx={{ 
             textAlign: 'center', 
@@ -56,11 +67,21 @@ const DownloadOptions: React.FC = () => {
             justifyContent: 'center',
             alignItems: 'center'
           }}>
-            <DownloadIcon sx={{ 
-              fontSize: 64, 
-              color: '#757575',
-              mb: 2
-            }} />
+            {isExporting ? (
+              <CircularProgress 
+                size={64} 
+                sx={{ 
+                  color: '#757575',
+                  mb: 2
+                }} 
+              />
+            ) : (
+              <DownloadIcon sx={{ 
+                fontSize: 64, 
+                color: '#757575',
+                mb: 2
+              }} />
+            )}
             <Typography 
               variant="h5" 
               component="h2" 
@@ -70,7 +91,7 @@ const DownloadOptions: React.FC = () => {
                 color: '#757575'
               }}
             >
-              Watermarked Download
+              {isExporting ? 'Generating PDF...' : 'Watermarked Download'}
             </Typography>
             <Typography 
               variant="body1" 
@@ -79,11 +100,12 @@ const DownloadOptions: React.FC = () => {
                 color: '#757575'
               }}
             >
-              Download your resume with watermarks
+              {isExporting ? 'Please wait while we prepare your resume' : 'Download your resume with watermarks'}
             </Typography>
             <Button 
               variant="outlined" 
               size="large"
+              disabled={isExporting}
               sx={{
                 borderRadius: '8px',
                 px: 4,
@@ -96,10 +118,14 @@ const DownloadOptions: React.FC = () => {
                 '&:hover': {
                   borderColor: '#616161',
                   color: '#616161'
+                },
+                '&:disabled': {
+                  borderColor: '#bdbdbd',
+                  color: '#bdbdbd'
                 }
               }}
             >
-              Download
+              {isExporting ? 'Processing...' : 'Download'}
             </Button>
           </CardContent>
         </Card>
