@@ -1,6 +1,6 @@
 from app.database.base_class import Base
 
 def setup_relationships():
-    pass
-    # from .user import setup_user_relationships
-    # setup_user_relationships()
+    from .user import User
+    from .template import Template
+    from .resume import Resume

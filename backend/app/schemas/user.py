@@ -1,30 +1,30 @@
 from datetime import datetime
 from typing import Optional
+from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 
 class UserBase(BaseModel):
-    username: str
-    is_admin: bool = False
-    last_login: Optional[datetime] = None
+    email: EmailStr
 
 
 class UserCreate(BaseModel):
-    username: str
+    email: EmailStr
     password: str
 
 
 class UserUpdate(BaseModel):
-    username: Optional[str] = None
+    email: Optional[EmailStr] = None
     password: Optional[str] = None
-    is_admin: Optional[bool] = None
-    last_login: Optional[str] = None
 
 
 class UserInDBBase(UserBase):
-    id: int
-    hashed_password: str
+    id: UUID
+    password_hash: str
+    is_verified: bool
+    created_at: datetime
+    updated_at: datetime
 
     class Config:
         from_attributes = True
@@ -32,7 +32,10 @@ class UserInDBBase(UserBase):
 
 # Public schema for API responses (no password)
 class UserPublic(UserBase):
-    id: int
+    id: UUID
+    is_verified: bool
+    created_at: datetime
+    updated_at: datetime
 
     class Config:
         from_attributes = True

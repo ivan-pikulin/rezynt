@@ -4,31 +4,33 @@ from typing import Any
 from app.api.deps import AsyncDB
 from app.core import security
 from app.core.config import settings
-from app.database.crud import user_crud as user_crud
-from app.schemas import RefreshRequest, Token, User, UserCreate
-from fastapi import APIRouter, Body, Depends, HTTPException
+from app.database.crud import user_crud
+from app.schemas import RefreshRequest, Token, UserPublic, UserCreate
+from app.services.user_service import UserService
+from fastapi import APIRouter, Body, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
 router = APIRouter()
 
 
-@router.post("/signup", response_model=User)
+@router.post("/signup", response_model=UserPublic, status_code=status.HTTP_201_CREATED)
 async def create_user(
     *,
     db: AsyncDB,
     user_in: UserCreate,
 ) -> Any:
     """
-    Create new user.
+    Create new user with email confirmation.
     """
-    user = await user_crud.get_by_username(db, username=user_in.username)
-    if user:
+    try:
+        service = UserService(db)
+        user = await service.create_user(user_in)
+        return user
+    except ValueError as e:
         raise HTTPException(
             status_code=400,
-            detail="The user with this username already exists in the system.",
+            detail=str(e),
         )
-    user = await user_crud.create(db, obj_in=user_in)
-    return user
 
 
 @router.post("/login", response_model=Token)
@@ -37,16 +39,19 @@ async def login(
     form_data: OAuth2PasswordRequestForm = Depends()
 ) -> dict:
     """
-    Login with username and password, update last_login, return JWT and refresh token.
+    Login with email and password, return JWT and refresh token.
     """
-    user = await user_crud.authenticate(db, username=form_data.username, password=form_data.password)
+    service = UserService(db)
+    user = await service.authenticate_user(email=form_data.username, password=form_data.password)
     if not user:
         raise HTTPException(
-            status_code=400, detail="Incorrect username or password")
+            status_code=400, detail="Incorrect email or password")
     elif not user_crud.is_active(user):
-        raise HTTPException(status_code=400, detail="Inactive user")
-    # Update last_login
-    await user_crud.update_last_login(db, user.id)
+        raise HTTPException(
+            status_code=400, 
+            detail="Email not verified. Please check your email and confirm registration."
+        )
+    
     access_token_expires = timedelta(
         minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     refresh_token = security.create_refresh_token(user.id)
@@ -55,6 +60,25 @@ async def login(
         "refresh_token": refresh_token,
         "token_type": "bearer",
     }
+
+
+@router.get("/register_confirm", status_code=status.HTTP_200_OK)
+async def confirm_registration(
+    token: str, 
+    db: AsyncDB
+) -> dict[str, str]:
+    """
+    Confirm user registration by email token.
+    """
+    try:
+        service = UserService(db)
+        await service.confirm_user(token=token)
+        return {"message": "Электронная почта подтверждена"}
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e),
+        )
 
 
 @router.post("/refresh", response_model=Token)

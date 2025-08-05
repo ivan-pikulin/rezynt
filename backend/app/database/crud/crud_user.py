@@ -1,4 +1,5 @@
 from typing import Any, Dict, Optional, Union
+from uuid import UUID
 
 from app.core.security import get_password_hash, verify_password
 from app.database.crud.base import CRUDBase
@@ -9,14 +10,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
-    async def get_by_username(self, db: AsyncSession, *, username: str) -> Optional[User]:
-        result = await db.execute(select(self.model).where(User.username == username))
+    async def get_by_email(self, db: AsyncSession, *, email: str) -> Optional[User]:
+        result = await db.execute(select(self.model).where(User.email == email))
         return result.scalar_one_or_none()
 
     async def create(self, db: AsyncSession, *, obj_in: UserCreate) -> User:
         db_obj = User(
-            username=obj_in.username,
-            hashed_password=get_password_hash(obj_in.password),
+            email=obj_in.email,
+            password_hash=get_password_hash(obj_in.password),
+            is_verified=False,
         )
         db.add(db_obj)
         await db.commit()
@@ -33,35 +35,25 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         if update_data.get("password"):
             hashed_password = get_password_hash(update_data["password"])
             del update_data["password"]
-            update_data["hashed_password"] = hashed_password
+            update_data["password_hash"] = hashed_password
         return await super().update(db, db_obj=db_obj, obj_in=update_data)
 
-    async def authenticate(self, db: AsyncSession, *, username: str, password: str) -> Optional[User]:
-        user = await self.get_by_username(db, username=username)
+    async def authenticate(self, db: AsyncSession, *, email: str, password: str) -> Optional[User]:
+        user = await self.get_by_email(db, email=email)
         if not user:
             return None
-        if not verify_password(password, user.hashed_password):
+        if not verify_password(password, user.password_hash):
             return None
         return user
 
     def is_active(self, user: User) -> bool:
-        return True  # All users are active in our system
+        return user.is_verified
 
-    async def update_last_login(self, db: AsyncSession, user_id: int):
+    async def confirm_email(self, db: AsyncSession, *, user_id: UUID) -> Optional[User]:
+        """Подтверждает email пользователя"""
         user = await self.get(db, id=user_id)
         if user:
-            from datetime import datetime
-            user.last_login = datetime.utcnow()
-            db.add(user)
-            await db.commit()
-            await db.refresh(user)
-        return user
-
-    async def update_admin_status(self, db: AsyncSession, user_id: int, is_admin: bool) -> Optional[User]:
-        """Update user's admin status."""
-        user = await self.get(db, id=user_id)
-        if user:
-            user.is_admin = is_admin
+            user.is_verified = True
             db.add(user)
             await db.commit()
             await db.refresh(user)
