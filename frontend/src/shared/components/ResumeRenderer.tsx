@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import { ResumeData } from '../types/resume';
 import { createTemplate } from './templates';
@@ -9,6 +9,8 @@ interface ResumeRendererProps {
   isPreview?: boolean;
   onExport?: () => void;
   scale?: number; // Добавляем поддержку масштабирования
+  fitToContainer?: boolean; // Новый проп для адаптивного масштабирования
+  debug?: boolean; // Отладочный режим
 }
 
 const ResumeRenderer: React.FC<ResumeRendererProps> = ({ 
@@ -16,26 +18,94 @@ const ResumeRenderer: React.FC<ResumeRendererProps> = ({
   templateId = 'alder', 
   isPreview = true,
   onExport,
-  scale = 1
+  scale = 1,
+  fitToContainer = true,
+  debug = false
 }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [calculatedScale, setCalculatedScale] = useState(scale);
+
+  // Функция для расчета оптимального масштаба
+  const calculateOptimalScale = () => {
+    if (!containerRef.current || !fitToContainer) return scale;
+    
+    const container = containerRef.current;
+    const containerWidth = container.clientWidth;
+    const containerHeight = container.clientHeight;
+    
+    // A4 размеры в пикселях при 96 DPI
+    const a4Width = 794; // ~210mm
+    const a4Height = 1123; // ~297mm
+    
+    // Вычисляем масштаб по ширине и высоте
+    const scaleByWidth = (containerWidth - 40) / a4Width; // 40px для отступов
+    const scaleByHeight = (containerHeight - 40) / a4Height; // 40px для отступов
+    
+    // Берем минимальный масштаб, чтобы резюме поместилось полностью
+    const optimalScale = Math.min(scaleByWidth, scaleByHeight, 1);
+    
+    const finalScale = Math.max(optimalScale, 0.1); // Минимальный масштаб 0.1
+    
+    if (debug) {
+      console.log('ResumeRenderer Debug:', {
+        containerWidth,
+        containerHeight,
+        a4Width,
+        a4Height,
+        scaleByWidth,
+        scaleByHeight,
+        optimalScale,
+        finalScale,
+        fitToContainer
+      });
+    }
+    
+    return finalScale;
+  };
+
+  // Обновляем масштаб при изменении размера контейнера
+  useEffect(() => {
+    const updateScale = () => {
+      if (fitToContainer) {
+        setCalculatedScale(calculateOptimalScale());
+      }
+    };
+
+    updateScale();
+    
+    // Добавляем слушатель изменения размера окна
+    const resizeObserver = new ResizeObserver(updateScale);
+    if (containerRef.current) {
+      resizeObserver.observe(containerRef.current);
+    }
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [fitToContainer, scale]);
+
   const templateElement = createTemplate(templateId, {
     data,
     isPreview,
-    onExport
+    onExport,
+    scale: calculatedScale
   });
 
   return (
-    <Box sx={{ 
-      width: '100%',
-      minHeight: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'flex-start',
-      alignItems: 'stretch',
-      transform: `scale(${scale})`,
-      transformOrigin: 'top center',
-      padding: '20px'
-    }}>
+    <Box 
+      ref={containerRef}
+      sx={{ 
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        overflow: 'hidden',
+        padding: '20px',
+        position: 'relative'
+      }}
+    >
       {templateElement}
     </Box>
   );
