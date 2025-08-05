@@ -1,6 +1,5 @@
 import React from 'react';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../shared/components/Header/Header';
 import ChatWindow from './components/ChatWindow';
@@ -11,8 +10,12 @@ const ChatPage: React.FC = () => {
   const navigate = useNavigate();
   const demoData = TemplateService.createDemoData();
 
-  const handleNextStep = () => {
+  const handleNext = () => {
     navigate('/refine');
+  };
+
+  const handleBack = () => {
+    navigate('/');
   };
 
   return (
@@ -23,7 +26,13 @@ const ChatPage: React.FC = () => {
       bgcolor: '#f5f6fa'
     }}>
       {/* Общая шапка */}
-      <Header activeStep={1} />
+      <Header 
+        activeStep={1} 
+        onNext={handleNext}
+        onBack={handleBack}
+        nextButtonText="Refine"
+        previousButtonText="Start"
+      />
       
       {/* Основная область */}
       <Box sx={{ 
@@ -49,7 +58,7 @@ const ChatPage: React.FC = () => {
             <ChatWindow />
           </Box>
           
-          {/* Правая часть: превью + кнопка */}
+          {/* Правая часть: превью */}
           <Box sx={{ 
             width: '400px',
             minWidth: '400px',
@@ -57,7 +66,6 @@ const ChatPage: React.FC = () => {
             flexDirection: 'column',
             justifyContent: 'center',
             alignItems: 'center',
-            gap: 2,
             p: 2
           }}>
             {/* Превью резюме */}
@@ -71,33 +79,6 @@ const ChatPage: React.FC = () => {
               '--resume-scale': '0.35'
             }}>
               <ResumeRenderer data={demoData} scale={0.35} />
-            </Box>
-            
-            {/* Кнопка Next */}
-            <Box sx={{ 
-              display: 'flex', 
-              justifyContent: 'center',
-              pt: 1
-            }}>
-              <Button 
-                variant="contained" 
-                size="large"
-                onClick={handleNextStep}
-                sx={{
-                  borderRadius: '6px',
-                  px: 3,
-                  py: 1.5,
-                  fontSize: '0.875rem',
-                  fontWeight: 600,
-                  textTransform: 'none',
-                  bgcolor: '#666',
-                  '&:hover': {
-                    bgcolor: '#555'
-                  }
-                }}
-              >
-                Next: Refine
-              </Button>
             </Box>
           </Box>
         </Box>

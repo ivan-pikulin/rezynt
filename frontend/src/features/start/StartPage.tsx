@@ -12,7 +12,11 @@ const StartPage: React.FC = () => {
       bgcolor: '#f5f6fa'
     }}>
       {/* Общая шапка */}
-      <Header activeStep={0} />
+      <Header 
+        activeStep={0} 
+        showBackButton={false}
+        showNextButton={false}
+      />
       
       {/* Основная область */}
       <Box sx={{ 

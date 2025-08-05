@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../shared/components/Header/Header';
 import ResumeRenderer from '../../shared/components/ResumeRenderer';
@@ -15,8 +14,12 @@ const RefinePage: React.FC = () => {
     TemplateService.getTemplates()[0]
   );
 
-  const handleNextStep = () => {
+  const handleNext = () => {
     navigate('/export');
+  };
+
+  const handleBack = () => {
+    navigate('/chat');
   };
 
   const handleTemplateChange = (template: TemplateConfig) => {
@@ -31,7 +34,13 @@ const RefinePage: React.FC = () => {
       bgcolor: '#f5f6fa'
     }}>
       {/* Общая шапка */}
-      <Header activeStep={2} />
+      <Header 
+        activeStep={2} 
+        onNext={handleNext}
+        onBack={handleBack}
+        nextButtonText="Export"
+        previousButtonText="Generate"
+      />
       
       {/* Основная область */}
       <Box sx={{ 
@@ -59,35 +68,6 @@ const RefinePage: React.FC = () => {
             p: 2
           }}>
             <TemplateSelector onTemplateChange={handleTemplateChange} />
-          </Box>
-          
-          {/* Кнопка Next - внизу левой панели */}
-          <Box sx={{
-            display: 'flex',
-            justifyContent: 'center',
-            p: 2,
-            flexShrink: 0,
-            borderTop: '1px solid #e0e0e0'
-          }}>
-            <Button 
-              variant="contained" 
-              size="large"
-              onClick={handleNextStep}
-              sx={{
-                borderRadius: '6px',
-                px: 3,
-                py: 1.5,
-                fontSize: '0.875rem',
-                fontWeight: 600,
-                textTransform: 'none',
-                bgcolor: '#666',
-                '&:hover': {
-                  bgcolor: '#555'
-                }
-              }}
-            >
-              Next: Export
-            </Button>
           </Box>
         </Box>
         
