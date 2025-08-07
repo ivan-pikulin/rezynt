@@ -7,24 +7,24 @@ import cyrtranslit
 
 
 class EmailSettings(BaseSettings):
-    email_host: str
-    email_port: int
-    email_username: str
-    email_password: SecretStr
+    EMAIL_HOST: str
+    EMAIL_PORT: int
+    EMAIL_USERNAME: str
+    EMAIL_PASSWORD: SecretStr
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf8", extra="ignore")
 
 
 class RedisSettings(BaseSettings):
-    redis_host: str
-    redis_port: int
-    redis_db: int
+    REDIS_HOST: str
+    REDIS_PORT: int
+    REDIS_DB: int
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf8", extra="ignore")
 
     @property
     def redis_url(self) -> str:
-        return f"redis://{self.redis_host}:{self.redis_port}/{self.redis_db}"
+        return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
 
 
 class Settings(BaseSettings):

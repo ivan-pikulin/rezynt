@@ -81,7 +81,7 @@ def send_confirmation_email(email: str, token: str):
     # Создаем сообщение
     msg = MIMEMultipart('alternative')
     msg['Subject'] = 'Подтверждение регистрации - Rezynt'
-    msg['From'] = settings.email.email_username
+    msg['From'] = settings.email.EMAIL_USERNAME
     msg['To'] = email
     
     # Добавляем части сообщения
@@ -93,8 +93,8 @@ def send_confirmation_email(email: str, token: str):
     
     # Отправляем письмо
     try:
-        with smtplib.SMTP_SSL(settings.email.email_host, settings.email.email_port) as server:
-            server.login(settings.email.email_username, settings.email.email_password.get_secret_value())
+        with smtplib.SMTP_SSL(settings.email.EMAIL_HOST, settings.email.EMAIL_PORT) as server:
+            server.login(settings.email.EMAIL_USERNAME, settings.email.EMAIL_PASSWORD.get_secret_value())
             server.send_message(msg)
         return {"status": "success", "email": email}
     except Exception as e:

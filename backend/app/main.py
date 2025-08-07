@@ -32,7 +32,7 @@ class ForwardedProtocolMiddleware(BaseHTTPMiddleware):
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version="1.0.0",
-    description="Family Tree API",
+    description="AI resume builder",
     openapi_url=f"{settings.API_V1_STR}/openapi.json"
 )
 
