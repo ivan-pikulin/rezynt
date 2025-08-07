@@ -73,7 +73,7 @@ async def confirm_registration(
     try:
         service = UserService(db)
         await service.confirm_user(token=token)
-        return {"message": "Электронная почта подтверждена"}
+        return {"message": "Email confirmed"}
     except ValueError as e:
         raise HTTPException(
             status_code=400,

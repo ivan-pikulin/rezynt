@@ -39,12 +39,12 @@ class UserService:
             user_id = self.serializer.loads(token, salt='email-confirm', max_age=86400)
             user_uuid = UUID(user_id)
         except Exception:
-            raise ValueError("Недействительный или просроченный токен")
+            raise ValueError("Invalid or expired token")
         
         # Подтверждаем email
         user = await user_crud.confirm_email(self.db, user_id=user_uuid)
         if not user:
-            raise ValueError("Пользователь не найден")
+            raise ValueError("User not found")
         
         return user
 
