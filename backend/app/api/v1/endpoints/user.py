@@ -1,7 +1,6 @@
-from app.api.deps import AdminUser, AsyncDB, CurrentUser
-from app.database.crud.crud_user import user_crud
+from app.api.deps import AsyncDB, CurrentUser
 from app.schemas import user as user_schemas
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 
 router = APIRouter()
 

@@ -1,5 +1,6 @@
-from fastapi import APIRouter, UploadFile, File
-from typing import Dict, Any
+from typing import Any, Dict
+
+from fastapi import APIRouter, File, UploadFile
 
 router = APIRouter()
 

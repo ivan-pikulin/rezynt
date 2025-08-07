@@ -5,7 +5,7 @@ from app.api.deps import AsyncDB
 from app.core import security
 from app.core.config import settings
 from app.database.crud import user_crud
-from app.schemas import RefreshRequest, Token, UserPublic, UserCreate
+from app.schemas import RefreshRequest, Token, UserCreate, UserPublic
 from app.services.user_service import UserService
 from fastapi import APIRouter, Body, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
@@ -48,10 +48,10 @@ async def login(
             status_code=400, detail="Incorrect email or password")
     elif not user_crud.is_active(user):
         raise HTTPException(
-            status_code=400, 
+            status_code=400,
             detail="Email not verified. Please check your email and confirm registration."
         )
-    
+
     access_token_expires = timedelta(
         minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     refresh_token = security.create_refresh_token(user.id)
@@ -64,7 +64,7 @@ async def login(
 
 @router.get("/register_confirm", status_code=status.HTTP_200_OK)
 async def confirm_registration(
-    token: str, 
+    token: str,
     db: AsyncDB
 ) -> dict[str, str]:
     """
