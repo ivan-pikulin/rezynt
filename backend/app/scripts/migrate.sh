@@ -58,18 +58,8 @@ else:
   echo "⏳ База данных еще не готова, ожидание..."
   sleep 2
 done
-
 echo "✅ База данных готова"
-
-# Run migrations using uv
-if [ "$APP_ENV" = "dev" ]; then
-  echo "🔍 DEV: Генерация и применение миграций..."
-  uv run alembic -c "$ALEMBIC_INI" upgrade head || true
-  uv run alembic -c "$ALEMBIC_INI" revision --autogenerate -m "autogen" || true
-  sleep 1
-fi
 
 echo "🚀 Применение миграций..."
 uv run alembic -c "$ALEMBIC_INI" upgrade head
-
 echo "✅ Alembic миграции выполнены"

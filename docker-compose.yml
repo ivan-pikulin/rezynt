@@ -4,6 +4,13 @@ x-common-variables: &common-variables
   POSTGRES_USER: ${POSTGRES_USER}
   POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
   POSTGRES_DB: ${POSTGRES_DB}
+  REDIS_HOST: redis
+  REDIS_PORT: 6379
+  REDIS_DB: 0
+  EMAIL_HOST: postfix
+  EMAIL_PORT: 587
+  EMAIL_USERNAME: team@rezynt.com
+  EMAIL_PASSWORD: ${EMAIL_PASSWORD}
 
 services:
   nginx:
@@ -53,8 +60,6 @@ services:
       dockerfile: Dockerfile
     expose:
       - "8000"
-    volumes:
-      - ./backend/app/database/migrations/versions/:/app/app/database/migrations/versions/
     environment:
       <<: *common-variables
       SECRET_KEY: ${SECRET_KEY}
@@ -63,17 +68,66 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_healthy
+      postfix:
+        condition: service_healthy
     command: |
       sh -c "
-        if [ ! -e /opt/migrations/versions ]; then
-          mkdir -p /opt/migrations/versions;
-        fi
-        cp -r /opt/migrations/versions/ /app/app/database/migrations/
-        chmod +x /app/app/scripts/run_migrations.sh
-        /app/app/scripts/run_migrations.sh
-        cp -rT /app/app/database/migrations/versions/ /opt/migrations/versions/
+        chmod +x /app/app/scripts/migrate.sh
+        /app/app/scripts/migrate.sh
         uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --log-level debug
       "
+    networks:
+      - app-network
+      - backend-network
+    ports:
+      - "8000:8000"
+
+  celery:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      <<: *common-variables
+      SECRET_KEY: ${SECRET_KEY}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES}
+      REFRESH_TOKEN_EXPIRE_MINUTES: ${REFRESH_TOKEN_EXPIRE_MINUTES}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      postfix:
+        condition: service_healthy
+    command: uv run celery -A app.core.celery_app worker --loglevel=info
+    networks:
+      - app-network
+      - backend-network
+
+  postfix:
+    image: boky/postfix
+    container_name: postfix
+    restart: unless-stopped
+    ports:
+      - "587:587"
+      - "25:25"
+    environment:
+      HOSTNAME: mail.rezynt.com
+      DOMAIN: rezynt.com
+      SMTP_USER: team@rezynt.com|${EMAIL_PASSWORD}
+      ENABLE_TLS: 1
+      ENABLE_SASL: 1
+      RELAY_NETWORKS: 127.0.0.1/32,172.16.0.0/12,192.168.0.0/16
+      LOG_TO_STDOUT: 1
+    volumes:
+      - postfix_data:/var/spool/postfix
+      - postfix_logs:/var/log
+    healthcheck:
+      test: ["CMD", "postfix", "check"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     networks:
       - app-network
       - backend-network
@@ -95,8 +149,26 @@ services:
       - app-network
       - backend-network
 
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - app-network
+      - backend-network
+
 volumes:
   postgres_data:
+  redis_data:
+  postfix_data:
+  postfix_logs:
 
 networks:
   app-network:

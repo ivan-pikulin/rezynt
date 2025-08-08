@@ -1,17 +1,40 @@
 from typing import List
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import SecretStr
 import re
 import unicodedata
 import cyrtranslit
+
+
+class EmailSettings(BaseSettings):
+    EMAIL_HOST: str
+    EMAIL_PORT: int
+    EMAIL_USERNAME: str
+    EMAIL_PASSWORD: SecretStr
+
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf8", extra="ignore")
+
+
+class RedisSettings(BaseSettings):
+    REDIS_HOST: str
+    REDIS_PORT: int
+    REDIS_DB: int
+
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf8", extra="ignore")
+
+    @property
+    def redis_url(self) -> str:
+        return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
 
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", case_sensitive=True)
 
     # Project settings
-    PROJECT_NAME: str = "Family Tree API"
+    PROJECT_NAME: str = "Rezynt API"
     API_V1_STR: str = "/api/v1"
     CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:5173"]  # Frontend URL
+    FRONTEND_URL: str = "http://127.0.0.1:8000/api/v1"
 
     # Security settings
     SECRET_KEY: str
@@ -25,6 +48,12 @@ class Settings(BaseSettings):
     POSTGRES_PASSWORD: str
     POSTGRES_DB: str
 
+    # Email settings
+    email: EmailSettings = EmailSettings()
+
+    # Redis settings
+    redis: RedisSettings = RedisSettings()
+
     @property
     def sync_database_url(self) -> str:
         return f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
@@ -32,6 +61,7 @@ class Settings(BaseSettings):
     @property
     def async_database_url(self) -> str:
         return f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
+
 
 def slugify(value: str) -> str:
     value = cyrtranslit.to_latin(str(value), 'ru')

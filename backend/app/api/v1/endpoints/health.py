@@ -8,4 +8,4 @@ async def health_check():
     """
     Health check endpoint for monitoring and deployment verification.
     """
-    return {"status": "healthy", "message": "API is running"} 
+    return {"status": "healthy", "message": "API is running"}
