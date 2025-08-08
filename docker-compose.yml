@@ -7,6 +7,10 @@ x-common-variables: &common-variables
   REDIS_HOST: redis
   REDIS_PORT: 6379
   REDIS_DB: 0
+  EMAIL_HOST: postfix
+  EMAIL_PORT: 587
+  EMAIL_USERNAME: team@rezynt.com
+  EMAIL_PASSWORD: ${EMAIL_PASSWORD}
 
 services:
   nginx:
@@ -61,14 +65,12 @@ services:
       SECRET_KEY: ${SECRET_KEY}
       ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES}
       REFRESH_TOKEN_EXPIRE_MINUTES: ${REFRESH_TOKEN_EXPIRE_MINUTES}
-      EMAIL_HOST: ${EMAIL_HOST}
-      EMAIL_PORT: ${EMAIL_PORT}
-      EMAIL_USERNAME: ${EMAIL_USERNAME}
-      EMAIL_PASSWORD: ${EMAIL_PASSWORD}
     depends_on:
       postgres:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      postfix:
         condition: service_healthy
     command: |
       sh -c "
@@ -165,6 +167,8 @@ services:
 volumes:
   postgres_data:
   redis_data:
+  postfix_data:
+  postfix_logs:
 
 networks:
   app-network:
