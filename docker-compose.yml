@@ -8,6 +8,18 @@ x-common-variables: &common-variables
   REDIS_PORT: 6379
   REDIS_DB: 0
 
+x-backend-variables: &backend-variables
+  <<: *common-variables
+  SECRET_KEY: ${SECRET_KEY}
+  ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES}
+  REFRESH_TOKEN_EXPIRE_MINUTES: ${REFRESH_TOKEN_EXPIRE_MINUTES}
+  EMAIL_HOST: smtp.timeweb.ru
+  EMAIL_PORT: 465
+  EMAIL_USERNAME: team@rezynt.com
+  EMAIL_PASSWORD: ${EMAIL_PASSWORD}
+  FRONTEND_BASE_URL: ${FRONTEND_BASE_URL}
+  API_BASE_URL: ${API_BASE_URL}
+
 services:
   nginx:
     build:
@@ -57,16 +69,7 @@ services:
     expose:
       - "8000"
     environment:
-      <<: *common-variables
-      SECRET_KEY: ${SECRET_KEY}
-      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES}
-      REFRESH_TOKEN_EXPIRE_MINUTES: ${REFRESH_TOKEN_EXPIRE_MINUTES}
-      EMAIL_HOST: smtp.timeweb.ru
-      EMAIL_PORT: 465
-      EMAIL_USERNAME: team@rezynt.com
-      EMAIL_PASSWORD: ${EMAIL_PASSWORD}
-      FRONTEND_BASE_URL: ${FRONTEND_BASE_URL}
-      API_BASE_URL: ${API_BASE_URL}
+      <<: *backend-variables
     depends_on:
       postgres:
         condition: service_healthy
@@ -89,10 +92,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     environment:
-      <<: *common-variables
-      SECRET_KEY: ${SECRET_KEY}
-      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES}
-      REFRESH_TOKEN_EXPIRE_MINUTES: ${REFRESH_TOKEN_EXPIRE_MINUTES}
+      <<: *backend-variables
     depends_on:
       postgres:
         condition: service_healthy
