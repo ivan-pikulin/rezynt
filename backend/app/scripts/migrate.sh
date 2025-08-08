@@ -61,5 +61,13 @@ done
 echo "✅ База данных готова"
 
 echo "🚀 Применение миграций..."
-uv run alembic -c "$ALEMBIC_INI" upgrade head
+
+# First, check for multiple heads
+echo "🔍 Проверка состояния миграций..."
+uv run alembic -c "$ALEMBIC_INI" heads
+
+# Apply migrations using 'heads' to handle multiple heads
+echo "📝 Применение всех головных миграций..."
+uv run alembic -c "$ALEMBIC_INI" upgrade heads
+
 echo "✅ Alembic миграции выполнены"
