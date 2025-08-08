@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<specification>
+    <name>API Endpoints</name>
+    <description>
+        API эндпоинты для работы с резюме. Включает загрузку файлов и управление шаблонами.
+    </description>
+    
+    <components>
+        <component>
+            <name>ResumeEndpoints</name>
+            <description>
+                Эндпоинты для работы с резюме пользователей.
+            </description>
+            <endpoints>
+                <endpoint>
+                    <path>/upload</path>
+                    <method>POST</method>
+                    <description>
+                        Загрузка файла резюме. Доступно только пользователям с подтвержденным email.
+                    </description>
+                    <authentication>VerifiedUser (JWT token + verified email)</authentication>
+                    <params>
+                        <param name="file" type="UploadFile">Файл резюме для загрузки</param>
+                    </params>
+                    <returns type="Dict[str, Any]">
+                        {"id": "file_id"} - ID загруженного файла
+                    </returns>
+                    <status_codes>
+                        <code>200">Успешная загрузка</code>
+                        <code>401">Не авторизован</code>
+                        <code>403">Email не подтвержден</code>
+                    </status_codes>
+                </endpoint>
+                
+                <endpoint>
+                    <path>/{resume_id}/template/{template_id}</path>
+                    <method>PUT</method>
+                    <description>
+                        Присвоение определенного шаблона резюме. Доступно только пользователям с подтвержденным email.
+                    </description>
+                    <authentication>VerifiedUser (JWT token + verified email)</authentication>
+                    <params>
+                        <param name="resume_id" type="UUID">ID резюме</param>
+                        <param name="template_id" type="UUID">ID шаблона</param>
+                    </params>
+                    <returns type="Dict[str, Any]">
+                        {
+                            "id": "resume_id",
+                            "template_id": "template_id", 
+                            "message": "Template assigned successfully"
+                        }
+                    </returns>
+                    <status_codes>
+                        <code>200">Шаблон успешно присвоен</code>
+                        <code>401">Не авторизован</code>
+                        <code>403">Email не подтвержден</code>
+                        <code>404">Резюме или шаблон не найден</code>
+                    </status_codes>
+                    <business_logic>
+                        <step>Проверка существования шаблона</step>
+                        <step>Проверка принадлежности резюме текущему пользователю</step>
+                        <step>Обновление резюме с новым шаблоном</step>
+                    </business_logic>
+                </endpoint>
+            </endpoints>
+        </component>
+    </components>
+    
+    <dependencies>
+        <dependency>app.api.deps (VerifiedUser, AsyncDB)</dependency>
+        <dependency>app.database.crud.crud_resume (resume_crud)</dependency>
+        <dependency>app.database.crud.crud_template (template_crud)</dependency>
+        <dependency>app.schemas.resume (ResumeUpdate)</dependency>
+        <dependency>fastapi (APIRouter, File, UploadFile, HTTPException, status)</dependency>
+    </dependencies>
+    
+    <security>
+        <authentication>JWT Bearer Token</authentication>
+        <authorization>Email verification required</authorization>
+        <access_control>Users can only access their own resumes</access_control>
+    </security>
+</specification>
