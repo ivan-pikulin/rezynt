@@ -21,7 +21,7 @@ RUN uv sync --frozen
 COPY . .
 
 # Make migration script executable
-RUN chmod +x /app/app/scripts/run_migrations.sh
+RUN chmod +x /app/app/scripts/migrate.sh
 
 # Expose port
 EXPOSE 8000

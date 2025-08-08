@@ -56,8 +56,6 @@ services:
       dockerfile: Dockerfile
     expose:
       - "8000"
-    volumes:
-      - ./backend/app/database/migrations/versions/:/app/app/database/migrations/versions/
     environment:
       <<: *common-variables
       SECRET_KEY: ${SECRET_KEY}
@@ -74,13 +72,8 @@ services:
         condition: service_healthy
     command: |
       sh -c "
-        if [ ! -e /opt/migrations/versions ]; then
-          mkdir -p /opt/migrations/versions;
-        fi
-        cp -r /opt/migrations/versions/ /app/app/database/migrations/
-        chmod +x /app/app/scripts/run_migrations.sh
-        /app/app/scripts/run_migrations.sh
-        cp -rT /app/app/database/migrations/versions/ /opt/migrations/versions/
+        chmod +x /app/app/scripts/migrate.sh
+        /app/app/scripts/migrate.sh
         uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --log-level debug
       "
     networks:
