@@ -13,7 +13,7 @@ class EmailSettings(BaseSettings):
     EMAIL_PASSWORD: SecretStr
     EMAIL_DOMAIN: str = "rezynt.com"
     EMAIL_DKIM_SELECTOR: str = "mail"
-    EMAIL_DKIM_PRIVATE_KEY_PATH: str = "/root/rezynt.com.private"
+    EMAIL_DKIM_PRIVATE_KEY_PATH: str
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf8", extra="ignore")
 

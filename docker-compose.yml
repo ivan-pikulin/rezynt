@@ -93,12 +93,15 @@ services:
       dockerfile: Dockerfile
     environment:
       <<: *backend-variables
+      EMAIL_DKIM_PRIVATE_KEY_PATH: /app/dkim-key.private
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
     command: uv run celery -A app.core.celery_app worker --loglevel=info
+    volumes:
+      - ${EMAIL_DKIM_PRIVATE_KEY_PATH}:/app/dkim-key.private
     networks:
       - app-network
       - backend-network
