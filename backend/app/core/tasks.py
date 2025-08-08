@@ -91,9 +91,12 @@ def send_confirmation_email(email: str, token: str):
     msg.attach(text_part)
     msg.attach(html_part)
     
-    # Отправляем письмо
+    # Отправляем письмо через Postfix
     try:
-        with smtplib.SMTP_SSL(settings.email.EMAIL_HOST, settings.email.EMAIL_PORT) as server:
+        with smtplib.SMTP(settings.email.EMAIL_HOST, settings.email.EMAIL_PORT) as server:
+            server.ehlo()
+            server.starttls()
+            server.ehlo()
             server.login(settings.email.EMAIL_USERNAME, settings.email.EMAIL_PASSWORD.get_secret_value())
             server.send_message(msg)
         return {"status": "success", "email": email}

@@ -82,6 +82,54 @@ services:
     ports:
       - "8000:8000"
 
+  celery:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      <<: *common-variables
+      SECRET_KEY: ${SECRET_KEY}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES}
+      REFRESH_TOKEN_EXPIRE_MINUTES: ${REFRESH_TOKEN_EXPIRE_MINUTES}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      postfix:
+        condition: service_healthy
+    command: uv run celery -A app.core.celery_app worker --loglevel=info
+    networks:
+      - app-network
+      - backend-network
+
+  postfix:
+    image: boky/postfix
+    container_name: postfix
+    restart: unless-stopped
+    ports:
+      - "587:587"
+      - "25:25"
+    environment:
+      HOSTNAME: mail.rezynt.com
+      DOMAIN: rezynt.com
+      SMTP_USER: team@rezynt.com|${EMAIL_PASSWORD}
+      ENABLE_TLS: 1
+      ENABLE_SASL: 1
+      RELAY_NETWORKS: 127.0.0.1/32,172.16.0.0/12,192.168.0.0/16
+      LOG_TO_STDOUT: 1
+    volumes:
+      - postfix_data:/var/spool/postfix
+      - postfix_logs:/var/log
+    healthcheck:
+      test: ["CMD", "postfix", "check"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - app-network
+      - backend-network
+
   postgres:
     image: postgres:15-alpine
     ports:
