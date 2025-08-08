@@ -7,7 +7,7 @@ from app.core.config import settings
 from app.database.crud import user_crud
 from app.schemas import RefreshRequest, Token, UserCreate, UserPublic
 from app.services.user_service import UserService
-from fastapi import APIRouter, Body, Depends, HTTPException, status
+from fastapi import APIRouter, Body, Depends, HTTPException, status, Response
 from fastapi.security import OAuth2PasswordRequestForm
 
 router = APIRouter()
@@ -62,23 +62,31 @@ async def login(
     }
 
 
-@router.get("/register_confirm", status_code=status.HTTP_200_OK)
+@router.get("/confirm-email", status_code=status.HTTP_302_FOUND)
 async def confirm_registration(
     token: str,
-    db: AsyncDB
+    db: AsyncDB,
+    response: Response
 ) -> dict[str, str]:
     """
-    Confirm user registration by email token.
+    Confirm user registration by email token and redirect to frontend.
     """
     try:
         service = UserService(db)
         await service.confirm_user(token=token)
-        return {"message": "Email confirmed"}
+        
+        # Перенаправляем на страницу успешного подтверждения
+        success_url = f"{settings.FRONTEND_BASE_URL}/auth/email-confirmed"
+        response.headers["Location"] = success_url
+        
+        return {"message": "Email confirmed", "redirect_url": success_url}
     except ValueError as e:
-        raise HTTPException(
-            status_code=400,
-            detail=str(e),
-        )
+        # При ошибке перенаправляем на страницу ошибки
+        error_url = f"{settings.FRONTEND_BASE_URL}/auth/email-confirmation-error?error={str(e)}"
+        response.headers["Location"] = error_url
+        response.status_code = status.HTTP_302_FOUND
+        
+        return {"message": "Email confirmation failed", "redirect_url": error_url}
 
 
 @router.post("/refresh", response_model=Token)

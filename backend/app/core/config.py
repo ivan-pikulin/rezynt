@@ -11,6 +11,9 @@ class EmailSettings(BaseSettings):
     EMAIL_PORT: int
     EMAIL_USERNAME: str
     EMAIL_PASSWORD: SecretStr
+    EMAIL_DOMAIN: str = "rezynt.com"
+    EMAIL_DKIM_SELECTOR: str = "mail"
+    EMAIL_DKIM_PRIVATE_KEY_PATH: str = "/root/rezynt.com.private"
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf8", extra="ignore")
 
@@ -33,8 +36,9 @@ class Settings(BaseSettings):
     # Project settings
     PROJECT_NAME: str = "Rezynt API"
     API_V1_STR: str = "/api/v1"
-    CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:5173"]  # Frontend URL
-    FRONTEND_URL: str = "http://127.0.0.1:8000/api/v1"
+    CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:5173"]
+    FRONTEND_BASE_URL: str
+    API_BASE_URL: str
 
     # Security settings
     SECRET_KEY: str

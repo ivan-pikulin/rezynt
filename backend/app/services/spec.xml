@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<specification>
+    <name>Services Layer</name>
+    <description>
+        Слой сервисов для бизнес-логики приложения. Содержит классы для работы с пользователями и отправки email.
+    </description>
+    
+    <components>
+        <component>
+            <name>UserService</name>
+            <description>
+                Сервис для работы с пользователями. Обеспечивает создание, аутентификацию и подтверждение email пользователей.
+            </description>
+            <methods>
+                <method>
+                    <name>create_user</name>
+                    <description>Создает нового пользователя и отправляет email для подтверждения</description>
+                    <params>
+                        <param name="user_in" type="UserCreate">Данные для создания пользователя</param>
+                    </params>
+                    <returns type="User">Созданный пользователь</returns>
+                </method>
+                <method>
+                    <name>confirm_user</name>
+                    <description>Подтверждает email пользователя по токену</description>
+                    <params>
+                        <param name="token" type="str">Токен подтверждения</param>
+                    </params>
+                    <returns type="User">Подтвержденный пользователь</returns>
+                </method>
+                <method>
+                    <name>get_user_by_email</name>
+                    <description>Получает пользователя по email</description>
+                    <params>
+                        <param name="email" type="str">Email пользователя</param>
+                    </params>
+                    <returns type="Optional[User]">Пользователь или None</returns>
+                </method>
+                <method>
+                    <name>authenticate_user</name>
+                    <description>Аутентифицирует пользователя</description>
+                    <params>
+                        <param name="email" type="str">Email пользователя</param>
+                        <param name="password" type="str">Пароль пользователя</param>
+                    </params>
+                    <returns type="Optional[User]">Аутентифицированный пользователь или None</returns>
+                </method>
+            </methods>
+        </component>
+        
+        <component>
+            <name>EmailService</name>
+            <description>
+                Сервис для отправки email сообщений с поддержкой DKIM подписи.
+            </description>
+            <methods>
+                <method>
+                    <name>send_email</name>
+                    <description>Отправляет email с DKIM подписью</description>
+                    <params>
+                        <param name="to_email" type="str">Email получателя</param>
+                        <param name="subject" type="str">Тема письма</param>
+                        <param name="body" type="str">Текст письма (поддерживает HTML)</param>
+                    </params>
+                    <returns type="bool">True если письмо отправлено успешно</returns>
+                </method>
+                <method>
+                    <name>send_confirmation_email</name>
+                    <description>Отправляет красивый HTML email для подтверждения регистрации с использованием Jinja2 шаблона</description>
+                    <params>
+                        <param name="to_email" type="str">Email пользователя</param>
+                        <param name="confirmation_token" type="str">Токен для подтверждения</param>
+                    </params>
+                    <returns type="bool">True если письмо отправлено успешно</returns>
+                </method>
+            </methods>
+            <configuration>
+                <smtp_server>Настраивается через EMAIL_HOST в config</smtp_server>
+                <smtp_port>Настраивается через EMAIL_PORT в config</smtp_port>
+                <sender_email>Настраивается через EMAIL_USERNAME в config</sender_email>
+                <domain>Настраивается через EMAIL_DOMAIN в config</domain>
+                <dkim_selector>Настраивается через EMAIL_DKIM_SELECTOR в config</dkim_selector>
+                <dkim_key_path>Настраивается через EMAIL_DKIM_PRIVATE_KEY_PATH в config</dkim_key_path>
+            </configuration>
+        </component>
+    </components>
+    
+    <dependencies>
+        <dependency>app.core.config</dependency>
+        <dependency>app.database.crud</dependency>
+        <dependency>app.schemas</dependency>
+        <dependency>dkimpy</dependency>
+        <dependency>smtplib</dependency>
+        <dependency>itsdangerous</dependency>
+        <dependency>jinja2</dependency>
+    </dependencies>
+</specification>

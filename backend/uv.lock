@@ -85,6 +85,7 @@ dependencies = [
     { name = "bcrypt" },
     { name = "celery" },
     { name = "cyrtranslit" },
+    { name = "dkimpy" },
     { name = "fastapi" },
     { name = "itsdangerous" },
     { name = "jinja2" },
@@ -106,6 +107,7 @@ requires-dist = [
     { name = "bcrypt", specifier = ">=4.3.0" },
     { name = "celery", specifier = ">=5.5.3" },
     { name = "cyrtranslit", specifier = ">=1.1.1" },
+    { name = "dkimpy", specifier = ">=1.1.8" },
     { name = "fastapi", specifier = ">=0.116.1" },
     { name = "itsdangerous", specifier = ">=2.2.0" },
     { name = "jinja2", specifier = ">=3.1.6" },
@@ -332,6 +334,15 @@ sdist = { url = "https://files.pythonhosted.org/packages/32/3e/b9f6d47b8326a2632
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b9/09/96818910b17cae199c3183aab7a8e3e9b694337c4673b36dc7165bb0c440/cyrtranslit-1.1.1-py3-none-any.whl", hash = "sha256:51b65cb0497042231bce2951fd2df1fb8f659fc20ac355a1044e578b97870256", size = 14172, upload-time = "2023-03-14T22:41:51.445Z" },
 ]
+
+[[package]]
+name = "dkimpy"
+version = "1.1.8"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "dnspython" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/f0/6f/84e91828186bbfcedd7f9385ef5e0d369632444195c20e08951b7ffe0481/dkimpy-1.1.8.tar.gz", hash = "sha256:b5f60fb47bbf5d8d762f134bcea0c388eba6b498342a682a21f1686545094b77", size = 66979, upload-time = "2024-07-04T22:16:38.321Z" }
 
 [[package]]
 name = "dnspython"
