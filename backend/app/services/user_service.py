@@ -6,7 +6,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config import settings
 from app.database.crud import user_crud
 from app.schemas import UserCreate, User
-from app.core.tasks import send_confirmation_email
 
 
 class UserService:
@@ -14,7 +13,7 @@ class UserService:
         self.db = db
         self.serializer = URLSafeTimedSerializer(settings.SECRET_KEY)
 
-    async def create_user(self, user_in: UserCreate) -> User:
+    async def signup(self, user_in: UserCreate) -> User:
         """Создает нового пользователя и отправляет email для подтверждения"""
         # Проверяем, существует ли пользователь с таким email
         existing_user = await user_crud.get_by_email(self.db, email=user_in.email)
@@ -28,6 +27,7 @@ class UserService:
         token = self.serializer.dumps(str(user.id), salt='email-confirm')
         
         # Отправляем email в фоновом режиме
+        from app.core.tasks import send_confirmation_email
         send_confirmation_email.delay(user.email, token)
         
         return user

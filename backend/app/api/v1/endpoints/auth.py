@@ -14,7 +14,7 @@ router = APIRouter()
 
 
 @router.post("/signup", response_model=UserPublic, status_code=status.HTTP_201_CREATED)
-async def create_user(
+async def signup(
     *,
     db: AsyncDB,
     user_in: UserCreate,
@@ -24,7 +24,7 @@ async def create_user(
     """
     try:
         service = UserService(db)
-        user = await service.create_user(user_in)
+        user = await service.signup(user_in)
         return user
     except ValueError as e:
         raise HTTPException(

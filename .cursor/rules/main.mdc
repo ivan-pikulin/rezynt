@@ -18,6 +18,8 @@ When you change the code, you MUST update the corresponding `spec.xml` so that i
 
 When you add some functionality described in `spec.xml` files, use as few changes as possible, just add new functionality and keep the structure as was.
 
+I run all the code on the remote server. NEVER try to find docker containers or other prod-specific services locally, they all are on the remote server. Instead, just analyze docker compose, .github/build.yaml and other deploy files.
+
 <backend>
     Use python classes whereever possible.
     Make as short and simple code as possible for the proposed functionality, do not expand functionality without approve from user. 
