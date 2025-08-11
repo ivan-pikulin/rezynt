@@ -58,6 +58,11 @@ class Settings(BaseSettings):
     # Redis settings
     redis: RedisSettings = RedisSettings()
 
+    # Platform settings
+    PLATFORM_APP_KEY: str
+    PLATFORM_APP_URL: str
+    PLATFORM_TIMEOUT: int = 60
+
     @property
     def sync_database_url(self) -> str:
         return f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"

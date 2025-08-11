@@ -9,6 +9,7 @@ class ResumeBase(BaseModel):
     title: str
     template_id: UUID
     content: Dict[str, Any]
+    conversation_id: Optional[str] = None
 
 
 class ResumeCreate(BaseModel):
@@ -21,6 +22,7 @@ class ResumeUpdate(BaseModel):
     title: Optional[str] = None
     template_id: Optional[UUID] = None
     content: Optional[Dict[str, Any]] = None
+    conversation_id: Optional[str] = None
 
 
 class ResumeInDBBase(ResumeBase):
@@ -45,4 +47,4 @@ class ResumeWithTemplate(ResumeInDBBase):
     template: Optional[Dict[str, Any]] = None
 
     class Config:
-        from_attributes = True 
+        from_attributes = True

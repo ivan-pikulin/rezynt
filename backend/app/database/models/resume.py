@@ -14,6 +14,7 @@ class Resume(Base):
     title = Column(String(100), nullable=False)
     template_id = Column(UUID(as_uuid=True), ForeignKey('templates.id'), nullable=False)
     content = Column(JSONB, nullable=False)
+    conversation_id = Column(String(255), nullable=True)
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
