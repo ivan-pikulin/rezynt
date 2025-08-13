@@ -32,46 +32,83 @@ export class TemplateService {
   static createDemoData(): ResumeData {
     return {
       personalInfo: {
-        firstName: 'Pikulin',
-        lastName: 'Ivan',
-        middleName: 'Sergeevich',
-        phone: '89852799176',
-        email: 'pikulin.ivan.pelikan@gmail.com',
-        location: 'Moscow, Russia',
-        zipCode: '400080'
+        firstName: 'Elon',
+        lastName: 'Musk',
+        middleName: '',
+        phone: '+1 (310) 363-6000',
+        email: 'elon.musk@tesla.com',
+        location: 'Austin, Texas, USA',
+        zipCode: '78701'
       },
-      professionalSummary: 'Dynamic ML Engineer with a proven track record at Abstergo, adept at optimizing data collection and visualizing complex data trends. Skilled in cloud computing and data preprocessing, I excel in presenting analytical findings and fostering strong interpersonal communication. My adaptability ensures effective collaboration and innovative solutions in fast-paced environments.',
+      professionalSummary: 'Visionary entrepreneur and engineer with over 25 years of experience revolutionizing multiple industries. Proven track record of building world-changing companies including Tesla, SpaceX, Neuralink, and The Boring Company. Expert in sustainable technology, rocket engineering, and disruptive innovation.',
       skills: [
-        { id: '1', name: 'Cloud computing' },
-        { id: '2', name: 'Enterprise resource planning software' },
-        { id: '3', name: 'Interpersonal communication' },
-        { id: '4', name: 'Adaptability' },
-        { id: '5', name: 'Data preprocessing and cleaning' }
+        { id: '1', name: 'Strategic Leadership' },
+        { id: '2', name: 'Electric Vehicle Engineering' },
+        { id: '3', name: 'Rocket Propulsion Systems' },
+        { id: '4', name: 'Artificial Intelligence' },
+        { id: '5', name: 'Sustainable Energy' },
+        { id: '6', name: 'Neural Interface Technology' },
+        { id: '7', name: 'Manufacturing Innovation' },
+        { id: '8', name: 'Global Operations Management' }
       ],
       experience: [
         {
           id: '1',
-          jobTitle: 'ML Engineer',
-          company: 'Abstergo',
-          location: 'Moscow, Russia',
-          startDate: '2023-01-01',
+          jobTitle: 'CEO & Chief Engineer',
+          company: 'SpaceX',
+          location: 'Hawthorne, California',
+          startDate: '2002-06-01',
           isCurrent: true,
           responsibilities: [
-            'Optimized data collection by designing instruments and applications.',
-            'Visualized data trends and results with graphs and charts.',
-            'Manipulated and analyzed large or complex data sets using relevant techniques.',
-            'Presented findings orally and in writing to share results of mathematical analyses.',
-            'Helped office personnel with errands, paperwork and data entry.'
+            'Founded and lead the world\'s most advanced space exploration company',
+            'Developed reusable rocket technology reducing launch costs by 90%',
+            'Successfully launched over 200 missions including crewed flights to ISS',
+            'Pioneered Starship program for Mars colonization'
+          ]
+        },
+        {
+          id: '2',
+          jobTitle: 'CEO & Product Architect',
+          company: 'Tesla, Inc.',
+          location: 'Austin, Texas',
+          startDate: '2008-10-01',
+          isCurrent: true,
+          responsibilities: [
+            'Transformed automotive industry with electric vehicle revolution',
+            'Led development of Model S, Model 3, Model X, Model Y, and Cybertruck',
+            'Built world\'s largest electric vehicle charging network',
+            'Achieved over 2 million vehicles delivered globally'
+          ]
+        },
+        {
+          id: '3',
+          jobTitle: 'CEO & Founder',
+          company: 'Neuralink',
+          location: 'Fremont, California',
+          startDate: '2016-07-01',
+          isCurrent: true,
+          responsibilities: [
+            'Developing brain-computer interface technology',
+            'Creating implantable devices for medical applications',
+            'Advancing human-AI symbiosis research',
+            'Leading breakthrough innovations in neural engineering'
           ]
         }
       ],
       education: [
         {
           id: '1',
-          degree: 'Master of Arts (M.A.): Chemistry',
-          institution: 'Moscow State University',
-          location: 'Moscow',
-          graduationDate: '2026-01-01'
+          degree: 'Bachelor of Science in Physics',
+          institution: 'University of Pennsylvania',
+          location: 'Philadelphia, Pennsylvania',
+          graduationDate: '1997-05-01'
+        },
+        {
+          id: '2',
+          degree: 'Bachelor of Science in Economics',
+          institution: 'University of Pennsylvania',
+          location: 'Philadelphia, Pennsylvania',
+          graduationDate: '1997-05-01'
         }
       ]
     };

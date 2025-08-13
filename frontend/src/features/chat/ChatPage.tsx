@@ -120,8 +120,8 @@ const ChatPage: React.FC = () => {
           
           {/* Правая часть: превью (скрыто на мобильных по умолчанию) */}
           <Box sx={{ 
-            width: { xs: 0, sm: '400px' }, // Скрываем на мобильных
-            minWidth: { xs: 0, sm: '400px' }, // Скрываем на мобильных
+            width: { xs: 0, sm: '450px' }, // Увеличиваем ширину с 400px до 450px
+            minWidth: { xs: 0, sm: '450px' }, // Увеличиваем минимальную ширину
             display: { xs: 'none', sm: 'flex' }, // Скрываем на мобильных
             flexDirection: 'column',
             justifyContent: 'center',
@@ -130,15 +130,15 @@ const ChatPage: React.FC = () => {
           }}>
             {/* Превью резюме */}
             <Box sx={{ 
-              height: '400px',
+              height: '500px', // Увеличиваем высоту с 400px до 500px
               display: 'flex', 
               justifyContent: 'center', 
               alignItems: 'flex-start',
               position: 'relative',
               overflow: 'hidden',
-              '--resume-scale': '0.35'
+              '--resume-scale': '0.45' // Увеличиваем масштаб с 0.35 до 0.45
             }}>
-              <ResumeRenderer data={demoData} scale={0.35} />
+              <ResumeRenderer data={demoData} scale={0.45} />
             </Box>
           </Box>
         </Box>
@@ -196,15 +196,15 @@ const ChatPage: React.FC = () => {
           {/* Превью резюме */}
           <Box sx={{ 
             width: '100%',
-            maxWidth: '400px',
+            maxWidth: '500px', // Увеличиваем максимальную ширину с 400px до 500px
             display: 'flex', 
             justifyContent: 'center', 
             alignItems: 'flex-start',
             position: 'relative',
             overflow: 'hidden',
-            '--resume-scale': '0.6'
+            '--resume-scale': '0.7' // Увеличиваем масштаб с 0.6 до 0.7
           }}>
-            <ResumeRenderer data={demoData} scale={0.6} />
+            <ResumeRenderer data={demoData} scale={0.7} />
           </Box>
         </Box>
       </Box>

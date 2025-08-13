@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import TemplateThumbnail from './TemplateThumbnail';
@@ -12,7 +12,16 @@ interface TemplateSelectorProps {
 const TemplateSelector: React.FC<TemplateSelectorProps> = ({ onTemplateChange }) => {
   const templates = TemplateService.getTemplates();
   const demoData = TemplateService.createDemoData();
-  const [selectedTemplate, setSelectedTemplate] = useState<TemplateConfig | null>(templates[0]);
+  const [selectedTemplate, setSelectedTemplate] = useState<TemplateConfig | null>(
+    TemplateService.getTemplateById('tero') || templates[0]
+  );
+
+  // Вызываем onTemplateChange при инициализации с выбранным шаблоном
+  useEffect(() => {
+    if (selectedTemplate && onTemplateChange) {
+      onTemplateChange(selectedTemplate);
+    }
+  }, []); // Пустой массив зависимостей - выполняется только при монтировании
 
   const handleTemplateSelect = (template: TemplateConfig) => {
     setSelectedTemplate(template);

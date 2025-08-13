@@ -17,10 +17,10 @@ export const startApi = {
     // return response.data;
     
     return {
-      fileId: 'mock-file-id',
+      fileId: 'elon-musk-resume-2024',
       fileName: file.name,
       success: true,
-      message: 'File uploaded successfully'
+      message: 'Resume uploaded successfully. AI assistant is ready to help you refine it!'
     };
   },
 
@@ -36,6 +36,6 @@ export const startApi = {
     // const response = await baseApi.post('/start/from-scratch/');
     // return response.data;
     
-    return { sessionId: 'mock-session-id' };
+    return { sessionId: 'elon-musk-session-2024' };
   }
 }; 

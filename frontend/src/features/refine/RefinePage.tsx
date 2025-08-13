@@ -14,7 +14,7 @@ const RefinePage: React.FC = () => {
   const navigate = useNavigate();
   const demoData = TemplateService.createDemoData();
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateConfig | null>(
-    TemplateService.getTemplates()[0]
+    TemplateService.getTemplateById('tero') || TemplateService.getTemplates()[0]
   );
   const [showPreview, setShowPreview] = useState(false);
 

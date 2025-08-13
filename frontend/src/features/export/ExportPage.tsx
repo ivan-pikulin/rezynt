@@ -5,7 +5,7 @@ import Header from '../../shared/components/Header/Header';
 import DownloadOptions from './components/DownloadOptions';
 import SuccessPage from './components/SuccessPage';
 import { TemplateService } from '../../shared/services/templateService';
-import { NumeTemplate } from '../../shared/components/templates';
+import { TeroTemplate } from '../../shared/components/templates';
 
 const ExportPage: React.FC = () => {
   const navigate = useNavigate();
@@ -125,7 +125,7 @@ const ExportPage: React.FC = () => {
       {/* Скрытый template для экспорта */}
       <Box sx={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
         <div ref={templateContainerRef}>
-          <NumeTemplate 
+          <TeroTemplate 
             data={demoData} 
             isPreview={false}
             scale={1}
