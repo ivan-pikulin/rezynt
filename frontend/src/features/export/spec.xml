@@ -2,24 +2,24 @@
 <feature>
     <info>
         <name>Export Feature</name>
-        <desc>Pricing and export page with Free/Pro plans and download options</desc>
-        <tech>React, TypeScript, Material-UI, jsPDF, html2canvas</tech>
+        <desc>Pricing and export page with Free/Pro plans and download options. Optimized for mobile devices with responsive layout.</desc>
+        <tech>React, TypeScript, Material-UI, jsPDF, html2canvas, Responsive Design</tech>
     </info>
 
     <folder_structure>
         /features/export
         ├── components/
-        │   ├── DownloadOptions.tsx  # Main download options component
+        │   ├── DownloadOptions.tsx  # Main download options component (mobile-optimized)
         │   ├── ProModal.tsx         # Pro subscription modal
         │   ├── PricingTable.tsx    # Legacy pricing table (kept for reference)
         │   └── PricingCard.tsx     # Legacy pricing card (kept for reference)
-        ├── ExportPage.tsx          # Main export page
+        ├── ExportPage.tsx          # Main export page (mobile-optimized)
         ├── exportApi.ts            # API for pricing and downloads
         └── spec.xml                # This file
     </folder_structure>
 
     <components>
-        <component name="ExportPage" desc="Main page with download options and hidden template for export">
+        <component name="ExportPage" desc="Main page with download options and hidden template for export, mobile-optimized">
             <props>
                 <prop name="none" desc="No props required" />
             </props>
@@ -27,8 +27,13 @@
                 <feature name="Hidden Template" desc="Hidden NumeTemplate for PDF export" />
                 <feature name="PDF Export" desc="Direct PDF export using jsPDF and html2canvas" />
             </features>
+            <mobile_features>
+                <feature name="no_logo" desc="Logo is hidden in header on mobile" />
+                <feature name="adaptive_padding" desc="Reduced padding on mobile devices" />
+                <feature name="centered_layout" desc="Download options centered on mobile" />
+            </mobile_features>
         </component>
-        <component name="DownloadOptions" desc="Two download options: Watermarked and Clean">
+        <component name="DownloadOptions" desc="Two download options: Watermarked and Clean, mobile-optimized">
             <props>
                 <prop name="onExportPDF" desc="Function to handle PDF export" />
                 <prop name="isExporting" desc="Boolean to show loading state" />
@@ -38,6 +43,15 @@
                 <feature name="Loading State" desc="Shows spinner and disables button during export" />
                 <feature name="Clean Download" desc="Pro feature - download without watermarks" />
             </features>
+            <mobile_features>
+                <feature name="vertical_layout" desc="Cards stack vertically on mobile devices" />
+                <feature name="compact_cards" desc="Reduced card heights on mobile (200px vs 300px desktop)" />
+                <feature name="touch_optimized" desc="Larger touch targets and touch feedback" />
+                <feature name="adaptive_icons" desc="Responsive icon sizes (48px mobile, 64px desktop)" />
+                <feature name="adaptive_typography" desc="Scalable font sizes based on screen size" />
+                <feature name="mobile_hover" desc="Disabled hover effects on mobile, added active states" />
+                <feature name="reduced_padding" desc="Minimal padding and margins for mobile" />
+            </mobile_features>
         </component>
         <component name="ProModal" desc="Pro subscription modal with pricing plans">
             <props>
@@ -70,6 +84,24 @@
         </component>
     </components>
 
+    <responsive_breakpoints>
+        <breakpoint name="xs" desc="Mobile phones (0px - 600px) - Vertical layout" />
+        <breakpoint name="sm" desc="Tablets (600px - 960px) - Vertical layout" />
+        <breakpoint name="md" desc="Desktop (960px+) - Horizontal layout" />
+    </responsive_breakpoints>
+
+    <mobile_optimizations>
+        <optimization name="layout" desc="Vertical card stacking on mobile, horizontal on desktop" />
+        <optimization name="touch_targets" desc="Minimum 40px height for buttons and interactive elements" />
+        <optimization name="spacing" desc="Reduced padding and margins on smaller screens" />
+        <optimization name="typography" desc="Scalable font sizes based on screen size (0.8rem mobile, 1rem desktop)" />
+        <optimization name="icons" desc="Responsive icon sizes (48px mobile, 64px desktop)" />
+        <optimization name="interactions" desc="Touch feedback instead of hover effects on mobile" />
+        <optimization name="logo_hiding" desc="Logo hidden in header on mobile devices" />
+        <optimization name="compact_cards" desc="Reduced card heights: 200px mobile, 250px tablet, 300px desktop" />
+        <optimization name="max_width" desc="Responsive max-width: 100% mobile, 700px tablet, 800px desktop" />
+    </mobile_optimizations>
+
     <api>
         <endpoint name="getPricing" method="GET" path="/export/pricing/">
             <desc>Get available pricing plans</desc>
@@ -99,8 +131,8 @@
     </api>
 
     <deps>
-        <dep name="Material-UI" purpose="UI components and icons" />
-        <dep name="Shared Header" purpose="Common header component" />
+        <dep name="Material-UI" purpose="UI components, icons, and responsive breakpoints" />
+        <dep name="Shared Header" purpose="Common header component with mobile logo hiding" />
         <dep name="jsPDF" purpose="PDF generation library" />
         <dep name="html2canvas" purpose="HTML to canvas conversion for PDF export" />
         <dep name="NumeTemplate" purpose="Template for PDF export" />
@@ -132,6 +164,21 @@
             <files>
                 <file>ExportPage.tsx - Loading state management</file>
                 <file>DownloadOptions.tsx - Loading UI components</file>
+            </files>
+        </feature>
+        <feature name="Mobile Optimization">
+            <desc>Responsive design for mobile devices</desc>
+            <steps>
+                <step>1. Cards stack vertically on mobile devices</step>
+                <step>2. Reduced card heights and padding for mobile</step>
+                <step>3. Touch-optimized buttons with minimum 40px height</step>
+                <step>4. Disabled hover effects, added touch feedback</step>
+                <step>5. Responsive typography and icon sizes</step>
+                <step>6. Logo hidden in header on mobile</step>
+            </steps>
+            <files>
+                <file>ExportPage.tsx - Mobile layout and padding</file>
+                <file>DownloadOptions.tsx - Mobile card layout and interactions</file>
             </files>
         </feature>
     </implementation>

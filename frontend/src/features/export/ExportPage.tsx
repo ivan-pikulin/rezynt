@@ -74,6 +74,7 @@ const ExportPage: React.FC = () => {
         onBack={handleBack}
         showNextButton={false}
         previousButtonText="Refine"
+        showLogo={false} // Скрываем лого на мобильных
       />
       
       {/* Основная область */}
@@ -82,7 +83,8 @@ const ExportPage: React.FC = () => {
         display: 'flex', 
         justifyContent: 'center',
         alignItems: 'center',
-        p: 4
+        p: { xs: 2, sm: 3, md: 4 }, // Адаптивные отступы
+        py: { xs: 3, sm: 4, md: 6 } // Дополнительные вертикальные отступы
       }}>
         <DownloadOptions onExportPDF={handleExportPDF} isExporting={isExporting} />
       </Box>
