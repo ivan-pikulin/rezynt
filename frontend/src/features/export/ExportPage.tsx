@@ -3,6 +3,7 @@ import Box from '@mui/material/Box';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../shared/components/Header/Header';
 import DownloadOptions from './components/DownloadOptions';
+import SuccessPage from './components/SuccessPage';
 import { TemplateService } from '../../shared/services/templateService';
 import { NumeTemplate } from '../../shared/components/templates';
 
@@ -11,6 +12,7 @@ const ExportPage: React.FC = () => {
   const templateContainerRef = useRef<HTMLDivElement>(null);
   const demoData = TemplateService.createDemoData();
   const [isExporting, setIsExporting] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const handleBack = () => {
     navigate('/refine');
@@ -71,6 +73,9 @@ const ExportPage: React.FC = () => {
       const fullName = `${demoData.personalInfo.firstName} ${demoData.personalInfo.lastName}`;
       const filename = `${fullName.replace(/\s+/g, '_')}_resume.pdf`;
       pdf.save(filename);
+      
+      // Показываем страницу успеха после успешного скачивания
+      setShowSuccess(true);
     } catch (error) {
       console.error('Error exporting to PDF:', error);
       throw error;
@@ -78,6 +83,15 @@ const ExportPage: React.FC = () => {
       setIsExporting(false);
     }
   };
+
+  const handleBackToStart = () => {
+    setShowSuccess(false);
+  };
+
+  // Если показываем страницу успеха, рендерим её
+  if (showSuccess) {
+    return <SuccessPage onBackToStart={handleBackToStart} />;
+  }
 
   return (
     <Box sx={{ 
