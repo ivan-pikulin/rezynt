@@ -22,6 +22,24 @@ const ChatPage: React.FC = () => {
     navigate('/');
   };
 
+  const handleStepClick = (stepIndex: number) => {
+    switch (stepIndex) {
+      case 0: // Start
+        navigate('/');
+        break;
+      case 1: // Generate - уже на этой странице
+        break;
+      case 2: // Refine
+        navigate('/refine');
+        break;
+      case 3: // Export
+        navigate('/export');
+        break;
+      default:
+        break;
+    }
+  };
+
   const togglePreview = () => {
     setShowPreview(!showPreview);
   };
@@ -42,7 +60,8 @@ const ChatPage: React.FC = () => {
         onBack={handleBack}
         nextButtonText="Refine"
         previousButtonText="Start"
-        showLogo={false} // Скрываем лого на мобильных
+        showLogo={true} // Показываем лого на десктопе
+        onStepClick={handleStepClick}
       />
       
       {/* Основная область */}

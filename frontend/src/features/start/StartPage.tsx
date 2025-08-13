@@ -1,9 +1,30 @@
 import React from 'react';
 import Box from '@mui/material/Box';
+import { useNavigate } from 'react-router-dom';
 import Header from '../../shared/components/Header/Header';
 import StartOptions from './components/StartOptions';
 
 const StartPage: React.FC = () => {
+  const navigate = useNavigate();
+
+  const handleStepClick = (stepIndex: number) => {
+    switch (stepIndex) {
+      case 0: // Start - уже на этой странице
+        break;
+      case 1: // Generate
+        navigate('/chat');
+        break;
+      case 2: // Refine
+        navigate('/refine');
+        break;
+      case 3: // Export
+        navigate('/export');
+        break;
+      default:
+        break;
+    }
+  };
+
   return (
     <Box sx={{ 
       minHeight: '100vh', 
@@ -16,7 +37,8 @@ const StartPage: React.FC = () => {
         activeStep={0} 
         showBackButton={false}
         showNextButton={false}
-        showLogo={false} // Скрываем лого на мобильных
+        showLogo={true} // Показываем лого на десктопе
+        onStepClick={handleStepClick}
       />
       
       {/* Основная область */}

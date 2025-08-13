@@ -16,6 +16,24 @@ const ExportPage: React.FC = () => {
     navigate('/refine');
   };
 
+  const handleStepClick = (stepIndex: number) => {
+    switch (stepIndex) {
+      case 0: // Start
+        navigate('/');
+        break;
+      case 1: // Generate
+        navigate('/chat');
+        break;
+      case 2: // Refine
+        navigate('/refine');
+        break;
+      case 3: // Export - уже на этой странице
+        break;
+      default:
+        break;
+    }
+  };
+
   const handleExportPDF = async () => {
     if (!templateContainerRef.current) return;
     
@@ -74,7 +92,8 @@ const ExportPage: React.FC = () => {
         onBack={handleBack}
         showNextButton={false}
         previousButtonText="Refine"
-        showLogo={false} // Скрываем лого на мобильных
+        showLogo={true} // Показываем лого на десктопе
+        onStepClick={handleStepClick}
       />
       
       {/* Основная область */}

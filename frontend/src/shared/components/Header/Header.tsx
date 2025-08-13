@@ -12,6 +12,7 @@ const Header: React.FC<HeaderProps> = ({
   activeStep, 
   onNext, 
   onBack, 
+  onStepClick,
   nextButtonText = 'Next',
   previousButtonText,
   showBackButton = true,
@@ -32,6 +33,12 @@ const Header: React.FC<HeaderProps> = ({
         return 'Refine';
       default:
         return '';
+    }
+  };
+
+  const handleStepClick = (stepIndex: number) => {
+    if (onStepClick) {
+      onStepClick(stepIndex);
     }
   };
 
@@ -79,10 +86,23 @@ const Header: React.FC<HeaderProps> = ({
         {steps.map((label, index) => (
           <Step key={label}>
             <StepLabel 
+              onClick={() => handleStepClick(index)}
               sx={{
+                cursor: onStepClick ? 'pointer' : 'default',
+                transition: 'all 0.2s ease',
+                '&:hover': onStepClick ? {
+                  transform: 'scale(1.05)',
+                } : {},
                 '& .MuiStepLabel-label': {
                   fontSize: { xs: '0.75rem', sm: '0.875rem' },
-                  color: index <= activeStep ? '#1976d2' : '#999'
+                  color: index <= activeStep ? '#1976d2' : '#999',
+                  fontWeight: index === activeStep ? 600 : 400, // Выделяем текущий шаг жирным шрифтом
+                  transform: index === activeStep ? 'scale(1.1)' : 'scale(1)', // Укрупняем текущий шаг
+                  transition: 'all 0.2s ease',
+                },
+                '& .MuiStepLabel-iconContainer': {
+                  transform: index === activeStep ? 'scale(1.2)' : 'scale(1)', // Укрупняем иконку текущего шага
+                  transition: 'all 0.2s ease',
                 }
               }}
             >

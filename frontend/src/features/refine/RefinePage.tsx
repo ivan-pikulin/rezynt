@@ -26,6 +26,24 @@ const RefinePage: React.FC = () => {
     navigate('/chat');
   };
 
+  const handleStepClick = (stepIndex: number) => {
+    switch (stepIndex) {
+      case 0: // Start
+        navigate('/');
+        break;
+      case 1: // Generate
+        navigate('/chat');
+        break;
+      case 2: // Refine - уже на этой странице
+        break;
+      case 3: // Export
+        navigate('/export');
+        break;
+      default:
+        break;
+    }
+  };
+
   const handleTemplateChange = (template: TemplateConfig) => {
     setSelectedTemplate(template);
   };
@@ -50,7 +68,8 @@ const RefinePage: React.FC = () => {
         onBack={handleBack}
         nextButtonText="Export"
         previousButtonText="Generate"
-        showLogo={false} // Скрываем лого на мобильных
+        showLogo={true} // Показываем лого на десктопе
+        onStepClick={handleStepClick}
       />
       
       {/* Основная область */}
