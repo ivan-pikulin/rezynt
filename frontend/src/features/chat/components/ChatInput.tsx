@@ -18,7 +18,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled })
   };
   
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === 'Enter' && !e.shiftKey && !disabled) {
       e.preventDefault();
       handleSend();
     }
@@ -26,49 +26,99 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled })
   
   return (
     <Box sx={{ 
-      p: 1,
+      p: 2,
       display: 'flex',
-      gap: 1,
-      alignItems: 'center'
+      gap: 1.5,
+      alignItems: 'flex-end', // Выравниваем по нижнему краю для лучшего вида
+      width: '100%',
+      position: 'relative' // Для правильного позиционирования
     }}>
       <TextField
         fullWidth
+        multiline
+        maxRows={4}
         size="small"
         value={message}
         onChange={(e) => setMessage(e.target.value)}
         onKeyPress={handleKeyPress}
         placeholder="Type your message..."
-        disabled={disabled}
+        autoFocus // Автоматический фокус
         sx={{
           '& .MuiOutlinedInput-root': {
-            borderRadius: '4px',
-            bgcolor: 'white',
-            fontSize: '1rem', // Увеличиваем размер шрифта
+            borderRadius: '20px', // Более округлые углы
+            bgcolor: '#f8f9fa', // Светло-серый фон
+            fontSize: '0.95rem',
+            minHeight: '44px', // Минимальная высота для удобства
+            paddingRight: '60px', // Место для кнопки
             '& fieldset': {
-              borderColor: '#ddd'
+              borderColor: 'transparent', // Убираем границу
+              borderWidth: '1px'
+            },
+            '&:hover fieldset': {
+              borderColor: '#e0e0e0' // Граница при наведении
+            },
+            '&.Mui-focused fieldset': {
+              borderColor: '#1976d2', // Граница при фокусе
+              borderWidth: '2px'
             },
             '& input': {
-              fontSize: '1rem' // Увеличиваем размер шрифта для ввода
+              fontSize: '0.95rem',
+              padding: '12px 16px' // Увеличиваем отступы
+            },
+            '& textarea': {
+              fontSize: '0.95rem',
+              padding: '12px 16px',
+              lineHeight: '1.4'
+            }
+          },
+          '& .MuiInputBase-input': {
+            '&::placeholder': {
+              color: '#9e9e9e',
+              opacity: 1
             }
           }
         }}
       />
       <IconButton 
-        size="small"
+        size="medium"
         onClick={handleSend}
         disabled={!message.trim() || disabled}
         sx={{ 
-          bgcolor: '#1976d2',
-          color: 'white',
+          bgcolor: message.trim() ? '#1976d2' : '#e0e0e0',
+          color: message.trim() ? 'white' : '#9e9e9e',
+          width: '48px',
+          height: '48px',
+          borderRadius: '50%', // Круглая кнопка
+          transition: 'all 0.2s ease-in-out',
+          position: 'absolute', // Абсолютное позиционирование
+          right: '24px', // Отступ от правого края
+          bottom: '24px', // Отступ от нижнего края
+          zIndex: 1, // Поверх текстового поля
           '&:hover': {
-            bgcolor: '#1565c0'
+            bgcolor: message.trim() ? '#1565c0' : '#d5d5d5',
+            transform: 'scale(1.05)',
+            boxShadow: '0 4px 12px rgba(25, 118, 210, 0.3)' // Тень при наведении
+          },
+          '&:active': {
+            transform: 'scale(0.95)',
+            boxShadow: '0 2px 8px rgba(25, 118, 210, 0.2)'
           },
           '&:disabled': {
-            bgcolor: '#ccc'
+            bgcolor: '#f5f5f5',
+            color: '#bdbdbd',
+            transform: 'none',
+            boxShadow: 'none'
+          },
+          '& .MuiSvgIcon-root': {
+            fontSize: '20px', // Увеличиваем размер иконки
+            transition: 'transform 0.2s ease-in-out'
+          },
+          '&:hover .MuiSvgIcon-root': {
+            transform: 'translateX(1px)' // Легкое смещение иконки при наведении
           }
         }}
       >
-        <SendIcon fontSize="small" />
+        <SendIcon />
       </IconButton>
     </Box>
   );

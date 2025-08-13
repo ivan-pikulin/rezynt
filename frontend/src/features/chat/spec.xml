@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <chat_feature>
     <info>
-        <desc>Interactive chat feature for resume creation assistant with mobile-optimized layout and full-screen preview panel</desc>
+        <desc>Interactive chat feature for resume creation assistant with mobile-optimized layout, full-screen preview panel, and proper scroll behavior</desc>
         <tech>React, TypeScript, Material-UI, Custom Hooks, Responsive Design</tech>
     </info>
     <folder_structure>
         /features/chat
         ├── components/ # Chat UI components
-        │   ├── ChatWindow.tsx # Main chat container
+        │   ├── ChatWindow.tsx # Main chat container with scrollable messages and fixed input
         │   ├── ChatMessage.tsx # Individual message component
         │   ├── ChatInput.tsx # Message input component
         │   └── index.ts # Component exports
@@ -37,9 +37,29 @@
                 </mobile_features>
             </component>
             <component name="MainDialogPage" desc="Main page with progress bar, full-height chat window and vertically centered resume preview with next button"/>
-            <component name="ChatWindow" desc="Chat container with messages and input that uses full available height"/>
+            <component name="ChatWindow" desc="Chat container with scrollable messages area and fixed input at bottom">
+                <layout>
+                    <feature name="flex_container" desc="Flex column layout with proper overflow handling" />
+                    <feature name="fixed_height" desc="Container has maxHeight: 100% to prevent overflow" />
+                    <feature name="scrollable_messages" desc="Messages area with overflow-y: auto, flex: 1, and maxHeight: calc(100% - 80px)" />
+                    <feature name="fixed_input" desc="Input component fixed at bottom with flexShrink: 0 and height: 80px" />
+                    <feature name="border_separator" desc="Top border separating messages from input area" />
+                    <feature name="height_constraints" desc="Proper height constraints prevent input from going off-screen" />
+                </layout>
+            </component>
             <component name="ChatMessage" desc="Individual message display with avatar and loading states"/>
-            <component name="ChatInput" desc="Message input field with send button"/>
+            <component name="ChatInput" desc="Modern message input field with rounded design, multiline support, and animated send button">
+                <features>
+                    <feature name="rounded_design" desc="Rounded input field with 20px border radius" />
+                    <feature name="multiline_support" desc="Supports multiple lines with max 4 rows" />
+                    <feature name="overlapping_button" desc="Send button positioned inside input field with absolute positioning" />
+                    <feature name="dynamic_button" desc="Send button changes color based on message content" />
+                    <feature name="smooth_animations" desc="Hover and active animations with shadow effects" />
+                    <feature name="responsive_height" desc="Auto-height with minimum 88px constraint" />
+                    <feature name="modern_styling" desc="Light gray background with focus states" />
+                    <feature name="icon_animation" desc="Icon slides slightly on hover for better UX" />
+                </features>
+            </component>
         </feature>
     </components>
     <responsive_breakpoints>
@@ -59,6 +79,16 @@
         <optimization name="logo_hiding" desc="Logo hidden in header on mobile devices" />
     </mobile_optimizations>
     <functionality>
+        <feature name="scroll_behavior" desc="Proper scroll behavior for chat messages with fixed height">
+            <implementation>
+                <feature name="fixed_container" desc="Chat container has fixed height and cannot grow beyond screen bounds" />
+                <feature name="scrollable_area" desc="Messages area scrolls independently when content overflows" />
+                <feature name="fixed_input" desc="Input component stays fixed at bottom with fixed height of 80px" />
+                <feature name="flex_layout" desc="Uses flexbox with flex: 1 for messages and flexShrink: 0 for input" />
+                <feature name="overflow_handling" desc="Proper overflow: hidden on container and overflow-y: auto on messages" />
+                <feature name="height_constraints" desc="maxHeight: calc(100% - 88px) ensures input never goes off-screen" />
+            </implementation>
+        </feature>
         <feature name="preview_panel" desc="Full-screen preview panel on mobile">
             <flow>
                 1. User sees chat interface by default on mobile

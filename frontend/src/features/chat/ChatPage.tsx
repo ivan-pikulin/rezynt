@@ -67,6 +67,7 @@ const ChatPage: React.FC = () => {
       {/* Основная область */}
       <Box sx={{ 
         flex: 1, 
+        minHeight: 0, // Важно для правильной работы flex
         display: 'flex', 
         p: { xs: 1, sm: 2 }, // Уменьшаем отступы на мобильных
         gap: { xs: 0, sm: 2 }, // Убираем отступы между элементами на мобильных
@@ -111,6 +112,7 @@ const ChatPage: React.FC = () => {
           <Box sx={{ 
             flex: { xs: 1, sm: 2 }, // Занимаем всю ширину на мобильных
             minWidth: 0, 
+            minHeight: 0, // Важно для правильной работы flex
             p: { xs: 1, sm: 2 }, // Уменьшаем отступы на мобильных
             display: 'flex', 
             flexDirection: 'column' 
