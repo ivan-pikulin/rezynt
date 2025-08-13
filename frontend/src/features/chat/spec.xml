@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <chat_feature>
     <info>
-        <desc>Interactive chat feature for resume creation assistant</desc>
-        <tech>React, TypeScript, Material-UI, Custom Hooks</tech>
+        <desc>Interactive chat feature for resume creation assistant with mobile-optimized layout and full-screen preview panel</desc>
+        <tech>React, TypeScript, Material-UI, Custom Hooks, Responsive Design</tech>
     </info>
     <folder_structure>
         /features/chat
@@ -17,18 +17,60 @@
         │   └── chatApi.ts # Chat API with mock implementation
         ├── types/ # TypeScript interfaces
         │   └── chat.ts # Chat message and API types
+        ├── ChatPage.tsx # Main chat page with responsive layout and full-screen preview panel
         └── pages/ # Chat pages
             └── MainDialogPage.tsx # Main dialog page with progress bar
     </folder_structure>
     <components>
         <feature name="chat" desc="Interactive chat with AI assistant">
+            <component name="ChatPage" desc="Main page with responsive layout - chat only on mobile by default, chat + preview on desktop">
+                <mobile_features>
+                    <feature name="chat_only_default" desc="Shows only chat interface on mobile devices by default" />
+                    <feature name="hamburger_menu" desc="Three horizontal lines button in top-right corner" />
+                    <feature name="full_screen_panel" desc="Full-screen overlay panel with resume preview" />
+                    <feature name="panel_header" desc="Panel header with title and close button" />
+                    <feature name="larger_preview" desc="Larger resume preview scale (0.6) in full-screen panel" />
+                    <feature name="slide_animation" desc="Slide-in animation from right to left" />
+                    <feature name="no_logo" desc="Logo is hidden in header on mobile" />
+                    <feature name="minimal_padding" desc="Reduced padding and margins for mobile" />
+                    <feature name="no_border_radius" desc="Removed border radius and shadow on mobile" />
+                </mobile_features>
+            </component>
             <component name="MainDialogPage" desc="Main page with progress bar, full-height chat window and vertically centered resume preview with next button"/>
             <component name="ChatWindow" desc="Chat container with messages and input that uses full available height"/>
             <component name="ChatMessage" desc="Individual message display with avatar and loading states"/>
             <component name="ChatInput" desc="Message input field with send button"/>
         </feature>
     </components>
+    <responsive_breakpoints>
+        <breakpoint name="xs" desc="Mobile phones (0px - 600px) - Chat with full-screen preview panel" />
+        <breakpoint name="sm" desc="Tablets and desktop (600px+) - Chat + preview always visible" />
+    </responsive_breakpoints>
+    <mobile_optimizations>
+        <optimization name="layout" desc="Single column layout on mobile, two columns on desktop" />
+        <optimization name="hamburger_button" desc="Three horizontal lines button in top-right corner" />
+        <optimization name="full_screen_overlay" desc="Full-screen overlay panel for preview" />
+        <optimization name="slide_animation" desc="Smooth slide-in animation from right" />
+        <optimization name="panel_header" desc="Header with title and close button in panel" />
+        <optimization name="larger_scale" desc="Larger preview scale (0.6) in full-screen mode" />
+        <optimization name="full_width_chat" desc="Chat interface takes 100% width when panel is closed" />
+        <optimization name="minimal_ui" desc="Removed decorative elements (shadows, borders) on mobile" />
+        <optimization name="reduced_padding" desc="Minimal padding and spacing for mobile screens" />
+        <optimization name="logo_hiding" desc="Logo hidden in header on mobile devices" />
+    </mobile_optimizations>
     <functionality>
+        <feature name="preview_panel" desc="Full-screen preview panel on mobile">
+            <flow>
+                1. User sees chat interface by default on mobile
+                2. Hamburger menu button (three lines) appears in top-right corner
+                3. User clicks button to open full-screen preview panel
+                4. Panel slides in from right with smooth animation
+                5. Panel shows "Resume Preview" header with close button
+                6. Larger resume preview is displayed in panel
+                7. User can close panel with X button
+                8. Panel slides out to the right
+            </flow>
+        </feature>
         <feature name="message_sending" desc="Send user messages and receive AI responses">
             <flow>
                 1. User types message in ChatInput
