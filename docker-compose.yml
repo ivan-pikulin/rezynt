@@ -87,8 +87,6 @@ services:
     networks:
       - app-network
       - backend-network
-    ports:
-      - "8000:8000"
 
   celery:
     build:
