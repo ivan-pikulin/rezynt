@@ -120,8 +120,8 @@ const ChatPage: React.FC = () => {
           
           {/* Правая часть: превью (скрыто на мобильных по умолчанию) */}
           <Box sx={{ 
-            width: { xs: 0, sm: '450px' }, // Увеличиваем ширину с 400px до 450px
-            minWidth: { xs: 0, sm: '450px' }, // Увеличиваем минимальную ширину
+            width: { xs: 0, sm: '500px' }, // Увеличиваем ширину с 450px до 500px
+            minWidth: { xs: 0, sm: '500px' }, // Увеличиваем минимальную ширину
             display: { xs: 'none', sm: 'flex' }, // Скрываем на мобильных
             flexDirection: 'column',
             justifyContent: 'center',
@@ -130,15 +130,15 @@ const ChatPage: React.FC = () => {
           }}>
             {/* Превью резюме */}
             <Box sx={{ 
-              height: '500px', // Увеличиваем высоту с 400px до 500px
+              height: '600px', // Увеличиваем высоту с 500px до 600px
               display: 'flex', 
               justifyContent: 'center', 
               alignItems: 'flex-start',
               position: 'relative',
               overflow: 'hidden',
-              '--resume-scale': '0.45' // Увеличиваем масштаб с 0.35 до 0.45
+              '--resume-scale': '0.55' // Увеличиваем масштаб с 0.45 до 0.55
             }}>
-              <ResumeRenderer data={demoData} scale={0.45} />
+              <ResumeRenderer data={demoData} scale={0.55} />
             </Box>
           </Box>
         </Box>
@@ -196,15 +196,15 @@ const ChatPage: React.FC = () => {
           {/* Превью резюме */}
           <Box sx={{ 
             width: '100%',
-            maxWidth: '500px', // Увеличиваем максимальную ширину с 400px до 500px
+            maxWidth: '600px', // Увеличиваем максимальную ширину с 500px до 600px
             display: 'flex', 
             justifyContent: 'center', 
             alignItems: 'flex-start',
             position: 'relative',
             overflow: 'hidden',
-            '--resume-scale': '0.7' // Увеличиваем масштаб с 0.6 до 0.7
+            '--resume-scale': '0.8' // Увеличиваем масштаб с 0.7 до 0.8
           }}>
-            <ResumeRenderer data={demoData} scale={0.7} />
+            <ResumeRenderer data={demoData} scale={0.8} />
           </Box>
         </Box>
       </Box>

@@ -49,10 +49,10 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, isLoading = f
     }}>
       {!isUser && (
         <Avatar sx={{ 
-          width: 32, 
-          height: 32, 
+          width: 36, // Увеличиваем с 32 до 36
+          height: 36, // Увеличиваем с 32 до 36
           bgcolor: '#9c27b0',
-          fontSize: '0.875rem'
+          fontSize: '1rem' // Увеличиваем с 0.875rem до 1rem
         }}>
           A
         </Avatar>
@@ -64,7 +64,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, isLoading = f
         p: 1.5,
         borderRadius: '8px',
         maxWidth: '70%',
-        fontSize: '0.875rem',
+        fontSize: '1rem', // Увеличиваем с 0.875rem до 1rem
         display: 'flex',
         alignItems: 'center',
         gap: 1,
@@ -72,13 +72,13 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, isLoading = f
       }}>
         {showLoading ? (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-            <Typography variant="body2" sx={{ fontSize: '0.875rem' }}>
+            <Typography variant="body2" sx={{ fontSize: '1rem' }}> {/* Увеличиваем с 0.875rem до 1rem */}
               Thinking
             </Typography>
             <AnimatedDots />
           </Box>
         ) : (
-          <Typography variant="body2" sx={{ fontSize: '0.875rem' }}>
+          <Typography variant="body2" sx={{ fontSize: '1rem' }}> {/* Увеличиваем с 0.875rem до 1rem */}
             {message.content}
           </Typography>
         )}
@@ -86,9 +86,10 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, isLoading = f
       
       {isUser && (
         <Avatar sx={{ 
-          width: 32, 
-          height: 32,
-          bgcolor: '#ff9800'
+          width: 36, // Увеличиваем с 32 до 36
+          height: 36, // Увеличиваем с 32 до 36
+          bgcolor: '#ff9800',
+          fontSize: '1rem' // Увеличиваем с дефолтного до 1rem
         }}>
           U
         </Avatar>

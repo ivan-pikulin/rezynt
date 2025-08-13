@@ -43,8 +43,12 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled })
           '& .MuiOutlinedInput-root': {
             borderRadius: '4px',
             bgcolor: 'white',
+            fontSize: '1rem', // Увеличиваем размер шрифта
             '& fieldset': {
               borderColor: '#ddd'
+            },
+            '& input': {
+              fontSize: '1rem' // Увеличиваем размер шрифта для ввода
             }
           }
         }}
