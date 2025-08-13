@@ -2,26 +2,32 @@
 <feature>
     <info>
         <name>Start Feature</name>
-        <desc>Initial page for resume creation with two options: start from scratch or upload existing resume</desc>
-        <tech>React, TypeScript, Material-UI</tech>
+        <desc>Initial page for resume creation with two options: start from scratch or upload existing resume. Optimized for mobile devices with responsive design and compact layout.</desc>
+        <tech>React, TypeScript, Material-UI, Responsive Design</tech>
     </info>
 
     <folder_structure>
         /features/start
         ├── components/
-        │   └── StartOptions.tsx    # Component with two choice cards
-        ├── StartPage.tsx           # Main start page
+        │   └── StartOptions.tsx    # Component with two choice cards (mobile-optimized, compact)
+        ├── StartPage.tsx           # Main start page (mobile-optimized, no logo on mobile)
         ├── startApi.ts             # API for file upload and session creation
         └── spec.xml                # This file
     </folder_structure>
 
     <components>
-        <component name="StartPage" desc="Main page with header and centered options">
+        <component name="StartPage" desc="Main page with header and centered options, optimized for mobile">
             <props>
                 <prop name="none" desc="No props required" />
             </props>
+            <mobile_features>
+                <feature name="responsive_padding" desc="Adaptive padding based on screen size" />
+                <feature name="flexible_height" desc="Min-height instead of fixed height for better mobile experience" />
+                <feature name="header_aware_layout" desc="Calculates available space considering header height" />
+                <feature name="no_logo_mobile" desc="Logo is hidden on mobile devices to save space" />
+            </mobile_features>
         </component>
-        <component name="StartOptions" desc="Two cards for choosing resume creation method">
+        <component name="StartOptions" desc="Two cards for choosing resume creation method, mobile-optimized and compact">
             <props>
                 <prop name="none" desc="No props required" />
             </props>
@@ -29,8 +35,36 @@
                 <event name="onStartFromScratch" desc="Navigate to chat page" />
                 <event name="onUploadResume" desc="Handle file upload" />
             </events>
+            <mobile_features>
+                <feature name="vertical_layout" desc="Cards stack vertically on mobile devices" />
+                <feature name="touch_optimized" desc="Larger touch targets and touch feedback" />
+                <feature name="adaptive_sizing" desc="Responsive typography, icons, and spacing" />
+                <feature name="mobile_hover" desc="Disabled hover effects on mobile, added active states" />
+                <feature name="compact_cards" desc="Reduced card heights and spacing for mobile (160px vs 250px desktop)" />
+                <feature name="smaller_icons" desc="Reduced icon sizes on mobile (40px vs 56px desktop)" />
+                <feature name="compact_typography" desc="Smaller font sizes and tighter line spacing on mobile" />
+                <feature name="reduced_padding" desc="Minimal padding and margins for compact mobile layout" />
+            </mobile_features>
         </component>
     </components>
+
+    <responsive_breakpoints>
+        <breakpoint name="xs" desc="Mobile phones (0px - 600px)" />
+        <breakpoint name="sm" desc="Tablets (600px - 960px)" />
+        <breakpoint name="md" desc="Desktop (960px+)" />
+    </responsive_breakpoints>
+
+    <mobile_optimizations>
+        <optimization name="layout" desc="Vertical card stacking on mobile, horizontal on desktop" />
+        <optimization name="touch_targets" desc="Minimum 40px height for buttons and interactive elements" />
+        <optimization name="spacing" desc="Reduced padding and margins on smaller screens" />
+        <optimization name="typography" desc="Scalable font sizes based on screen size (0.8rem mobile, 1rem desktop)" />
+        <optimization name="icons" desc="Responsive icon sizes (40px mobile, 56px desktop)" />
+        <optimization name="interactions" desc="Touch feedback instead of hover effects on mobile" />
+        <optimization name="logo_hiding" desc="Logo hidden on mobile devices to maximize content space" />
+        <optimization name="compact_cards" desc="Reduced card heights: 160px mobile, 200px tablet, 250px desktop" />
+        <optimization name="max_width" desc="Responsive max-width: 100% mobile, 700px tablet, 800px desktop" />
+    </mobile_optimizations>
 
     <api>
         <endpoint name="uploadResume" method="POST" path="/start/upload-resume/">
@@ -46,8 +80,8 @@
     </api>
 
     <deps>
-        <dep name="Material-UI" purpose="UI components and icons" />
+        <dep name="Material-UI" purpose="UI components, icons, and responsive breakpoints" />
         <dep name="React Router" purpose="Navigation" />
-        <dep name="Shared Header" purpose="Common header component" />
+        <dep name="Shared Header" purpose="Common header component with mobile logo hiding" />
     </deps>
 </feature> 

@@ -6,4 +6,5 @@ export interface HeaderProps {
   previousButtonText?: string;
   showBackButton?: boolean;
   showNextButton?: boolean;
+  showLogo?: boolean;
 } 
