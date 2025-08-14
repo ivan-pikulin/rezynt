@@ -2,7 +2,7 @@
 <specification>
     <name>API Endpoints</name>
     <description>
-        API эндпоинты для работы с резюме. Включает загрузку файлов и управление шаблонами.
+        API эндпоинты для работы с резюме. Включает загрузку файлов, управление шаблонами, получение и обновление резюме и их разделов.
     </description>
     
     <components>
@@ -12,6 +12,120 @@
                 Эндпоинты для работы с резюме пользователей.
             </description>
             <endpoints>
+                <endpoint>
+                    <path>/</path>
+                    <method>GET</method>
+                    <description>
+                        Получение всех резюме текущего пользователя. Доступно только пользователям с подтвержденным email.
+                    </description>
+                    <authentication>VerifiedUser (JWT token + verified email)</authentication>
+                    <returns type="List[Resume]">Список всех резюме пользователя</returns>
+                    <status_codes>
+                        <code>200">Успешное получение списка резюме</code>
+                        <code>401">Не авторизован</code>
+                        <code>403">Email не подтвержден</code>
+                    </status_codes>
+                </endpoint>
+                
+                <endpoint>
+                    <path>/{resume_id}</path>
+                    <method>GET</method>
+                    <description>
+                        Получение конкретного резюме по ID. Доступно только пользователям с подтвержденным email.
+                    </description>
+                    <authentication>VerifiedUser (JWT token + verified email)</authentication>
+                    <params>
+                        <param name="resume_id" type="UUID">ID резюме</param>
+                    </params>
+                    <returns type="Resume">Данные резюме</returns>
+                    <status_codes>
+                        <code>200">Успешное получение резюме</code>
+                        <code>401">Не авторизован</code>
+                        <code>403">Email не подтвержден</code>
+                        <code>404">Резюме не найдено или доступ запрещен</code>
+                    </status_codes>
+                </endpoint>
+                
+                <endpoint>
+                    <path>/{resume_id}/section/{section_name}</path>
+                    <method>GET</method>
+                    <description>
+                        Получение конкретного раздела резюме. Доступно только пользователям с подтвержденным email.
+                    </description>
+                    <authentication>VerifiedUser (JWT token + verified email)</authentication>
+                    <params>
+                        <param name="resume_id" type="UUID">ID резюме</param>
+                        <param name="section_name" type="str">Название раздела</param>
+                    </params>
+                    <returns type="Dict[str, Any]">
+                        {
+                            "resume_id": "uuid",
+                            "section_name": "string",
+                            "content": "section_data"
+                        }
+                    </returns>
+                    <status_codes>
+                        <code>200">Успешное получение раздела</code>
+                        <code>401">Не авторизован</code>
+                        <code>403">Email не подтвержден</code>
+                        <code>404">Резюме или раздел не найден</code>
+                    </status_codes>
+                </endpoint>
+                
+                <endpoint>
+                    <path>/{resume_id}</path>
+                    <method>PUT</method>
+                    <description>
+                        Полное обновление резюме. Доступно только пользователям с подтвержденным email.
+                    </description>
+                    <authentication>VerifiedUser (JWT token + verified email)</authentication>
+                    <params>
+                        <param name="resume_id" type="UUID">ID резюме</param>
+                        <param name="resume_update" type="ResumeUpdate">Данные для обновления</param>
+                    </params>
+                    <returns type="Resume">Обновленное резюме</returns>
+                    <status_codes>
+                        <code>200">Резюме успешно обновлено</code>
+                        <code>401">Не авторизован</code>
+                        <code>403">Email не подтвержден</code>
+                        <code>404">Резюме не найдено или доступ запрещен</code>
+                    </status_codes>
+                </endpoint>
+                
+                <endpoint>
+                    <path>/{resume_id}/section/{section_name}</path>
+                    <method>PUT</method>
+                    <description>
+                        Обновление конкретного раздела резюме. Доступно только пользователям с подтвержденным email.
+                    </description>
+                    <authentication>VerifiedUser (JWT token + verified email)</authentication>
+                    <params>
+                        <param name="resume_id" type="UUID">ID резюме</param>
+                        <param name="section_name" type="str">Название раздела</param>
+                        <param name="section_content" type="Dict[str, Any]">Новое содержимое раздела</param>
+                    </params>
+                    <returns type="Dict[str, Any]">
+                        {
+                            "resume_id": "uuid",
+                            "section_name": "string",
+                            "content": "updated_section_data",
+                            "message": "Section updated successfully"
+                        }
+                    </returns>
+                    <status_codes>
+                        <code>200">Раздел успешно обновлен</code>
+                        <code>401">Не авторизован</code>
+                        <code>403">Email не подтвержден</code>
+                        <code>404">Резюме не найдено или доступ запрещен</code>
+                    </status_codes>
+                    <business_logic>
+                        <step>Проверка принадлежности резюме текущему пользователю</step>
+                        <step>Копирование текущего содержимого резюме</step>
+                        <step>Обновление конкретного раздела</step>
+                        <step>Сохранение обновленного резюме</step>
+                    </business_logic>
+                </endpoint>
+                
                 <endpoint>
                     <path>/upload</path>
                     <method>POST</method>
@@ -70,7 +184,7 @@
         <dependency>app.api.deps (VerifiedUser, AsyncDB)</dependency>
         <dependency>app.database.crud.crud_resume (resume_crud)</dependency>
         <dependency>app.database.crud.crud_template (template_crud)</dependency>
-        <dependency>app.schemas.resume (ResumeUpdate)</dependency>
+        <dependency>app.schemas.resume (ResumeUpdate, Resume)</dependency>
         <dependency>fastapi (APIRouter, File, UploadFile, HTTPException, status)</dependency>
     </dependencies>
     
@@ -79,4 +193,32 @@
         <authorization>Email verification required</authorization>
         <access_control>Users can only access their own resumes</access_control>
     </security>
+    
+    <data_structures>
+        <structure>
+            <name>Resume</name>
+            <description>Основная модель резюме</description>
+            <fields>
+                <field name="id" type="UUID">Уникальный идентификатор</field>
+                <field name="user_id" type="UUID">ID пользователя-владельца</field>
+                <field name="title" type="str">Название резюме</field>
+                <field name="template_id" type="UUID">ID используемого шаблона</field>
+                <field name="content" type="Dict[str, Any]">Содержимое резюме по разделам</field>
+                <field name="conversation_id" type="Optional[str]">ID связанной беседы</field>
+                <field name="created_at" type="datetime">Дата создания</field>
+                <field name="updated_at" type="datetime">Дата последнего обновления</field>
+            </fields>
+        </structure>
+        
+        <structure>
+            <name>ResumeUpdate</name>
+            <description>Модель для обновления резюме</description>
+            <fields>
+                <field name="title" type="Optional[str]">Название резюме</field>
+                <field name="template_id" type="Optional[UUID]">ID шаблона</field>
+                <field name="content" type="Optional[Dict[str, Any]]">Содержимое резюме</field>
+                <field name="conversation_id" type="Optional[str]">ID беседы</field>
+            </fields>
+        </structure>
+    </data_structures>
 </specification>
