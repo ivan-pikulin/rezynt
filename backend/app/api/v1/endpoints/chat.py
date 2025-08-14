@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from app.api.deps import VerifiedUser, get_db
 from app.services import PlatformAgent
 from app.core.config import settings
-from app.database.crud.crud_resume import resume
+from app.database.crud.crud_resume import resume_crud
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -27,7 +27,7 @@ async def send_message(
     Send message to chat.
     """
     # Получаем резюме
-    resume_obj = await resume.get(db, id=request.resume_id)
+    resume_obj = await resume_crud.get(db, id=request.resume_id)
     if not resume_obj:
         raise HTTPException(status_code=404, detail="Resume not found")
     
@@ -53,7 +53,7 @@ async def send_message(
         # Обновляем conversation_id в резюме, если он изменился
         if response.conversation_id and response.conversation_id != resume_obj.conversation_id:
             resume_obj.conversation_id = response.conversation_id
-            await resume.update(db, db_obj=resume_obj, obj_in={"conversation_id": response.conversation_id})
+            await resume_crud.update(db, db_obj=resume_obj, obj_in={"conversation_id": response.conversation_id})
         
         return {
             "message": "Message sent successfully",
