@@ -47,6 +47,10 @@ jobs:
             echo "Starting containers..."
             docker compose --env-file .env up -d --remove-orphans
             
+            # Restart nginx container to ensure it picks up any configuration changes
+            echo "Restarting nginx container..."
+            docker compose --env-file .env restart nginx
+            
             # Cleanup old images
             echo "Cleaning up old Docker images..."
             docker image prune -f
