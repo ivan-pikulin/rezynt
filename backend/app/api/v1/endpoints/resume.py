@@ -3,9 +3,13 @@ from uuid import UUID
 
 from fastapi import APIRouter, File, UploadFile, HTTPException, status
 from app.api.deps import VerifiedUser, AsyncDB
-from app.database.crud.crud_resume import resume_crud
+from app.database.crud.crud_resume import resume_crud, resume_manager
 from app.database.crud.crud_template import template_crud
-from app.schemas.resume import ResumeUpdate, Resume
+from app.schemas.resume import (
+    ResumeCreate, ResumeUpdate, Resume, ResumePartialUpdate,
+    ResumePersonalInfoUpdate, ResumeSkillCreate, ResumeExperienceCreate, 
+    ResumeEducationCreate, ResumeExportCreate
+)
 
 router = APIRouter()
 
@@ -21,6 +25,32 @@ async def get_user_resumes(
     """
     resumes = await resume_crud.get_by_user_id(db, user_id=current_user.id)
     return resumes
+
+
+@router.post("/", response_model=Resume)
+async def create_resume(
+    resume_create: ResumeCreate,
+    current_user: VerifiedUser = None,
+    db: AsyncDB = None
+) -> Resume:
+    """
+    Create a new resume for the current user.
+    Only available for users with verified email.
+    """
+    # Check if template exists
+    template = await template_crud.get(db, id=resume_create.template_id)
+    if not template:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Template not found"
+        )
+    
+    # Create resume with user_id
+    resume_data = resume_create.model_dump()
+    resume_data['user_id'] = current_user.id
+    resume = await resume_crud.create(db, obj_in=ResumeCreate(**resume_data))
+    
+    return resume
 
 
 @router.get("/{resume_id}", response_model=Resume)
@@ -44,15 +74,15 @@ async def get_resume(
     return resume
 
 
-@router.get("/{resume_id}/section/{section_name}")
-async def get_resume_section(
+@router.patch("/{resume_id}", response_model=Resume)
+async def partial_update_resume(
     resume_id: UUID,
-    section_name: str,
+    resume_update: ResumePartialUpdate,
     current_user: VerifiedUser = None,
     db: AsyncDB = None
-) -> Dict[str, Any]:
+) -> Resume:
     """
-    Get a specific section of a resume.
+    Partially update a resume with any combination of fields.
     Only available for users with verified email.
     """
     resume = await resume_crud.get_by_user_id_and_id(
@@ -64,17 +94,29 @@ async def get_resume_section(
             detail="Resume not found or access denied"
         )
     
-    if section_name not in resume.content:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Section '{section_name}' not found in resume"
+    # Update main resume fields
+    main_update_data = {}
+    if resume_update.title is not None:
+        main_update_data["title"] = resume_update.title
+    if resume_update.template_id is not None:
+        main_update_data["template_id"] = resume_update.template_id
+    if resume_update.professional_summary is not None:
+        main_update_data["professional_summary"] = resume_update.professional_summary
+    if resume_update.conversation_id is not None:
+        main_update_data["conversation_id"] = resume_update.conversation_id
+    
+    if main_update_data:
+        main_update = ResumeUpdate(**main_update_data)
+        resume = await resume_crud.update(db, db_obj=resume, obj_in=main_update)
+    
+    # Update personal info if provided
+    if resume_update.personal_info:
+        await resume_manager.update_personal_info(
+            db, resume_id=resume_id, personal_info=resume_update.personal_info
         )
     
-    return {
-        "resume_id": str(resume.id),
-        "section_name": section_name,
-        "content": resume.content[section_name]
-    }
+    # Return updated resume
+    return await resume_crud.get_by_user_id_and_id(db, user_id=current_user.id, resume_id=resume_id)
 
 
 @router.put("/{resume_id}", response_model=Resume)
@@ -101,16 +143,16 @@ async def update_resume(
     return updated_resume
 
 
-@router.put("/{resume_id}/section/{section_name}")
-async def update_resume_section(
+# Personal Info endpoints
+@router.patch("/{resume_id}/personal-info")
+async def update_personal_info(
     resume_id: UUID,
-    section_name: str,
-    section_content: Dict[str, Any],
+    personal_info: ResumePersonalInfoUpdate,
     current_user: VerifiedUser = None,
     db: AsyncDB = None
 ) -> Dict[str, Any]:
     """
-    Update a specific section of a resume.
+    Update personal information for a resume.
     Only available for users with verified email.
     """
     resume = await resume_crud.get_by_user_id_and_id(
@@ -122,22 +164,458 @@ async def update_resume_section(
             detail="Resume not found or access denied"
         )
     
-    # Create a copy of the current content and update the specific section
-    updated_content = resume.content.copy()
-    updated_content[section_name] = section_content
-    
-    # Create update object with new content
-    resume_update = ResumeUpdate(content=updated_content)
-    updated_resume = await resume_crud.update(db, db_obj=resume, obj_in=resume_update)
+    updated_info = await resume_manager.update_personal_info(
+        db, resume_id=resume_id, personal_info=personal_info
+    )
     
     return {
-        "resume_id": str(updated_resume.id),
-        "section_name": section_name,
-        "content": updated_resume.content[section_name],
-        "message": f"Section '{section_name}' updated successfully"
+        "resume_id": str(resume_id),
+        "personal_info": updated_info,
+        "message": "Personal information updated successfully"
     }
 
 
+# Skills endpoints
+@router.post("/{resume_id}/skills")
+async def add_skill(
+    resume_id: UUID,
+    skill_data: ResumeSkillCreate,
+    current_user: VerifiedUser = None,
+    db: AsyncDB = None
+) -> Dict[str, Any]:
+    """
+    Add a skill to a resume.
+    Only available for users with verified email.
+    """
+    resume = await resume_crud.get_by_user_id_and_id(
+        db, user_id=current_user.id, resume_id=resume_id
+    )
+    if not resume:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Resume not found or access denied"
+        )
+    
+    skill = await resume_manager.add_skill(db, resume_id=resume_id, skill_name=skill_data.name)
+    
+    return {
+        "resume_id": str(resume_id),
+        "skill": skill,
+        "message": "Skill added successfully"
+    }
+
+
+@router.delete("/{resume_id}/skills/{skill_id}")
+async def remove_skill(
+    resume_id: UUID,
+    skill_id: UUID,
+    current_user: VerifiedUser = None,
+    db: AsyncDB = None
+) -> Dict[str, Any]:
+    """
+    Remove a skill from a resume.
+    Only available for users with verified email.
+    """
+    resume = await resume_crud.get_by_user_id_and_id(
+        db, user_id=current_user.id, resume_id=resume_id
+    )
+    if not resume:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Resume not found or access denied"
+        )
+    
+    success = await resume_manager.remove_skill(db, resume_id=resume_id, skill_id=skill_id)
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Skill not found or does not belong to this resume"
+        )
+    
+    return {
+        "resume_id": str(resume_id),
+        "skill_id": str(skill_id),
+        "message": "Skill removed successfully"
+    }
+
+
+@router.put("/{resume_id}/skills/order")
+async def update_skill_order(
+    resume_id: UUID,
+    skill_ids: List[UUID],
+    current_user: VerifiedUser = None,
+    db: AsyncDB = None
+) -> Dict[str, Any]:
+    """
+    Update the order of skills in a resume.
+    Only available for users with verified email.
+    """
+    resume = await resume_crud.get_by_user_id_and_id(
+        db, user_id=current_user.id, resume_id=resume_id
+    )
+    if not resume:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Resume not found or access denied"
+        )
+    
+    try:
+        await resume_manager.update_skill_order(db, resume_id=resume_id, skill_ids=skill_ids)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+    
+    return {
+        "resume_id": str(resume_id),
+        "skill_ids": [str(skill_id) for skill_id in skill_ids],
+        "message": "Skill order updated successfully"
+    }
+
+
+# Experience endpoints
+@router.post("/{resume_id}/experience")
+async def add_experience(
+    resume_id: UUID,
+    experience_data: ResumeExperienceCreate,
+    current_user: VerifiedUser = None,
+    db: AsyncDB = None
+) -> Dict[str, Any]:
+    """
+    Add experience to a resume.
+    Only available for users with verified email.
+    """
+    resume = await resume_crud.get_by_user_id_and_id(
+        db, user_id=current_user.id, resume_id=resume_id
+    )
+    if not resume:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Resume not found or access denied"
+        )
+    
+    experience = await resume_manager.add_experience(db, resume_id=resume_id, experience_data=experience_data)
+    
+    return {
+        "resume_id": str(resume_id),
+        "experience": experience,
+        "message": "Experience added successfully"
+    }
+
+
+@router.put("/{resume_id}/experience/{experience_id}")
+async def update_experience(
+    resume_id: UUID,
+    experience_id: UUID,
+    experience_data: Dict[str, Any],
+    current_user: VerifiedUser = None,
+    db: AsyncDB = None
+) -> Dict[str, Any]:
+    """
+    Update experience in a resume.
+    Only available for users with verified email.
+    """
+    resume = await resume_crud.get_by_user_id_and_id(
+        db, user_id=current_user.id, resume_id=resume_id
+    )
+    if not resume:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Resume not found or access denied"
+        )
+    
+    from app.schemas.resume import ResumeExperienceUpdate
+    update_data = ResumeExperienceUpdate(**experience_data)
+    updated_experience = await resume_manager.update_experience(
+        db, resume_id=resume_id, experience_id=experience_id, experience_data=update_data
+    )
+    
+    if not updated_experience:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Experience not found or does not belong to this resume"
+        )
+    
+    return {
+        "resume_id": str(resume_id),
+        "experience": updated_experience,
+        "message": "Experience updated successfully"
+    }
+
+
+@router.delete("/{resume_id}/experience/{experience_id}")
+async def remove_experience(
+    resume_id: UUID,
+    experience_id: UUID,
+    current_user: VerifiedUser = None,
+    db: AsyncDB = None
+) -> Dict[str, Any]:
+    """
+    Remove experience from a resume.
+    Only available for users with verified email.
+    """
+    resume = await resume_crud.get_by_user_id_and_id(
+        db, user_id=current_user.id, resume_id=resume_id
+    )
+    if not resume:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Resume not found or access denied"
+        )
+    
+    success = await resume_manager.remove_experience(db, resume_id=resume_id, experience_id=experience_id)
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Experience not found or does not belong to this resume"
+        )
+    
+    return {
+        "resume_id": str(resume_id),
+        "experience_id": str(experience_id),
+        "message": "Experience removed successfully"
+    }
+
+
+@router.put("/{resume_id}/experience/order")
+async def update_experience_order(
+    resume_id: UUID,
+    experience_ids: List[UUID],
+    current_user: VerifiedUser = None,
+    db: AsyncDB = None
+) -> Dict[str, Any]:
+    """
+    Update the order of experience entries in a resume.
+    Only available for users with verified email.
+    """
+    resume = await resume_crud.get_by_user_id_and_id(
+        db, user_id=current_user.id, resume_id=resume_id
+    )
+    if not resume:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Resume not found or access denied"
+        )
+    
+    try:
+        await resume_manager.update_experience_order(db, resume_id=resume_id, experience_ids=experience_ids)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+    
+    return {
+        "resume_id": str(resume_id),
+        "experience_ids": [str(exp_id) for exp_id in experience_ids],
+        "message": "Experience order updated successfully"
+    }
+
+
+# Education endpoints
+@router.post("/{resume_id}/education")
+async def add_education(
+    resume_id: UUID,
+    education_data: ResumeEducationCreate,
+    current_user: VerifiedUser = None,
+    db: AsyncDB = None
+) -> Dict[str, Any]:
+    """
+    Add education to a resume.
+    Only available for users with verified email.
+    """
+    resume = await resume_crud.get_by_user_id_and_id(
+        db, user_id=current_user.id, resume_id=resume_id
+    )
+    if not resume:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Resume not found or access denied"
+        )
+    
+    education = await resume_manager.add_education(db, resume_id=resume_id, education_data=education_data)
+    
+    return {
+        "resume_id": str(resume_id),
+        "education": education,
+        "message": "Education added successfully"
+    }
+
+
+@router.put("/{resume_id}/education/{education_id}")
+async def update_education(
+    resume_id: UUID,
+    education_id: UUID,
+    education_data: Dict[str, Any],
+    current_user: VerifiedUser = None,
+    db: AsyncDB = None
+) -> Dict[str, Any]:
+    """
+    Update education in a resume.
+    Only available for users with verified email.
+    """
+    resume = await resume_crud.get_by_user_id_and_id(
+        db, user_id=current_user.id, resume_id=resume_id
+    )
+    if not resume:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Resume not found or access denied"
+        )
+    
+    from app.schemas.resume import ResumeEducationUpdate
+    update_data = ResumeEducationUpdate(**education_data)
+    updated_education = await resume_manager.update_education(
+        db, resume_id=resume_id, education_id=education_id, education_data=update_data
+    )
+    
+    if not updated_education:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Education not found or does not belong to this resume"
+        )
+    
+    return {
+        "resume_id": str(resume_id),
+        "education": updated_education,
+        "message": "Education updated successfully"
+    }
+
+
+@router.delete("/{resume_id}/education/{education_id}")
+async def remove_education(
+    resume_id: UUID,
+    education_id: UUID,
+    current_user: VerifiedUser = None,
+    db: AsyncDB = None
+) -> Dict[str, Any]:
+    """
+    Remove education from a resume.
+    Only available for users with verified email.
+    """
+    resume = await resume_crud.get_by_user_id_and_id(
+        db, user_id=current_user.id, resume_id=resume_id
+    )
+    if not resume:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Resume not found or access denied"
+        )
+    
+    success = await resume_manager.remove_education(db, resume_id=resume_id, education_id=education_id)
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Education not found or does not belong to this resume"
+        )
+    
+    return {
+        "resume_id": str(resume_id),
+        "education_id": str(education_id),
+        "message": "Education removed successfully"
+    }
+
+
+@router.put("/{resume_id}/education/order")
+async def update_education_order(
+    resume_id: UUID,
+    education_ids: List[UUID],
+    current_user: VerifiedUser = None,
+    db: AsyncDB = None
+) -> Dict[str, Any]:
+    """
+    Update the order of education entries in a resume.
+    Only available for users with verified email.
+    """
+    resume = await resume_crud.get_by_user_id_and_id(
+        db, user_id=current_user.id, resume_id=resume_id
+    )
+    if not resume:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Resume not found or access denied"
+        )
+    
+    try:
+        await resume_manager.update_education_order(db, resume_id=resume_id, education_ids=education_ids)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+    
+    return {
+        "resume_id": str(resume_id),
+        "education_ids": [str(edu_id) for edu_id in education_ids],
+        "message": "Education order updated successfully"
+    }
+
+
+# Export endpoints
+@router.post("/{resume_id}/exports")
+async def add_export_record(
+    resume_id: UUID,
+    export_data: ResumeExportCreate,
+    current_user: VerifiedUser = None,
+    db: AsyncDB = None
+) -> Dict[str, Any]:
+    """
+    Add an export record for a resume.
+    Only available for users with verified email.
+    """
+    resume = await resume_crud.get_by_user_id_and_id(
+        db, user_id=current_user.id, resume_id=resume_id
+    )
+    if not resume:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Resume not found or access denied"
+        )
+    
+    export_record = await resume_manager.add_export_record(
+        db, 
+        resume_id=resume_id, 
+        export_format=export_data.export_format,
+        file_size=export_data.file_size,
+        export_settings=export_data.export_settings
+    )
+    
+    return {
+        "resume_id": str(resume_id),
+        "export_record": export_record,
+        "message": "Export record added successfully"
+    }
+
+
+@router.get("/{resume_id}/exports")
+async def get_export_history(
+    resume_id: UUID,
+    current_user: VerifiedUser = None,
+    db: AsyncDB = None
+) -> Dict[str, Any]:
+    """
+    Get export history for a resume.
+    Only available for users with verified email.
+    """
+    resume = await resume_crud.get_by_user_id_and_id(
+        db, user_id=current_user.id, resume_id=resume_id
+    )
+    if not resume:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Resume not found or access denied"
+        )
+    
+    export_history = await resume_manager.get_export_history(db, resume_id=resume_id)
+    
+    return {
+        "resume_id": str(resume_id),
+        "export_history": export_history
+    }
+
+
+# Legacy endpoints (keeping for backward compatibility)
 @router.post("/upload")
 async def upload_resume(
     file: UploadFile = File(...),
