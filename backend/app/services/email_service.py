@@ -1,8 +1,10 @@
 import smtplib
 from dkim import dkim_sign
 from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 from jinja2 import Template
 import logging
+import base64
 
 from app.core.config import settings
 
@@ -23,6 +25,7 @@ class EmailService:
         logger.info(f"Email service initialized with SMTP server: {self.smtp_server}:{self.smtp_port}")
         logger.info(f"Sender email: {self.sender_email}")
         logger.info(f"Domain: {self.domain}")
+        logger.info(f"DKIM selector: {self.selector}")
         
         # Загружаем приватный ключ DKIM
         self.dkim_private_key = self._load_dkim_key()
@@ -41,6 +44,46 @@ class EmailService:
             logger.error(f"Could not load DKIM key: {e}")
             return ""
     
+    def _create_dkim_signature(self, msg: MIMEMultipart) -> str:
+        """
+        Создает DKIM подпись для сообщения
+        
+        Args:
+            msg: MIME сообщение
+            
+        Returns:
+            str: DKIM подпись или пустая строка в случае ошибки
+        """
+        if not self.dkim_private_key:
+            logger.warning("No DKIM private key available")
+            return ""
+        
+        try:
+            # Подготавливаем сообщение для подписи
+            message_bytes = msg.as_bytes()
+            
+            # Создаем DKIM подпись
+            signature = dkim_sign(
+                message=message_bytes,
+                selector=self.selector.encode(),
+                domain=self.domain.encode(),
+                privkey=self.dkim_private_key.encode(),
+                include_headers=[b"from", b"to", b"subject", b"date", b"message-id"]
+            )
+            
+            # Извлекаем только значение подписи (без "DKIM-Signature: ")
+            if signature.startswith(b"DKIM-Signature: "):
+                sig_value = signature[len(b"DKIM-Signature: "):].decode()
+            else:
+                sig_value = signature.decode()
+            
+            logger.info("DKIM signature created successfully")
+            return sig_value
+            
+        except Exception as e:
+            logger.error(f"Failed to create DKIM signature: {e}")
+            return ""
+    
     def send_email(self, to_email: str, subject: str, body: str) -> bool:
         """
         Отправляет email с DKIM подписью
@@ -57,29 +100,34 @@ class EmailService:
             logger.info(f"Attempting to send email to {to_email}")
             
             # Создаем MIME сообщение
-            msg = MIMEText(body, 'html' if '<html>' in body else 'plain')
+            msg = MIMEMultipart('alternative')
             msg['From'] = self.sender_email
             msg['To'] = to_email
             msg['Subject'] = subject
             
-            # Добавляем DKIM подпись если ключ доступен
-            if self.dkim_private_key:
-                try:
-                    headers = [b"from", b"to", b"subject"]
-                    signature = dkim_sign(
-                        message=msg.as_bytes(),
-                        selector=self.selector.encode(),
-                        domain=self.domain.encode(),
-                        privkey=self.dkim_private_key.encode(),
-                        include_headers=headers
-                    )
-                    
-                    # Добавляем DKIM-подпись в заголовки письма
-                    sig_header = signature[len("DKIM-Signature: "):].decode()
-                    msg['DKIM-Signature'] = sig_header
-                    logger.info("DKIM signature added successfully")
-                except Exception as dkim_error:
-                    logger.warning(f"Failed to add DKIM signature: {dkim_error}")
+            # Добавляем Message-ID для лучшей доставляемости
+            import uuid
+            msg['Message-ID'] = f"<{uuid.uuid4()}@{self.domain}>"
+            
+            # Добавляем Date header
+            from email.utils import formatdate
+            msg['Date'] = formatdate(localtime=True)
+            
+            # Добавляем тело письма
+            if '<html>' in body:
+                html_part = MIMEText(body, 'html', 'utf-8')
+                msg.attach(html_part)
+            else:
+                text_part = MIMEText(body, 'plain', 'utf-8')
+                msg.attach(text_part)
+            
+            # Добавляем DKIM подпись
+            dkim_signature = self._create_dkim_signature(msg)
+            if dkim_signature:
+                msg['DKIM-Signature'] = dkim_signature
+                logger.info("DKIM signature added to message headers")
+            else:
+                logger.warning("No DKIM signature added - authentication may fail")
             
             # Отправляем письмо через SMTP с SSL
             logger.info(f"Connecting to SMTP server {self.smtp_server}:{self.smtp_port}")
@@ -87,6 +135,8 @@ class EmailService:
                 logger.info("SMTP connection established, attempting login")
                 smtp.login(self.sender_email, self.sender_password)
                 logger.info("SMTP login successful")
+                
+                # Отправляем письмо
                 smtp.sendmail(self.sender_email, [to_email], msg.as_string())
                 logger.info(f"Email sent successfully to {to_email}")
             
