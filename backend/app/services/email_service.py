@@ -62,13 +62,15 @@ class EmailService:
             # Подготавливаем сообщение для подписи
             message_bytes = msg.as_bytes()
             
-            # Создаем DKIM подпись
+            # Создаем DKIM подпись с более строгими параметрами
             signature = dkim_sign(
                 message=message_bytes,
                 selector=self.selector.encode(),
                 domain=self.domain.encode(),
                 privkey=self.dkim_private_key.encode(),
-                include_headers=[b"from", b"to", b"subject", b"date", b"message-id"]
+                include_headers=[b"from", b"to", b"subject", b"date", b"message-id", b"content-type"],
+                canonicalize=(b'relaxed', b'relaxed'),
+                signature_algorithm=b'rsa-sha256'
             )
             
             # Извлекаем только значение подписи (без "DKIM-Signature: ")
@@ -113,12 +115,17 @@ class EmailService:
             from email.utils import formatdate
             msg['Date'] = formatdate(localtime=True)
             
+            # Добавляем Return-Path для лучшей доставляемости
+            msg['Return-Path'] = self.sender_email
+            
             # Добавляем тело письма
             if '<html>' in body:
                 html_part = MIMEText(body, 'html', 'utf-8')
+                html_part.add_header('Content-Type', 'text/html; charset=utf-8')
                 msg.attach(html_part)
             else:
                 text_part = MIMEText(body, 'plain', 'utf-8')
+                text_part.add_header('Content-Type', 'text/plain; charset=utf-8')
                 msg.attach(text_part)
             
             # Добавляем DKIM подпись
@@ -168,48 +175,40 @@ class EmailService:
         
         subject = "Подтверждение регистрации - Rezynt"
         
-        # HTML шаблон письма
-        html_template = """
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="utf-8">
-            <title>Подтверждение регистрации</title>
-            <style>
-                body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-                .header { background-color: #4CAF50; color: white; padding: 20px; text-align: center; }
-                .content { padding: 20px; background-color: #f9f9f9; }
-                .button { display: inline-block; padding: 12px 24px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 4px; }
-                .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <div class="header">
-                    <h1>Добро пожаловать в Rezynt!</h1>
-                </div>
-                <div class="content">
-                    <h2>Подтвердите ваш email</h2>
-                    <p>Спасибо за регистрацию! Для завершения процесса регистрации, пожалуйста, подтвердите ваш email адрес.</p>
-                    <p style="text-align: center;">
-                        <a href="{{ api_url }}/auth/confirm-email?token={{ token }}" class="button">
-                            Подтвердить email
-                        </a>
-                    </p>
-                    <p>Если кнопка не работает, скопируйте и вставьте следующую ссылку в браузер:</p>
-                    <p style="word-break: break-all; background-color: #f0f0f0; padding: 10px; border-radius: 4px;">
-                        {{ api_url }}/auth/confirm-email?token={{ token }}
-                    </p>
-                    <p>Если вы не регистрировались на нашем сайте, просто проигнорируйте это письмо.</p>
-                </div>
-                <div class="footer">
-                    <p>&copy; 2024 Rezynt. Все права защищены.</p>
-                </div>
+        # HTML шаблон письма с упрощенной структурой для лучшей совместимости с DKIM
+        html_template = """<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Подтверждение регистрации</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f4f4f4;">
+    <div style="max-width: 600px; margin: 0 auto; background-color: white;">
+        <div style="background-color: #4CAF50; color: white; padding: 20px; text-align: center;">
+            <h1 style="margin: 0; font-size: 24px;">Добро пожаловать в Rezynt!</h1>
+        </div>
+        <div style="padding: 20px;">
+            <h2 style="color: #333; margin-top: 0;">Подтвердите ваш email</h2>
+            <p>Спасибо за регистрацию! Для завершения процесса регистрации, пожалуйста, подтвердите ваш email адрес.</p>
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="{{ api_url }}/auth/confirm-email?token={{ token }}" 
+                   style="display: inline-block; padding: 12px 24px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 4px; font-weight: bold;">
+                    Подтвердить email
+                </a>
             </div>
-        </body>
-        </html>
-        """
+            <p>Если кнопка не работает, скопируйте и вставьте следующую ссылку в браузер:</p>
+            <div style="word-break: break-all; background-color: #f0f0f0; padding: 10px; border-radius: 4px; margin: 20px 0;">
+                {{ api_url }}/auth/confirm-email?token={{ token }}
+            </div>
+            <p>Если вы не регистрировались на нашем сайте, просто проигнорируйте это письмо.</p>
+        </div>
+        <div style="text-align: center; padding: 20px; color: #666; font-size: 12px; background-color: #f9f9f9;">
+            <p style="margin: 0;">&copy; 2025 Rezynt. Все права защищены.</p>
+        </div>
+    </div>
+</body>
+</html>"""
         
         # Рендерим HTML шаблон
         html_content = Template(html_template).render(
