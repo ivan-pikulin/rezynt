@@ -12,8 +12,9 @@ from pathlib import Path
 backend_dir = Path(__file__).parent
 sys.path.insert(0, str(backend_dir))
 
-from app.services.email_service import EmailService
 import logging
+
+from app.services.email_service import EmailService
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -50,35 +51,5 @@ def test_email_service():
         print(f"✗ Error testing email service: {e}")
         logger.error(f"Error testing email service: {e}", exc_info=True)
 
-
-def test_confirmation_email():
-    """Test the confirmation email functionality"""
-    print("\n=== Confirmation Email Test ===")
-    
-    # Test email address (change this to your email for testing)
-    test_email = "pikulin.ivan.pelikan@gmail.com"  # Change this to your email
-    test_token = "test-confirmation-token-12345"
-    
-    try:
-        # Initialize email service
-        print("Initializing EmailService...")
-        email_service = EmailService()
-        print("✓ EmailService initialized")
-        
-        # Send confirmation email
-        print(f"Sending confirmation email to {test_email}...")
-        success = email_service.send_confirmation_email(test_email, test_token)
-        
-        if success:
-            print("✓ Confirmation email sent successfully!")
-        else:
-            print("✗ Failed to send confirmation email")
-            
-    except Exception as e:
-        print(f"✗ Error testing confirmation email: {e}")
-        logger.error(f"Error testing confirmation email: {e}", exc_info=True)
-
-
 if __name__ == "__main__":
     test_email_service()
-    test_confirmation_email()

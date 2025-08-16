@@ -143,13 +143,13 @@ class EmailService:
                     <h2>Подтвердите ваш email</h2>
                     <p>Спасибо за регистрацию! Для завершения процесса регистрации, пожалуйста, подтвердите ваш email адрес.</p>
                     <p style="text-align: center;">
-                        <a href="{{ api_url }}/api/v1/auth/confirm-email?token={{ token }}" class="button">
+                        <a href="{{ api_url }}/auth/confirm-email?token={{ token }}" class="button">
                             Подтвердить email
                         </a>
                     </p>
                     <p>Если кнопка не работает, скопируйте и вставьте следующую ссылку в браузер:</p>
                     <p style="word-break: break-all; background-color: #f0f0f0; padding: 10px; border-radius: 4px;">
-                        {{ api_url }}/api/v1/auth/confirm-email?token={{ token }}
+                        {{ api_url }}/auth/confirm-email?token={{ token }}
                     </p>
                     <p>Если вы не регистрировались на нашем сайте, просто проигнорируйте это письмо.</p>
                 </div>
@@ -161,13 +161,13 @@ class EmailService:
         </html>
         """
         
-        # Создаем ссылку для подтверждения
-        confirmation_url = f"{settings.API_BASE_URL}/auth/confirm-email?token={confirmation_token}"
-        
         # Рендерим HTML шаблон
         html_content = Template(html_template).render(
             api_url=settings.API_BASE_URL,
             token=confirmation_token
         )
         
-        return self.send_email(to_email, subject, html_content)
+        logger.info(f"Confirmation email HTML content generated, length: {len(html_content)}")
+        result = self.send_email(to_email, subject, html_content)
+        logger.info(f"Confirmation email send result: {result}")
+        return result
