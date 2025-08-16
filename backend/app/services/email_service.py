@@ -2,8 +2,12 @@ import smtplib
 from dkim import dkim_sign
 from email.mime.text import MIMEText
 from jinja2 import Template
+import logging
 
 from app.core.config import settings
+
+# Set up logging
+logger = logging.getLogger(__name__)
 
 
 class EmailService:
@@ -15,6 +19,11 @@ class EmailService:
         self.domain = settings.email.EMAIL_DOMAIN
         self.selector = settings.email.EMAIL_DKIM_SELECTOR
         
+        # Log configuration (without sensitive data)
+        logger.info(f"Email service initialized with SMTP server: {self.smtp_server}:{self.smtp_port}")
+        logger.info(f"Sender email: {self.sender_email}")
+        logger.info(f"Domain: {self.domain}")
+        
         # Загружаем приватный ключ DKIM
         self.dkim_private_key = self._load_dkim_key()
     
@@ -22,9 +31,15 @@ class EmailService:
         """Загружает приватный ключ DKIM из файла"""
         try:
             with open(settings.email.EMAIL_DKIM_PRIVATE_KEY_PATH, 'r') as f:
-                return f.read()
+                key_content = f.read()
+                logger.info("DKIM private key loaded successfully")
+                return key_content
+        except FileNotFoundError:
+            logger.warning(f"DKIM private key file not found at {settings.email.EMAIL_DKIM_PRIVATE_KEY_PATH}")
+            return ""
         except Exception as e:
-            raise ValueError(f"Could not load DKIM key: {e}")
+            logger.error(f"Could not load DKIM key: {e}")
+            return ""
     
     def send_email(self, to_email: str, subject: str, body: str) -> bool:
         """
@@ -39,6 +54,8 @@ class EmailService:
             bool: True если письмо отправлено успешно, False в противном случае
         """
         try:
+            logger.info(f"Attempting to send email to {to_email}")
+            
             # Создаем MIME сообщение
             msg = MIMEText(body, 'html' if '<html>' in body else 'plain')
             msg['From'] = self.sender_email
@@ -47,28 +64,43 @@ class EmailService:
             
             # Добавляем DKIM подпись если ключ доступен
             if self.dkim_private_key:
-                headers = [b"from", b"to", b"subject"]
-                signature = dkim_sign(
-                    message=msg.as_bytes(),
-                    selector=self.selector.encode(),
-                    domain=self.domain.encode(),
-                    privkey=self.dkim_private_key.encode(),
-                    include_headers=headers
-                )
-                
-                # Добавляем DKIM-подпись в заголовки письма
-                sig_header = signature[len("DKIM-Signature: "):].decode()
-                msg['DKIM-Signature'] = sig_header
+                try:
+                    headers = [b"from", b"to", b"subject"]
+                    signature = dkim_sign(
+                        message=msg.as_bytes(),
+                        selector=self.selector.encode(),
+                        domain=self.domain.encode(),
+                        privkey=self.dkim_private_key.encode(),
+                        include_headers=headers
+                    )
+                    
+                    # Добавляем DKIM-подпись в заголовки письма
+                    sig_header = signature[len("DKIM-Signature: "):].decode()
+                    msg['DKIM-Signature'] = sig_header
+                    logger.info("DKIM signature added successfully")
+                except Exception as dkim_error:
+                    logger.warning(f"Failed to add DKIM signature: {dkim_error}")
             
             # Отправляем письмо через SMTP с SSL
+            logger.info(f"Connecting to SMTP server {self.smtp_server}:{self.smtp_port}")
             with smtplib.SMTP_SSL(self.smtp_server, self.smtp_port) as smtp:
+                logger.info("SMTP connection established, attempting login")
                 smtp.login(self.sender_email, self.sender_password)
+                logger.info("SMTP login successful")
                 smtp.sendmail(self.sender_email, [to_email], msg.as_string())
+                logger.info(f"Email sent successfully to {to_email}")
             
             return True
             
+        except smtplib.SMTPAuthenticationError as auth_error:
+            logger.error(f"SMTP Authentication failed: {auth_error}")
+            logger.error(f"Error code: {auth_error.smtp_code}, Error message: {auth_error.smtp_error}")
+            return False
+        except smtplib.SMTPException as smtp_error:
+            logger.error(f"SMTP error occurred: {smtp_error}")
+            return False
         except Exception as e:
-            print(f"Error sending email: {e}")
+            logger.error(f"Unexpected error sending email: {e}")
             return False
     
     def send_confirmation_email(self, to_email: str, confirmation_token: str) -> bool:
@@ -82,6 +114,8 @@ class EmailService:
         Returns:
             bool: True если письмо отправлено успешно
         """
+        logger.info(f"Sending confirmation email to {to_email}")
+        
         subject = "Подтверждение регистрации - Rezynt"
         
         # HTML шаблон письма
