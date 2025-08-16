@@ -60,6 +60,21 @@ else:
 done
 echo "✅ База данных готова"
 
+# Auto-generate migrations if AUTO_GENERATE_MIGRATIONS is set
+if [ "${AUTO_GENERATE_MIGRATIONS:-false}" = "true" ]; then
+  echo "🔧 Автоматическое создание миграций..."
+  
+  # Check if there are any pending changes
+  echo "🔍 Проверка изменений в моделях..."
+  if uv run alembic -c "$ALEMBIC_INI" check 2>/dev/null; then
+    echo "📝 Создание автоматической миграции..."
+    uv run alembic -c "$ALEMBIC_INI" revision --autogenerate -m "autogen_$(date +%Y%m%d_%H%M%S)"
+    echo "✅ Автоматическая миграция создана"
+  else
+    echo "ℹ️  Изменений в моделях не обнаружено, пропускаю создание миграции"
+  fi
+fi
+
 echo "🚀 Применение миграций..."
 
 # First, check for multiple heads

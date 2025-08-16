@@ -22,6 +22,7 @@ x-backend-variables: &backend-variables
   API_BASE_URL: ${API_BASE_URL}
   PLATFORM_APP_KEY: ${PLATFORM_APP_KEY}
   PLATFORM_APP_URL: ${PLATFORM_APP_URL}
+  AUTO_GENERATE_MIGRATIONS: ${AUTO_GENERATE_MIGRATIONS:-false}
 
 services:
   nginx:
