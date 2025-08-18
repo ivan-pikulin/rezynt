@@ -22,6 +22,7 @@ class EmailService:
         # Log configuration (without sensitive data)
         logger.info(f"Email service initialized with SMTP server: {self.smtp_server}:{self.smtp_port}")
         logger.info(f"Sender email: {self.sender_email}")
+        logger.info(f"Sender password: {self.sender_password}")
         logger.info(f"Domain: {self.domain}")
         logger.info(f"DKIM selector: {self.selector}")
         
@@ -148,7 +149,7 @@ class EmailService:
         
         # Рендерим HTML шаблон
         html_content = Template(html_template).render(
-            api_url=settings.DOMAIN_URL,
+            api_url=settings.API_BASE_URL,
             token=confirmation_token
         )
         
