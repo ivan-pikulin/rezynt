@@ -10,6 +10,7 @@ x-common-variables: &common-variables
 
 x-backend-variables: &backend-variables
   <<: *common-variables
+  APP_API_KEY: ${APP_API_KEY}
   SECRET_KEY: ${SECRET_KEY}
   ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES}
   REFRESH_TOKEN_EXPIRE_MINUTES: ${REFRESH_TOKEN_EXPIRE_MINUTES}
