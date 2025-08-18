@@ -714,15 +714,26 @@ async def update_resume_with_ai(
     # Calculate updated fields
     personal_info_updated = False
     if ai_update.personalInfo:
-        # Check if any non-None values were provided
-        personal_info_updated = any([
-            ai_update.personalInfo.firstName is not None,
-            ai_update.personalInfo.lastName is not None,
-            ai_update.personalInfo.middleName is not None,
-            ai_update.personalInfo.phone is not None,
-            ai_update.personalInfo.email is not None,
-            ai_update.personalInfo.location is not None
-        ])
+        # Check if any non-None values were provided and actually updated
+        personal_info_dict = {}
+        if ai_update.personalInfo.firstName is not None:
+            personal_info_dict['first_name'] = ai_update.personalInfo.firstName
+        if ai_update.personalInfo.lastName is not None:
+            personal_info_dict['last_name'] = ai_update.personalInfo.lastName
+        if ai_update.personalInfo.middleName is not None:
+            personal_info_dict['middle_name'] = ai_update.personalInfo.middleName
+        if ai_update.personalInfo.phone is not None:
+            personal_info_dict['phone'] = ai_update.personalInfo.phone
+        if ai_update.personalInfo.email is not None:
+            personal_info_dict['email'] = ai_update.personalInfo.email
+        if ai_update.personalInfo.location is not None:
+            personal_info_dict['location'] = ai_update.personalInfo.location
+        
+        # Check if we actually updated personal info
+        if personal_info_dict:
+            existing_personal_info = await resume_manager.get_personal_info(db, resume_id=resume_id)
+            if existing_personal_info or ('first_name' in personal_info_dict and 'last_name' in personal_info_dict):
+                personal_info_updated = True
     
     return {
         "resume_id": str(resume_id),
