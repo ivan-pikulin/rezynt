@@ -88,6 +88,7 @@ services:
       "
     volumes:
       - ${EMAIL_DKIM_PRIVATE_KEY_PATH}:/app/dkim-key.private
+      - migrations_data:/app/app/database/migrations
     networks:
       - app-network
       - backend-network
@@ -106,6 +107,7 @@ services:
     command: uv run celery -A app.core.celery_app worker --loglevel=info
     volumes:
       - ${EMAIL_DKIM_PRIVATE_KEY_PATH}:/app/dkim-key.private
+      - migrations_data:/app/app/database/migrations
     networks:
       - app-network
       - backend-network
@@ -145,6 +147,7 @@ services:
 volumes:
   postgres_data:
   redis_data:
+  migrations_data:
 
 networks:
   app-network:
