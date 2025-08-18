@@ -30,6 +30,15 @@ class CRUDResume(CRUDBase[Resume, ResumeCreate, ResumeUpdate]):
         result = await db.execute(select(self.model).where(Resume.template_id == template_id))
         return result.scalars().all()
 
+    async def create(self, db: AsyncSession, *, obj_in: ResumeCreate, user_id: UUID) -> Resume:
+        """Create a new resume with user_id."""
+        obj_in_data = obj_in.model_dump()
+        db_obj = self.model(**obj_in_data, user_id=user_id)
+        db.add(db_obj)
+        await db.commit()
+        await db.refresh(db_obj)
+        return db_obj
+
 
 class CRUDResumePersonalInfo(CRUDBase[ResumePersonalInfo, ResumePersonalInfoCreate, ResumePersonalInfoUpdate]):
     async def get_by_resume_id(self, db: AsyncSession, *, resume_id: UUID) -> Optional[ResumePersonalInfo]:

@@ -28,6 +28,29 @@
                 </endpoint>
                 
                 <endpoint>
+                    <path>/</path>
+                    <method>POST</method>
+                    <description>
+                        Создание нового резюме для текущего пользователя. Доступно только пользователям с подтвержденным email.
+                    </description>
+                    <authentication>VerifiedUser (JWT token + verified email)</authentication>
+                    <params>
+                        <param name="resume_create" type="ResumeCreate">Данные для создания резюме</param>
+                    </params>
+                    <returns type="Resume">Созданное резюме</returns>
+                    <status_codes>
+                        <code>200">Резюме успешно создано</code>
+                        <code>401">Не авторизован</code>
+                        <code>403">Email не подтвержден</code>
+                        <code>404">Шаблон не найден</code>
+                    </status_codes>
+                    <business_logic>
+                        <step>Проверка существования шаблона</step>
+                        <step>Создание резюме с user_id текущего пользователя</step>
+                    </business_logic>
+                </endpoint>
+                
+                <endpoint>
                     <path>/{resume_id}</path>
                     <method>GET</method>
                     <description>
@@ -218,6 +241,16 @@
                 <field name="template_id" type="Optional[UUID]">ID шаблона</field>
                 <field name="content" type="Optional[Dict[str, Any]]">Содержимое резюме</field>
                 <field name="conversation_id" type="Optional[str]">ID беседы</field>
+            </fields>
+        </structure>
+        
+        <structure>
+            <name>ResumeCreate</name>
+            <description>Модель для создания резюме</description>
+            <fields>
+                <field name="title" type="str">Название резюме</field>
+                <field name="template_id" type="UUID">ID шаблона</field>
+                <field name="professional_summary" type="Optional[str]">Профессиональное резюме</field>
             </fields>
         </structure>
     </data_structures>

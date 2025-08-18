@@ -46,9 +46,7 @@ async def create_resume(
         )
     
     # Create resume with user_id
-    resume_data = resume_create.model_dump()
-    resume_data['user_id'] = current_user.id
-    resume = await resume_crud.create(db, obj_in=ResumeCreate(**resume_data))
+    resume = await resume_crud.create(db, obj_in=resume_create, user_id=current_user.id)
     
     return resume
 
