@@ -19,7 +19,7 @@
                         Получение всех резюме текущего пользователя. Доступно только пользователям с подтвержденным email.
                     </description>
                     <authentication>VerifiedUser (JWT token + verified email)</authentication>
-                    <returns type="List[Resume]">Список всех резюме пользователя</returns>
+                    <returns type="List[ResumeInDB]">Список всех резюме пользователя (без связанных данных)</returns>
                     <status_codes>
                         <code>200">Успешное получение списка резюме</code>
                         <code>401">Не авторизован</code>
@@ -60,7 +60,7 @@
                     <params>
                         <param name="resume_id" type="UUID">ID резюме</param>
                     </params>
-                    <returns type="Resume">Данные резюме</returns>
+                    <returns type="ResumeInDB">Данные резюме (без связанных данных)</returns>
                     <status_codes>
                         <code>200">Успешное получение резюме</code>
                         <code>401">Не авторизован</code>
@@ -106,7 +106,7 @@
                         <param name="resume_id" type="UUID">ID резюме</param>
                         <param name="resume_update" type="ResumeUpdate">Данные для обновления</param>
                     </params>
-                    <returns type="Resume">Обновленное резюме</returns>
+                    <returns type="ResumeInDB">Обновленное резюме (без связанных данных)</returns>
                     <status_codes>
                         <code>200">Резюме успешно обновлено</code>
                         <code>401">Не авторизован</code>

@@ -1,24 +1,24 @@
 from typing import Any, Dict, List
 from uuid import UUID
 
-from fastapi import APIRouter, File, UploadFile, HTTPException, status
-from app.api.deps import VerifiedUser, AsyncDB
+from app.api.deps import AsyncDB, VerifiedUser
 from app.database.crud.crud_resume import resume_crud, resume_manager
 from app.database.crud.crud_template import template_crud
-from app.schemas.resume import (
-    ResumeCreate, ResumeUpdate, Resume, ResumePartialUpdate,
-    ResumePersonalInfoUpdate, ResumeSkillCreate, ResumeExperienceCreate, 
-    ResumeEducationCreate, ResumeExportCreate, ResumeInDB
-)
+from app.schemas.resume import (ResumeCreate, ResumeEducationCreate,
+                                ResumeExperienceCreate, ResumeExportCreate,
+                                ResumeInDB, ResumePartialUpdate,
+                                ResumePersonalInfoUpdate, ResumeSkillCreate,
+                                ResumeUpdate)
+from fastapi import APIRouter, File, HTTPException, UploadFile, status
 
 router = APIRouter()
 
 
-@router.get("/", response_model=List[Resume])
+@router.get("/", response_model=List[ResumeInDB])
 async def get_user_resumes(
     current_user: VerifiedUser = None,
     db: AsyncDB = None
-) -> List[Resume]:
+) -> List[ResumeInDB]:
     """
     Get all resumes for the current user.
     Only available for users with verified email.
@@ -51,12 +51,12 @@ async def create_resume(
     return resume
 
 
-@router.get("/{resume_id}", response_model=Resume)
+@router.get("/{resume_id}", response_model=ResumeInDB)
 async def get_resume(
     resume_id: UUID,
     current_user: VerifiedUser = None,
     db: AsyncDB = None
-) -> Resume:
+) -> ResumeInDB:
     """
     Get a specific resume by ID.
     Only available for users with verified email.
@@ -72,13 +72,13 @@ async def get_resume(
     return resume
 
 
-@router.patch("/{resume_id}", response_model=Resume)
+@router.patch("/{resume_id}", response_model=ResumeInDB)
 async def partial_update_resume(
     resume_id: UUID,
     resume_update: ResumePartialUpdate,
     current_user: VerifiedUser = None,
     db: AsyncDB = None
-) -> Resume:
+) -> ResumeInDB:
     """
     Partially update a resume with any combination of fields.
     Only available for users with verified email.
@@ -117,13 +117,13 @@ async def partial_update_resume(
     return await resume_crud.get_by_user_id_and_id(db, user_id=current_user.id, resume_id=resume_id)
 
 
-@router.put("/{resume_id}", response_model=Resume)
+@router.put("/{resume_id}", response_model=ResumeInDB)
 async def update_resume(
     resume_id: UUID,
     resume_update: ResumeUpdate,
     current_user: VerifiedUser = None,
     db: AsyncDB = None
-) -> Resume:
+) -> ResumeInDB:
     """
     Update a resume completely.
     Only available for users with verified email.
