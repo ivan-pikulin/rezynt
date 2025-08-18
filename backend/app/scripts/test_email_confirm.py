@@ -24,8 +24,8 @@ def test_confirmation_email():
     """Test the confirmation email functionality"""
     print("\n=== Confirmation Email Test ===")
     
-    # Test email address (change this to your email for testing)
-    test_email = "pikulin.ivan.pelikan@gmail.com"  # Change this to your email
+    # Test email address
+    test_email = "pikulin.ivan.pelikan@gmail.com"
     test_token = "test-confirmation-token-12345"
     
     try:

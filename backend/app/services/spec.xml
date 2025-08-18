@@ -51,12 +51,12 @@
         <component>
             <name>EmailService</name>
             <description>
-                Сервис для отправки email сообщений с поддержкой DKIM подписи.
+                Сервис для отправки email сообщений с поддержкой DKIM подписи. Использует MIMEText и dkim.sign для совместимости с SMTP серверами.
             </description>
             <methods>
                 <method>
                     <name>send_email</name>
-                    <description>Отправляет email с DKIM подписью</description>
+                    <description>Отправляет email с DKIM подписью используя MIMEText и dkim.sign</description>
                     <params>
                         <param name="to_email" type="str">Email получателя</param>
                         <param name="subject" type="str">Тема письма</param>
@@ -72,6 +72,11 @@
                         <param name="confirmation_token" type="str">Токен для подтверждения</param>
                     </params>
                     <returns type="bool">True если письмо отправлено успешно</returns>
+                </method>
+                <method>
+                    <name>_load_dkim_key</name>
+                    <description>Загружает приватный ключ DKIM из файла</description>
+                    <returns type="str">Содержимое приватного ключа или пустая строка</returns>
                 </method>
             </methods>
             <configuration>

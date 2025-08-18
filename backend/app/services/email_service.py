@@ -1,10 +1,8 @@
 import smtplib
-from dkim import dkim_sign
+import dkim
 from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 from jinja2 import Template
 import logging
-import base64
 
 from app.core.config import settings
 
@@ -44,48 +42,6 @@ class EmailService:
             logger.error(f"Could not load DKIM key: {e}")
             return ""
     
-    def _create_dkim_signature(self, msg: MIMEMultipart) -> str:
-        """
-        Создает DKIM подпись для сообщения
-        
-        Args:
-            msg: MIME сообщение
-            
-        Returns:
-            str: DKIM подпись или пустая строка в случае ошибки
-        """
-        if not self.dkim_private_key:
-            logger.warning("No DKIM private key available")
-            return ""
-        
-        try:
-            # Подготавливаем сообщение для подписи
-            message_bytes = msg.as_bytes()
-            
-            # Создаем DKIM подпись
-            signature = dkim_sign(
-                message=message_bytes,
-                selector=self.selector.encode(),
-                domain=self.domain.encode(),
-                privkey=self.dkim_private_key.encode(),
-                include_headers=[b"from", b"to", b"subject", b"date"],
-                canonicalize=(b'relaxed', b'relaxed'),
-                signature_algorithm=b'rsa-sha256'
-            )
-            
-            # Извлекаем только значение подписи (без "DKIM-Signature: ")
-            if signature.startswith(b"DKIM-Signature: "):
-                sig_value = signature[len(b"DKIM-Signature: "):].decode()
-            else:
-                sig_value = signature.decode()
-            
-            logger.info("DKIM signature created successfully")
-            return sig_value
-            
-        except Exception as e:
-            logger.error(f"Failed to create DKIM signature: {e}")
-            return ""
-    
     def send_email(self, to_email: str, subject: str, body: str) -> bool:
         """
         Отправляет email с DKIM подписью
@@ -101,46 +57,34 @@ class EmailService:
         try:
             logger.info(f"Attempting to send email to {to_email}")
             
-            # Создаем MIME сообщение
-            msg = MIMEMultipart('alternative')
+            # Создаем MIME сообщение как в test_email_send.py
+            msg = MIMEText(body, 'html')
             msg['From'] = self.sender_email
             msg['To'] = to_email
             msg['Subject'] = subject
             
-            # Добавляем Message-ID для лучшей доставляемости
-            import uuid
-            msg['Message-ID'] = f"<{uuid.uuid4()}@{self.domain}>"
-            
-            # Добавляем Date header
-            from email.utils import formatdate
-            msg['Date'] = formatdate(localtime=True)
-            
-            # Добавляем Return-Path для лучшей доставляемости
-            msg['Return-Path'] = self.sender_email
-            
-            # Добавляем тело письма
-            if '<html>' in body:
-                # Используем base64 кодирование для HTML как рекомендовано в документации
-                html_part = MIMEText(body, 'html', 'utf-8')
-                html_part.add_header('Content-Type', 'text/html; charset=utf-8')
-                # Принудительно устанавливаем base64 кодирование для HTML
-                html_part.set_param('charset', 'utf-8')
-                html_part.replace_header('Content-Transfer-Encoding', 'base64')
-                msg.attach(html_part)
-            else:
-                text_part = MIMEText(body, 'plain', 'utf-8')
-                text_part.add_header('Content-Type', 'text/plain; charset=utf-8')
-                msg.attach(text_part)
-            
-            # Добавляем DKIM подпись
-            dkim_signature = self._create_dkim_signature(msg)
-            if dkim_signature:
-                msg['DKIM-Signature'] = dkim_signature
+            # Добавляем DKIM подпись если есть приватный ключ
+            if self.dkim_private_key:
+                # Заголовки, которые надо подписать
+                headers = [b"from", b"to", b"subject"]
+                
+                # Создаем DKIM-подпись как в test_email_send.py
+                signature = dkim.sign(
+                    message=msg.as_bytes(),
+                    selector=self.selector.encode(),
+                    domain=self.domain.encode(),
+                    privkey=self.dkim_private_key.encode(),
+                    include_headers=headers
+                )
+                
+                # Добавляем DKIM-подпись в заголовки письма
+                sig_header = signature[len("DKIM-Signature: "):].decode()
+                msg['DKIM-Signature'] = sig_header
                 logger.info("DKIM signature added to message headers")
             else:
-                logger.warning("No DKIM signature added - authentication may fail")
+                logger.warning("No DKIM private key available - sending without DKIM signature")
             
-            # Отправляем письмо через SMTP с SSL
+            # Отправляем письмо через smtplib с SSL как в test_email_send.py
             logger.info(f"Connecting to SMTP server {self.smtp_server}:{self.smtp_port}")
             with smtplib.SMTP_SSL(self.smtp_server, self.smtp_port) as smtp:
                 logger.info("SMTP connection established, attempting login")
@@ -148,7 +92,7 @@ class EmailService:
                 logger.info("SMTP login successful")
                 
                 # Отправляем письмо
-                smtp.sendmail(self.sender_email, [to_email], msg.as_string())
+                smtp.sendmail(msg['From'], [msg['To']], msg.as_string())
                 logger.info(f"Email sent successfully to {to_email}")
             
             return True
@@ -179,7 +123,7 @@ class EmailService:
         
         subject = "Подтверждение регистрации - Rezynt"
         
-        # HTML шаблон письма с максимально простой структурой для DKIM совместимости
+        # HTML шаблон письма
         html_template = """<!DOCTYPE html>
 <html>
 <head>
