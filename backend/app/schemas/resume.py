@@ -233,3 +233,42 @@ class ResumeWithTemplate(ResumeInDBBase):
     education: List[ResumeEducation] = []
 
     model_config = {"from_attributes": True}
+
+
+# OpenAI Structured Output Schemas
+class OpenAIResumePersonalInfo(BaseModel):
+    firstName: Optional[str] = None
+    lastName: Optional[str] = None
+    middleName: Optional[str] = None
+    phone: Optional[str] = None
+    email: Optional[str] = None
+    location: Optional[str] = None
+
+
+class OpenAIResumeSkill(BaseModel):
+    name: str
+
+
+class OpenAIResumeExperience(BaseModel):
+    jobTitle: str
+    company: str
+    location: Optional[str] = None
+    startDate: str
+    endDate: Optional[str] = None
+    isCurrent: bool
+    responsibilities: Optional[List[str]] = None
+
+
+class OpenAIResumeEducation(BaseModel):
+    degree: str
+    institution: str
+    location: Optional[str] = None
+    graduationDate: Optional[str] = None
+
+
+class OpenAIResumeUpdate(BaseModel):
+    personalInfo: Optional[OpenAIResumePersonalInfo] = None
+    professionalSummary: Optional[str] = None
+    skills: Optional[List[OpenAIResumeSkill]] = None
+    experience: Optional[List[OpenAIResumeExperience]] = None
+    education: Optional[List[OpenAIResumeEducation]] = None

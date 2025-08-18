@@ -1,0 +1,120 @@
+{
+  "type": "object",
+  "properties": {
+    "personalInfo": {
+      "type": "object",
+      "description": "Персональная информация. Все поля опциональны - будут обновлены только переданные поля.",
+      "properties": {
+        "firstName": {
+          "type": "string",
+          "description": "Имя"
+        },
+        "lastName": {
+          "type": "string",
+          "description": "Фамилия"
+        },
+        "middleName": {
+          "type": "string",
+          "description": "Отчество"
+        },
+        "phone": {
+          "type": "string",
+          "description": "Номер телефона"
+        },
+        "email": {
+          "type": "string",
+          "description": "Email адрес"
+        },
+        "location": {
+          "type": "string",
+          "description": "Местоположение (город, страна)"
+        }
+      }
+    },
+    "professionalSummary": {
+      "type": "string",
+      "description": "Профессиональное резюме. Если передано, заменит существующее."
+    },
+    "skills": {
+      "type": "array",
+      "description": "Список навыков. Элементы будут ДОБАВЛЕНЫ к существующим навыкам.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Название навыка"
+          }
+        },
+        "required": ["name"]
+      }
+    },
+    "experience": {
+      "type": "array",
+      "description": "Список опыта работы. Элементы будут ДОБАВЛЕНЫ к существующему опыту.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "jobTitle": {
+            "type": "string",
+            "description": "Должность"
+          },
+          "company": {
+            "type": "string",
+            "description": "Название компании"
+          },
+          "location": {
+            "type": "string",
+            "description": "Местоположение работы"
+          },
+          "startDate": {
+            "type": "string",
+            "description": "Дата начала работы в формате YYYY-MM-DD"
+          },
+          "endDate": {
+            "type": "string",
+            "description": "Дата окончания работы в формате YYYY-MM-DD (опционально, если isCurrent = true)"
+          },
+          "isCurrent": {
+            "type": "boolean",
+            "description": "Текущая работа"
+          },
+          "responsibilities": {
+            "type": "array",
+            "description": "Список обязанностей и достижений",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": ["jobTitle", "company", "startDate", "isCurrent"]
+      }
+    },
+    "education": {
+      "type": "array",
+      "description": "Список образования. Элементы будут ДОБАВЛЕНЫ к существующему образованию.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "degree": {
+            "type": "string",
+            "description": "Степень или специальность"
+          },
+          "institution": {
+            "type": "string",
+            "description": "Название учебного заведения"
+          },
+          "location": {
+            "type": "string",
+            "description": "Местоположение учебного заведения"
+          },
+          "graduationDate": {
+            "type": "string",
+            "description": "Дата окончания в формате YYYY-MM-DD"
+          }
+        },
+        "required": ["degree", "institution"]
+      }
+    }
+  }
+}

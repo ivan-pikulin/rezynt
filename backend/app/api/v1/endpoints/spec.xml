@@ -199,6 +199,51 @@
                         <step>Обновление резюме с новым шаблоном</step>
                     </business_logic>
                 </endpoint>
+                
+                <endpoint>
+                    <path>/{resume_id}/ai-update</path>
+                    <method>POST</method>
+                    <description>
+                        Обновление резюме с помощью AI-сгенерированного контента через OpenAI structured output. 
+                        Все поля опциональны - обновляются только переданные поля. 
+                        Для списков (skills, experience, education) элементы добавляются к существующим.
+                        Доступно только пользователям с подтвержденным email.
+                    </description>
+                    <authentication>VerifiedUser (JWT token + verified email)</authentication>
+                    <params>
+                        <param name="resume_id" type="UUID">ID резюме</param>
+                        <param name="ai_update" type="OpenAIResumeUpdate">AI-сгенерированные данные для дополнения резюме</param>
+                    </params>
+                    <returns type="Dict[str, Any]">
+                        {
+                            "resume_id": "uuid",
+                            "message": "Resume updated successfully with AI content",
+                            "updated_fields": {
+                                "personal_info": "boolean",
+                                "professional_summary": "boolean", 
+                                "skills_added": "number",
+                                "experience_added": "number",
+                                "education_added": "number"
+                            },
+                            "resume": "ResumeInDB"
+                        }
+                    </returns>
+                    <status_codes>
+                        <code>200">Резюме успешно обновлено AI-контентом</code>
+                        <code>401">Не авторизован</code>
+                        <code>403">Email не подтвержден</code>
+                        <code>404">Резюме не найдено или доступ запрещен</code>
+                    </status_codes>
+                    <business_logic>
+                        <step>Проверка принадлежности резюме текущему пользователю</step>
+                        <step>Обновление основных полей резюме (professional_summary)</step>
+                        <step>Обновление персональной информации (если передана)</step>
+                        <step>Добавление новых навыков к существующим</step>
+                        <step>Добавление нового опыта работы к существующему</step>
+                        <step>Добавление нового образования к существующему</step>
+                        <step>Возврат обновленного резюме с информацией об изменениях</step>
+                    </business_logic>
+                </endpoint>
             </endpoints>
         </component>
     </components>
@@ -266,6 +311,64 @@
                 <field name="conversation_id" type="Optional[str]">ID связанной беседы</field>
                 <field name="created_at" type="datetime">Дата создания</field>
                 <field name="updated_at" type="datetime">Дата последнего обновления</field>
+            </fields>
+        </structure>
+        
+        <structure>
+            <name>OpenAIResumeUpdate</name>
+            <description>Схема для OpenAI structured output - дополнение резюме AI-контентом</description>
+            <fields>
+                <field name="personalInfo" type="Optional[OpenAIResumePersonalInfo]">Персональная информация (обновляется только переданные поля)</field>
+                <field name="professionalSummary" type="Optional[str]">Профессиональное резюме (заменяет существующее)</field>
+                <field name="skills" type="Optional[List[OpenAIResumeSkill]]">Навыки (добавляются к существующим)</field>
+                <field name="experience" type="Optional[List[OpenAIResumeExperience]]">Опыт работы (добавляется к существующему)</field>
+                <field name="education" type="Optional[List[OpenAIResumeEducation]]">Образование (добавляется к существующему)</field>
+            </fields>
+        </structure>
+        
+        <structure>
+            <name>OpenAIResumePersonalInfo</name>
+            <description>Персональная информация для OpenAI structured output</description>
+            <fields>
+                <field name="firstName" type="Optional[str]">Имя</field>
+                <field name="lastName" type="Optional[str]">Фамилия</field>
+                <field name="middleName" type="Optional[str]">Отчество</field>
+                <field name="phone" type="Optional[str]">Номер телефона</field>
+                <field name="email" type="Optional[str]">Email адрес</field>
+                <field name="location" type="Optional[str]">Местоположение</field>
+            </fields>
+        </structure>
+        
+        <structure>
+            <name>OpenAIResumeSkill</name>
+            <description>Навык для OpenAI structured output</description>
+            <fields>
+                <field name="name" type="str">Название навыка</field>
+            </fields>
+        </structure>
+        
+        <structure>
+            <name>OpenAIResumeExperience</name>
+            <description>Опыт работы для OpenAI structured output</description>
+            <fields>
+                <field name="jobTitle" type="str">Должность</field>
+                <field name="company" type="str">Название компании</field>
+                <field name="location" type="Optional[str]">Местоположение работы</field>
+                <field name="startDate" type="str">Дата начала (YYYY-MM-DD)</field>
+                <field name="endDate" type="Optional[str]">Дата окончания (YYYY-MM-DD)</field>
+                <field name="isCurrent" type="bool">Текущая работа</field>
+                <field name="responsibilities" type="Optional[List[str]]">Обязанности и достижения</field>
+            </fields>
+        </structure>
+        
+        <structure>
+            <name>OpenAIResumeEducation</name>
+            <description>Образование для OpenAI structured output</description>
+            <fields>
+                <field name="degree" type="str">Степень или специальность</field>
+                <field name="institution" type="str">Название учебного заведения</field>
+                <field name="location" type="Optional[str]">Местоположение учебного заведения</field>
+                <field name="graduationDate" type="Optional[str]">Дата окончания (YYYY-MM-DD)</field>
             </fields>
         </structure>
     </data_structures>

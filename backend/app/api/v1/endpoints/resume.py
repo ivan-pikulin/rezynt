@@ -8,7 +8,7 @@ from app.schemas.resume import (ResumeCreate, ResumeEducationCreate,
                                 ResumeExperienceCreate, ResumeExportCreate,
                                 ResumeInDB, ResumePartialUpdate,
                                 ResumePersonalInfoUpdate, ResumeSkillCreate,
-                                ResumeUpdate)
+                                ResumeUpdate, OpenAIResumeUpdate)
 from fastapi import APIRouter, File, HTTPException, UploadFile, status
 
 router = APIRouter()
@@ -610,6 +610,110 @@ async def get_export_history(
     return {
         "resume_id": str(resume_id),
         "export_history": export_history
+    }
+
+
+# OpenAI Structured Output endpoint
+@router.post("/{resume_id}/ai-update")
+async def update_resume_with_ai(
+    resume_id: UUID,
+    ai_update: OpenAIResumeUpdate,
+    current_user: VerifiedUser = None,
+    db: AsyncDB = None
+) -> Dict[str, Any]:
+    """
+    Update resume with AI-generated content using OpenAI structured output.
+    All fields are optional - only provided fields will be updated/added.
+    Only available for users with verified email.
+    """
+    # Check if resume exists and belongs to current user
+    resume = await resume_crud.get_by_user_id_and_id(
+        db, user_id=current_user.id, resume_id=resume_id
+    )
+    if not resume:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Resume not found or access denied"
+        )
+    
+    # Update main resume fields
+    main_update_data = {}
+    if ai_update.professionalSummary is not None:
+        main_update_data["professional_summary"] = ai_update.professionalSummary
+    
+    if main_update_data:
+        main_update = ResumeUpdate(**main_update_data)
+        resume = await resume_crud.update(db, db_obj=resume, obj_in=main_update)
+    
+    # Update personal info if provided
+    if ai_update.personalInfo:
+        personal_info_update = ResumePersonalInfoUpdate(
+            first_name=ai_update.personalInfo.firstName,
+            last_name=ai_update.personalInfo.lastName,
+            middle_name=ai_update.personalInfo.middleName,
+            phone=ai_update.personalInfo.phone,
+            email=ai_update.personalInfo.email,
+            location=ai_update.personalInfo.location
+        )
+        await resume_manager.update_personal_info(
+            db, resume_id=resume_id, personal_info=personal_info_update
+        )
+    
+    # Add skills if provided
+    if ai_update.skills:
+        for skill in ai_update.skills:
+            await resume_manager.add_skill(db, resume_id=resume_id, skill_name=skill.name)
+    
+    # Add experience if provided
+    if ai_update.experience:
+        for exp in ai_update.experience:
+            from datetime import datetime
+            start_date = datetime.strptime(exp.startDate, "%Y-%m-%d").date()
+            end_date = None
+            if exp.endDate:
+                end_date = datetime.strptime(exp.endDate, "%Y-%m-%d").date()
+            
+            experience_data = ResumeExperienceCreate(
+                job_title=exp.jobTitle,
+                company=exp.company,
+                location=exp.location,
+                start_date=start_date,
+                end_date=end_date,
+                is_current=exp.isCurrent,
+                responsibilities=exp.responsibilities
+            )
+            await resume_manager.add_experience(db, resume_id=resume_id, experience_data=experience_data)
+    
+    # Add education if provided
+    if ai_update.education:
+        for edu in ai_update.education:
+            graduation_date = None
+            if edu.graduationDate:
+                from datetime import datetime
+                graduation_date = datetime.strptime(edu.graduationDate, "%Y-%m-%d").date()
+            
+            education_data = ResumeEducationCreate(
+                degree=edu.degree,
+                institution=edu.institution,
+                location=edu.location,
+                graduation_date=graduation_date
+            )
+            await resume_manager.add_education(db, resume_id=resume_id, education_data=education_data)
+    
+    # Return updated resume
+    updated_resume = await resume_crud.get_by_user_id_and_id(db, user_id=current_user.id, resume_id=resume_id)
+    
+    return {
+        "resume_id": str(resume_id),
+        "message": "Resume updated successfully with AI content",
+        "updated_fields": {
+            "personal_info": ai_update.personalInfo is not None,
+            "professional_summary": ai_update.professionalSummary is not None,
+            "skills_added": len(ai_update.skills) if ai_update.skills else 0,
+            "experience_added": len(ai_update.experience) if ai_update.experience else 0,
+            "education_added": len(ai_update.education) if ai_update.education else 0
+        },
+        "resume": updated_resume
     }
 
 
