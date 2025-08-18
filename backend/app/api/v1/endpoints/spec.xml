@@ -37,7 +37,7 @@
                     <params>
                         <param name="resume_create" type="ResumeCreate">Данные для создания резюме</param>
                     </params>
-                    <returns type="Resume">Созданное резюме</returns>
+                    <returns type="ResumeInDB">Созданное резюме (без связанных данных)</returns>
                     <status_codes>
                         <code>200">Резюме успешно создано</code>
                         <code>401">Не авторизован</code>
@@ -251,6 +251,21 @@
                 <field name="title" type="str">Название резюме</field>
                 <field name="template_id" type="UUID">ID шаблона</field>
                 <field name="professional_summary" type="Optional[str]">Профессиональное резюме</field>
+            </fields>
+        </structure>
+        
+        <structure>
+            <name>ResumeInDB</name>
+            <description>Модель резюме без связанных данных (для создания)</description>
+            <fields>
+                <field name="id" type="UUID">Уникальный идентификатор</field>
+                <field name="user_id" type="UUID">ID пользователя-владельца</field>
+                <field name="title" type="str">Название резюме</field>
+                <field name="template_id" type="UUID">ID используемого шаблона</field>
+                <field name="professional_summary" type="Optional[str]">Профессиональное резюме</field>
+                <field name="conversation_id" type="Optional[str]">ID связанной беседы</field>
+                <field name="created_at" type="datetime">Дата создания</field>
+                <field name="updated_at" type="datetime">Дата последнего обновления</field>
             </fields>
         </structure>
     </data_structures>

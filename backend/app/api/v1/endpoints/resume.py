@@ -8,7 +8,7 @@ from app.database.crud.crud_template import template_crud
 from app.schemas.resume import (
     ResumeCreate, ResumeUpdate, Resume, ResumePartialUpdate,
     ResumePersonalInfoUpdate, ResumeSkillCreate, ResumeExperienceCreate, 
-    ResumeEducationCreate, ResumeExportCreate
+    ResumeEducationCreate, ResumeExportCreate, ResumeInDB
 )
 
 router = APIRouter()
@@ -27,12 +27,12 @@ async def get_user_resumes(
     return resumes
 
 
-@router.post("/", response_model=Resume)
+@router.post("/", response_model=ResumeInDB)
 async def create_resume(
     resume_create: ResumeCreate,
     current_user: VerifiedUser = None,
     db: AsyncDB = None
-) -> Resume:
+) -> ResumeInDB:
     """
     Create a new resume for the current user.
     Only available for users with verified email.
