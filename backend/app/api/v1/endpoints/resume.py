@@ -736,16 +736,7 @@ async def update_resume_with_ai(
                 personal_info_updated = True
     
     return {
-        "resume_id": str(resume_id),
-        "message": "Resume updated successfully with AI content",
-        "updated_fields": {
-            "personal_info": personal_info_updated,
-            "professional_summary": ai_update.professionalSummary is not None,
-            "skills_added": len(ai_update.skills) if ai_update.skills else 0,
-            "experience_added": len(ai_update.experience) if ai_update.experience else 0,
-            "education_added": len(ai_update.education) if ai_update.education else 0
-        },
-        "resume": updated_resume
+        "result": "success"
     }
 
 
