@@ -10,9 +10,9 @@ class ResumePersonalInfoBase(BaseModel):
     first_name: str
     last_name: str
     middle_name: Optional[str] = None
-    phone: str
-    email: str
-    location: str
+    phone: Optional[str] = None
+    email: Optional[str] = None
+    location: Optional[str] = None
 
 
 class ResumePersonalInfoCreate(ResumePersonalInfoBase):

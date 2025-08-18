@@ -646,17 +646,26 @@ async def update_resume_with_ai(
     
     # Update personal info if provided
     if ai_update.personalInfo:
-        personal_info_update = ResumePersonalInfoUpdate(
-            first_name=ai_update.personalInfo.firstName,
-            last_name=ai_update.personalInfo.lastName,
-            middle_name=ai_update.personalInfo.middleName,
-            phone=ai_update.personalInfo.phone,
-            email=ai_update.personalInfo.email,
-            location=ai_update.personalInfo.location
-        )
-        await resume_manager.update_personal_info(
-            db, resume_id=resume_id, personal_info=personal_info_update
-        )
+        # Only include non-None values
+        personal_info_dict = {}
+        if ai_update.personalInfo.firstName is not None:
+            personal_info_dict['first_name'] = ai_update.personalInfo.firstName
+        if ai_update.personalInfo.lastName is not None:
+            personal_info_dict['last_name'] = ai_update.personalInfo.lastName
+        if ai_update.personalInfo.middleName is not None:
+            personal_info_dict['middle_name'] = ai_update.personalInfo.middleName
+        if ai_update.personalInfo.phone is not None:
+            personal_info_dict['phone'] = ai_update.personalInfo.phone
+        if ai_update.personalInfo.email is not None:
+            personal_info_dict['email'] = ai_update.personalInfo.email
+        if ai_update.personalInfo.location is not None:
+            personal_info_dict['location'] = ai_update.personalInfo.location
+        
+        if personal_info_dict:  # Only update if there are actual values
+            personal_info_update = ResumePersonalInfoUpdate(**personal_info_dict)
+            await resume_manager.update_personal_info(
+                db, resume_id=resume_id, personal_info=personal_info_update
+            )
     
     # Add skills if provided
     if ai_update.skills:
@@ -702,11 +711,24 @@ async def update_resume_with_ai(
     # Return updated resume
     updated_resume = await resume_crud.get(db, id=resume_id)
     
+    # Calculate updated fields
+    personal_info_updated = False
+    if ai_update.personalInfo:
+        # Check if any non-None values were provided
+        personal_info_updated = any([
+            ai_update.personalInfo.firstName is not None,
+            ai_update.personalInfo.lastName is not None,
+            ai_update.personalInfo.middleName is not None,
+            ai_update.personalInfo.phone is not None,
+            ai_update.personalInfo.email is not None,
+            ai_update.personalInfo.location is not None
+        ])
+    
     return {
         "resume_id": str(resume_id),
         "message": "Resume updated successfully with AI content",
         "updated_fields": {
-            "personal_info": ai_update.personalInfo is not None,
+            "personal_info": personal_info_updated,
             "professional_summary": ai_update.professionalSummary is not None,
             "skills_added": len(ai_update.skills) if ai_update.skills else 0,
             "experience_added": len(ai_update.experience) if ai_update.experience else 0,

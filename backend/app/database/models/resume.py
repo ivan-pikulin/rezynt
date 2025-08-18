@@ -33,12 +33,12 @@ class ResumePersonalInfo(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     resume_id = Column(UUID(as_uuid=True), ForeignKey('resumes.id', ondelete='CASCADE'), nullable=False, unique=True)
-    first_name = Column(String(100), nullable=False)
-    last_name = Column(String(100), nullable=False)
+    first_name = Column(String(100), nullable=True)
+    last_name = Column(String(100), nullable=True)
     middle_name = Column(String(100), nullable=True)
-    phone = Column(String(50), nullable=False)
-    email = Column(String(255), nullable=False)
-    location = Column(String(255), nullable=False)
+    phone = Column(String(50), nullable=True)
+    email = Column(String(255), nullable=True)
+    location = Column(String(255), nullable=True)
 
     # Relationships
     resume = relationship("Resume", back_populates="personal_info")
