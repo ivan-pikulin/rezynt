@@ -207,12 +207,13 @@
                         Обновление резюме с помощью AI-сгенерированного контента через OpenAI structured output. 
                         Все поля опциональны - обновляются только переданные поля. 
                         Для списков (skills, experience, education) элементы добавляются к существующим.
-                        Доступно только пользователям с подтвержденным email.
+                        Требует валидный API ключ для авторизации.
                     </description>
-                    <authentication>VerifiedUser (JWT token + verified email)</authentication>
+                    <authentication>API Key (X-API-Key header)</authentication>
                     <params>
                         <param name="resume_id" type="UUID">ID резюме</param>
                         <param name="ai_update" type="OpenAIResumeUpdate">AI-сгенерированные данные для дополнения резюме</param>
+                        <param name="X-API-Key" type="string">API ключ в заголовке</param>
                     </params>
                     <returns type="Dict[str, Any]">
                         {
@@ -230,12 +231,12 @@
                     </returns>
                     <status_codes>
                         <code>200">Резюме успешно обновлено AI-контентом</code>
-                        <code>401">Не авторизован</code>
-                        <code>403">Email не подтвержден</code>
-                        <code>404">Резюме не найдено или доступ запрещен</code>
+                        <code>401">Неверный или отсутствующий API ключ</code>
+                        <code>404">Резюме не найдено</code>
                     </status_codes>
                     <business_logic>
-                        <step>Проверка принадлежности резюме текущему пользователю</step>
+                        <step>Проверка валидности API ключа</step>
+                        <step>Проверка существования резюме</step>
                         <step>Обновление основных полей резюме (professional_summary)</step>
                         <step>Обновление персональной информации (если передана)</step>
                         <step>Добавление новых навыков к существующим</step>
@@ -248,13 +249,13 @@
         </component>
     </components>
     
-    <dependencies>
-        <dependency>app.api.deps (VerifiedUser, AsyncDB)</dependency>
-        <dependency>app.database.crud.crud_resume (resume_crud)</dependency>
-        <dependency>app.database.crud.crud_template (template_crud)</dependency>
-        <dependency>app.schemas.resume (ResumeUpdate, Resume)</dependency>
-        <dependency>fastapi (APIRouter, File, UploadFile, HTTPException, status)</dependency>
-    </dependencies>
+         <dependencies>
+         <dependency>app.api.deps (VerifiedUser, AsyncDB, APIKeyVerified)</dependency>
+         <dependency>app.database.crud.crud_resume (resume_crud)</dependency>
+         <dependency>app.database.crud.crud_template (template_crud)</dependency>
+         <dependency>app.schemas.resume (ResumeUpdate, Resume)</dependency>
+         <dependency>fastapi (APIRouter, File, UploadFile, HTTPException, status)</dependency>
+     </dependencies>
     
     <security>
         <authentication>JWT Bearer Token</authentication>

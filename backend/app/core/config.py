@@ -62,6 +62,9 @@ class Settings(BaseSettings):
     PLATFORM_APP_KEY: str
     PLATFORM_APP_URL: str
     PLATFORM_TIMEOUT: int = 60
+    
+    # API Key for AI endpoints
+    APP_API_KEY: str
 
     @property
     def sync_database_url(self) -> str:

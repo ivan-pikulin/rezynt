@@ -1,7 +1,7 @@
-from typing import Annotated, AsyncGenerator
+from typing import Annotated, AsyncGenerator, Optional
 from uuid import UUID
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, Header
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -61,3 +61,26 @@ async def get_current_verified_user(
     return current_user
 
 VerifiedUser = Annotated[User, Depends(get_current_verified_user)]
+
+
+# API Key authentication dependency
+async def verify_api_key(x_api_key: Optional[str] = Header(None)) -> bool:
+    """
+    Verify API key for AI endpoints.
+    """
+    if not x_api_key:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="API key is required"
+        )
+    
+    if x_api_key != settings.APP_API_KEY:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid API key"
+        )
+    
+    return True
+
+
+APIKeyVerified = Annotated[bool, Depends(verify_api_key)]

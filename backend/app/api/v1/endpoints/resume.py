@@ -10,6 +10,7 @@ from app.schemas.resume import (ResumeCreate, ResumeEducationCreate,
                                 ResumePersonalInfoUpdate, ResumeSkillCreate,
                                 ResumeUpdate, OpenAIResumeUpdate)
 from fastapi import APIRouter, File, HTTPException, UploadFile, status
+from app.api.deps import APIKeyVerified
 
 router = APIRouter()
 
@@ -618,22 +619,20 @@ async def get_export_history(
 async def update_resume_with_ai(
     resume_id: UUID,
     ai_update: OpenAIResumeUpdate,
-    current_user: VerifiedUser = None,
+    api_key_verified: APIKeyVerified,
     db: AsyncDB = None
 ) -> Dict[str, Any]:
     """
     Update resume with AI-generated content using OpenAI structured output.
     All fields are optional - only provided fields will be updated/added.
-    Only available for users with verified email.
+    Requires valid API key for authentication.
     """
-    # Check if resume exists and belongs to current user
-    resume = await resume_crud.get_by_user_id_and_id(
-        db, user_id=current_user.id, resume_id=resume_id
-    )
+    # Check if resume exists
+    resume = await resume_crud.get(db, id=resume_id)
     if not resume:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Resume not found or access denied"
+            detail="Resume not found"
         )
     
     # Update main resume fields
@@ -701,7 +700,7 @@ async def update_resume_with_ai(
             await resume_manager.add_education(db, resume_id=resume_id, education_data=education_data)
     
     # Return updated resume
-    updated_resume = await resume_crud.get_by_user_id_and_id(db, user_id=current_user.id, resume_id=resume_id)
+    updated_resume = await resume_crud.get(db, id=resume_id)
     
     return {
         "resume_id": str(resume_id),
