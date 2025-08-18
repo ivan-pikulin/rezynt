@@ -111,6 +111,10 @@ class ResumeManager:
         self.export_crud = CRUDResumeExport(ResumeExport)
 
     # Personal Info methods
+    async def get_personal_info(self, db: AsyncSession, *, resume_id: UUID) -> Optional[ResumePersonalInfo]:
+        """Get personal info for a resume."""
+        return await self.personal_info_crud.get_by_resume_id(db, resume_id=resume_id)
+
     async def update_personal_info(self, db: AsyncSession, *, resume_id: UUID, personal_info: ResumePersonalInfoUpdate) -> Optional[ResumePersonalInfo]:
         existing = await self.personal_info_crud.get_by_resume_id(db, resume_id=resume_id)
         if existing:
