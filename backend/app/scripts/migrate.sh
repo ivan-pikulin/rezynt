@@ -60,6 +60,15 @@ else:
 done
 echo "✅ База данных готова"
 
+# Check current migration status
+echo "🔍 Проверка текущего состояния миграций..."
+CURRENT_REVISION=$(uv run alembic -c "$ALEMBIC_INI" current 2>/dev/null | head -n1 | cut -d' ' -f1 || echo "None")
+echo "📋 Текущая ревизия: $CURRENT_REVISION"
+
+# Check available migrations
+echo "📋 Доступные миграции:"
+uv run alembic -c "$ALEMBIC_INI" history --verbose
+
 # Auto-generate migrations if AUTO_GENERATE_MIGRATIONS is set
 if [ "${AUTO_GENERATE_MIGRATIONS:-false}" = "true" ]; then
   echo "🔧 Автоматическое создание миграций..."
@@ -68,6 +77,9 @@ if [ "${AUTO_GENERATE_MIGRATIONS:-false}" = "true" ]; then
   echo "📝 Создание автоматической миграции..."
   MIGRATION_OUTPUT=$(uv run alembic -c "$ALEMBIC_INI" revision --autogenerate -m "autogen_$(date +%Y%m%d_%H%M%S)" 2>&1)
   MIGRATION_EXIT_CODE=$?
+  
+  echo "🔍 Вывод команды создания миграции:"
+  echo "$MIGRATION_OUTPUT"
   
   if [ $MIGRATION_EXIT_CODE -eq 0 ]; then
     echo "✅ Автоматическая миграция создана"
