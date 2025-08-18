@@ -8,7 +8,7 @@ from app.schemas.resume import (ResumeCreate, ResumeEducationCreate,
                                 ResumeExperienceCreate, ResumeExportCreate,
                                 ResumeInDB, ResumePartialUpdate,
                                 ResumePersonalInfoUpdate, ResumeSkillCreate,
-                                ResumeUpdate, OpenAIResumeUpdate)
+                                ResumeUpdate, OpenAIResumeUpdate, Resume)
 from fastapi import APIRouter, File, HTTPException, UploadFile, status
 from app.api.deps import APIKeyVerified
 
@@ -52,17 +52,17 @@ async def create_resume(
     return resume
 
 
-@router.get("/{resume_id}", response_model=ResumeInDB)
+@router.get("/{resume_id}", response_model=Resume)
 async def get_resume(
     resume_id: UUID,
     current_user: VerifiedUser = None,
     db: AsyncDB = None
-) -> ResumeInDB:
+) -> Resume:
     """
-    Get a specific resume by ID.
+    Get a specific resume by ID with all related data.
     Only available for users with verified email.
     """
-    resume = await resume_crud.get_by_user_id_and_id(
+    resume = await resume_crud.get_full_resume(
         db, user_id=current_user.id, resume_id=resume_id
     )
     if not resume:

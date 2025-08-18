@@ -39,6 +39,26 @@ class CRUDResume(CRUDBase[Resume, ResumeCreate, ResumeUpdate]):
         await db.refresh(db_obj)
         return db_obj
 
+    async def get_full_resume(self, db: AsyncSession, *, user_id: UUID, resume_id: UUID) -> Optional[Resume]:
+        """
+        Get a complete resume with all related data (personal_info, skills, experience, education).
+        Uses eager loading to avoid N+1 queries.
+        """
+        from sqlalchemy.orm import selectinload
+        
+        result = await db.execute(
+            select(self.model)
+            .options(
+                selectinload(Resume.personal_info),
+                selectinload(Resume.skills),
+                selectinload(Resume.experience),
+                selectinload(Resume.education),
+                selectinload(Resume.template)
+            )
+            .where(Resume.user_id == user_id, Resume.id == resume_id)
+        )
+        return result.scalar_one_or_none()
+
 
 class CRUDResumePersonalInfo(CRUDBase[ResumePersonalInfo, ResumePersonalInfoCreate, ResumePersonalInfoUpdate]):
     async def get_by_resume_id(self, db: AsyncSession, *, resume_id: UUID) -> Optional[ResumePersonalInfo]:

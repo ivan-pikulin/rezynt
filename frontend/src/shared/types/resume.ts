@@ -9,7 +9,6 @@ export interface PersonalInfo {
   phone: string;
   email: string;
   location: string;
-  zipCode?: string;
 }
 
 export interface Experience {

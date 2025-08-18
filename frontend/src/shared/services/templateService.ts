@@ -37,8 +37,7 @@ export class TemplateService {
         middleName: '',
         phone: '+1 (310) 363-6000',
         email: 'elon.musk@tesla.com',
-        location: 'Austin, Texas, USA',
-        zipCode: '78701'
+        location: 'Austin, Texas, USA'
       },
       professionalSummary: 'Visionary entrepreneur and engineer with over 25 years of experience revolutionizing multiple industries. Proven track record of building world-changing companies including Tesla, SpaceX, Neuralink, and The Boring Company. Expert in sustainable technology, rocket engineering, and disruptive innovation.',
       skills: [
