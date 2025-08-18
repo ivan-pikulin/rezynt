@@ -37,6 +37,7 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "Rezynt API"
     API_V1_STR: str = "/api/v1"
     CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:5173"]
+    DOMAIN_URL: str
     FRONTEND_BASE_URL: str
     API_BASE_URL: str
 

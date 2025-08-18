@@ -33,7 +33,7 @@ class EmailService:
         try:
             with open(settings.email.EMAIL_DKIM_PRIVATE_KEY_PATH, 'r') as f:
                 key_content = f.read()
-                logger.info("DKIM private key loaded successfully")
+                logger.info(f"DKIM private key loaded successfully from {settings.email.EMAIL_DKIM_PRIVATE_KEY_PATH}")
                 return key_content
         except FileNotFoundError:
             logger.warning(f"DKIM private key file not found at {settings.email.EMAIL_DKIM_PRIVATE_KEY_PATH}")
@@ -148,7 +148,7 @@ class EmailService:
         
         # Рендерим HTML шаблон
         html_content = Template(html_template).render(
-            api_url=settings.API_BASE_URL,
+            api_url=settings.DOMAIN_URL,
             token=confirmation_token
         )
         

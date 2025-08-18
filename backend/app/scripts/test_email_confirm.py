@@ -4,7 +4,6 @@ Test script to test the email service directly
 Run this script to send a test email and verify the service works
 """
 
-import os
 import sys
 from pathlib import Path
 
