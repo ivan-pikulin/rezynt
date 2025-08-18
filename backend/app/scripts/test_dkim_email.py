@@ -4,7 +4,7 @@ from email.mime.text import MIMEText
 from jinja2 import Template
 
 # Загрузка приватного ключа DKIM из файла (указываем путь к файлу)
-with open('/root/rezynt.com.private', 'r') as f:
+with open('/app/dkim-key.private', 'r') as f:
     dkim_private_key = f.read()
 
 html_content = """<!DOCTYPE html>
@@ -31,9 +31,9 @@ html_content = """<!DOCTYPE html>
 """
 
 html_content = Template(html_content).render(
-            api_url="https://rezynt.com",
-            token='1234567890'
-        )
+    api_url="https://rezynt.com",
+    token='1234567890'
+)
 
 msg = MIMEText(html_content, 'html')
 msg['From'] = 'team@rezynt.com'
