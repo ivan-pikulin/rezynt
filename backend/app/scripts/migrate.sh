@@ -61,7 +61,7 @@ done
 echo "✅ База данных готова"
 
 echo "🚀 Применение миграций..."
-uv run alembic -c "$ALEMBIC_INI" upgrade heads
+uv run alembic -c "$ALEMBIC_INI" upgrade head
 
 # Auto-generate migrations if AUTO_GENERATE_MIGRATIONS is set
 if [ "${AUTO_GENERATE_MIGRATIONS:-false}" = "true" ]; then
@@ -81,6 +81,6 @@ uv run alembic -c "$ALEMBIC_INI" heads
 
 # Apply migrations using 'heads' to handle multiple heads
 echo "📝 Применение всех головных миграций..."
-uv run alembic -c "$ALEMBIC_INI" upgrade heads
+uv run alembic -c "$ALEMBIC_INI" upgrade head
 
 echo "✅ Alembic миграции выполнены"
