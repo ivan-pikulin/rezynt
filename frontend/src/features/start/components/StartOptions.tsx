@@ -14,8 +14,10 @@ const StartOptions: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleStartFromScratch = async () => {
+    console.log('handleStartFromScratch called');
     try {
       const result = await startApi.startFromScratch();
+      console.log('startFromScratch result:', result);
       navigate(`/chat?resume_id=${result.id}`);
     } catch (error) {
       console.error('Failed to start from scratch:', error);

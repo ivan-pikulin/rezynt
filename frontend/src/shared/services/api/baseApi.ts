@@ -1,5 +1,6 @@
 import axios, { AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import i18next from 'i18next';
+import { tokenService } from './tokenService';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -15,9 +16,11 @@ const baseApi = axios.create({
 // Add request interceptor for authentication
 baseApi.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    const token = localStorage.getItem('token');
+    const token = tokenService.getAccessToken();
+    console.log('Request interceptor - token exists:', !!token);
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      console.log('Authorization header set:', `Bearer ${token.substring(0, 20)}...`);
     }
     // Ensure HTTPS
     if (config.url && config.url.startsWith('http:')) {
@@ -61,10 +64,29 @@ baseApi.interceptors.response.use(
     return response;
   },
   async (error: any) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('token');
-      window.location.href = '/login';
+    const originalRequest = error.config;
+
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+
+      try {
+        const refreshToken = tokenService.getRefreshToken();
+        if (refreshToken) {
+          const newTokens = await tokenService.refreshToken(refreshToken);
+          tokenService.storeTokens(newTokens);
+          
+          // Повторяем оригинальный запрос с новым токеном
+          originalRequest.headers.Authorization = `Bearer ${newTokens.access_token}`;
+          return baseApi(originalRequest);
+        }
+      } catch (refreshError) {
+        // Если refresh не удался, очищаем токены и редиректим на авторизацию
+        tokenService.clearTokens();
+        window.location.href = '/auth';
+        return Promise.reject(refreshError);
+      }
     }
+
     // Show notification for all other errors
     const status = error.response?.status;
     const i18nKey = statusCodeToI18nKey(status);

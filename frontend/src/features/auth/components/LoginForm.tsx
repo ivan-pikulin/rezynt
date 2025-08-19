@@ -10,6 +10,7 @@ import { useFormik } from 'formik';
 import * as yup from 'yup';
 import authApi from '../authApi';
 import { LoginCredentials } from '../types/auth';
+import { useAuthContext } from '../../../shared/contexts/AuthContext';
 
 interface LoginFormProps {
   onSuccess: () => void;
@@ -29,6 +30,7 @@ const validationSchema = yup.object({
 const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, onSwitchToSignup }) => {
   const [error, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
+  const { login } = useAuthContext();
 
   const formik = useFormik({
     initialValues: {
@@ -41,10 +43,14 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, onSwitchToSignup }) =>
       setError('');
       
       try {
+        console.log('Attempting login with:', values.username);
         const tokens = await authApi.login(values);
-        authApi.storeTokens(tokens);
+        console.log('Login successful, tokens received');
+        login(tokens);
+        console.log('Tokens stored, calling onSuccess');
         onSuccess();
       } catch (err: any) {
+        console.error('Login error:', err);
         setError(err.response?.data?.detail || 'Ошибка входа. Проверьте email и пароль.');
       } finally {
         setIsLoading(false);

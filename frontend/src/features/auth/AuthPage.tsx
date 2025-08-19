@@ -1,16 +1,19 @@
 import Alert from '@mui/material/Alert';
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import AuthLayout from './components/AuthLayout';
 import LoginForm from './components/LoginForm';
 import SignupForm from './components/SignupForm';
 import { AuthMode } from './types/auth';
+import { useAuthContext } from '../../shared/contexts/AuthContext';
 
 const AuthPage: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const [mode, setMode] = useState<AuthMode>('login');
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const { isAuthenticated } = useAuthContext();
 
   // Определяем начальный режим из URL параметров
   useEffect(() => {
@@ -21,7 +24,9 @@ const AuthPage: React.FC = () => {
   }, [searchParams]);
 
   const handleLoginSuccess = () => {
-    navigate('/start');
+    // Редиректим на страницу, с которой пришел пользователь, или на /start
+    const from = (location.state as any)?.from?.pathname || '/start';
+    navigate(from, { replace: true });
   };
 
   const handleSignupSuccess = () => {

@@ -2,6 +2,8 @@ import { CssBaseline } from '@mui/material';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
+import { AuthProvider } from './shared/contexts/AuthContext';
+import ProtectedRoute from './shared/components/ProtectedRoute';
 
 // Create a client
 const queryClient = new QueryClient();
@@ -18,15 +20,46 @@ function AppRoutes() {
   return (
     <React.Suspense fallback={<div>Loading...</div>}>
       <Routes>
-        <Route path="/auth" element={<AuthPage />} />
-        <Route path="/login" element={<AuthPage />} />
+        {/* Публичные маршруты */}
+        <Route path="/auth" element={
+          <ProtectedRoute requireAuth={false}>
+            <AuthPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/login" element={
+          <ProtectedRoute requireAuth={false}>
+            <AuthPage />
+          </ProtectedRoute>
+        } />
         <Route path="/auth/email-confirmed" element={<EmailConfirmationPage />} />
         <Route path="/auth/email-confirmation-error" element={<EmailConfirmationPage />} />
-        <Route path="/start" element={<StartPage />} />
-        <Route path="/chat" element={<ChatPage />} />
-        <Route path="/refine" element={<RefinePage />} />
-        <Route path="/export" element={<ExportPage />} />
-        <Route path="/" element={<StartPage />} />
+        
+        {/* Защищенные маршруты */}
+        <Route path="/start" element={
+          <ProtectedRoute requireAuth={true}>
+            <StartPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/chat" element={
+          <ProtectedRoute requireAuth={true}>
+            <ChatPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/refine" element={
+          <ProtectedRoute requireAuth={true}>
+            <RefinePage />
+          </ProtectedRoute>
+        } />
+        <Route path="/export" element={
+          <ProtectedRoute requireAuth={true}>
+            <ExportPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/" element={
+          <ProtectedRoute requireAuth={true}>
+            <StartPage />
+          </ProtectedRoute>
+        } />
       </Routes>
     </React.Suspense>
   );
@@ -37,7 +70,9 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <CssBaseline />
       <Router>
-        <AppRoutes />
+        <AuthProvider>
+          <AppRoutes />
+        </AuthProvider>
       </Router>
     </QueryClientProvider>
   );

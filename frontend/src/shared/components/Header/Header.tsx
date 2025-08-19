@@ -1,11 +1,15 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import LogoutIcon from '@mui/icons-material/Logout';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
+import Tooltip from '@mui/material/Tooltip';
 import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
 import Stepper from '@mui/material/Stepper';
 import React from 'react';
+import { useAuthContext } from '../../contexts/AuthContext';
 import { HeaderProps } from './Header.types';
 
 const Header: React.FC<HeaderProps> = ({ 
@@ -19,6 +23,7 @@ const Header: React.FC<HeaderProps> = ({
   showNextButton = true,
   showLogo = true
 }) => {
+  const { logout } = useAuthContext();
   const steps = ['Start', 'Generate', 'Refine', 'Export'];
 
   const getPreviousStepName = (step: number) => {
@@ -120,6 +125,21 @@ const Header: React.FC<HeaderProps> = ({
         width: { xs: 150, sm: 200 }, // Уменьшаем ширину на мобильных
         justifyContent: 'flex-end'
       }}>
+        {/* Кнопка выхода */}
+        <Tooltip title="Выйти">
+          <IconButton
+            onClick={logout}
+            sx={{
+              color: '#666',
+              '&:hover': {
+                color: '#d32f2f',
+                bgcolor: '#ffebee'
+              }
+            }}
+          >
+            <LogoutIcon />
+          </IconButton>
+        </Tooltip>
         {showBackButton && onBack && (
           <Button
             variant="outlined"

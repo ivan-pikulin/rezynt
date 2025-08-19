@@ -1,4 +1,5 @@
 import baseApi from '../../shared/services/api/baseApi';
+import { tokenService } from '../../shared/services/api/tokenService';
 import { 
   LoginCredentials, 
   SignupCredentials, 
@@ -50,39 +51,35 @@ const authApi = {
    * Store tokens in localStorage
    */
   storeTokens: (tokens: TokenResponse) => {
-    localStorage.setItem('access_token', tokens.access_token);
-    localStorage.setItem('refresh_token', tokens.refresh_token);
-    localStorage.setItem('token_type', tokens.token_type);
+    tokenService.storeTokens(tokens);
   },
 
   /**
    * Get stored access token
    */
   getAccessToken: (): string | null => {
-    return localStorage.getItem('access_token');
+    return tokenService.getAccessToken();
   },
 
   /**
    * Get stored refresh token
    */
   getRefreshToken: (): string | null => {
-    return localStorage.getItem('refresh_token');
+    return tokenService.getRefreshToken();
   },
 
   /**
    * Clear stored tokens
    */
   clearTokens: () => {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
-    localStorage.removeItem('token_type');
+    tokenService.clearTokens();
   },
 
   /**
    * Check if user is authenticated
    */
   isAuthenticated: (): boolean => {
-    return !!localStorage.getItem('access_token');
+    return !!tokenService.getAccessToken();
   }
 };
 
