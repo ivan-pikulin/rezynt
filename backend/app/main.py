@@ -1,23 +1,12 @@
-import logging
-import sys
+from app.api.v1.api import api_router
+from app.core.config import settings
+from app.database.models.base import setup_relationships
+from app.logging import setup_logging
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
 
-from app.core.config import settings
-from app.api.v1.api import api_router
-from app.database.models.base import setup_relationships
-
-# Configure logging
-logging.basicConfig(
-    level=logging.DEBUG,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout)
-    ]
-)
-
-# Setup all relationships after all models are imported
+setup_logging()
 setup_relationships()
 
 class ForwardedProtocolMiddleware(BaseHTTPMiddleware):
