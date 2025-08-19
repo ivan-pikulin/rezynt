@@ -9,7 +9,7 @@ class PlatformMessage(BaseModel):
     text: str
     conversation_id: str = None
 
-class PlatformAgent:
+class PlatformChatflow:
     def __init__(self, app_key: str, app_url: str, timeout: int = 60):
         self.app_key = app_key
         self.app_url = app_url

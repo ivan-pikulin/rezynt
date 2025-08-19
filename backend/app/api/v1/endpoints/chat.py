@@ -3,7 +3,7 @@ from uuid import UUID
 from pydantic import BaseModel
 
 from app.api.deps import VerifiedUser, get_db
-from app.services import PlatformAgent
+from app.services import PlatformChatflow
 from app.core.config import settings
 from app.database.crud.crud_resume import resume_crud
 from fastapi import APIRouter, Depends, HTTPException
@@ -36,7 +36,7 @@ async def send_message(
         raise HTTPException(status_code=403, detail="Access denied")
     
     # Создаем агента платформы
-    platform_agent = PlatformAgent(
+    platform_chatflow = PlatformChatflow(
         app_key=settings.PLATFORM_APP_KEY,
         app_url=settings.PLATFORM_APP_URL,
         timeout=settings.PLATFORM_TIMEOUT
@@ -44,7 +44,7 @@ async def send_message(
     
     # Отправляем сообщение
     try:
-        response = await platform_agent.chat(
+        response = await platform_chatflow.chat(
             user_id=str(user.id),
             text=request.message,
             conversation_id=resume_obj.conversation_id

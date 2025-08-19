@@ -748,12 +748,37 @@ async def upload_resume(
     db: AsyncDB = None
 ) -> Dict[str, Any]:
     """
-    Upload resume file and return file ID.
+    Upload resume file and create resume.
     Only available for users with verified email.
     """
-    # TODO: Implement actual file processing and storage
-    # For now, return mocked ID as requested
-    return {"id": "12345"}
+    # Get default template (tero)
+    template = await template_crud.get_by_slug(db, slug='tero')
+    if not template:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Default template not found"
+        )
+    
+    # Create resume with uploaded file info
+    resume_create = ResumeCreate(
+        title=f"Resume from {file.filename}",
+        template_id=template.id,
+        professional_summary=""
+    )
+    
+    resume = await resume_crud.create(db, obj_in=resume_create, user_id=current_user.id)
+    
+    # TODO: Process uploaded file and extract content
+    # For now, just return the created resume
+    
+    return {
+        "id": str(resume.id),
+        "title": resume.title,
+        "template_id": str(resume.template_id),
+        "user_id": str(resume.user_id),
+        "created_at": resume.created_at.isoformat(),
+        "updated_at": resume.updated_at.isoformat()
+    }
 
 
 @router.put("/{resume_id}/template/{template_id}")

@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { ChatMessage } from '../types/chat';
 import { chatApi } from '../services/chatApi';
 
-export const useChat = () => {
+export const useChat = (resumeId: string | null) => {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: 'assistant-1',
@@ -38,6 +38,11 @@ export const useChat = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const sendUserMessage = useCallback(async (content: string) => {
+    if (!resumeId) {
+      console.error('Resume ID is required');
+      return;
+    }
+
     // Добавляем сообщение пользователя
     const userMessage: ChatMessage = {
       id: `user-${Date.now()}`,
@@ -62,7 +67,10 @@ export const useChat = () => {
     
     try {
       // Отправляем запрос на API
-      const response = await chatApi.sendMessage({ message: content });
+      const response = await chatApi.sendMessage({ 
+        message: content,
+        resumeId: resumeId
+      });
       
       // Обновляем сообщение ассистента с реальным ответом
       setMessages(prev => 
@@ -84,7 +92,7 @@ export const useChat = () => {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [resumeId]);
 
   return {
     messages,

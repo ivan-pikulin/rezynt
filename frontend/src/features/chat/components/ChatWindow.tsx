@@ -4,8 +4,12 @@ import { ChatMessage } from './ChatMessage';
 import { ChatInput } from './ChatInput';
 import { useChat } from '../hooks/useChat';
 
-const ChatWindow: React.FC = () => {
-  const { messages, isLoading, sendUserMessage } = useChat();
+interface ChatWindowProps {
+  resumeId: string | null;
+}
+
+const ChatWindow: React.FC<ChatWindowProps> = ({ resumeId }) => {
+  const { messages, isLoading, sendUserMessage } = useChat(resumeId);
   
   return (
     <Box sx={{ 

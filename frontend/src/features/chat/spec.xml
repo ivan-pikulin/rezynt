@@ -79,6 +79,13 @@
         <optimization name="logo_hiding" desc="Logo hidden in header on mobile devices" />
     </mobile_optimizations>
     <functionality>
+        <feature name="resume_id_support" desc="Support for resume_id in URL parameters">
+            <implementation>
+                <feature name="url_parameter" desc="Extract resume_id from URL search parameters" />
+                <feature name="api_integration" desc="Pass resume_id to chat API for proper conversation tracking" />
+                <feature name="navigation" desc="Include resume_id in navigation to other pages" />
+            </implementation>
+        </feature>
         <feature name="scroll_behavior" desc="Proper scroll behavior for chat messages with fixed height">
             <implementation>
                 <feature name="fixed_container" desc="Chat container has fixed height and cannot grow beyond screen bounds" />
@@ -106,7 +113,7 @@
                 1. User types message in ChatInput
                 2. Message appears immediately in chat
                 3. Placeholder assistant message shows with loading animation
-                4. API call is made to chatApi (mock implementation)
+                4. API call is made to chatApi with resume_id
                 5. Assistant response replaces placeholder message
             </flow>
         </feature>
@@ -117,11 +124,12 @@
                 - "Thinking..." text during API call
             </states>
         </feature>
-        <feature name="mock_api" desc="Simulated backend API">
+        <feature name="real_api" desc="Real backend API integration">
             <implementation>
-                - Random response selection from predefined messages
-                - Simulated network delay (1-3 seconds)
-                - Error handling for failed requests
+                - POST request to /chat/send-message
+                - Includes message and resume_id in request
+                - Proper error handling for failed requests
+                - Response from AI assistant via platform service
             </implementation>
         </feature>
     </functionality>

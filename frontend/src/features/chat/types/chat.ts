@@ -7,6 +7,7 @@ export interface ChatMessage {
 
 export interface SendMessageRequest {
   message: string;
+  resumeId: string;
 }
 
 export interface SendMessageResponse {

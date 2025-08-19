@@ -3,7 +3,7 @@ import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import CloseIcon from '@mui/icons-material/Close';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import Header from '../../shared/components/Header/Header';
 import ChatWindow from './components/ChatWindow';
 import ResumeRenderer from '../../shared/components/ResumeRenderer';
@@ -11,11 +11,13 @@ import { TemplateService } from '../../shared/services/templateService';
 
 const ChatPage: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const resumeId = searchParams.get('resume_id');
   const demoData = TemplateService.createDemoData();
   const [showPreview, setShowPreview] = useState(false);
 
   const handleNext = () => {
-    navigate('/refine');
+    navigate(`/refine?resume_id=${resumeId}`);
   };
 
   const handleBack = () => {
@@ -30,10 +32,10 @@ const ChatPage: React.FC = () => {
       case 1: // Generate - уже на этой странице
         break;
       case 2: // Refine
-        navigate('/refine');
+        navigate(`/refine?resume_id=${resumeId}`);
         break;
       case 3: // Export
-        navigate('/export');
+        navigate(`/export?resume_id=${resumeId}`);
         break;
       default:
         break;
@@ -117,7 +119,7 @@ const ChatPage: React.FC = () => {
             display: 'flex', 
             flexDirection: 'column' 
           }}>
-            <ChatWindow />
+            <ChatWindow resumeId={resumeId} />
           </Box>
           
           {/* Правая часть: превью (скрыто на мобильных по умолчанию) */}

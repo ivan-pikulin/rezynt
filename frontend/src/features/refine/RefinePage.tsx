@@ -3,7 +3,7 @@ import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import CloseIcon from '@mui/icons-material/Close';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import Header from '../../shared/components/Header/Header';
 import ResumeRenderer from '../../shared/components/ResumeRenderer';
 import TemplateSelector from './components/TemplateSelector';
@@ -12,6 +12,8 @@ import { TemplateConfig } from '../../shared/types/resume';
 
 const RefinePage: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const resumeId = searchParams.get('resume_id');
   const demoData = TemplateService.createDemoData();
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateConfig | null>(
     TemplateService.getTemplateById('tero') || TemplateService.getTemplates()[0]
@@ -19,11 +21,11 @@ const RefinePage: React.FC = () => {
   const [showPreview, setShowPreview] = useState(false);
 
   const handleNext = () => {
-    navigate('/export');
+    navigate(`/export?resume_id=${resumeId}`);
   };
 
   const handleBack = () => {
-    navigate('/chat');
+    navigate(`/chat?resume_id=${resumeId}`);
   };
 
   const handleStepClick = (stepIndex: number) => {
@@ -32,12 +34,12 @@ const RefinePage: React.FC = () => {
         navigate('/');
         break;
       case 1: // Generate
-        navigate('/chat');
+        navigate(`/chat?resume_id=${resumeId}`);
         break;
       case 2: // Refine - уже на этой странице
         break;
       case 3: // Export
-        navigate('/export');
+        navigate(`/export?resume_id=${resumeId}`);
         break;
       default:
         break;

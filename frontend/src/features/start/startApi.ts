@@ -6,36 +6,26 @@ export const startApi = {
    * Загрузить файл резюме
    */
   uploadResume: async (file: File): Promise<UploadResponse> => {
-    // Моковая реализация
-    console.log('Mock: Uploading file:', file.name);
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Имитация задержки
-    
-    // В реальной реализации:
-    // const formData = new FormData();
-    // formData.append('file', file);
-    // const response = await baseApi.post('/start/upload-resume/', formData);
-    // return response.data;
-    
-    return {
-      fileId: 'elon-musk-resume-2024',
-      fileName: file.name,
-      success: true,
-      message: 'Resume uploaded successfully. AI assistant is ready to help you refine it!'
-    };
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await baseApi.post('/resume/upload', formData);
+    return response.data;
   },
 
   /**
    * Начать создание резюме с нуля
    */
-  startFromScratch: async (): Promise<{ sessionId: string }> => {
-    // Моковая реализация
-    console.log('Mock: Starting from scratch');
-    await new Promise(resolve => setTimeout(resolve, 500)); // Имитация задержки
+  startFromScratch: async (): Promise<{ id: string }> => {
+    // Сначала получаем UUID шаблона по slug
+    const templateResponse = await baseApi.get('/template/slug/tero');
+    const templateId = templateResponse.data.id;
     
-    // В реальной реализации:
-    // const response = await baseApi.post('/start/from-scratch/');
-    // return response.data;
-    
-    return { sessionId: 'elon-musk-session-2024' };
+    // Создаем резюме с полученным UUID шаблона
+    const response = await baseApi.post('/resume/', {
+      title: 'New Resume',
+      template_id: templateId,
+      professional_summary: ''
+    });
+    return response.data;
   }
 }; 

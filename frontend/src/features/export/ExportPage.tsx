@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import Box from '@mui/material/Box';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import Header from '../../shared/components/Header/Header';
 import DownloadOptions from './components/DownloadOptions';
 import SuccessPage from './components/SuccessPage';
@@ -9,13 +9,15 @@ import { TeroTemplate } from '../../shared/components/templates';
 
 const ExportPage: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const resumeId = searchParams.get('resume_id');
   const templateContainerRef = useRef<HTMLDivElement>(null);
   const demoData = TemplateService.createDemoData();
   const [isExporting, setIsExporting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
   const handleBack = () => {
-    navigate('/refine');
+    navigate(`/refine?resume_id=${resumeId}`);
   };
 
   const handleStepClick = (stepIndex: number) => {
@@ -24,10 +26,10 @@ const ExportPage: React.FC = () => {
         navigate('/');
         break;
       case 1: // Generate
-        navigate('/chat');
+        navigate(`/chat?resume_id=${resumeId}`);
         break;
       case 2: // Refine
-        navigate('/refine');
+        navigate(`/refine?resume_id=${resumeId}`);
         break;
       case 3: // Export - уже на этой странице
         break;

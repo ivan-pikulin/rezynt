@@ -15,8 +15,8 @@ const StartOptions: React.FC = () => {
 
   const handleStartFromScratch = async () => {
     try {
-      await startApi.startFromScratch();
-      navigate('/chat');
+      const result = await startApi.startFromScratch();
+      navigate(`/chat?resume_id=${result.id}`);
     } catch (error) {
       console.error('Failed to start from scratch:', error);
     }
@@ -30,8 +30,8 @@ const StartOptions: React.FC = () => {
     const file = event.target.files?.[0];
     if (file) {
       try {
-        await startApi.uploadResume(file);
-        navigate('/chat');
+        const result = await startApi.uploadResume(file);
+        navigate(`/chat?resume_id=${result.id}`);
       } catch (error) {
         console.error('Failed to upload resume:', error);
       }

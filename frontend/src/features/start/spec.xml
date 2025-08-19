@@ -67,17 +67,22 @@
     </mobile_optimizations>
 
     <api>
-        <endpoint name="uploadResume" method="POST" path="/start/upload-resume/">
-            <desc>Upload existing resume file</desc>
+        <endpoint name="uploadResume" method="POST" path="/resume/upload">
+            <desc>Upload existing resume file and create resume</desc>
             <request>FormData with file</request>
-            <response>UploadResponse with fileId, fileName, etc.</response>
+            <response>Resume object with id, title, template_id, etc.</response>
         </endpoint>
-        <endpoint name="startFromScratch" method="POST" path="/start/from-scratch/">
-            <desc>Create new resume session</desc>
-            <request>Empty</request>
-            <response>Session ID for new resume creation</response>
+        <endpoint name="startFromScratch" method="POST" path="/resume/">
+            <desc>Create new resume with default template</desc>
+            <request>ResumeCreate with title, template_id, professional_summary</request>
+            <response>Resume object with id and other fields</response>
         </endpoint>
     </api>
+
+    <navigation>
+        <flow name="start_from_scratch" desc="Navigate to /chat?resume_id={id} after creating resume" />
+        <flow name="upload_resume" desc="Navigate to /chat?resume_id={id} after uploading file" />
+    </navigation>
 
     <deps>
         <dep name="Material-UI" purpose="UI components, icons, and responsive breakpoints" />
