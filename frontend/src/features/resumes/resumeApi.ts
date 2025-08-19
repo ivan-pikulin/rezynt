@@ -68,7 +68,7 @@ export const resumeApi = {
    * Get all resumes for the current user with full data
    */
   async getAllResumes(): Promise<ResumeApiResponse[]> {
-    const response = await baseApi.get('/api/v1/resume/');
+    const response = await baseApi.get('/resume/');
     return response.data;
   },
 
@@ -76,7 +76,7 @@ export const resumeApi = {
    * Get a specific resume by ID with full data
    */
   async getResume(resumeId: string): Promise<ResumeApiResponse> {
-    const response = await baseApi.get(`/api/v1/resume/${resumeId}`);
+    const response = await baseApi.get(`/resume/${resumeId}`);
     return response.data;
   },
 
@@ -88,7 +88,7 @@ export const resumeApi = {
     template_id: string;
     professional_summary?: string;
   }): Promise<ResumeApiResponse> {
-    const response = await baseApi.post('/api/v1/resume/', data);
+    const response = await baseApi.post('/resume/', data);
     return response.data;
   },
 
@@ -101,7 +101,7 @@ export const resumeApi = {
     professional_summary?: string;
     conversation_id?: string;
   }): Promise<ResumeApiResponse> {
-    const response = await baseApi.put(`/api/v1/resume/${resumeId}`, data);
+    const response = await baseApi.put(`/resume/${resumeId}`, data);
     return response.data;
   },
 
@@ -109,7 +109,7 @@ export const resumeApi = {
    * Partially update a resume
    */
   async partialUpdateResume(resumeId: string, data: any): Promise<ResumeApiResponse> {
-    const response = await baseApi.patch(`/api/v1/resume/${resumeId}`, data);
+    const response = await baseApi.patch(`/resume/${resumeId}`, data);
     return response.data;
   },
 
@@ -117,7 +117,7 @@ export const resumeApi = {
    * Delete a resume
    */
   async deleteResume(resumeId: string): Promise<void> {
-    await baseApi.delete(`/api/v1/resume/${resumeId}`);
+    await baseApi.delete(`/resume/${resumeId}`);
   },
 
   /**
@@ -131,7 +131,7 @@ export const resumeApi = {
     email?: string;
     location?: string;
   }): Promise<any> {
-    const response = await baseApi.patch(`/api/v1/resume/${resumeId}/personal-info`, data);
+    const response = await baseApi.patch(`/resume/${resumeId}/personal-info`, data);
     return response.data;
   },
 
@@ -139,7 +139,7 @@ export const resumeApi = {
    * Add a skill
    */
   async addSkill(resumeId: string, skillName: string): Promise<any> {
-    const response = await baseApi.post(`/api/v1/resume/${resumeId}/skills`, {
+    const response = await baseApi.post(`/resume/${resumeId}/skills`, {
       name: skillName
     });
     return response.data;
@@ -149,7 +149,7 @@ export const resumeApi = {
    * Remove a skill
    */
   async removeSkill(resumeId: string, skillId: string): Promise<any> {
-    const response = await baseApi.delete(`/api/v1/resume/${resumeId}/skills/${skillId}`);
+    const response = await baseApi.delete(`/resume/${resumeId}/skills/${skillId}`);
     return response.data;
   },
 
@@ -165,7 +165,7 @@ export const resumeApi = {
     is_current: boolean;
     responsibilities?: string[];
   }): Promise<any> {
-    const response = await baseApi.post(`/api/v1/resume/${resumeId}/experience`, data);
+    const response = await baseApi.post(`/resume/${resumeId}/experience`, data);
     return response.data;
   },
 
@@ -173,7 +173,7 @@ export const resumeApi = {
    * Update experience
    */
   async updateExperience(resumeId: string, experienceId: string, data: any): Promise<any> {
-    const response = await baseApi.put(`/api/v1/resume/${resumeId}/experience/${experienceId}`, data);
+    const response = await baseApi.put(`/resume/${resumeId}/experience/${experienceId}`, data);
     return response.data;
   },
 
@@ -181,7 +181,7 @@ export const resumeApi = {
    * Remove experience
    */
   async removeExperience(resumeId: string, experienceId: string): Promise<any> {
-    const response = await baseApi.delete(`/api/v1/resume/${resumeId}/experience/${experienceId}`);
+    const response = await baseApi.delete(`/resume/${resumeId}/experience/${experienceId}`);
     return response.data;
   },
 
@@ -195,7 +195,7 @@ export const resumeApi = {
     graduation_date?: string;
     field_of_study?: string;
   }): Promise<any> {
-    const response = await baseApi.post(`/api/v1/resume/${resumeId}/education`, data);
+    const response = await baseApi.post(`/resume/${resumeId}/education`, data);
     return response.data;
   },
 
@@ -203,7 +203,7 @@ export const resumeApi = {
    * Update education
    */
   async updateEducation(resumeId: string, educationId: string, data: any): Promise<any> {
-    const response = await baseApi.put(`/api/v1/resume/${resumeId}/education/${educationId}`, data);
+    const response = await baseApi.put(`/resume/${resumeId}/education/${educationId}`, data);
     return response.data;
   },
 
@@ -211,7 +211,7 @@ export const resumeApi = {
    * Remove education
    */
   async removeEducation(resumeId: string, educationId: string): Promise<any> {
-    const response = await baseApi.delete(`/api/v1/resume/${resumeId}/education/${educationId}`);
+    const response = await baseApi.delete(`/resume/${resumeId}/education/${educationId}`);
     return response.data;
   }
 };
