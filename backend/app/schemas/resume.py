@@ -221,6 +221,14 @@ class Resume(ResumeInDBBase):
     exports: List[ResumeExport] = []
 
 
+class ResumeList(ResumeInDBBase):
+    """Schema for listing resumes without exports to avoid lazy loading issues"""
+    personal_info: Optional[ResumePersonalInfo] = None
+    skills: List[ResumeSkill] = []
+    experience: List[ResumeExperience] = []
+    education: List[ResumeEducation] = []
+
+
 class ResumeInDB(ResumeInDBBase):
     pass
 

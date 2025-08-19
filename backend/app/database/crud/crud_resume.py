@@ -24,6 +24,7 @@ class CRUDResume(CRUDBase[Resume, ResumeCreate, ResumeUpdate]):
         """
         Get all resumes for a user with all related data (personal_info, skills, experience, education).
         Uses eager loading to avoid N+1 queries.
+        Excludes exports to avoid lazy loading issues.
         """
         from sqlalchemy.orm import selectinload
         

@@ -53,14 +53,6 @@ export interface ResumeApiResponse {
     field_of_study?: string;
     order_index: number;
   }>;
-  exports: Array<{
-    id: string;
-    resume_id: string;
-    export_format: string;
-    file_size?: number;
-    export_settings?: any;
-    created_at: string;
-  }>;
 }
 
 export const resumeApi = {

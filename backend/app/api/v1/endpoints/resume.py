@@ -8,18 +8,18 @@ from app.schemas.resume import (ResumeCreate, ResumeEducationCreate,
                                 ResumeExperienceCreate, ResumeExportCreate,
                                 ResumeInDB, ResumePartialUpdate,
                                 ResumePersonalInfoUpdate, ResumeSkillCreate,
-                                ResumeUpdate, OpenAIResumeUpdate, Resume)
+                                ResumeUpdate, OpenAIResumeUpdate, Resume, ResumeList)
 from fastapi import APIRouter, File, HTTPException, UploadFile, status
 from app.api.deps import APIKeyVerified
 
 router = APIRouter()
 
 
-@router.get("/", response_model=List[Resume])
+@router.get("/", response_model=List[ResumeList])
 async def get_user_resumes(
     current_user: VerifiedUser = None,
     db: AsyncDB = None
-) -> List[Resume]:
+) -> List[ResumeList]:
     """
     Get all resumes for the current user with full data.
     Only available for users with verified email.
