@@ -52,17 +52,17 @@ async def create_resume(
     return resume
 
 
-@router.get("/{resume_id}")
+@router.get("/{resume_id}", response_model=Resume)
 async def get_resume(
     resume_id: UUID,
     current_user: VerifiedUser = None,
     db: AsyncDB = None
-):
+) -> Resume:
     """
     Get a specific resume by ID with all related data.
     Only available for users with verified email.
     """
-    resume = await resume_crud.get_complete_resume(
+    resume = await resume_crud.get_full_resume(
         db, user_id=current_user.id, resume_id=resume_id
     )
     if not resume:

@@ -59,41 +59,6 @@ class CRUDResume(CRUDBase[Resume, ResumeCreate, ResumeUpdate]):
         )
         return result.scalar_one_or_none()
 
-    async def get_complete_resume(self, db: AsyncSession, *, user_id: UUID, resume_id: UUID) -> Optional[dict]:
-        """
-        Get a complete resume with all related data as a dictionary.
-        This method ensures all related data is loaded and structured properly.
-        """
-        # Get main resume
-        resume = await self.get_by_user_id_and_id(db, user_id=user_id, resume_id=resume_id)
-        if not resume:
-            return None
-        
-        # Get related data using resume_manager
-        personal_info = await resume_manager.get_personal_info(db, resume_id=resume_id)
-        skills = await resume_manager.skill_crud.get_by_resume_id(db, resume_id=resume_id)
-        experience = await resume_manager.experience_crud.get_by_resume_id(db, resume_id=resume_id)
-        education = await resume_manager.education_crud.get_by_resume_id(db, resume_id=resume_id)
-        
-        # Build complete resume object
-        complete_resume = {
-            "id": resume.id,
-            "user_id": resume.user_id,
-            "title": resume.title,
-            "template_id": resume.template_id,
-            "professional_summary": resume.professional_summary,
-            "conversation_id": resume.conversation_id,
-            "created_at": resume.created_at,
-            "updated_at": resume.updated_at,
-            "personal_info": personal_info,
-            "skills": skills,
-            "experience": experience,
-            "education": education,
-            "exports": []  # Empty for now, can be added if needed
-        }
-        
-        return complete_resume
-
 
 class CRUDResumePersonalInfo(CRUDBase[ResumePersonalInfo, ResumePersonalInfoCreate, ResumePersonalInfoUpdate]):
     async def get_by_resume_id(self, db: AsyncSession, *, resume_id: UUID) -> Optional[ResumePersonalInfo]:
