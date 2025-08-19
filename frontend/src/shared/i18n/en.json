@@ -1,3 +1,47 @@
 {
-  
+  "auth": {
+    "login": {
+      "title": "Sign In",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Sign In",
+      "noAccount": "Don't have an account?",
+      "signup": "Sign Up",
+      "emailRequired": "Email is required",
+      "passwordRequired": "Password is required",
+      "invalidEmail": "Please enter a valid email",
+      "loginError": "Login error. Please check your email and password."
+    },
+    "signup": {
+      "title": "Sign Up",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "submit": "Sign Up",
+      "hasAccount": "Already have an account?",
+      "login": "Sign In",
+      "emailRequired": "Email is required",
+      "passwordRequired": "Password is required",
+      "confirmPasswordRequired": "Please confirm your password",
+      "invalidEmail": "Please enter a valid email",
+      "passwordMinLength": "Password must be at least 8 characters",
+      "passwordsMatch": "Passwords must match",
+      "signupError": "Registration error. Please try again.",
+      "successMessage": "Registration successful! Please check your email to confirm your account."
+    },
+    "emailConfirmation": {
+      "title": "Email Confirmation",
+      "success": {
+        "title": "Email Confirmed!",
+        "message": "Your email has been successfully confirmed. You can now sign in to the system.",
+        "loginButton": "Sign In"
+      },
+      "error": {
+        "title": "Confirmation Error",
+        "message": "An error occurred while confirming your email. Please try again.",
+        "homeButton": "Go Home",
+        "loginButton": "Sign In"
+      }
+    }
+  }
 }

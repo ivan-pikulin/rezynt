@@ -1,3 +1,47 @@
 {
-  
+  "auth": {
+    "login": {
+      "title": "Вход в систему",
+      "email": "Email",
+      "password": "Пароль",
+      "submit": "Войти",
+      "noAccount": "Нет аккаунта?",
+      "signup": "Зарегистрироваться",
+      "emailRequired": "Email обязателен",
+      "passwordRequired": "Пароль обязателен",
+      "invalidEmail": "Введите корректный email",
+      "loginError": "Ошибка входа. Проверьте email и пароль."
+    },
+    "signup": {
+      "title": "Регистрация",
+      "email": "Email",
+      "password": "Пароль",
+      "confirmPassword": "Подтвердите пароль",
+      "submit": "Зарегистрироваться",
+      "hasAccount": "Уже есть аккаунт?",
+      "login": "Войти",
+      "emailRequired": "Email обязателен",
+      "passwordRequired": "Пароль обязателен",
+      "confirmPasswordRequired": "Подтвердите пароль",
+      "invalidEmail": "Введите корректный email",
+      "passwordMinLength": "Пароль должен содержать минимум 8 символов",
+      "passwordsMatch": "Пароли должны совпадать",
+      "signupError": "Ошибка регистрации. Попробуйте еще раз.",
+      "successMessage": "Регистрация успешна! Проверьте ваш email для подтверждения аккаунта."
+    },
+    "emailConfirmation": {
+      "title": "Подтверждение email",
+      "success": {
+        "title": "Email подтвержден!",
+        "message": "Ваш email успешно подтвержден. Теперь вы можете войти в систему.",
+        "loginButton": "Войти"
+      },
+      "error": {
+        "title": "Ошибка подтверждения",
+        "message": "Произошла ошибка при подтверждении email. Попробуйте еще раз.",
+        "homeButton": "На главную",
+        "loginButton": "Войти"
+      }
+    }
+  }
 }
