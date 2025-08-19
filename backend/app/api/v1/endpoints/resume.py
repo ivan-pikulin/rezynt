@@ -15,16 +15,16 @@ from app.api.deps import APIKeyVerified
 router = APIRouter()
 
 
-@router.get("/", response_model=List[ResumeInDB])
+@router.get("/", response_model=List[Resume])
 async def get_user_resumes(
     current_user: VerifiedUser = None,
     db: AsyncDB = None
-) -> List[ResumeInDB]:
+) -> List[Resume]:
     """
-    Get all resumes for the current user.
+    Get all resumes for the current user with full data.
     Only available for users with verified email.
     """
-    resumes = await resume_crud.get_by_user_id(db, user_id=current_user.id)
+    resumes = await resume_crud.get_all_full_resumes_by_user_id(db, user_id=current_user.id)
     return resumes
 
 

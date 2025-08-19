@@ -31,6 +31,12 @@
         │   ├── RefinePage.tsx # Main refine page
         │   ├── refineApi.ts # API for suggestions and updates
         │   └── spec.xml # Refine feature specification
+        ├── resumes/ # Resumes feature - display all user resumes
+        │   ├── hooks/ # Custom hooks for resume operations
+        │   ├── ResumesPage.tsx # Main resumes page with grid layout
+        │   ├── resumeApi.ts # API functions for resume operations
+        │   ├── index.ts # Feature exports
+        │   └── spec.xml # Resumes feature specification
         └── export/ # Export feature - pricing and download
             ├── components/ # Export-specific components
             ├── ExportPage.tsx # Main export page
@@ -63,6 +69,9 @@
             <component name="TemplateSelector" desc="Vertical list of template options"/>
             <component name="TemplateThumbnail" desc="Individual template card with preview"/>
         </feature>
+        <feature name="resumes" desc="Resume management and display">
+            <component name="ResumesPage" desc="Main resumes page with grid layout of resume cards"/>
+        </feature>
         <feature name="export" desc="Pricing and export functionality">
             <component name="ExportPage" desc="Main export page with pricing table"/>
             <component name="PricingTable" desc="Table with Free and Pro plans"/>
@@ -76,6 +85,13 @@
         <service name="TemplateService" desc="Service for template management and demo data"/>
         <hook name="useTemplate" desc="Hook for template state management"/>
     </shared_components>
+
+    <navigation>
+        <route path="/resumes" desc="Resumes management page">
+            <component>ResumesPage</component>
+            <auth>Required</auth>
+        </route>
+    </navigation>
 
     <deps>
         <dep name="Material-UI" purpose="UI components"/>

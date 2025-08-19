@@ -13,6 +13,7 @@ const StartPage = React.lazy(() => import('./features/start/StartPage'));
 const ChatPage = React.lazy(() => import('./features/chat/ChatPage'));
 const RefinePage = React.lazy(() => import('./features/refine/RefinePage'));
 const ExportPage = React.lazy(() => import('./features/export/ExportPage'));
+const ResumesPage = React.lazy(() => import('./features/resumes/ResumesPage'));
 const AuthPage = React.lazy(() => import('./features/auth/AuthPage'));
 const EmailConfirmationPage = React.lazy(() => import('./features/auth/EmailConfirmationPage'));
 
@@ -35,6 +36,11 @@ function AppRoutes() {
         <Route path="/auth/email-confirmation-error" element={<EmailConfirmationPage />} />
         
         {/* Защищенные маршруты */}
+        <Route path="/resumes" element={
+          <ProtectedRoute requireAuth={true}>
+            <ResumesPage />
+          </ProtectedRoute>
+        } />
         <Route path="/start" element={
           <ProtectedRoute requireAuth={true}>
             <StartPage />

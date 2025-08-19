@@ -1,5 +1,5 @@
 export interface HeaderProps {
-  activeStep: number;
+  activeStep?: number;
   onNext?: () => void;
   onBack?: () => void;
   onStepClick?: (stepIndex: number) => void; // Функция для навигации по клику на шаг
@@ -8,4 +8,5 @@ export interface HeaderProps {
   showBackButton?: boolean;
   showNextButton?: boolean;
   showLogo?: boolean;
+  showSteps?: boolean; // Показывать ли шаги (по умолчанию true)
 } 

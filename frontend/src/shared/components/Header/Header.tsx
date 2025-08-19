@@ -13,7 +13,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { HeaderProps } from './Header.types';
 
 const Header: React.FC<HeaderProps> = ({ 
-  activeStep, 
+  activeStep = 0, 
   onNext, 
   onBack, 
   onStepClick,
@@ -21,7 +21,8 @@ const Header: React.FC<HeaderProps> = ({
   previousButtonText,
   showBackButton = true,
   showNextButton = true,
-  showLogo = true
+  showLogo = true,
+  showSteps = true
 }) => {
   const { logout } = useAuthContext();
   const steps = ['Start', 'Generate', 'Refine', 'Export'];
@@ -76,70 +77,73 @@ const Header: React.FC<HeaderProps> = ({
       )}
 
       {/* Прогресс-бар */}
-      <Stepper 
-        activeStep={activeStep} 
-        alternativeLabel 
-        sx={{ 
-          flex: { xs: 1, sm: 1 }, // Занимаем всю доступную ширину на мобильных
-          maxWidth: { xs: '100%', sm: 600 }, // Полная ширина на мобильных
-          mx: { xs: 0, sm: 'auto' }, // Убираем отступы на мобильных
-          '& .MuiStepLabel-label': {
-            fontSize: { xs: '0.75rem', sm: '0.875rem' } // Уменьшаем шрифт на мобильных
-          }
-        }}
-      >
-        {steps.map((label, index) => (
-          <Step key={label}>
-            <StepLabel 
-              onClick={() => handleStepClick(index)}
+      {showSteps && (
+        <Stepper 
+          activeStep={activeStep} 
+          alternativeLabel 
+          sx={{ 
+            flex: { xs: 1, sm: 1 }, // Занимаем всю доступную ширину на мобильных
+            maxWidth: { xs: '100%', sm: 600 }, // Полная ширина на мобильных
+            mx: { xs: 0, sm: 'auto' }, // Убираем отступы на мобильных
+            '& .MuiStepLabel-label': {
+              fontSize: { xs: '0.75rem', sm: '0.875rem' } // Уменьшаем шрифт на мобильных
+            }
+          }}
+        >
+          {steps.map((label, index) => (
+            <Step key={label}>
+              <StepLabel 
+                onClick={() => handleStepClick(index)}
+                sx={{
+                  cursor: onStepClick ? 'pointer' : 'default',
+                  transition: 'all 0.2s ease',
+                  '&:hover': onStepClick ? {
+                    transform: 'scale(1.05)',
+                  } : {},
+                  '& .MuiStepLabel-label': {
+                    fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                    color: index <= activeStep ? '#1976d2' : '#999',
+                    fontWeight: index === activeStep ? 600 : 400, // Выделяем текущий шаг жирным шрифтом
+                    transform: index === activeStep ? 'scale(1.1)' : 'scale(1)', // Укрупняем текущий шаг
+                    transition: 'all 0.2s ease',
+                  },
+                  '& .MuiStepLabel-iconContainer': {
+                    transform: index === activeStep ? 'scale(1.2)' : 'scale(1)', // Укрупняем иконку текущего шага
+                    transition: 'all 0.2s ease',
+                  }
+                }}
+              >
+                {label}
+              </StepLabel>
+            </Step>
+          ))}
+        </Stepper>
+      )}
+
+            {/* Кнопки навигации */}
+      {showSteps ? (
+        <Box sx={{ 
+          display: { xs: 'none', sm: 'flex' }, // Скрываем кнопки на мобильных
+          alignItems: 'center', 
+          gap: { xs: 1, sm: 2 }, // Уменьшаем отступы на мобильных
+          width: { xs: 150, sm: 200 }, // Уменьшаем ширину на мобильных
+          justifyContent: 'flex-end'
+        }}>
+          {/* Кнопка выхода */}
+          <Tooltip title="Выйти">
+            <IconButton
+              onClick={logout}
               sx={{
-                cursor: onStepClick ? 'pointer' : 'default',
-                transition: 'all 0.2s ease',
-                '&:hover': onStepClick ? {
-                  transform: 'scale(1.05)',
-                } : {},
-                '& .MuiStepLabel-label': {
-                  fontSize: { xs: '0.75rem', sm: '0.875rem' },
-                  color: index <= activeStep ? '#1976d2' : '#999',
-                  fontWeight: index === activeStep ? 600 : 400, // Выделяем текущий шаг жирным шрифтом
-                  transform: index === activeStep ? 'scale(1.1)' : 'scale(1)', // Укрупняем текущий шаг
-                  transition: 'all 0.2s ease',
-                },
-                '& .MuiStepLabel-iconContainer': {
-                  transform: index === activeStep ? 'scale(1.2)' : 'scale(1)', // Укрупняем иконку текущего шага
-                  transition: 'all 0.2s ease',
+                color: '#666',
+                '&:hover': {
+                  color: '#d32f2f',
+                  bgcolor: '#ffebee'
                 }
               }}
             >
-              {label}
-            </StepLabel>
-          </Step>
-        ))}
-      </Stepper>
-
-      {/* Кнопки навигации */}
-      <Box sx={{ 
-        display: { xs: 'none', sm: 'flex' }, // Скрываем кнопки на мобильных
-        alignItems: 'center', 
-        gap: { xs: 1, sm: 2 }, // Уменьшаем отступы на мобильных
-        width: { xs: 150, sm: 200 }, // Уменьшаем ширину на мобильных
-        justifyContent: 'flex-end'
-      }}>
-        {/* Кнопка выхода */}
-        <Tooltip title="Выйти">
-          <IconButton
-            onClick={logout}
-            sx={{
-              color: '#666',
-              '&:hover': {
-                color: '#d32f2f',
-                bgcolor: '#ffebee'
-              }
-            }}
-          >
-            <LogoutIcon />
-          </IconButton>
-        </Tooltip>
+              <LogoutIcon />
+            </IconButton>
+          </Tooltip>
         {showBackButton && onBack && (
           <Button
             variant="outlined"
@@ -190,6 +194,29 @@ const Header: React.FC<HeaderProps> = ({
           </Button>
         )}
       </Box>
+      ) : (
+        // Когда шаги скрыты, показываем только кнопку выхода справа
+        <Box sx={{ 
+          display: { xs: 'none', sm: 'flex' },
+          alignItems: 'center',
+          justifyContent: 'flex-end'
+        }}>
+          <Tooltip title="Выйти">
+            <IconButton
+              onClick={logout}
+              sx={{
+                color: '#666',
+                '&:hover': {
+                  color: '#d32f2f',
+                  bgcolor: '#ffebee'
+                }
+              }}
+            >
+              <LogoutIcon />
+            </IconButton>
+          </Tooltip>
+        </Box>
+      )}
     </Box>
   );
 };
