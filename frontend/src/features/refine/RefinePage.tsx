@@ -180,7 +180,7 @@ const RefinePage: React.FC = () => {
         alignItems: 'stretch',
         overflow: 'hidden'
       }}>
-        {/* Левая панель: селектор шаблонов и редактор */}
+        {/* Левая панель: селектор шаблонов */}
         <Box sx={{ 
           width: { xs: '100%', md: '30%' },
           minWidth: { xs: 'auto', md: '300px' },
@@ -193,17 +193,16 @@ const RefinePage: React.FC = () => {
           overflow: 'hidden',
           position: 'relative'
         }}>
-          {/* Кнопки управления */}
+          {/* Кнопка предварительного просмотра (только на мобильных) */}
           <Box sx={{
             position: 'absolute',
             top: { xs: 8, sm: 12 },
             right: { xs: 8, sm: 12 },
             zIndex: 10,
-            display: 'flex',
-            gap: 1
+            display: { xs: 'block', md: 'none' }
           }}>
             <IconButton
-              onClick={toggleEditor}
+              onClick={togglePreview}
               sx={{
                 bgcolor: 'rgba(255, 255, 255, 0.9)',
                 backdropFilter: 'blur(4px)',
@@ -213,20 +212,6 @@ const RefinePage: React.FC = () => {
                 }
               }}
             >
-              <EditIcon />
-            </IconButton>
-            <IconButton
-              onClick={togglePreview}
-              sx={{
-                bgcolor: 'rgba(255, 255, 255, 0.9)',
-                backdropFilter: 'blur(4px)',
-                border: '1px solid rgba(0, 0, 0, 0.1)',
-                '&:hover': {
-                  bgcolor: 'rgba(255, 255, 255, 1)',
-                },
-                display: { xs: 'block', md: 'none' }
-              }}
-            >
               <VisibilityIcon />
             </IconButton>
           </Box>
@@ -234,40 +219,111 @@ const RefinePage: React.FC = () => {
           {/* Содержимое панели */}
           <Box sx={{ 
             flex: 1,
-            overflow: 'auto'
+            overflow: 'auto',
+            p: { xs: 1, sm: 2 }
           }}>
-            {showEditor ? (
-              <ResumeEditor 
-                resume={resume} 
-                onResumeUpdate={handleResumeUpdate}
-              />
-            ) : (
-              <Box sx={{ p: { xs: 1, sm: 2 } }}>
-                <TemplateSelector onTemplateChange={handleTemplateChange} />
-              </Box>
-            )}
+            <TemplateSelector onTemplateChange={handleTemplateChange} />
           </Box>
         </Box>
         
-        {/* Правая область: превью резюме (скрыто на мобильных) */}
+        {/* Центральная область: превью резюме */}
         <Box sx={{ 
           flex: { xs: 0, md: 1 },
-          width: { xs: 0, md: '70%' },
+          width: { xs: 0, md: '40%' },
           display: { xs: 'none', md: 'flex' },
           overflow: 'auto',
           justifyContent: 'center',
           alignItems: 'flex-start',
-          bgcolor: 'transparent'
+          bgcolor: 'transparent',
+          position: 'relative'
         }}>
+          {/* Кнопка редактирования в верхнем правом углу резюме */}
+          <Box sx={{
+            position: 'absolute',
+            top: 20,
+            right: 20,
+            zIndex: 10,
+            display: showEditor ? 'none' : 'block'
+          }}>
+            <IconButton
+              onClick={toggleEditor}
+              sx={{
+                bgcolor: 'rgba(255, 255, 255, 0.9)',
+                backdropFilter: 'blur(4px)',
+                border: '1px solid rgba(0, 0, 0, 0.1)',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                '&:hover': {
+                  bgcolor: 'rgba(255, 255, 255, 1)',
+                  transform: 'scale(1.05)'
+                },
+                transition: 'all 0.2s ease-in-out'
+              }}
+            >
+              <EditIcon />
+            </IconButton>
+          </Box>
+
           <ResumeRenderer 
             data={displayData} 
             scale={1} 
             templateId={selectedTemplate?.id}
           />
         </Box>
+
+        {/* Правая панель: редактор резюме */}
+        <Box sx={{ 
+          width: { xs: 0, md: showEditor ? '30%' : '0' },
+          minWidth: { xs: 0, md: showEditor ? '300px' : '0' },
+          height: { xs: '100%', md: 'auto' },
+          bgcolor: 'white',
+          borderRadius: { xs: 0, sm: '8px' },
+          boxShadow: { xs: 'none', sm: '0 2px 8px rgba(0, 0, 0, 0.1)' },
+          display: { xs: showEditor ? 'flex' : 'none', md: 'flex' },
+          flexDirection: 'column',
+          overflow: 'hidden',
+          position: 'relative',
+          transition: 'all 0.3s ease-in-out',
+          opacity: showEditor ? 1 : 0,
+          transform: showEditor ? 'translateX(0)' : 'translateX(100%)'
+        }}>
+          {/* Заголовок панели редактора */}
+          <Box sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            p: 2,
+            borderBottom: '1px solid #eee',
+            bgcolor: '#f8f9fa'
+          }}>
+            <Box sx={{ fontSize: '1.1rem', fontWeight: 600, color: '#2c3e50' }}>
+              Редактирование
+            </Box>
+            <IconButton
+              onClick={toggleEditor}
+              sx={{
+                '&:hover': {
+                  bgcolor: 'rgba(0, 0, 0, 0.04)',
+                }
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+          </Box>
+
+          {/* Содержимое редактора */}
+          <Box sx={{ 
+            flex: 1,
+            overflow: 'auto'
+          }}>
+            <ResumeEditor 
+              resume={resume} 
+              onResumeUpdate={handleResumeUpdate}
+            />
+          </Box>
+        </Box>
       </Box>
 
-      {/* Боковая панель с превью (на весь экран) */}
+      {/* Боковая панель с превью (на весь экран для мобильных) */}
       <Box sx={{
         position: 'fixed',
         top: 0,
@@ -333,6 +389,57 @@ const RefinePage: React.FC = () => {
               templateId={selectedTemplate?.id}
             />
           </Box>
+        </Box>
+      </Box>
+
+      {/* Боковая панель с редактором (на весь экран для мобильных) */}
+      <Box sx={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        bgcolor: 'white',
+        zIndex: 1000,
+        display: { xs: showEditor ? 'flex' : 'none', md: 'none' },
+        flexDirection: 'column',
+        transform: { xs: showEditor ? 'translateX(0)' : 'translateX(100%)', md: 'translateX(100%)' },
+        transition: 'transform 0.3s ease-in-out',
+        overflow: 'hidden'
+      }}>
+        {/* Заголовок панели */}
+        <Box sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          p: 2,
+          borderBottom: '1px solid #eee',
+          bgcolor: '#f8f9fa'
+        }}>
+          <Box sx={{ fontSize: '1.1rem', fontWeight: 600, color: '#2c3e50' }}>
+            Редактирование резюме
+          </Box>
+          <IconButton
+            onClick={toggleEditor}
+            sx={{
+              '&:hover': {
+                bgcolor: 'rgba(0, 0, 0, 0.04)',
+              }
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </Box>
+
+        {/* Содержимое панели */}
+        <Box sx={{
+          flex: 1,
+          overflow: 'auto'
+        }}>
+          <ResumeEditor 
+            resume={resume} 
+            onResumeUpdate={handleResumeUpdate}
+          />
         </Box>
       </Box>
     </Box>
