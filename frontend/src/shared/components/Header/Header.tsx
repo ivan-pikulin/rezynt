@@ -1,6 +1,5 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import LogoutIcon from '@mui/icons-material/Logout';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
@@ -8,9 +7,11 @@ import Tooltip from '@mui/material/Tooltip';
 import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
 import Stepper from '@mui/material/Stepper';
-import React from 'react';
+import Avatar from '@mui/material/Avatar';
+import React, { useState } from 'react';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { HeaderProps } from './Header.types';
+import UserSidebar from './UserSidebar';
 
 const Header: React.FC<HeaderProps> = ({ 
   activeStep = 0, 
@@ -24,8 +25,21 @@ const Header: React.FC<HeaderProps> = ({
   showLogo = true,
   showSteps = true
 }) => {
-  const { logout } = useAuthContext();
+  const { user } = useAuthContext();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const steps = ['Start', 'Generate', 'Refine', 'Export'];
+
+  const getInitials = (email: string) => {
+    return email.charAt(0).toUpperCase();
+  };
+
+  const handleAvatarClick = () => {
+    setSidebarOpen(true);
+  };
+
+  const handleSidebarClose = () => {
+    setSidebarOpen(false);
+  };
 
   const getPreviousStepName = (step: number) => {
     if (previousButtonText) return previousButtonText;
@@ -129,19 +143,28 @@ const Header: React.FC<HeaderProps> = ({
           width: { xs: 150, sm: 200 }, // Уменьшаем ширину на мобильных
           justifyContent: 'flex-end'
         }}>
-          {/* Кнопка выхода */}
-          <Tooltip title="Выйти">
+          {/* Аватар пользователя */}
+          <Tooltip title="Profile">
             <IconButton
-              onClick={logout}
+              onClick={handleAvatarClick}
               sx={{
-                color: '#666',
+                p: 0,
                 '&:hover': {
-                  color: '#d32f2f',
-                  bgcolor: '#ffebee'
+                  transform: 'scale(1.05)'
                 }
               }}
             >
-              <LogoutIcon />
+              <Avatar
+                sx={{
+                  width: 40,
+                  height: 40,
+                  bgcolor: '#1976d2',
+                  fontSize: '1.2rem',
+                  fontWeight: 600
+                }}
+              >
+                {user ? getInitials(user.email) : 'U'}
+              </Avatar>
             </IconButton>
           </Tooltip>
         {showBackButton && onBack && (
@@ -195,28 +218,44 @@ const Header: React.FC<HeaderProps> = ({
         )}
       </Box>
       ) : (
-        // Когда шаги скрыты, показываем только кнопку выхода справа
+        // Когда шаги скрыты, показываем только аватар справа
         <Box sx={{ 
           display: { xs: 'none', sm: 'flex' },
           alignItems: 'center',
           justifyContent: 'flex-end'
         }}>
-          <Tooltip title="Выйти">
+          <Tooltip title="Profile">
             <IconButton
-              onClick={logout}
+              onClick={handleAvatarClick}
               sx={{
-                color: '#666',
+                p: 0,
                 '&:hover': {
-                  color: '#d32f2f',
-                  bgcolor: '#ffebee'
+                  transform: 'scale(1.05)'
                 }
               }}
             >
-              <LogoutIcon />
+              <Avatar
+                sx={{
+                  width: 40,
+                  height: 40,
+                  bgcolor: '#1976d2',
+                  fontSize: '1.2rem',
+                  fontWeight: 600
+                }}
+              >
+                {user ? getInitials(user.email) : 'U'}
+              </Avatar>
             </IconButton>
           </Tooltip>
         </Box>
       )}
+      
+      {/* Боковая панель пользователя */}
+      <UserSidebar 
+        open={sidebarOpen} 
+        onClose={handleSidebarClose} 
+        anchor="right"
+      />
     </Box>
   );
 };
