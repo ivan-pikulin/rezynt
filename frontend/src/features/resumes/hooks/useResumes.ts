@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { resumeApi, ResumeApiResponse } from '../resumeApi';
+import { resumeApi } from '../../shared/services/api';
+import { Resume } from '../../shared/services/api/types';
 
 export const useResumes = () => {
   const {
@@ -7,9 +8,9 @@ export const useResumes = () => {
     isLoading,
     error,
     refetch
-  } = useQuery<ResumeApiResponse[]>({
+  } = useQuery<Resume[]>({
     queryKey: ['resumes'],
-    queryFn: resumeApi.getAllResumes,
+    queryFn: resumeApi.getUserResumes,
     staleTime: 5 * 60 * 1000, // 5 minutes
     cacheTime: 10 * 60 * 1000, // 10 minutes
   });
@@ -28,7 +29,7 @@ export const useResume = (resumeId: string) => {
     isLoading,
     error,
     refetch
-  } = useQuery<ResumeApiResponse>({
+  } = useQuery<Resume>({
     queryKey: ['resume', resumeId],
     queryFn: () => resumeApi.getResume(resumeId),
     enabled: !!resumeId,

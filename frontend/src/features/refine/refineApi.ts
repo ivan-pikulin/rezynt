@@ -1,4 +1,4 @@
-import baseApi from '../../shared/services/api/baseApi';
+import { resumeApi } from '../../shared/services/api';
 import { Suggestion } from '../../shared/services/api/types';
 
 export const refineApi = {
@@ -6,23 +6,26 @@ export const refineApi = {
    * Получить автопредложения для улучшения резюме
    */
   getSuggestions: async (context: string): Promise<Suggestion[]> => {
-    const response = await baseApi.post('/refine/suggestions/', { context });
-    return response.data;
+    // TODO: Implement when backend endpoint is available
+    console.log('Getting suggestions for context:', context);
+    return [];
   },
 
   /**
    * Обновить данные резюме
    */
   updateResume: async (data: any): Promise<{ success: boolean }> => {
-    const response = await baseApi.put('/refine/update-resume/', data);
-    return response.data;
+    // TODO: Implement when backend endpoint is available
+    console.log('Updating resume with data:', data);
+    return { success: true };
   },
 
   /**
    * Применить шаблон к резюме
    */
   applyTemplate: async (templateId: string): Promise<{ success: boolean }> => {
-    const response = await baseApi.post('/refine/apply-template/', { templateId });
-    return response.data;
+    // TODO: Implement when backend endpoint is available
+    console.log('Applying template:', templateId);
+    return { success: true };
   }
 }; 
