@@ -23,6 +23,7 @@ class UserInDBBase(UserBase):
     id: UUID
     password_hash: str
     is_verified: bool
+    is_premium: bool
     created_at: datetime
     updated_at: datetime
 
@@ -34,6 +35,7 @@ class UserInDBBase(UserBase):
 class UserPublic(UserBase):
     id: UUID
     is_verified: bool
+    is_premium: bool
     created_at: datetime
     updated_at: datetime
 
@@ -51,3 +53,7 @@ class UserInDB(UserInDBBase):
 
 class UserRoleUpdate(BaseModel):
     is_admin: bool
+
+
+class UserPremiumUpdate(BaseModel):
+    is_premium: bool

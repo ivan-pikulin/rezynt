@@ -1,24 +1,35 @@
-from .token import Token, TokenPayload, RefreshRequest
-from .user import User, UserCreate, UserInDB, UserUpdate, UserPublic
-from .template import Template, TemplateCreate, TemplateUpdate, TemplateInDB
-from .resume import Resume, ResumeCreate, ResumeUpdate, ResumeInDB, ResumeWithTemplate
+from .resume import (Resume, ResumeCreate, ResumeEducationCreate,
+                     ResumeEducationUpdate, ResumeExperienceCreate,
+                     ResumeExperienceUpdate, ResumeInDB, ResumePartialUpdate,
+                     ResumePersonalInfoUpdate, ResumeSkillCreate,
+                     ResumeSkillUpdate, ResumeUpdate)
+from .token import Token, TokenPayload
+from .user import (User, UserCreate, UserInDB, UserPremiumUpdate, UserPublic,
+                   UserUpdate)
 
 __all__ = [
-    "Token",
-    "TokenPayload",
-    "RefreshRequest",
     "User",
     "UserCreate",
     "UserInDB",
     "UserUpdate",
     "UserPublic",
-    "Template",
-    "TemplateCreate",
-    "TemplateUpdate",
-    "TemplateInDB",
+    "UserPremiumUpdate",
+    "Token",
+    "TokenPayload",
     "Resume",
     "ResumeCreate",
     "ResumeUpdate",
     "ResumeInDB",
-    "ResumeWithTemplate",
+    "ResumePartialUpdate",
+    "ResumePersonalInfoUpdate",
+    "ResumeSkillCreate",
+    "ResumeSkillUpdate",
+    "ResumeExperienceCreate",
+    "ResumeExperienceUpdate",
+    "ResumeEducationCreate",
+    "ResumeEducationUpdate",
+    "ResumeReferenceCreate",
+    "ResumeReferenceUpdate",
+    "ResumeHobbyCreate",
+    "ResumeHobbyUpdate",
 ] 
