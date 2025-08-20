@@ -2,10 +2,12 @@ from .resume import (Resume, ResumeCreate, ResumeEducationCreate,
                      ResumeEducationUpdate, ResumeExperienceCreate,
                      ResumeExperienceUpdate, ResumeInDB, ResumePartialUpdate,
                      ResumePersonalInfoUpdate, ResumeSkillCreate,
-                     ResumeSkillUpdate, ResumeUpdate)
-from .token import Token, TokenPayload
+                     ResumeSkillUpdate, ResumeUpdate, ResumeExportCreate,
+                     ResumeExportUpdate, OpenAIResumeUpdate, ResumeWithTemplate)
+from .template import Template, TemplateCreate, TemplateUpdate, TemplateInDB
+from .token import Token, TokenPayload, RefreshRequest
 from .user import (User, UserCreate, UserInDB, UserPremiumUpdate, UserPublic,
-                   UserUpdate)
+                   UserUpdate, UserRoleUpdate)
 
 __all__ = [
     "User",
@@ -14,6 +16,7 @@ __all__ = [
     "UserUpdate",
     "UserPublic",
     "UserPremiumUpdate",
+    "UserRoleUpdate",
     "Token",
     "TokenPayload",
     "Resume",
@@ -28,8 +31,13 @@ __all__ = [
     "ResumeExperienceUpdate",
     "ResumeEducationCreate",
     "ResumeEducationUpdate",
-    "ResumeReferenceCreate",
-    "ResumeReferenceUpdate",
-    "ResumeHobbyCreate",
-    "ResumeHobbyUpdate",
+    "ResumeExportCreate",
+    "ResumeExportUpdate",
+    "OpenAIResumeUpdate",
+    "ResumeWithTemplate",
+    "Template",
+    "TemplateCreate",
+    "TemplateUpdate",
+    "TemplateInDB",
+    "RefreshRequest",
 ] 
