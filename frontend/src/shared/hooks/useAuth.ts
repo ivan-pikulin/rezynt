@@ -2,18 +2,22 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TokenResponse } from '../../features/auth/types/auth';
 import { tokenService } from '../services/api/tokenService';
+import { User } from '../services/api/types';
 
 interface UseAuthReturn {
   isAuthenticated: boolean;
   isLoading: boolean;
+  user: User | null;
   login: (tokens: TokenResponse) => void;
   logout: () => void;
   refreshTokens: () => Promise<boolean>;
+  updateUser: (user: User) => void;
 }
 
 export const useAuth = (): UseAuthReturn => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState<User | null>(null);
   const navigate = useNavigate();
 
   // Проверяем токены при загрузке
@@ -98,14 +102,21 @@ export const useAuth = (): UseAuthReturn => {
   const logout = useCallback(() => {
     tokenService.clearTokens();
     setIsAuthenticated(false);
+    setUser(null);
     navigate('/auth');
   }, [navigate]);
+
+  const updateUser = useCallback((userData: User) => {
+    setUser(userData);
+  }, []);
 
   return {
     isAuthenticated,
     isLoading,
+    user,
     login,
     logout,
     refreshTokens,
+    updateUser,
   };
 };

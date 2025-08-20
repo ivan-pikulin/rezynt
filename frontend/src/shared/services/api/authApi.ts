@@ -17,7 +17,7 @@ export class AuthApi extends BaseApi {
     form.append('username', credentials.username);
     form.append('password', credentials.password);
     
-    const response = await this.api.post<TokenResponse>('/api/v1/auth/login', form, {
+    const response = await this.api.post<TokenResponse>('/auth/login', form, {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     });
     
@@ -28,7 +28,7 @@ export class AuthApi extends BaseApi {
    * User registration with email and password
    */
   async signup(userData: Omit<SignupCredentials, 'confirmPassword'>): Promise<User> {
-    return this.post<User>('/api/v1/auth/signup', {
+    return this.post<User>('/auth/signup', {
       email: userData.email,
       password: userData.password
     });
@@ -38,7 +38,7 @@ export class AuthApi extends BaseApi {
    * Refresh access token using refresh token
    */
   async refreshToken(refreshToken: string): Promise<TokenResponse> {
-    return this.post<TokenResponse>('/api/v1/auth/refresh', {
+    return this.post<TokenResponse>('/auth/refresh', {
       refresh_token: refreshToken
     });
   }

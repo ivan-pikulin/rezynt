@@ -1,13 +1,16 @@
 import React, { createContext, useContext, ReactNode } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { TokenResponse } from '../../features/auth/types/auth';
+import { User } from '../services/api/types';
 
 interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
+  user: User | null;
   login: (tokens: TokenResponse) => void;
   logout: () => void;
   refreshTokens: () => Promise<boolean>;
+  updateUser: (user: User) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);

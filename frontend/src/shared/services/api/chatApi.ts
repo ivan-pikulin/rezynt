@@ -6,7 +6,7 @@ export class ChatApi extends BaseApi {
    * Send message to chat
    */
   async sendMessage(data: SendMessageRequest): Promise<SendMessageResponse> {
-    const response = await this.post<SendMessageResponse>('/api/v1/chat/send-message', {
+    const response = await this.post<SendMessageResponse>('/chat/send-message', {
       message: data.message,
       resume_id: data.resume_id
     });
