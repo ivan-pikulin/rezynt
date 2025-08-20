@@ -1,37 +1,33 @@
-import baseApi from '../../shared/services/api/baseApi';
-import { UploadResponse } from '../../shared/services/api/types';
+import { resumeApi, templateApi } from '../../shared/services/api';
+import { Resume } from '../../shared/services/api/types';
 
 export const startApi = {
   /**
    * Загрузить файл резюме
    */
-  uploadResume: async (file: File): Promise<UploadResponse> => {
-    const formData = new FormData();
-    formData.append('file', file);
-    const response = await baseApi.post('/resume/upload', formData);
-    return response.data;
+  uploadResume: async (file: File): Promise<Resume> => {
+    return resumeApi.uploadResume(file);
   },
 
   /**
    * Начать создание резюме с нуля
    */
-  startFromScratch: async (): Promise<{ id: string }> => {
+  startFromScratch: async (): Promise<Resume> => {
     console.log('startFromScratch called');
     
     // Сначала получаем UUID шаблона по slug
     console.log('Fetching template...');
-    const templateResponse = await baseApi.get('/template/slug/tero');
-    const templateId = templateResponse.data.id;
-    console.log('Template ID:', templateId);
+    const template = await templateApi.getTemplateBySlug('tero');
+    console.log('Template ID:', template.id);
     
     // Создаем резюме с полученным UUID шаблона
     console.log('Creating resume...');
-    const response = await baseApi.post('/resume/', {
+    const resume = await resumeApi.createResume({
       title: 'New Resume',
-      template_id: templateId,
+      template_id: template.id,
       professional_summary: ''
     });
-    console.log('Resume created:', response.data);
-    return response.data;
+    console.log('Resume created:', resume);
+    return resume;
   }
 }; 

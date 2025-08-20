@@ -1,6 +1,5 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import LogoutIcon from '@mui/icons-material/Logout';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
@@ -8,9 +7,11 @@ import Tooltip from '@mui/material/Tooltip';
 import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
 import Stepper from '@mui/material/Stepper';
-import React from 'react';
+import Avatar from '@mui/material/Avatar';
+import React, { useState } from 'react';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { HeaderProps } from './Header.types';
+import UserSidebar from './UserSidebar';
 
 const Header: React.FC<HeaderProps> = ({ 
   activeStep = 0, 
@@ -24,8 +25,21 @@ const Header: React.FC<HeaderProps> = ({
   showLogo = true,
   showSteps = true
 }) => {
-  const { logout } = useAuthContext();
+  const { user } = useAuthContext();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const steps = ['Start', 'Generate', 'Refine', 'Export'];
+
+  const getInitials = (email: string) => {
+    return email.charAt(0).toUpperCase();
+  };
+
+  const handleAvatarClick = () => {
+    setSidebarOpen(true);
+  };
+
+  const handleSidebarClose = () => {
+    setSidebarOpen(false);
+  };
 
   const getPreviousStepName = (step: number) => {
     if (previousButtonText) return previousButtonText;
@@ -76,147 +90,151 @@ const Header: React.FC<HeaderProps> = ({
         </Box>
       )}
 
-      {/* Прогресс-бар */}
-      {showSteps && (
-        <Stepper 
-          activeStep={activeStep} 
-          alternativeLabel 
-          sx={{ 
-            flex: { xs: 1, sm: 1 }, // Занимаем всю доступную ширину на мобильных
-            maxWidth: { xs: '100%', sm: 600 }, // Полная ширина на мобильных
-            mx: { xs: 0, sm: 'auto' }, // Убираем отступы на мобильных
-            '& .MuiStepLabel-label': {
-              fontSize: { xs: '0.75rem', sm: '0.875rem' } // Уменьшаем шрифт на мобильных
-            }
-          }}
-        >
-          {steps.map((label, index) => (
-            <Step key={label}>
-              <StepLabel 
-                onClick={() => handleStepClick(index)}
-                sx={{
-                  cursor: onStepClick ? 'pointer' : 'default',
-                  transition: 'all 0.2s ease',
-                  '&:hover': onStepClick ? {
-                    transform: 'scale(1.05)',
-                  } : {},
-                  '& .MuiStepLabel-label': {
-                    fontSize: { xs: '0.75rem', sm: '0.875rem' },
-                    color: index <= activeStep ? '#1976d2' : '#999',
-                    fontWeight: index === activeStep ? 600 : 400, // Выделяем текущий шаг жирным шрифтом
-                    transform: index === activeStep ? 'scale(1.1)' : 'scale(1)', // Укрупняем текущий шаг
-                    transition: 'all 0.2s ease',
-                  },
-                  '& .MuiStepLabel-iconContainer': {
-                    transform: index === activeStep ? 'scale(1.2)' : 'scale(1)', // Укрупняем иконку текущего шага
-                    transition: 'all 0.2s ease',
-                  }
-                }}
-              >
-                {label}
-              </StepLabel>
-            </Step>
-          ))}
-        </Stepper>
-      )}
+      {/* Центральная область с кнопками и степпером */}
+      <Box sx={{ 
+        flex: 1,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 0
+      }}>
+        {/* Кнопка "Назад" слева */}
+        {showSteps && showBackButton && onBack && (
+          <Box
+            onClick={onBack}
+            sx={{
+              cursor: 'pointer',
+              fontSize: { xs: '1.5rem', sm: '2rem' },
+              fontWeight: 'bold',
+              color: '#666',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: { xs: 32, sm: 40 },
+              height: { xs: 32, sm: 40 },
+              '&:hover': {
+                color: '#1976d2',
+                transform: 'scale(1.1)'
+              },
+              transition: 'all 0.2s ease'
+            }}
+          >
+            ‹
+          </Box>
+        )}
 
-            {/* Кнопки навигации */}
-      {showSteps ? (
-        <Box sx={{ 
-          display: { xs: 'none', sm: 'flex' }, // Скрываем кнопки на мобильных
-          alignItems: 'center', 
-          gap: { xs: 1, sm: 2 }, // Уменьшаем отступы на мобильных
-          width: { xs: 150, sm: 200 }, // Уменьшаем ширину на мобильных
-          justifyContent: 'flex-end'
-        }}>
-          {/* Кнопка выхода */}
-          <Tooltip title="Выйти">
-            <IconButton
-              onClick={logout}
-              sx={{
-                color: '#666',
-                '&:hover': {
-                  color: '#d32f2f',
-                  bgcolor: '#ffebee'
+        {/* Область степпера с фиксированной шириной */}
+        {showSteps && (
+          <Box sx={{
+            width: { xs: '336px', sm: '480px' },
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            <Stepper 
+              activeStep={activeStep} 
+              alternativeLabel 
+              sx={{ 
+                width: '100%',
+                '& .MuiStepLabel-label': {
+                  fontSize: { xs: '0.75rem', sm: '0.875rem' }
                 }
               }}
             >
-              <LogoutIcon />
-            </IconButton>
-          </Tooltip>
-        {showBackButton && onBack && (
-          <Button
-            variant="outlined"
-            startIcon={<ArrowBackIcon />}
-            onClick={onBack}
+              {steps.map((label, index) => (
+                <Step key={label}>
+                  <StepLabel 
+                    onClick={() => handleStepClick(index)}
+                    sx={{
+                      cursor: onStepClick ? 'pointer' : 'default',
+                      transition: 'all 0.2s ease',
+                      '&:hover': onStepClick ? {
+                        transform: 'scale(1.05)',
+                      } : {},
+                      '& .MuiStepLabel-label': {
+                        fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                        color: index <= activeStep ? '#1976d2' : '#999',
+                        fontWeight: index === activeStep ? 600 : 400,
+                        transform: index === activeStep ? 'scale(1.1)' : 'scale(1)',
+                        transition: 'all 0.2s ease',
+                      },
+                      '& .MuiStepLabel-iconContainer': {
+                        transform: index === activeStep ? 'scale(1.2)' : 'scale(1)',
+                        transition: 'all 0.2s ease',
+                      }
+                    }}
+                  >
+                    {label}
+                  </StepLabel>
+                </Step>
+              ))}
+            </Stepper>
+          </Box>
+        )}
+
+        {/* Кнопка "Вперед" справа */}
+        {showSteps && showNextButton && onNext && (
+          <Box
+            onClick={onNext}
             sx={{
-              borderRadius: '6px',
-              px: { xs: 2, sm: 3 }, // Адаптивные отступы
-              py: 1.5,
-              fontSize: { xs: '0.75rem', sm: '0.875rem' }, // Уменьшаем шрифт на мобильных
-              fontWeight: 500,
-              textTransform: 'none',
-              borderColor: '#ddd',
-              color: '#666',
-              minWidth: { xs: '60px', sm: '80px' }, // Уменьшаем минимальную ширину на мобильных
-              whiteSpace: 'nowrap',
+              cursor: 'pointer',
+              fontSize: { xs: '1.5rem', sm: '2rem' },
+              fontWeight: 'bold',
+              color: '#1976d2',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: { xs: 32, sm: 40 },
+              height: { xs: 32, sm: 40 },
               '&:hover': {
-                borderColor: '#999',
-                bgcolor: '#f8f9fa'
+                color: '#1565c0',
+                transform: 'scale(1.1)'
+              },
+              transition: 'all 0.2s ease'
+            }}
+          >
+            ›
+          </Box>
+        )}
+      </Box>
+
+      {/* Аватар пользователя справа */}
+      <Box sx={{ 
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'flex-end'
+      }}>
+        <Tooltip title="Profile">
+          <IconButton
+            onClick={handleAvatarClick}
+            sx={{
+              p: 0,
+              '&:hover': {
+                transform: 'scale(1.05)'
               }
             }}
           >
-            {getPreviousStepName(activeStep)}
-          </Button>
-        )}
-        {showNextButton && onNext && (
-          <Button 
-            variant="contained" 
-            endIcon={<ArrowForwardIcon />}
-            onClick={onNext}
-            sx={{
-              borderRadius: '6px',
-              px: { xs: 3, sm: 4 }, // Адаптивные отступы
-              py: 1.5,
-              fontSize: { xs: '0.75rem', sm: '0.875rem' }, // Уменьшаем шрифт на мобильных
-              fontWeight: 600,
-              textTransform: 'none',
-              bgcolor: '#1976d2',
-              minWidth: { xs: '60px', sm: '80px' }, // Уменьшаем минимальную ширину на мобильных
-              whiteSpace: 'nowrap',
-              '&:hover': {
-                bgcolor: '#1565c0'
-              },
-              boxShadow: '0 2px 4px rgba(25, 118, 210, 0.2)'
-            }}
-          >
-            {nextButtonText}
-          </Button>
-        )}
-      </Box>
-      ) : (
-        // Когда шаги скрыты, показываем только кнопку выхода справа
-        <Box sx={{ 
-          display: { xs: 'none', sm: 'flex' },
-          alignItems: 'center',
-          justifyContent: 'flex-end'
-        }}>
-          <Tooltip title="Выйти">
-            <IconButton
-              onClick={logout}
+            <Avatar
               sx={{
-                color: '#666',
-                '&:hover': {
-                  color: '#d32f2f',
-                  bgcolor: '#ffebee'
-                }
+                width: 40,
+                height: 40,
+                bgcolor: '#1976d2',
+                fontSize: '1.2rem',
+                fontWeight: 600
               }}
             >
-              <LogoutIcon />
-            </IconButton>
-          </Tooltip>
-        </Box>
-      )}
+              {user ? getInitials(user.email) : 'U'}
+            </Avatar>
+          </IconButton>
+        </Tooltip>
+      </Box>
+      
+      {/* Боковая панель пользователя */}
+      <UserSidebar 
+        open={sidebarOpen} 
+        onClose={handleSidebarClose} 
+        anchor="right"
+      />
     </Box>
   );
 };

@@ -52,7 +52,6 @@ export class AltoTemplate extends BaseTemplate {
                 position: 'absolute',
                 top: '50%',
                 left: '50%',
-                transform: 'translate(-50%, -50%)',
                 width: '1px',
                 height: '30px',
                 backgroundColor: '#8B4513',

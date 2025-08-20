@@ -619,7 +619,7 @@ async def get_export_history(
 async def update_resume_with_ai(
     resume_id: UUID,
     ai_update: OpenAIResumeUpdate,
-    api_key_verified: APIKeyVerified,
+    _: APIKeyVerified,
     db: AsyncDB = None
 ) -> Dict[str, Any]:
     """

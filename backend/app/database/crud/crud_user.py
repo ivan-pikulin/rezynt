@@ -50,11 +50,20 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         return user.is_verified
 
     async def confirm_email(self, db: AsyncSession, *, user_id: UUID) -> Optional[User]:
-        """Подтверждает email пользователя"""
         user = await self.get(db, id=user_id)
         if user:
             user.is_verified = True
-            db.add(user)
+            await db.commit()
+            await db.refresh(user)
+        return user
+
+    async def update_premium_status(self, db: AsyncSession, *, user_id: UUID, is_premium: bool) -> Optional[User]:
+        """
+        Update premium status of a user. This method should only be called by admin endpoints.
+        """
+        user = await self.get(db, id=user_id)
+        if user:
+            user.is_premium = is_premium
             await db.commit()
             await db.refresh(user)
         return user

@@ -5,7 +5,7 @@ import { tokenService } from './tokenService';
 const apiUrl = import.meta.env.VITE_API_URL;
 
 const baseApi = axios.create({
-  baseURL: apiUrl,
+  baseURL: `${apiUrl}/api/v1`,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -103,5 +103,35 @@ baseApi.interceptors.response.use(
     throw error;
   }
 );
+
+// Base API class for extending
+export class BaseApi {
+  protected api = baseApi;
+
+  protected async get<T>(url: string, config?: any): Promise<T> {
+    const response = await this.api.get<T>(url, config);
+    return response.data;
+  }
+
+  protected async post<T>(url: string, data?: any, config?: any): Promise<T> {
+    const response = await this.api.post<T>(url, data, config);
+    return response.data;
+  }
+
+  protected async put<T>(url: string, data?: any, config?: any): Promise<T> {
+    const response = await this.api.put<T>(url, data, config);
+    return response.data;
+  }
+
+  protected async patch<T>(url: string, data?: any, config?: any): Promise<T> {
+    const response = await this.api.patch<T>(url, data, config);
+    return response.data;
+  }
+
+  protected async delete<T>(url: string, config?: any): Promise<T> {
+    const response = await this.api.delete<T>(url, config);
+    return response.data;
+  }
+}
 
 export default baseApi; 
