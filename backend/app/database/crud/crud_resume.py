@@ -80,6 +80,27 @@ class CRUDResume(CRUDBase[Resume, ResumeCreate, ResumeUpdate]):
         )
         return result.scalar_one_or_none()
 
+    async def get_full_resume_with_exports(self, db: AsyncSession, *, user_id: UUID, resume_id: UUID) -> Optional[Resume]:
+        """
+        Get a complete resume with all related data including exports.
+        Uses eager loading to avoid N+1 queries.
+        """
+        from sqlalchemy.orm import selectinload
+        
+        result = await db.execute(
+            select(self.model)
+            .options(
+                selectinload(Resume.personal_info),
+                selectinload(Resume.skills),
+                selectinload(Resume.experience),
+                selectinload(Resume.education),
+                selectinload(Resume.template),
+                selectinload(Resume.exports)
+            )
+            .where(Resume.user_id == user_id, Resume.id == resume_id)
+        )
+        return result.scalar_one_or_none()
+
 
 class CRUDResumePersonalInfo(CRUDBase[ResumePersonalInfo, ResumePersonalInfoCreate, ResumePersonalInfoUpdate]):
     async def get_by_resume_id(self, db: AsyncSession, *, resume_id: UUID) -> Optional[ResumePersonalInfo]:
@@ -184,8 +205,8 @@ class ResumeManager:
     async def remove_skill(self, db: AsyncSession, *, resume_id: UUID, skill_id: UUID) -> bool:
         skill = await self.skill_crud.get(db, id=skill_id)
         if skill and skill.resume_id == resume_id:
-            await self.skill_crud.remove(db, id=skill_id)
-            return True
+            removed_skill = await self.skill_crud.remove(db, id=skill_id)
+            return removed_skill is not None
         return False
 
     async def update_skill_order(self, db: AsyncSession, *, resume_id: UUID, skill_ids: List[UUID]) -> None:
@@ -219,8 +240,8 @@ class ResumeManager:
     async def remove_experience(self, db: AsyncSession, *, resume_id: UUID, experience_id: UUID) -> bool:
         experience = await self.experience_crud.get(db, id=experience_id)
         if experience and experience.resume_id == resume_id:
-            await self.experience_crud.remove(db, id=experience_id)
-            return True
+            removed_experience = await self.experience_crud.remove(db, id=experience_id)
+            return removed_experience is not None
         return False
 
     async def update_experience_order(self, db: AsyncSession, *, resume_id: UUID, experience_ids: List[UUID]) -> None:
@@ -254,8 +275,8 @@ class ResumeManager:
     async def remove_education(self, db: AsyncSession, *, resume_id: UUID, education_id: UUID) -> bool:
         education = await self.education_crud.get(db, id=education_id)
         if education and education.resume_id == resume_id:
-            await self.education_crud.remove(db, id=education_id)
-            return True
+            removed_education = await self.education_crud.remove(db, id=education_id)
+            return removed_education is not None
         return False
 
     async def update_education_order(self, db: AsyncSession, *, resume_id: UUID, education_ids: List[UUID]) -> None:

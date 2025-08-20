@@ -14,4 +14,4 @@ class Template(Base):
     is_premium = Column(Boolean, default=False)
 
     # Relationships
-    resumes = relationship("Resume", back_populates="template") 
+    resumes = relationship("Resume", back_populates="template", lazy="select")

@@ -3,6 +3,7 @@ from typing import Any, Dict, Optional, List
 from uuid import UUID
 
 from pydantic import BaseModel
+from app.schemas.template import Template
 
 
 # Personal Info Schemas
@@ -220,6 +221,8 @@ class Resume(ResumeInDBBase):
     education: List[ResumeEducation] = []
     exports: List[ResumeExport] = []
 
+    model_config = {"from_attributes": True}
+
 
 class ResumeList(ResumeInDBBase):
     """Schema for listing resumes without exports to avoid lazy loading issues"""
@@ -234,13 +237,13 @@ class ResumeInDB(ResumeInDBBase):
 
 
 class ResumeWithTemplate(ResumeInDBBase):
-    template: Optional[Dict[str, Any]] = None
+    template: Optional[Template] = None
     personal_info: Optional[ResumePersonalInfo] = None
     skills: List[ResumeSkill] = []
     experience: List[ResumeExperience] = []
     education: List[ResumeEducation] = []
 
-    model_config = {"from_attributes": True}
+    model_config = {"from_attributes": True, "arbitrary_types_allowed": True}
 
 
 # OpenAI Structured Output Schemas

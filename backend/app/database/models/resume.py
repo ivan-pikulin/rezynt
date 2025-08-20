@@ -19,13 +19,13 @@ class Resume(Base):
     updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     # Relationships
-    user = relationship("User", back_populates="resumes")
-    template = relationship("Template", back_populates="resumes")
-    personal_info = relationship("ResumePersonalInfo", back_populates="resume", uselist=False, cascade="all, delete-orphan")
-    skills = relationship("ResumeSkill", back_populates="resume", cascade="all, delete-orphan", order_by="ResumeSkill.order_index")
-    experience = relationship("ResumeExperience", back_populates="resume", cascade="all, delete-orphan", order_by="ResumeExperience.order_index")
-    education = relationship("ResumeEducation", back_populates="resume", cascade="all, delete-orphan", order_by="ResumeEducation.order_index")
-    exports = relationship("ResumeExport", back_populates="resume", cascade="all, delete-orphan")
+    user = relationship("User", back_populates="resumes", lazy="select")
+    template = relationship("Template", back_populates="resumes", lazy="select")
+    personal_info = relationship("ResumePersonalInfo", back_populates="resume", uselist=False, cascade="all, delete-orphan", lazy="select")
+    skills = relationship("ResumeSkill", back_populates="resume", cascade="all, delete-orphan", order_by="ResumeSkill.order_index", lazy="select")
+    experience = relationship("ResumeExperience", back_populates="resume", cascade="all, delete-orphan", order_by="ResumeExperience.order_index", lazy="select")
+    education = relationship("ResumeEducation", back_populates="resume", cascade="all, delete-orphan", order_by="ResumeEducation.order_index", lazy="select")
+    exports = relationship("ResumeExport", back_populates="resume", cascade="all, delete-orphan", lazy="select")
 
 
 class ResumePersonalInfo(Base):
@@ -41,7 +41,7 @@ class ResumePersonalInfo(Base):
     location = Column(String(255), nullable=True)
 
     # Relationships
-    resume = relationship("Resume", back_populates="personal_info")
+    resume = relationship("Resume", back_populates="personal_info", lazy="select")
 
 
 class ResumeSkill(Base):
@@ -53,7 +53,7 @@ class ResumeSkill(Base):
     order_index = Column(Integer, default=0)
 
     # Relationships
-    resume = relationship("Resume", back_populates="skills")
+    resume = relationship("Resume", back_populates="skills", lazy="select")
 
 
 class ResumeExperience(Base):
@@ -71,7 +71,7 @@ class ResumeExperience(Base):
     order_index = Column(Integer, default=0)
 
     # Relationships
-    resume = relationship("Resume", back_populates="experience")
+    resume = relationship("Resume", back_populates="experience", lazy="select")
 
 
 class ResumeEducation(Base):
@@ -86,7 +86,7 @@ class ResumeEducation(Base):
     order_index = Column(Integer, default=0)
 
     # Relationships
-    resume = relationship("Resume", back_populates="education")
+    resume = relationship("Resume", back_populates="education", lazy="select")
 
 
 class ResumeExport(Base):
@@ -100,4 +100,4 @@ class ResumeExport(Base):
     export_settings = Column(JSONB, nullable=True)
 
     # Relationships
-    resume = relationship("Resume", back_populates="exports") 
+    resume = relationship("Resume", back_populates="exports", lazy="select") 

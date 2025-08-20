@@ -17,4 +17,4 @@ class User(Base):
     updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     # Relationships
-    resumes = relationship("Resume", back_populates="user", cascade="all, delete-orphan")
+    resumes = relationship("Resume", back_populates="user", cascade="all, delete-orphan", lazy="select")

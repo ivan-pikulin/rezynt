@@ -2,32 +2,44 @@
 <feature>
     <info>
         <name>Refine Feature</name>
-        <desc>Page for refining resume with template selection and preview. Optimized for mobile devices with full-screen templates and toggleable preview panel.</desc>
-        <tech>React, TypeScript, Material-UI, Responsive Design</tech>
+        <desc>Page for refining resume with template selection, preview, and full editing capabilities. All resume fields are editable with real-time server updates and formatting preservation. Optimized for mobile devices with full-screen templates and toggleable preview/editor panels.</desc>
+        <tech>React, TypeScript, Material-UI, Responsive Design, Real-time Editing</tech>
     </info>
 
     <folder_structure>
         /features/refine
         ├── components/
         │   ├── TemplateSelector.tsx    # 2-column grid template selector
-        │   └── TemplateThumbnail.tsx   # Individual template card with A4 proportions
-        ├── RefinePage.tsx              # Main refine page (mobile-optimized with full-screen templates)
+        │   ├── TemplateThumbnail.tsx   # Individual template card with A4 proportions
+        │   ├── ResumeEditor.tsx        # Full resume editor with all editable fields
+        │   └── SkillsEditor.tsx        # Skills management component
+        ├── utils/
+        │   └── resumeDataConverter.ts  # Data conversion between API and display formats
+        ├── RefinePage.tsx              # Main refine page with editor and preview
         ├── refineApi.ts                # API for suggestions and updates
         └── spec.xml                    # This file
     </folder_structure>
 
     <components>
-        <component name="RefinePage" desc="Main page with template selector and resume preview, mobile-optimized">
+        <component name="RefinePage" desc="Main page with template selector, resume editor, and preview, mobile-optimized">
             <props>
                 <prop name="none" desc="No props required" />
             </props>
             <layout>
-                <panel name="Template Selector" width="30%" desc="Left panel with 2-column template grid" />
+                <panel name="Template Selector/Editor" width="30%" desc="Left panel with template selector and resume editor toggle" />
                 <panel name="Resume Preview" width="70%" desc="Right panel with full-size resume preview" />
             </layout>
+            <features>
+                <feature name="resume_loading" desc="Loads resume data from server using resume_id parameter" />
+                <feature name="template_assignment" desc="Automatically assigns template from resume data" />
+                <feature name="editor_toggle" desc="Toggle between template selector and resume editor" />
+                <feature name="real_time_updates" desc="Updates resume data in real-time as user edits" />
+                <feature name="error_handling" desc="Displays loading states and error messages" />
+            </features>
             <mobile_features>
                 <feature name="full_screen_templates" desc="Template selector takes full screen on mobile" />
                 <feature name="preview_button" desc="Eye icon button in top-right corner to show preview" />
+                <feature name="editor_button" desc="Edit icon button to toggle resume editor" />
                 <feature name="full_screen_panel" desc="Full-screen overlay panel with resume preview" />
                 <feature name="panel_header" desc="Panel header with title and close button" />
                 <feature name="larger_preview" desc="Larger resume preview scale (0.6) in full-screen panel" />
@@ -37,6 +49,45 @@
                 <feature name="no_decorations" desc="Removed border radius and shadows on mobile" />
             </mobile_features>
         </component>
+        
+        <component name="ResumeEditor" desc="Full resume editor with all editable fields and real-time server updates">
+            <props>
+                <prop name="resume" desc="Resume data from API" />
+                <prop name="onResumeUpdate" desc="Callback when resume is updated" />
+            </props>
+            <features>
+                <feature name="editable_fields" desc="All resume fields are individually editable" />
+                <feature name="real_time_saving" desc="Saves changes to server immediately after editing" />
+                <feature name="formatting_preservation" desc="Preserves text formatting and line breaks" />
+                <feature name="accordion_layout" desc="Organized sections with expandable accordions" />
+                <feature name="field_validation" desc="Input validation for different field types" />
+                <feature name="undo_functionality" desc="Ability to cancel edits and revert changes" />
+                <feature name="save_notifications" desc="Success/error notifications for save operations" />
+            </features>
+            <sections>
+                <section name="basic_info" desc="Title and professional summary" />
+                <section name="personal_info" desc="Name, contact, location, social links" />
+                <section name="skills" desc="Skills management with add/edit/delete" />
+                <section name="experience" desc="Work experience (read-only for now)" />
+                <section name="education" desc="Education (read-only for now)" />
+            </sections>
+        </component>
+        
+        <component name="SkillsEditor" desc="Skills management component with full CRUD operations">
+            <props>
+                <prop name="skills" desc="Array of skills from resume" />
+                <prop name="resumeId" desc="Resume ID for API calls" />
+                <prop name="onSkillsUpdate" desc="Callback when skills are updated" />
+            </props>
+            <features>
+                <feature name="add_skill" desc="Add new skills with validation" />
+                <feature name="edit_skill" desc="Edit existing skills via dialog" />
+                <feature name="delete_skill" desc="Remove skills with confirmation" />
+                <feature name="drag_indicators" desc="Visual indicators for potential drag-and-drop" />
+                <feature name="real_time_updates" desc="Immediate server updates for all operations" />
+            </features>
+        </component>
+        
         <component name="TemplateSelector" desc="2-column grid of template options">
             <props>
                 <prop name="onTemplateChange" desc="Callback when template is selected" />
@@ -44,8 +95,10 @@
             <features>
                 <feature name="Grid Layout" desc="Templates displayed in 2 columns" />
                 <feature name="Scrollable" desc="Vertical scroll when templates overflow" />
+                <feature name="auto_save" desc="Automatically saves template selection to server" />
             </features>
         </component>
+        
         <component name="TemplateThumbnail" desc="Individual template card with A4 proportions">
             <props>
                 <prop name="template" desc="Template configuration" />
@@ -70,6 +123,7 @@
     <mobile_optimizations>
         <optimization name="layout" desc="Full-screen templates on mobile, horizontal layout on desktop" />
         <optimization name="preview_button" desc="Eye icon button in top-right corner for preview" />
+        <optimization name="editor_button" desc="Edit icon button to toggle resume editor" />
         <optimization name="full_screen_overlay" desc="Full-screen overlay panel for preview" />
         <optimization name="slide_animation" desc="Smooth slide-in animation from right" />
         <optimization name="panel_header" desc="Header with title and close button in panel" />
@@ -80,19 +134,45 @@
         <optimization name="logo_hiding" desc="Logo hidden in header on mobile devices" />
     </mobile_optimizations>
 
+    <editing_features>
+        <feature name="field_editing" desc="All resume fields are individually editable with inline editing" />
+        <feature name="formatting_preservation" desc="Text formatting and line breaks are preserved during editing" />
+        <feature name="real_time_saving" desc="Changes are saved to server immediately after editing" />
+        <feature name="undo_functionality" desc="Users can cancel edits and revert to original values" />
+        <feature name="validation" desc="Input validation for different field types (email, phone, URLs)" />
+        <feature name="notifications" desc="Success and error notifications for all save operations" />
+        <feature name="loading_states" desc="Loading indicators during save operations" />
+        <feature name="skills_management" desc="Full CRUD operations for skills with add/edit/delete" />
+    </editing_features>
+
     <api>
-        <endpoint name="getSuggestions" method="POST" path="/refine/suggestions/">
-            <desc>Get AI suggestions for resume improvement</desc>
-            <request>Context string</request>
-            <response>Array of suggestions</response>
+        <endpoint name="getResume" method="GET" path="/resume/{id}">
+            <desc>Get resume data by ID</desc>
+            <request>Resume ID</request>
+            <response>Complete resume object</response>
         </endpoint>
-        <endpoint name="updateResume" method="PUT" path="/refine/update-resume/">
-            <desc>Update resume data</desc>
-            <request>Resume data object</request>
+        <endpoint name="updateResumePartial" method="PATCH" path="/resume/{id}">
+            <desc>Update specific resume fields</desc>
+            <request>Partial resume data</request>
+            <response>Updated resume object</response>
+        </endpoint>
+        <endpoint name="updatePersonalInfo" method="PATCH" path="/resume/{id}/personal-info">
+            <desc>Update personal information</desc>
+            <request>Personal info data</request>
             <response>Success status</response>
         </endpoint>
-        <endpoint name="applyTemplate" method="POST" path="/refine/apply-template/">
-            <desc>Apply template to resume</desc>
+        <endpoint name="addSkill" method="POST" path="/resume/{id}/skills">
+            <desc>Add new skill</desc>
+            <request>Skill data</request>
+            <response>New skill object</response>
+        </endpoint>
+        <endpoint name="removeSkill" method="DELETE" path="/resume/{id}/skills/{skillId}">
+            <desc>Remove skill</desc>
+            <request>Skill ID</request>
+            <response>Success status</response>
+        </endpoint>
+        <endpoint name="assignTemplate" method="PUT" path="/resume/{id}/template/{templateId}">
+            <desc>Assign template to resume</desc>
             <request>Template ID</request>
             <response>Success status</response>
         </endpoint>
@@ -103,5 +183,7 @@
         <dep name="Shared Header" purpose="Common header component with mobile logo hiding" />
         <dep name="Shared ResumeRenderer" purpose="Resume preview component" />
         <dep name="Shared TemplateService" purpose="Template management" />
+        <dep name="Shared API" purpose="Resume API for data operations" />
+        <dep name="Shared Types" purpose="TypeScript types for resume data" />
     </deps>
 </feature> 
