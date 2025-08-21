@@ -4,9 +4,8 @@ import {
   Box,
   TextField,
   Typography,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
+  Tabs,
+  Tab,
   IconButton,
   Button,
   Chip,
@@ -21,10 +20,13 @@ import {
   Snackbar
 } from '@mui/material';
 import {
-  ExpandMore as ExpandMoreIcon,
   Add as AddIcon,
   Delete as DeleteIcon,
-  Save as SaveIcon
+  Save as SaveIcon,
+  Person as PersonIcon,
+  Work as WorkIcon,
+  School as SchoolIcon,
+  Psychology as SkillsIcon
 } from '@mui/icons-material';
 import { Resume } from '../../../shared/services/api/types';
 import { resumeApi } from '../../../shared/services/api';
@@ -41,11 +43,45 @@ interface EditableField {
   originalValue: string;
 }
 
+interface TabPanelProps {
+  children?: React.ReactNode;
+  index: number;
+  value: number;
+}
+
+function TabPanel(props: TabPanelProps) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`resume-tabpanel-${index}`}
+      aria-labelledby={`resume-tab-${index}`}
+      {...other}
+    >
+      {value === index && (
+        <Box sx={{ p: 2 }}>
+          {children}
+        </Box>
+      )}
+    </div>
+  );
+}
+
+function a11yProps(index: number) {
+  return {
+    id: `resume-tab-${index}`,
+    'aria-controls': `resume-tabpanel-${index}`,
+  };
+}
+
 const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) => {
   const { t } = useTranslation();
   const [localResume, setLocalResume] = useState<Resume>(resume);
   const [editableFields, setEditableFields] = useState<Record<string, EditableField>>({});
   const [isSaving, setIsSaving] = useState(false);
+  const [activeTab, setActiveTab] = useState(0);
   const [saveStatus, setSaveStatus] = useState<{ show: boolean; message: string; severity: 'success' | 'error' }>({
     show: false,
     message: '',
@@ -76,6 +112,10 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
     setEditableFields(fields);
   }, [resume]);
 
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setActiveTab(newValue);
+  };
+
   // Функция для начала редактирования поля
   const startEditing = (fieldName: string) => {
     setEditableFields(prev => ({
@@ -84,88 +124,7 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
     }));
   };
 
-  // Функция для сохранения изменений поля
-  const saveField = async (fieldName: string) => {
-    const field = editableFields[fieldName];
-    if (!field || field.value === field.originalValue) {
-      setEditableFields(prev => ({
-        ...prev,
-        [fieldName]: { ...prev[fieldName], isEditing: false }
-      }));
-      return;
-    }
 
-    setIsSaving(true);
-    try {
-      let updatedResume: Resume;
-
-      // Определяем, какое поле обновляем
-      if (['title', 'professional_summary'].includes(fieldName)) {
-        // Основные поля резюме
-        const updateData = fieldName === 'title' ? { title: field.value } : { professional_summary: field.value };
-        updatedResume = await resumeApi.updateResumePartial(resume.id, updateData);
-      } else if (['first_name', 'last_name', 'middle_name', 'phone', 'email', 'location', 'website', 'linkedin', 'github'].includes(fieldName)) {
-        // Поля личной информации
-        const personalInfoUpdate: any = { [fieldName.replace('_', '')]: field.value };
-        await resumeApi.updatePersonalInfo(resume.id, personalInfoUpdate);
-        // Получаем обновленное резюме
-        updatedResume = await resumeApi.getResume(resume.id);
-      } else {
-        throw new Error(`Unknown field: ${fieldName}`);
-      }
-
-      // Обновляем локальное состояние
-      setLocalResume(updatedResume);
-      onResumeUpdate(updatedResume);
-      
-      // Обновляем редактируемое поле
-      setEditableFields(prev => ({
-        ...prev,
-        [fieldName]: { 
-          value: field.value, 
-          isEditing: false, 
-          originalValue: field.value 
-        }
-      }));
-
-      setSaveStatus({
-        show: true,
-        message: 'Изменения сохранены',
-        severity: 'success'
-      });
-    } catch (error) {
-      console.error('Error saving field:', error);
-      setSaveStatus({
-        show: true,
-        message: 'Ошибка при сохранении',
-        severity: 'error'
-      });
-      
-      // Возвращаем оригинальное значение
-      setEditableFields(prev => ({
-        ...prev,
-        [fieldName]: { 
-          value: field.originalValue, 
-          isEditing: false, 
-          originalValue: field.originalValue 
-        }
-      }));
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  // Функция для отмены редактирования
-  const cancelEditing = (fieldName: string) => {
-    setEditableFields(prev => ({
-      ...prev,
-      [fieldName]: { 
-        value: prev[fieldName].originalValue, 
-        isEditing: false, 
-        originalValue: prev[fieldName].originalValue 
-      }
-    }));
-  };
 
   // Функция для обновления значения поля
   const updateFieldValue = (fieldName: string, value: string) => {
@@ -173,6 +132,85 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
       ...prev,
       [fieldName]: { ...prev[fieldName], value }
     }));
+  };
+
+  // Функция для сохранения всех изменений
+  const saveAllChanges = async () => {
+    setIsSaving(true);
+    try {
+      // Собираем все измененные поля
+      const changedFields = Object.entries(editableFields).filter(
+        ([_, field]) => field.value !== field.originalValue
+      );
+
+      if (changedFields.length === 0) {
+        setSaveStatus({
+          show: true,
+          message: 'Нет изменений для сохранения',
+          severity: 'success'
+        });
+        return;
+      }
+
+      // Группируем изменения по типам
+      const mainUpdates: any = {};
+      const personalInfoUpdates: any = {};
+
+      for (const [fieldName, field] of changedFields) {
+        if (['title', 'professional_summary'].includes(fieldName)) {
+          mainUpdates[fieldName] = field.value;
+        } else if (['first_name', 'last_name', 'middle_name', 'phone', 'email', 'location', 'website', 'linkedin', 'github'].includes(fieldName)) {
+          // Преобразуем имена полей для API
+          const apiFieldName = fieldName.replace('_', '');
+          personalInfoUpdates[apiFieldName] = field.value;
+        }
+      }
+
+      // Сохраняем основные поля резюме
+      if (Object.keys(mainUpdates).length > 0) {
+        await resumeApi.updateResumePartial(resume.id, mainUpdates);
+      }
+
+      // Сохраняем личную информацию
+      if (Object.keys(personalInfoUpdates).length > 0) {
+        await resumeApi.updatePersonalInfo(resume.id, personalInfoUpdates);
+      }
+
+      // Получаем обновленное резюме
+      const updatedResume = await resumeApi.getResume(resume.id);
+      
+      // Обновляем локальное состояние
+      setLocalResume(updatedResume);
+      onResumeUpdate(updatedResume);
+      
+      // Обновляем редактируемые поля
+      setEditableFields(prev => {
+        const updated = { ...prev };
+        for (const [fieldName, field] of changedFields) {
+          updated[fieldName] = {
+            ...field,
+            isEditing: false,
+            originalValue: field.value
+          };
+        }
+        return updated;
+      });
+
+      setSaveStatus({
+        show: true,
+        message: 'Все изменения сохранены',
+        severity: 'success'
+      });
+    } catch (error) {
+      console.error('Error saving changes:', error);
+      setSaveStatus({
+        show: true,
+        message: 'Ошибка при сохранении изменений',
+        severity: 'error'
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   // Компонент для редактируемого поля
@@ -194,38 +232,18 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
 
     if (field.isEditing) {
       return (
-        <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1, mb: 2 }}>
-          <TextField
-            fullWidth
-            label={label}
-            value={field.value}
-            onChange={(e) => updateFieldValue(fieldName, e.target.value)}
-            multiline={multiline}
-            rows={rows}
-            type={type}
-            variant="outlined"
-            size="small"
-            sx={{ flex: 1 }}
-          />
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-            <IconButton
-              size="small"
-              onClick={() => saveField(fieldName)}
-              disabled={isSaving}
-              color="primary"
-            >
-              <SaveIcon />
-            </IconButton>
-            <IconButton
-              size="small"
-              onClick={() => cancelEditing(fieldName)}
-              disabled={isSaving}
-              color="error"
-            >
-              <DeleteIcon />
-            </IconButton>
-          </Box>
-        </Box>
+        <TextField
+          fullWidth
+          label={label}
+          value={field.value}
+          onChange={(e) => updateFieldValue(fieldName, e.target.value)}
+          multiline={multiline}
+          rows={rows}
+          type={type}
+          variant="outlined"
+          size="small"
+          sx={{ mb: 2 }}
+        />
       );
     }
 
@@ -272,115 +290,200 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
   };
 
   return (
-    <Box sx={{ p: 2, maxHeight: '100vh', overflow: 'auto' }}>
-
-
-      {/* Основная информация */}
-      <Accordion defaultExpanded>
-        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography variant="subtitle1" fontWeight="bold">
-            {t('refine.editor.basicInfo')}
-          </Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <EditableField fieldName="title" label={t('refine.editor.resumeTitle')} />
-          <EditableField 
-            fieldName="professional_summary" 
-            label={t('refine.editor.professionalSummary')} 
-            multiline 
-            rows={4}
-          />
-        </AccordionDetails>
-      </Accordion>
-
-      {/* Личная информация */}
-      <Accordion defaultExpanded>
-        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography variant="subtitle1" fontWeight="bold">
-            {t('refine.editor.personalInfo')}
-          </Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
-            <EditableField fieldName="first_name" label={t('refine.editor.firstName')} />
-            <EditableField fieldName="last_name" label={t('refine.editor.lastName')} />
-            <EditableField fieldName="middle_name" label={t('refine.editor.middleName')} />
-            <EditableField fieldName="phone" label={t('refine.editor.phone')} type="tel" />
-            <EditableField fieldName="email" label={t('refine.editor.email')} type="email" />
-            <EditableField fieldName="location" label={t('refine.editor.location')} />
-            <EditableField fieldName="website" label={t('refine.editor.website')} type="url" />
-            <EditableField fieldName="linkedin" label={t('refine.editor.linkedin')} type="url" />
-            <EditableField fieldName="github" label="GitHub" type="url" />
-          </Box>
-        </AccordionDetails>
-      </Accordion>
-
-      {/* Навыки */}
-      <Accordion>
-        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography variant="subtitle1" fontWeight="bold">
-            {t('refine.editor.skills')} ({localResume.skills?.length || 0})
-          </Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <SkillsEditor 
-            skills={localResume.skills || []}
-            resumeId={resume.id}
-            onSkillsUpdate={(updatedSkills) => {
-              setLocalResume(prev => ({ ...prev, skills: updatedSkills }));
-              onResumeUpdate({ ...localResume, skills: updatedSkills });
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      {/* Содержимое вкладок */}
+      <Box sx={{ flex: 1, bgcolor: '#f8fbff', p: 2, minHeight: 0 }}>
+        <Box sx={{ 
+          bgcolor: 'white', 
+          borderRadius: 2, 
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column'
+        }}>
+          {/* Вкладки */}
+          <Tabs 
+            value={activeTab} 
+            onChange={handleTabChange} 
+            aria-label="resume editor tabs"
+            variant="fullWidth"
+            sx={{
+              flexShrink: 0,
+              '& .MuiTabs-indicator': {
+                display: 'none'
+              },
+              '& .MuiTabs-flexContainer': {
+                background: 'white',
+                borderRadius: '8px 8px 0 0',
+                overflow: 'hidden',
+                gap: '2px',
+                padding: '8px 8px 0 8px'
+              },
+                          '& .MuiTab-root': {
+              minHeight: 44,
+              fontSize: '0.875rem',
+              fontWeight: 500,
+              textTransform: 'none',
+              minWidth: 'auto',
+              px: 3,
+              py: 1.5,
+              position: 'relative',
+              background: '#f5f5f5',
+              border: 'none',
+              margin: 0,
+              borderRadius: '8px 8px 0 0',
+              transform: 'skewX(-15deg)',
+              transition: 'background-color 0.25s',
+              flex: 1,
+              '&:hover': {
+                background: '#e8e8e8'
+              },
+              '&.Mui-selected': {
+                background: '#007bff',
+                color: 'white',
+                '& .MuiSvgIcon-root': {
+                  color: 'white'
+                }
+              },
+              '& .MuiSvgIcon-root': {
+                fontSize: '1.5rem',
+                transform: 'skewX(15deg)',
+                color: 'inherit'
+              }
+            }
             }}
-          />
-        </AccordionDetails>
-      </Accordion>
+          >
+            <Tab 
+              icon={<PersonIcon />} 
+              {...a11yProps(0)} 
+              title={t('refine.editor.personalInfo')}
+            />
+            <Tab 
+              icon={<SkillsIcon />} 
+              {...a11yProps(1)} 
+              title={`${t('refine.editor.skills')} (${localResume.skills?.length || 0})`}
+            />
+            <Tab 
+              icon={<WorkIcon />} 
+              {...a11yProps(2)} 
+              title={`${t('refine.editor.experience')} (${localResume.experience?.length || 0})`}
+            />
+            <Tab 
+              icon={<SchoolIcon />} 
+              {...a11yProps(3)} 
+              title={`${t('refine.editor.education')} (${localResume.education?.length || 0})`}
+            />
+          </Tabs>
 
-      {/* Опыт работы */}
-      <Accordion>
-        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography variant="subtitle1" fontWeight="bold">
-            {t('refine.editor.experience')} ({localResume.experience?.length || 0})
-          </Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            {t('refine.editor.comingSoon')}
-          </Typography>
-          {localResume.experience?.map((exp) => (
-            <Box key={exp.id} sx={{ mb: 2, p: 2, border: '1px solid #e0e0e0', borderRadius: 1 }}>
-              <Typography variant="subtitle2" fontWeight="bold">
-                {exp.job_title} в {exp.company}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {exp.start_date} - {exp.is_current ? 'Настоящее время' : exp.end_date}
-              </Typography>
+          {/* Содержимое панелей */}
+          <Box sx={{ 
+            p: 3, 
+            flex: 1, 
+            overflow: 'auto',
+            bgcolor: 'white'
+          }}>
+          {/* Личная информация */}
+          <TabPanel value={activeTab} index={0}>
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+              <EditableField fieldName="first_name" label={t('refine.editor.firstName')} />
+              <EditableField fieldName="last_name" label={t('refine.editor.lastName')} />
+              <EditableField fieldName="middle_name" label={t('refine.editor.middleName')} />
+              <EditableField fieldName="phone" label={t('refine.editor.phone')} type="tel" />
+              <EditableField fieldName="email" label={t('refine.editor.email')} type="email" />
+              <EditableField fieldName="location" label={t('refine.editor.location')} />
+              <EditableField fieldName="website" label={t('refine.editor.website')} type="url" />
+              <EditableField fieldName="linkedin" label={t('refine.editor.linkedin')} type="url" />
+              <EditableField fieldName="github" label="GitHub" type="url" />
             </Box>
-          ))}
-        </AccordionDetails>
-      </Accordion>
+          </TabPanel>
 
-      {/* Образование */}
-      <Accordion>
-        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography variant="subtitle1" fontWeight="bold">
-            {t('refine.editor.education')} ({localResume.education?.length || 0})
-          </Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            {t('refine.editor.comingSoon')}
-          </Typography>
-          {localResume.education?.map((edu) => (
-            <Box key={edu.id} sx={{ mb: 2, p: 2, border: '1px solid #e0e0e0', borderRadius: 1 }}>
-              <Typography variant="subtitle2" fontWeight="bold">
-                {edu.degree}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {edu.institution}
-              </Typography>
-            </Box>
-          ))}
-        </AccordionDetails>
-      </Accordion>
+          {/* Навыки */}
+          <TabPanel value={activeTab} index={1}>
+            <EditableField 
+              fieldName="professional_summary" 
+              label={t('refine.editor.professionalSummary')} 
+              multiline 
+              rows={4}
+            />
+            <Divider sx={{ my: 3 }} />
+            <SkillsEditor 
+              skills={localResume.skills || []}
+              resumeId={resume.id}
+              onSkillsUpdate={(updatedSkills) => {
+                setLocalResume(prev => ({ ...prev, skills: updatedSkills }));
+                onResumeUpdate({ ...localResume, skills: updatedSkills });
+              }}
+            />
+          </TabPanel>
+
+          {/* Опыт работы */}
+          <TabPanel value={activeTab} index={2}>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              {t('refine.editor.comingSoon')}
+            </Typography>
+            {localResume.experience?.map((exp) => (
+              <Box key={exp.id} sx={{ mb: 2, p: 2, border: '1px solid #e0e0e0', borderRadius: 1 }}>
+                <Typography variant="subtitle2" fontWeight="bold">
+                  {exp.job_title} в {exp.company}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {exp.start_date} - {exp.is_current ? 'Настоящее время' : exp.end_date}
+                </Typography>
+              </Box>
+            ))}
+          </TabPanel>
+
+          {/* Образование */}
+          <TabPanel value={activeTab} index={3}>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              {t('refine.editor.comingSoon')}
+            </Typography>
+            {localResume.education?.map((edu) => (
+              <Box key={edu.id} sx={{ mb: 2, p: 2, border: '1px solid #e0e0e0', borderRadius: 1 }}>
+                <Typography variant="subtitle2" fontWeight="bold">
+                  {edu.degree}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {edu.institution}
+                </Typography>
+              </Box>
+            ))}
+          </TabPanel>
+          </Box>
+        </Box>
+      </Box>
+
+      {/* Блок с кнопкой сохранения */}
+      <Box sx={{ 
+        bgcolor: '#f8fbff', 
+        p: 2, 
+        display: 'flex',
+        justifyContent: 'center',
+        flexShrink: 0,
+        height: 80
+      }}>
+        <Button
+          variant="contained"
+          startIcon={<SaveIcon />}
+          onClick={saveAllChanges}
+          disabled={isSaving}
+          sx={{
+            px: 4,
+            py: 1.5,
+            fontSize: '1rem',
+            fontWeight: 600,
+            borderRadius: 2,
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+            '&:hover': {
+              boxShadow: '0 6px 16px rgba(0, 0, 0, 0.2)',
+              transform: 'translateY(-1px)'
+            },
+            transition: 'all 0.2s ease-in-out'
+          }}
+        >
+          {isSaving ? 'Saving...' : 'Save Changes'}
+        </Button>
+      </Box>
 
       {/* Уведомления */}
       <Snackbar

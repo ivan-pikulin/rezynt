@@ -9,40 +9,42 @@
     <folder_structure>
         /features/refine
         ├── components/
-        │   ├── TemplateSelector.tsx    # 2-column grid template selector
+        │   ├── TemplateSelector.tsx    # Template selector with horizontal/vertical layouts
         │   ├── TemplateThumbnail.tsx   # Individual template card with A4 proportions
         │   ├── ResumeEditor.tsx        # Full resume editor with all editable fields
         │   └── SkillsEditor.tsx        # Skills management component
         ├── utils/
         │   └── resumeDataConverter.ts  # Data conversion between API and display formats
-        ├── RefinePage.tsx              # Main refine page with editor and preview
+        ├── RefinePage.tsx              # Main refine page with new layout
         ├── refineApi.ts                # API for suggestions and updates
         └── spec.xml                    # This file
     </folder_structure>
 
     <components>
-        <component name="RefinePage" desc="Main page with three-panel layout: templates, preview, and editor">
+        <component name="RefinePage" desc="Main page with new layout: left panel split into templates and editor, right panel for preview">
             <props>
                 <prop name="none" desc="No props required" />
             </props>
             <layout>
-                <panel name="Template Selector" width="30%" desc="Left panel with template selector" />
-                <panel name="Resume Preview" width="40%" desc="Center panel with resume preview and edit button" />
-                <panel name="Resume Editor" width="30%" desc="Right panel with resume editor (toggleable)" />
+                <section name="Left Panel" desc="Split into templates (top) and editor (bottom)" />
+                <section name="Right Panel" desc="Full height preview with download button" />
+                <panel name="Template Bar" width="50%" desc="Horizontal template selector at top of left panel" />
+                <panel name="Resume Editor" width="50%" desc="Resume editor below template bar" />
+                <panel name="Resume Preview" width="50%" desc="Full height preview panel with download button" />
             </layout>
             <features>
                 <feature name="resume_loading" desc="Loads resume data from server using resume_id parameter" />
                 <feature name="template_assignment" desc="Automatically assigns template from resume data" />
-                <feature name="editor_toggle" desc="Toggle right panel editor with smooth animation" />
+                <feature name="horizontal_templates" desc="Templates displayed in horizontal scrollable row in left panel" />
                 <feature name="real_time_updates" desc="Updates resume data in real-time as user edits" />
                 <feature name="error_handling" desc="Displays loading states and error messages" />
-                <feature name="edit_button_position" desc="Edit button positioned in top-right corner of resume preview" />
+                <feature name="download_button" desc="Download button positioned below resume preview" />
                 <feature name="i18n_support" desc="Full internationalization support for English and Russian languages" />
             </features>
             <mobile_features>
-                <feature name="full_screen_templates" desc="Template selector takes full screen on mobile" />
+                <feature name="horizontal_templates" desc="Templates displayed in horizontal scrollable row" />
+                <feature name="split_layout" desc="Editor and preview split vertically on mobile" />
                 <feature name="preview_button" desc="Eye icon button in top-right corner to show preview" />
-                <feature name="editor_full_screen" desc="Editor opens as full-screen overlay on mobile" />
                 <feature name="full_screen_panel" desc="Full-screen overlay panel with resume preview" />
                 <feature name="panel_header" desc="Panel header with title and close button" />
                 <feature name="larger_preview" desc="Larger resume preview scale (0.6) in full-screen panel" />
@@ -92,13 +94,15 @@
             </features>
         </component>
         
-        <component name="TemplateSelector" desc="2-column grid of template options">
+        <component name="TemplateSelector" desc="Template selector with horizontal and vertical layouts">
             <props>
                 <prop name="onTemplateChange" desc="Callback when template is selected" />
+                <prop name="horizontalLayout" desc="Display templates in horizontal row instead of grid" />
             </props>
             <features>
-                <feature name="Grid Layout" desc="Templates displayed in 2 columns" />
-                <feature name="Scrollable" desc="Vertical scroll when templates overflow" />
+                <feature name="Grid Layout" desc="Templates displayed in 2 columns (vertical mode)" />
+                <feature name="Horizontal Layout" desc="Templates displayed in horizontal scrollable row" />
+                <feature name="Scrollable" desc="Scroll when templates overflow" />
                 <feature name="auto_save" desc="Automatically saves template selection to server" />
             </features>
         </component>
@@ -109,11 +113,13 @@
                 <prop name="resumeData" desc="Resume data for preview" />
                 <prop name="isSelected" desc="Selection state" />
                 <prop name="onSelect" desc="Selection callback" />
+                <prop name="horizontal" desc="Display in horizontal mode with smaller size" />
             </props>
             <features>
                 <feature name="A4 Proportions" desc="Container with 1:1.414 aspect ratio" />
                 <feature name="Template Name" desc="Template name displayed below preview" />
                 <feature name="Selection State" desc="Visual feedback for selected template" />
+                <feature name="Horizontal Mode" desc="Compact horizontal layout for top bar" />
             </features>
         </component>
     </components>
@@ -139,12 +145,13 @@
     </mobile_optimizations>
 
     <desktop_layout>
-        <panel name="left" desc="Template selector panel (30% width)" />
-        <panel name="center" desc="Resume preview panel (40% width) with edit button" />
-        <panel name="right" desc="Resume editor panel (30% width, toggleable)" />
-        <feature name="edit_button" desc="Edit button positioned in top-right corner of resume preview" />
-        <feature name="smooth_animation" desc="Smooth slide-in/out animation for editor panel" />
-        <feature name="responsive_widths" desc="Dynamic width adjustment based on editor state" />
+        <section name="left" desc="Left panel split into templates (top) and editor (bottom)" />
+        <section name="right" desc="Right panel with full height preview" />
+        <panel name="templates" desc="Template selector bar (top of left panel)" />
+        <panel name="editor" desc="Resume editor panel (bottom of left panel)" />
+        <panel name="preview" desc="Resume preview panel (full height right panel) with download button" />
+        <feature name="download_button" desc="Download button positioned below resume preview" />
+        <feature name="horizontal_scroll" desc="Horizontal scrollable template bar" />
     </desktop_layout>
 
     <editing_features>

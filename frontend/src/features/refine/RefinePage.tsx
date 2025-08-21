@@ -1,21 +1,25 @@
-import React, { useState, useEffect } from 'react';
-import Box from '@mui/material/Box';
-import IconButton from '@mui/material/IconButton';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import EditIcon from '@mui/icons-material/Edit';
 import CloseIcon from '@mui/icons-material/Close';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import DownloadIcon from '@mui/icons-material/Download';
+import EditIcon from '@mui/icons-material/Edit';
+import SaveIcon from '@mui/icons-material/Save';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import Header from '../../shared/components/Header/Header';
 import ResumeRenderer from '../../shared/components/ResumeRenderer';
-import TemplateSelector from './components/TemplateSelector';
-import ResumeEditor from './components/ResumeEditor';
-import LoadingSpinner from './components/LoadingSpinner';
-import ErrorMessage from './components/ErrorMessage';
+import { resumeApi } from '../../shared/services/api';
+import { Resume } from '../../shared/services/api/types';
 import { TemplateService } from '../../shared/services/templateService';
 import { TemplateConfig } from '../../shared/types/resume';
-import { Resume } from '../../shared/services/api/types';
-import { resumeApi } from '../../shared/services/api';
+import ErrorMessage from './components/ErrorMessage';
+import LoadingSpinner from './components/LoadingSpinner';
+import ResumeEditor from './components/ResumeEditor';
+import TemplateSelector from './components/TemplateSelector';
 import { convertApiResumeToDisplayData } from './utils/resumeDataConverter';
 
 const RefinePage: React.FC = () => {
@@ -28,10 +32,11 @@ const RefinePage: React.FC = () => {
     TemplateService.getTemplateById('tero') || TemplateService.getTemplates()[0]
   );
   const [showPreview, setShowPreview] = useState(false);
-  const [showEditor, setShowEditor] = useState(false);
   const [resume, setResume] = useState<Resume | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [titleValue, setTitleValue] = useState('');
 
   // Загружаем данные резюме с сервера
   useEffect(() => {
@@ -46,6 +51,7 @@ const RefinePage: React.FC = () => {
         setLoading(true);
         const resumeData = await resumeApi.getResume(resumeId);
         setResume(resumeData);
+        setTitleValue(resumeData.title);
         
         // Устанавливаем шаблон из резюме, если он есть
         if (resumeData.template_id) {
@@ -68,6 +74,7 @@ const RefinePage: React.FC = () => {
   // Обработчик обновления резюме
   const handleResumeUpdate = (updatedResume: Resume) => {
     setResume(updatedResume);
+    setTitleValue(updatedResume.title);
   };
 
   // Обработчик изменения шаблона
@@ -77,7 +84,7 @@ const RefinePage: React.FC = () => {
     // Сохраняем новый шаблон на сервере
     if (resumeId) {
       try {
-        await resumeApi.assignTemplateBySlug(resumeId, template.id);
+        await resumeApi.assignTemplate(resumeId, template.id);
         // Обновляем локальное состояние резюме
         if (resume) {
           setResume({ ...resume, template_id: template.id });
@@ -86,6 +93,31 @@ const RefinePage: React.FC = () => {
         console.error('Error updating template:', err);
       }
     }
+  };
+
+  // Обработчик редактирования заголовка
+  const handleTitleEdit = () => {
+    setIsEditingTitle(true);
+  };
+
+  // Обработчик сохранения заголовка
+  const handleTitleSave = async () => {
+    if (!resume || !resumeId) return;
+    
+    try {
+      const updatedResume = await resumeApi.updateResumePartial(resumeId, { title: titleValue });
+      setResume(updatedResume);
+      setIsEditingTitle(false);
+    } catch (err) {
+      console.error('Error saving title:', err);
+      setTitleValue(resume.title); // Возвращаем оригинальное значение
+    }
+  };
+
+  // Обработчик отмены редактирования заголовка
+  const handleTitleCancel = () => {
+    setTitleValue(resume?.title || '');
+    setIsEditingTitle(false);
   };
 
   const handleNext = () => {
@@ -118,8 +150,8 @@ const RefinePage: React.FC = () => {
     setShowPreview(!showPreview);
   };
 
-  const toggleEditor = () => {
-    setShowEditor(!showEditor);
+  const handleDownload = () => {
+    navigate(`/export?resume_id=${resumeId}`);
   };
 
   // Если загрузка, показываем индикатор
@@ -177,150 +209,186 @@ const RefinePage: React.FC = () => {
         flex: 1, 
         display: 'flex', 
         flexDirection: { xs: 'column', md: 'row' },
-        gap: { xs: 0, sm: 2 },
-        p: { xs: 1, sm: 2 },
-        alignItems: 'stretch',
+        gap: 0,
         overflow: 'hidden'
       }}>
-        {/* Левая панель: селектор шаблонов */}
+        {/* Левая панель: шаблоны + редактор */}
         <Box sx={{ 
-          width: { xs: '100%', md: '30%' },
-          minWidth: { xs: 'auto', md: '300px' },
-          height: { xs: '100%', md: 'auto' },
-          bgcolor: 'white',
-          borderRadius: { xs: 0, sm: '8px' },
-          boxShadow: { xs: 'none', sm: '0 2px 8px rgba(0, 0, 0, 0.1)' },
+          width: { xs: '100%', md: '50%' },
+          height: '100%',
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
-          position: 'relative'
-        }}>
-          {/* Кнопка предварительного просмотра (только на мобильных) */}
-          <Box sx={{
-            position: 'absolute',
-            top: { xs: 8, sm: 12 },
-            right: { xs: 8, sm: 12 },
-            zIndex: 10,
-            display: { xs: 'block', md: 'none' }
-          }}>
-            <IconButton
-              onClick={togglePreview}
-              sx={{
-                bgcolor: 'rgba(255, 255, 255, 0.9)',
-                backdropFilter: 'blur(4px)',
-                border: '1px solid rgba(0, 0, 0, 0.1)',
-                '&:hover': {
-                  bgcolor: 'rgba(255, 255, 255, 1)',
-                }
-              }}
-            >
-              <VisibilityIcon />
-            </IconButton>
-          </Box>
-
-          {/* Содержимое панели */}
-          <Box sx={{ 
-            flex: 1,
-            overflow: 'auto',
-            p: { xs: 1, sm: 2 }
-          }}>
-            <TemplateSelector onTemplateChange={handleTemplateChange} />
-          </Box>
-        </Box>
-        
-        {/* Центральная область: превью резюме */}
-        <Box sx={{ 
-          flex: { xs: 0, md: 1 },
-          width: { xs: 0, md: '40%' },
-          display: { xs: 'none', md: 'flex' },
-          overflow: 'auto',
-          justifyContent: 'center',
-          alignItems: 'flex-start',
-          bgcolor: 'transparent',
-          position: 'relative'
-        }}>
-          {/* Кнопка редактирования в верхнем правом углу резюме */}
-          <Box sx={{
-            position: 'absolute',
-            top: 20,
-            right: 20,
-            zIndex: 10,
-            display: showEditor ? 'none' : 'block'
-          }}>
-            <IconButton
-              onClick={toggleEditor}
-              sx={{
-                bgcolor: 'rgba(255, 255, 255, 0.9)',
-                backdropFilter: 'blur(4px)',
-                border: '1px solid rgba(0, 0, 0, 0.1)',
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-                '&:hover': {
-                  bgcolor: 'rgba(255, 255, 255, 1)',
-                  transform: 'scale(1.05)'
-                },
-                transition: 'all 0.2s ease-in-out'
-              }}
-            >
-              <EditIcon />
-            </IconButton>
-          </Box>
-
-          <ResumeRenderer 
-            data={displayData} 
-            scale={1} 
-            templateId={selectedTemplate?.id}
-          />
-        </Box>
-
-        {/* Правая панель: редактор резюме */}
-        <Box sx={{ 
-          width: { xs: 0, md: showEditor ? '30%' : '0' },
-          minWidth: { xs: 0, md: showEditor ? '300px' : '0' },
-          height: { xs: '100%', md: 'auto' },
-          bgcolor: 'white',
-          borderRadius: { xs: 0, sm: '8px' },
-          boxShadow: { xs: 'none', sm: '0 2px 8px rgba(0, 0, 0, 0.1)' },
-          display: { xs: showEditor ? 'flex' : 'none', md: 'flex' },
-          flexDirection: 'column',
-          overflow: 'hidden',
           position: 'relative',
-          transition: 'all 0.3s ease-in-out',
-          opacity: showEditor ? 1 : 0,
-          transform: showEditor ? 'translateX(0)' : 'translateX(100%)'
+          bgcolor: '#f8fbff'
         }}>
-          {/* Заголовок панели редактора */}
-          <Box sx={{
+          {/* Заголовок резюме */}
+          <Box sx={{ 
+            bgcolor: '#f8fbff',
+            borderBottom: '1px solid #e0e0e0',
+            p: 2,
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'space-between',
-            p: 2,
-            borderBottom: '1px solid #eee',
-            bgcolor: '#f8f9fa'
+            gap: 1,
+            flexShrink: 0
           }}>
-            <Box sx={{ fontSize: '1.1rem', fontWeight: 600, color: '#2c3e50' }}>
-              {t('refine.editor.title')}
-            </Box>
-            <IconButton
-              onClick={toggleEditor}
-              sx={{
-                '&:hover': {
-                  bgcolor: 'rgba(0, 0, 0, 0.04)',
-                }
-              }}
-            >
-              <CloseIcon />
-            </IconButton>
+            {isEditingTitle ? (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
+                <TextField
+                  value={titleValue}
+                  onChange={(e) => setTitleValue(e.target.value)}
+                  variant="outlined"
+                  size="small"
+                  sx={{ flex: 1 }}
+                  autoFocus
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      handleTitleSave();
+                    } else if (e.key === 'Escape') {
+                      handleTitleCancel();
+                    }
+                  }}
+                />
+                <IconButton size="small" onClick={handleTitleSave} color="primary">
+                  <SaveIcon />
+                </IconButton>
+                <IconButton size="small" onClick={handleTitleCancel} color="error">
+                  <CloseIcon />
+                </IconButton>
+              </Box>
+            ) : (
+              <>
+                <Typography variant="h6" sx={{ flex: 1, fontWeight: 600 }}>
+                  {titleValue}
+                </Typography>
+                <IconButton 
+                  size="small" 
+                  onClick={handleTitleEdit}
+                  sx={{ 
+                    opacity: 0.6, 
+                    '&:hover': { opacity: 1 },
+                    transition: 'opacity 0.2s'
+                  }}
+                >
+                  <EditIcon />
+                </IconButton>
+              </>
+            )}
           </Box>
 
-          {/* Содержимое редактора */}
+          {/* Панель шаблонов сверху */}
+          <Box sx={{ 
+            bgcolor: '#f8fbff',
+            p: 2,
+            overflow: 'hidden',
+            height: 160,
+            flexShrink: 0
+          }}>
+            <Box sx={{ 
+              display: 'flex',
+              gap: 2,
+              overflowX: 'auto',
+              overflowY: 'hidden',
+              pb: 1,
+              '&::-webkit-scrollbar': {
+                height: 6,
+              },
+              '&::-webkit-scrollbar-track': {
+                bgcolor: '#f1f1f1',
+                borderRadius: 3,
+              },
+              '&::-webkit-scrollbar-thumb': {
+                bgcolor: '#c1c1c1',
+                borderRadius: 3,
+                '&:hover': {
+                  bgcolor: '#a8a8a8',
+                },
+              },
+            }}>
+              <TemplateSelector 
+                onTemplateChange={handleTemplateChange}
+                horizontalLayout={true}
+              />
+            </Box>
+          </Box>
+          
+          {/* Редактор резюме снизу */}
           <Box sx={{ 
             flex: 1,
-            overflow: 'auto'
+            bgcolor: 'white',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden',
+            minHeight: 0
           }}>
             <ResumeEditor 
               resume={resume} 
               onResumeUpdate={handleResumeUpdate}
             />
+          </Box>
+        </Box>
+
+        {/* Вертикальный разделитель */}
+        <Box sx={{ 
+          display: { xs: 'none', md: 'block' },
+          width: '1px',
+          bgcolor: '#e0e0e0',
+          mx: 0
+        }} />
+        
+        {/* Правая панель: превью резюме */}
+        <Box sx={{ 
+          width: { xs: '100%', md: '50%' },
+          height: { xs: '50%', md: 'auto' },
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+          position: 'relative',
+          bgcolor: 'white'
+        }}>
+          {/* Превью резюме */}
+          <Box sx={{ 
+            flex: 1,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'flex-start',
+            overflow: 'auto',
+            p: 2
+          }}>
+            <ResumeRenderer 
+              data={displayData} 
+              scale={0.8} 
+              templateId={selectedTemplate?.id}
+            />
+          </Box>
+
+          {/* Кнопка Download внизу */}
+          <Box sx={{ 
+            p: 2,
+            display: 'flex',
+            justifyContent: 'center',
+            bgcolor: 'white'
+          }}>
+            <Button
+              variant="contained"
+              startIcon={<DownloadIcon />}
+              onClick={handleDownload}
+              sx={{
+                px: 4,
+                py: 1.5,
+                fontSize: '1rem',
+                fontWeight: 600,
+                borderRadius: 2,
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                '&:hover': {
+                  boxShadow: '0 6px 16px rgba(0, 0, 0, 0.2)',
+                  transform: 'translateY(-1px)'
+                },
+                transition: 'all 0.2s ease-in-out'
+              }}
+            >
+              Download Resume
+            </Button>
           </Box>
         </Box>
       </Box>
@@ -391,57 +459,6 @@ const RefinePage: React.FC = () => {
               templateId={selectedTemplate?.id}
             />
           </Box>
-        </Box>
-      </Box>
-
-      {/* Боковая панель с редактором (на весь экран для мобильных) */}
-      <Box sx={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        bgcolor: 'white',
-        zIndex: 1000,
-        display: { xs: showEditor ? 'flex' : 'none', md: 'none' },
-        flexDirection: 'column',
-        transform: { xs: showEditor ? 'translateX(0)' : 'translateX(100%)', md: 'translateX(100%)' },
-        transition: 'transform 0.3s ease-in-out',
-        overflow: 'hidden'
-      }}>
-        {/* Заголовок панели */}
-        <Box sx={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          p: 2,
-          borderBottom: '1px solid #eee',
-          bgcolor: '#f8f9fa'
-        }}>
-          <Box sx={{ fontSize: '1.1rem', fontWeight: 600, color: '#2c3e50' }}>
-            {t('refine.editor.title')}
-          </Box>
-          <IconButton
-            onClick={toggleEditor}
-            sx={{
-              '&:hover': {
-                bgcolor: 'rgba(0, 0, 0, 0.04)',
-              }
-            }}
-          >
-            <CloseIcon />
-          </IconButton>
-        </Box>
-
-        {/* Содержимое панели */}
-        <Box sx={{
-          flex: 1,
-          overflow: 'auto'
-        }}>
-          <ResumeEditor 
-            resume={resume} 
-            onResumeUpdate={handleResumeUpdate}
-          />
         </Box>
       </Box>
     </Box>

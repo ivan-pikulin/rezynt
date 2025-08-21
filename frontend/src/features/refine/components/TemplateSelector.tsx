@@ -7,9 +7,10 @@ import { TemplateConfig } from '../../../shared/types/resume';
 
 interface TemplateSelectorProps {
   onTemplateChange?: (template: TemplateConfig) => void;
+  horizontalLayout?: boolean;
 }
 
-const TemplateSelector: React.FC<TemplateSelectorProps> = ({ onTemplateChange }) => {
+const TemplateSelector: React.FC<TemplateSelectorProps> = ({ onTemplateChange, horizontalLayout = false }) => {
   const templates = TemplateService.getTemplates();
   const demoData = TemplateService.createDemoData();
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateConfig | null>(
@@ -27,6 +28,29 @@ const TemplateSelector: React.FC<TemplateSelectorProps> = ({ onTemplateChange })
     setSelectedTemplate(template);
     onTemplateChange?.(template);
   };
+
+  if (horizontalLayout) {
+    return (
+      <Box sx={{ 
+        display: 'flex',
+        gap: 2,
+        alignItems: 'center',
+        minHeight: 140
+      }}>
+        {templates.map((template) => (
+          <Box key={template.id} sx={{ flexShrink: 0 }}>
+            <TemplateThumbnail
+              template={template}
+              resumeData={demoData}
+              isSelected={selectedTemplate?.id === template.id}
+              onSelect={() => handleTemplateSelect(template)}
+              horizontal={true}
+            />
+          </Box>
+        ))}
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
