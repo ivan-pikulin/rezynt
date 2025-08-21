@@ -71,9 +71,17 @@ def setup_logging():
         ]
     )
 
-    logging.getLogger("uvicorn.access").setLevel(logging.INFO)
-    logging.getLogger("uvicorn.error").setLevel(logging.INFO)
+    # Configure uvicorn logging for better error visibility
+    logging.getLogger("uvicorn.access").setLevel(logging.DEBUG)
+    logging.getLogger("uvicorn.error").setLevel(logging.DEBUG)
+    
+    # Disable SQLAlchemy engine logging completely
+    logging.getLogger("sqlalchemy.engine").setLevel(logging.WARNING)
+    logging.getLogger("sqlalchemy.pool").setLevel(logging.WARNING)
+    logging.getLogger("sqlalchemy.dialects").setLevel(logging.WARNING)
+    logging.getLogger("sqlalchemy.orm").setLevel(logging.WARNING)
+    
+    # Configure other loggers
     logging.getLogger("httpx").setLevel(logging.INFO)
-    logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
     logging.getLogger("celery").setLevel(logging.INFO)
     logging.getLogger("flower").setLevel(logging.INFO)
