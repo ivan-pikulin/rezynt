@@ -11,9 +11,7 @@ export class ChatApi extends BaseApi {
       resume_id: data.resume_id
     });
     
-    return {
-      message: response.response
-    };
+    return response;
   }
 }
 

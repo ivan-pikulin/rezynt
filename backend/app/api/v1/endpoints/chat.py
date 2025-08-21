@@ -45,7 +45,8 @@ async def send_message(
     response = await platform_chatflow.chat(
         user_id=str(user.id),
         text=request.message,
-        conversation_id=resume_obj.conversation_id
+        conversation_id=resume_obj.conversation_id,
+        resume_id=str(request.resume_id)
     )
     
     # Обновляем conversation_id в резюме, если он изменился

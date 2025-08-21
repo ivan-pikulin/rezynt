@@ -86,11 +86,12 @@ export const useChat = (resumeId: string | null) => {
       setMessages(prev => 
         prev.map(msg => 
           msg.id === assistantMessageId 
-            ? { ...msg, content: response.message }
+            ? { ...msg, content: response.response }
             : msg
         )
       );
     } catch (error) {
+      console.error('Chat API error:', error);
       // В случае ошибки показываем сообщение об ошибке
       setMessages(prev => 
         prev.map(msg => 

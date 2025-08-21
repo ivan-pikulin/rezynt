@@ -15,11 +15,11 @@ class PlatformChatflow:
         self.app_url = app_url
         self.timeout = timeout
 
-    async def chat(self, user_id: str, text: str, conversation_id: str = None) -> PlatformMessage:
+    async def chat(self, user_id: str, text: str, conversation_id: str = None, resume_id: str = None) -> PlatformMessage:
         request_data = {
             "query": text,
             "user": user_id,
-            "inputs": {},
+            "inputs": {"resume_id": resume_id} if resume_id else {},
             "response_mode": "blocking",
             "conversation_id": conversation_id or ""
         }
