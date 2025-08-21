@@ -42,24 +42,19 @@ async def send_message(
         timeout=settings.PLATFORM_TIMEOUT
     )
     
-    # Отправляем сообщение
-    try:
-        response = await platform_chatflow.chat(
-            user_id=str(user.id),
-            text=request.message,
-            conversation_id=resume_obj.conversation_id
-        )
-        
-        # Обновляем conversation_id в резюме, если он изменился
-        if response.conversation_id and response.conversation_id != resume_obj.conversation_id:
-            resume_obj.conversation_id = response.conversation_id
-            await resume_crud.update(db, db_obj=resume_obj, obj_in={"conversation_id": response.conversation_id})
-        
-        return {
-            "message": "Message sent successfully",
-            "response": response.text,
-            "conversation_id": response.conversation_id
-        }
-        
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to send message: {str(e)}")
+    response = await platform_chatflow.chat(
+        user_id=str(user.id),
+        text=request.message,
+        conversation_id=resume_obj.conversation_id
+    )
+    
+    # Обновляем conversation_id в резюме, если он изменился
+    if response.conversation_id and response.conversation_id != resume_obj.conversation_id:
+        resume_obj.conversation_id = response.conversation_id
+        await resume_crud.update(db, db_obj=resume_obj, obj_in={"conversation_id": response.conversation_id})
+    
+    return {
+        "message": "Message sent successfully",
+        "response": response.text,
+        "conversation_id": response.conversation_id
+    }
