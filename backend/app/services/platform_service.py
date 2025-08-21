@@ -25,6 +25,7 @@ class PlatformChatflow:
         }
 
         async with httpx.AsyncClient(timeout=httpx.Timeout(self.timeout)) as client:
+            logger.info(f"Send platform request: {self.app_url} with data: {request_data}")
             response = await client.post(
                 self.app_url,
                 json=request_data,
