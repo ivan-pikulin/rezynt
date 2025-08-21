@@ -25,7 +25,9 @@ async def get_user_resumes(
     Only available for users with verified email.
     """
     resumes = await resume_crud.get_all_full_resumes_by_user_id(db, user_id=current_user.id)
-    return resumes
+    # Convert SQLAlchemy models to Pydantic schemas
+    resume_schemas = [ResumeWithTemplate.model_validate(resume) for resume in resumes]
+    return resume_schemas
 
 
 @router.post("/", response_model=ResumeInDB)
@@ -49,7 +51,9 @@ async def create_resume(
     # Create resume with user_id
     resume = await resume_crud.create(db, obj_in=resume_create, user_id=current_user.id)
     
-    return resume
+    # Convert SQLAlchemy model to Pydantic schema
+    resume_schema = ResumeInDB.model_validate(resume)
+    return resume_schema
 
 
 @router.get("/{resume_id}", response_model=ResumeWithTemplate)
@@ -70,7 +74,9 @@ async def get_resume(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Resume not found or access denied"
         )
-    return resume
+    # Convert SQLAlchemy model to Pydantic schema
+    resume_schema = ResumeWithTemplate.model_validate(resume)
+    return resume_schema
 
 
 @router.patch("/{resume_id}", response_model=ResumeInDB)
@@ -115,7 +121,10 @@ async def partial_update_resume(
         )
     
     # Return updated resume
-    return await resume_crud.get_by_user_id_and_id(db, user_id=current_user.id, resume_id=resume_id)
+    updated_resume = await resume_crud.get_by_user_id_and_id(db, user_id=current_user.id, resume_id=resume_id)
+    # Convert SQLAlchemy model to Pydantic schema
+    resume_schema = ResumeInDB.model_validate(updated_resume)
+    return resume_schema
 
 
 @router.put("/{resume_id}", response_model=ResumeInDB)
@@ -139,7 +148,9 @@ async def update_resume(
         )
     
     updated_resume = await resume_crud.update(db, db_obj=resume, obj_in=resume_update)
-    return updated_resume
+    # Convert SQLAlchemy model to Pydantic schema
+    resume_schema = ResumeInDB.model_validate(updated_resume)
+    return resume_schema
 
 
 # Personal Info endpoints
@@ -167,9 +178,15 @@ async def update_personal_info(
         db, resume_id=resume_id, personal_info=personal_info
     )
     
+    # Convert SQLAlchemy model to Pydantic schema if it exists
+    personal_info_schema = None
+    if updated_info:
+        from app.schemas.resume import ResumePersonalInfo
+        personal_info_schema = ResumePersonalInfo.model_validate(updated_info)
+    
     return {
         "resume_id": str(resume_id),
-        "personal_info": updated_info,
+        "personal_info": personal_info_schema,
         "message": "Personal information updated successfully"
     }
 
@@ -197,9 +214,13 @@ async def add_skill(
     
     skill = await resume_manager.add_skill(db, resume_id=resume_id, skill_name=skill_data.name)
     
+    # Convert SQLAlchemy model to Pydantic schema
+    from app.schemas.resume import ResumeSkill
+    skill_schema = ResumeSkill.model_validate(skill)
+    
     return {
         "resume_id": str(resume_id),
-        "skill": skill,
+        "skill": skill_schema,
         "message": "Skill added successfully"
     }
 
@@ -296,9 +317,13 @@ async def add_experience(
     
     experience = await resume_manager.add_experience(db, resume_id=resume_id, experience_data=experience_data)
     
+    # Convert SQLAlchemy model to Pydantic schema
+    from app.schemas.resume import ResumeExperience
+    experience_schema = ResumeExperience.model_validate(experience)
+    
     return {
         "resume_id": str(resume_id),
-        "experience": experience,
+        "experience": experience_schema,
         "message": "Experience added successfully"
     }
 
@@ -336,9 +361,13 @@ async def update_experience(
             detail="Experience not found or does not belong to this resume"
         )
     
+    # Convert SQLAlchemy model to Pydantic schema
+    from app.schemas.resume import ResumeExperience
+    experience_schema = ResumeExperience.model_validate(updated_experience)
+    
     return {
         "resume_id": str(resume_id),
-        "experience": updated_experience,
+        "experience": experience_schema,
         "message": "Experience updated successfully"
     }
 
@@ -435,9 +464,13 @@ async def add_education(
     
     education = await resume_manager.add_education(db, resume_id=resume_id, education_data=education_data)
     
+    # Convert SQLAlchemy model to Pydantic schema
+    from app.schemas.resume import ResumeEducation
+    education_schema = ResumeEducation.model_validate(education)
+    
     return {
         "resume_id": str(resume_id),
-        "education": education,
+        "education": education_schema,
         "message": "Education added successfully"
     }
 
@@ -475,9 +508,13 @@ async def update_education(
             detail="Education not found or does not belong to this resume"
         )
     
+    # Convert SQLAlchemy model to Pydantic schema
+    from app.schemas.resume import ResumeEducation
+    education_schema = ResumeEducation.model_validate(updated_education)
+    
     return {
         "resume_id": str(resume_id),
-        "education": updated_education,
+        "education": education_schema,
         "message": "Education updated successfully"
     }
 
@@ -580,9 +617,13 @@ async def add_export_record(
         export_settings=export_data.export_settings
     )
     
+    # Convert SQLAlchemy model to Pydantic schema
+    from app.schemas.resume import ResumeExport
+    export_schema = ResumeExport.model_validate(export_record)
+    
     return {
         "resume_id": str(resume_id),
-        "export_record": export_record,
+        "export_record": export_schema,
         "message": "Export record added successfully"
     }
 
@@ -608,9 +649,13 @@ async def get_export_history(
     
     export_history = await resume_manager.get_export_history(db, resume_id=resume_id)
     
+    # Convert SQLAlchemy models to Pydantic schemas
+    from app.schemas.resume import ResumeExport
+    export_schemas = [ResumeExport.model_validate(export) for export in export_history]
+    
     return {
         "resume_id": str(resume_id),
-        "export_history": export_history
+        "export_history": export_schemas
     }
 
 
