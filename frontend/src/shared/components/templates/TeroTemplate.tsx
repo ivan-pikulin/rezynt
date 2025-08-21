@@ -1,8 +1,40 @@
 import { Box, Typography } from '@mui/material';
 import React from 'react';
 import { BaseTemplate } from './BaseTemplate';
+import EditableField from './EditableField';
 
 export class TeroTemplate extends BaseTemplate {
+  // Вспомогательный метод для создания редактируемого поля
+  private renderEditableField(
+    fieldPath: string,
+    value: string,
+    style: React.CSSProperties = {},
+    multiline: boolean = false
+  ) {
+    const { isEditing, onFieldEdit, onFieldStartEdit, onFieldEndEdit, editingField } = this.props;
+    
+    if (isEditing && onFieldEdit && onFieldStartEdit && onFieldEndEdit) {
+      return (
+        <EditableField
+          value={value}
+          fieldPath={fieldPath}
+          isEditing={editingField === fieldPath}
+          onStartEdit={onFieldStartEdit}
+          onEndEdit={onFieldEndEdit}
+          onValueChange={onFieldEdit}
+          multiline={multiline}
+          style={style}
+        />
+      );
+    }
+    
+    return (
+      <Box style={style}>
+        {value || 'Click to edit'}
+      </Box>
+    );
+  }
+
   renderTemplate(): React.ReactElement {
     const { data } = this.props;
     
@@ -53,31 +85,31 @@ export class TeroTemplate extends BaseTemplate {
                 clipPath: 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)'
               }
             }}>
-              <Typography 
-                sx={{ 
-                  color: 'white',
-                  fontSize: '16px',
-                  fontWeight: 'bold',
-                  zIndex: 1,
-                  position: 'relative'
-                }}
-              >
-                {data.personalInfo.firstName.charAt(0)}{data.personalInfo.lastName.charAt(0)}
-              </Typography>
+                             <Typography 
+                 sx={{ 
+                   color: 'white',
+                   fontSize: '16px',
+                   fontWeight: 'bold',
+                   zIndex: 1,
+                   position: 'relative'
+                 }}
+               >
+                 {(data.personalInfo.firstName?.charAt(0) || '') + (data.personalInfo.lastName?.charAt(0) || '')}
+               </Typography>
             </Box>
             
             {/* Name */}
-            <Typography 
-              variant="h2" 
-              sx={{ 
+            {this.renderEditableField(
+              'personalInfo.firstName',
+              this.getFullName(),
+              {
                 fontSize: '28px',
                 fontWeight: 'bold',
                 color: '#2c3e50',
-                marginTop: '8px'
-              }}
-            >
-              {this.getFullName().toUpperCase()}
-            </Typography>
+                marginTop: '8px',
+                textTransform: 'uppercase'
+              }
+            )}
           </Box>
 
           {/* Professional Summary */}
@@ -107,16 +139,16 @@ export class TeroTemplate extends BaseTemplate {
                 marginLeft: '10px'
               }} />
             </Box>
-            <Typography 
-              variant="body1" 
-              sx={{ 
+            {this.renderEditableField(
+              'professionalSummary',
+              data.professionalSummary,
+              {
                 fontSize: '14px',
                 lineHeight: 1.7,
                 textAlign: 'justify'
-              }}
-            >
-              {data.professionalSummary}
-            </Typography>
+              },
+              true // multiline
+            )}
           </Box>
 
           {/* Experience */}
@@ -291,29 +323,29 @@ export class TeroTemplate extends BaseTemplate {
           display: 'flex',
           flexDirection: 'column'
         }}>
-          {/* Contact Information */}
-          <Box sx={{ marginBottom: '40px' }}>
-            <Typography 
-              variant="body1" 
-              sx={{ 
-                fontSize: '14px',
-                marginBottom: '8px',
-                fontWeight: '500'
-              }}
-            >
-              {data.personalInfo.phone}
-            </Typography>
-            <Typography 
-              variant="body1" 
-              sx={{ 
-                fontSize: '14px',
-                marginBottom: '8px',
-                fontWeight: '500'
-              }}
-            >
-              W: {data.personalInfo.email}
-            </Typography>
-          </Box>
+                     {/* Contact Information */}
+           <Box sx={{ marginBottom: '40px' }}>
+             {this.renderEditableField(
+               'personalInfo.phone',
+               data.personalInfo.phone,
+               {
+                 fontSize: '14px',
+                 marginBottom: '8px',
+                 fontWeight: '500',
+                 color: 'white'
+               }
+             )}
+             {this.renderEditableField(
+               'personalInfo.email',
+               data.personalInfo.email,
+               {
+                 fontSize: '14px',
+                 marginBottom: '8px',
+                 fontWeight: '500',
+                 color: 'white'
+               }
+             )}
+           </Box>
 
           {/* Skills Section */}
           <Box>

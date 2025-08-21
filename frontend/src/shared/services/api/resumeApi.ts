@@ -289,6 +289,10 @@ export class ResumeApi extends BaseApi {
     return this.put<any>(`/resume/${resumeId}/template/${templateId}`, {});
   }
 
+  async assignTemplateBySlug(resumeId: string, templateSlug: string): Promise<any> {
+    return this.put<any>(`/resume/${resumeId}/template/slug/${templateSlug}`, {});
+  }
+
   // Upload resume file
   async uploadResume(file: File): Promise<any> {
     const formData = new FormData();

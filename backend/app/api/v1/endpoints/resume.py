@@ -789,7 +789,7 @@ async def assign_template_to_resume(
     db: AsyncDB = None
 ) -> Dict[str, Any]:
     """
-    Assign a specific template to a resume.
+    Assign a specific template to a resume by UUID.
     Only available for users with verified email.
     """
     # Check if template exists
@@ -817,5 +817,46 @@ async def assign_template_to_resume(
     return {
         "id": str(updated_resume.id),
         "template_id": str(updated_resume.template_id),
+        "message": "Template assigned successfully"
+    }
+
+
+@router.put("/{resume_id}/template/slug/{template_slug}")
+async def assign_template_by_slug(
+    resume_id: UUID,
+    template_slug: str,
+    current_user: VerifiedUser = None,
+    db: AsyncDB = None
+) -> Dict[str, Any]:
+    """
+    Assign a specific template to a resume by slug.
+    Only available for users with verified email.
+    """
+    # Check if template exists by slug
+    template = await template_crud.get_by_slug(db, slug=template_slug)
+    if not template:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Template not found"
+        )
+    
+    # Check if resume exists and belongs to current user
+    resume = await resume_crud.get_by_user_id_and_id(
+        db, user_id=current_user.id, resume_id=resume_id
+    )
+    if not resume:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Resume not found or access denied"
+        )
+    
+    # Update resume with new template
+    resume_update = ResumeUpdate(template_id=template.id)
+    updated_resume = await resume_crud.update(db, db_obj=resume, obj_in=resume_update)
+    
+    return {
+        "id": str(updated_resume.id),
+        "template_id": str(updated_resume.template_id),
+        "template_slug": template_slug,
         "message": "Template assigned successfully"
     }

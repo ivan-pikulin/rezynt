@@ -1,6 +1,42 @@
 import { TEMPLATE_CONFIGS, TemplateConfig } from '../components/templates';
 import { ResumeData, ExportOptions } from '../types/resume';
 
+// Типы для inline-редактирования
+export interface InlineEditConfig {
+  isEditing: boolean;
+  onFieldEdit?: (fieldPath: string, value: string) => void;
+  onFieldStartEdit?: (fieldPath: string) => void;
+  onFieldEndEdit?: (fieldPath: string) => void;
+  editingField?: string | null;
+}
+
+// Пути к полям для редактирования
+export const FIELD_PATHS = {
+  // Основная информация
+  TITLE: 'title',
+  PROFESSIONAL_SUMMARY: 'professionalSummary',
+  
+  // Личная информация
+  FIRST_NAME: 'personalInfo.firstName',
+  LAST_NAME: 'personalInfo.lastName',
+  MIDDLE_NAME: 'personalInfo.middleName',
+  PHONE: 'personalInfo.phone',
+  EMAIL: 'personalInfo.email',
+  LOCATION: 'personalInfo.location',
+  WEBSITE: 'personalInfo.website',
+  LINKEDIN: 'personalInfo.linkedin',
+  GITHUB: 'personalInfo.github',
+  
+  // Навыки (управляются отдельно)
+  SKILLS: 'skills',
+  
+  // Опыт работы
+  EXPERIENCE: 'experience',
+  
+  // Образование
+  EDUCATION: 'education'
+} as const;
+
 /**
  * Сервис для работы с шаблонами резюме
  */
@@ -147,6 +183,74 @@ export class TemplateService {
     return {
       isValid: errors.length === 0,
       errors
+    };
+  }
+
+  /**
+   * Получить значение поля по пути
+   */
+  static getFieldValue(data: ResumeData, fieldPath: string): string {
+    const pathParts = fieldPath.split('.');
+    let current: any = data;
+    
+    for (const part of pathParts) {
+      if (current && typeof current === 'object' && part in current) {
+        current = current[part];
+      } else {
+        return '';
+      }
+    }
+    
+    return current || '';
+  }
+
+  /**
+   * Установить значение поля по пути
+   */
+  static setFieldValue(data: ResumeData, fieldPath: string, value: string): ResumeData {
+    const pathParts = fieldPath.split('.');
+    const newData = { ...data };
+    let current: any = newData;
+    
+    // Проходим по пути до предпоследнего элемента
+    for (let i = 0; i < pathParts.length - 1; i++) {
+      const part = pathParts[i];
+      if (!(part in current)) {
+        current[part] = {};
+      }
+      current = current[part];
+    }
+    
+    // Устанавливаем значение в последний элемент
+    const lastPart = pathParts[pathParts.length - 1];
+    current[lastPart] = value;
+    
+    return newData;
+  }
+
+  /**
+   * Проверить, является ли поле редактируемым
+   */
+  static isFieldEditable(fieldPath: string): boolean {
+    return Object.values(FIELD_PATHS).includes(fieldPath as any);
+  }
+
+  /**
+   * Получить конфигурацию для inline-редактирования
+   */
+  static getInlineEditConfig(
+    isEditing: boolean,
+    onFieldEdit?: (fieldPath: string, value: string) => void,
+    onFieldStartEdit?: (fieldPath: string) => void,
+    onFieldEndEdit?: (fieldPath: string) => void,
+    editingField?: string | null
+  ): InlineEditConfig {
+    return {
+      isEditing,
+      onFieldEdit,
+      onFieldStartEdit,
+      onFieldEndEdit,
+      editingField
     };
   }
 } 

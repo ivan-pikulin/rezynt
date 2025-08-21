@@ -7,10 +7,12 @@ import { TeroTemplate } from './TeroTemplate';
 import { AltoTemplate } from './AltoTemplate';
 import { VeroTemplate } from './VeroTemplate';
 import { TemplateConfig } from '../../types/resume';
+import EditableField from './EditableField';
 
 export { BaseTemplate };
 export type { BaseTemplateProps, TemplateMethods };
 export { NumeTemplate, LumaTemplate, TeroTemplate, AltoTemplate, VeroTemplate };
+export { EditableField };
 export type { TemplateConfig };
 
 // Конфигурации доступных шаблонов

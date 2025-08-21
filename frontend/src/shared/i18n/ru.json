@@ -43,5 +43,44 @@
         "loginButton": "Войти"
       }
     }
+  },
+  "refine": {
+    "loading": "Загрузка резюме...",
+    "error": {
+      "noResumeId": "ID резюме не указан",
+      "loadError": "Ошибка при загрузке резюме",
+      "notFound": "Резюме не найдено"
+    },
+    "editor": {
+      "title": "Редактирование",
+      "basicInfo": "Основная информация",
+      "personalInfo": "Личная информация",
+      "skills": "Навыки",
+      "experience": "Опыт работы",
+      "education": "Образование",
+      "resumeTitle": "Название резюме",
+      "professionalSummary": "Профессиональное резюме",
+      "firstName": "Имя",
+      "lastName": "Фамилия",
+      "middleName": "Отчество",
+      "email": "Email",
+      "phone": "Телефон",
+      "location": "Местоположение",
+      "website": "Веб-сайт",
+      "linkedin": "LinkedIn",
+      "notFilled": "Не заполнено",
+      "addSkill": "Добавить навык",
+      "editSkill": "Редактировать навык",
+      "skillName": "Название навыка",
+      "save": "Сохранить",
+      "cancel": "Отмена",
+      "delete": "Удалить",
+      "add": "Добавить",
+      "edit": "Редактировать",
+      "comingSoon": "Скоро в следующем обновлении"
+    },
+    "preview": {
+      "title": "Предварительный просмотр резюме"
+    }
   }
 }

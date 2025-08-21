@@ -43,5 +43,44 @@
         "loginButton": "Sign In"
       }
     }
+  },
+  "refine": {
+    "loading": "Loading resume...",
+    "error": {
+      "noResumeId": "Resume ID not specified",
+      "loadError": "Error loading resume",
+      "notFound": "Resume not found"
+    },
+    "editor": {
+      "title": "Edit",
+      "basicInfo": "Basic Information",
+      "personalInfo": "Personal Information",
+      "skills": "Skills",
+      "experience": "Work Experience",
+      "education": "Education",
+      "resumeTitle": "Resume Title",
+      "professionalSummary": "Professional Summary",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "middleName": "Middle Name",
+      "email": "Email",
+      "phone": "Phone",
+      "location": "Location",
+      "website": "Website",
+      "linkedin": "LinkedIn",
+      "notFilled": "Not filled",
+      "addSkill": "Add Skill",
+      "editSkill": "Edit Skill",
+      "skillName": "Skill Name",
+      "save": "Save",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "add": "Add",
+      "edit": "Edit",
+      "comingSoon": "Coming soon in the next update"
+    },
+    "preview": {
+      "title": "Resume Preview"
+    }
   }
 }

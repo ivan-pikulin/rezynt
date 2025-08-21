@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Box,
   TextField,
@@ -32,6 +33,7 @@ interface SkillsEditorProps {
 }
 
 const SkillsEditor: React.FC<SkillsEditorProps> = ({ skills, resumeId, onSkillsUpdate }) => {
+  const { t } = useTranslation();
   const [newSkillName, setNewSkillName] = useState('');
   const [editingSkill, setEditingSkill] = useState<ResumeSkill | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -99,7 +101,7 @@ const SkillsEditor: React.FC<SkillsEditorProps> = ({ skills, resumeId, onSkillsU
         <TextField
           fullWidth
           size="small"
-          placeholder="Введите название навыка"
+          placeholder={t('refine.editor.skillName')}
           value={newSkillName}
           onChange={(e) => setNewSkillName(e.target.value)}
           onKeyPress={(e) => e.key === 'Enter' && handleAddSkill()}
@@ -148,12 +150,12 @@ const SkillsEditor: React.FC<SkillsEditorProps> = ({ skills, resumeId, onSkillsU
 
       {/* Диалог редактирования */}
       <Dialog open={editDialogOpen} onClose={closeEditDialog} maxWidth="sm" fullWidth>
-        <DialogTitle>Редактировать навык</DialogTitle>
+        <DialogTitle>{t('refine.editor.editSkill')}</DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
             margin="dense"
-            label="Название навыка"
+            label={t('refine.editor.skillName')}
             fullWidth
             value={editingSkill?.name || ''}
             onChange={(e) => setEditingSkill(prev => prev ? { ...prev, name: e.target.value } : null)}
@@ -162,10 +164,10 @@ const SkillsEditor: React.FC<SkillsEditorProps> = ({ skills, resumeId, onSkillsU
         </DialogContent>
         <DialogActions>
           <Button onClick={closeEditDialog} disabled={isSaving}>
-            Отмена
+            {t('refine.editor.cancel')}
           </Button>
           <Button onClick={handleEditSkill} disabled={!editingSkill?.name.trim() || isSaving}>
-            Сохранить
+            {t('refine.editor.save')}
           </Button>
         </DialogActions>
       </Dialog>

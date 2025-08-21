@@ -5,6 +5,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import EditIcon from '@mui/icons-material/Edit';
 import CloseIcon from '@mui/icons-material/Close';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import Header from '../../shared/components/Header/Header';
 import ResumeRenderer from '../../shared/components/ResumeRenderer';
 import TemplateSelector from './components/TemplateSelector';
@@ -18,6 +19,7 @@ import { resumeApi } from '../../shared/services/api';
 import { convertApiResumeToDisplayData } from './utils/resumeDataConverter';
 
 const RefinePage: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const resumeId = searchParams.get('resume_id');
@@ -30,12 +32,14 @@ const RefinePage: React.FC = () => {
   const [resume, setResume] = useState<Resume | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isInlineEditing, setIsInlineEditing] = useState(false);
+  const [editingField, setEditingField] = useState<string | null>(null);
 
   // Загружаем данные резюме с сервера
   useEffect(() => {
     const loadResume = async () => {
       if (!resumeId) {
-        setError('ID резюме не указан');
+        setError(t('refine.error.noResumeId'));
         setLoading(false);
         return;
       }
@@ -54,7 +58,7 @@ const RefinePage: React.FC = () => {
         }
       } catch (err) {
         console.error('Error loading resume:', err);
-        setError('Ошибка при загрузке резюме');
+        setError(t('refine.error.loadError'));
       } finally {
         setLoading(false);
       }
@@ -75,7 +79,7 @@ const RefinePage: React.FC = () => {
     // Сохраняем новый шаблон на сервере
     if (resumeId) {
       try {
-        await resumeApi.assignTemplate(resumeId, template.id);
+        await resumeApi.assignTemplateBySlug(resumeId, template.id);
         // Обновляем локальное состояние резюме
         if (resume) {
           setResume({ ...resume, template_id: template.id });
@@ -120,6 +124,58 @@ const RefinePage: React.FC = () => {
     setShowEditor(!showEditor);
   };
 
+  const toggleInlineEditing = () => {
+    setIsInlineEditing(!isInlineEditing);
+    if (isInlineEditing) {
+      setEditingField(null);
+    }
+  };
+
+  // Обработчики для inline-редактирования
+  const handleFieldEdit = async (fieldPath: string, value: string) => {
+    if (!resume) return;
+
+    try {
+      // Определяем, какое поле обновляем и вызываем соответствующий API
+      if (fieldPath === 'title') {
+        await resumeApi.updateResumePartial(resume.id, { title: value });
+      } else if (fieldPath === 'professionalSummary') {
+        await resumeApi.updateResumePartial(resume.id, { professional_summary: value });
+      } else if (fieldPath.startsWith('personalInfo.')) {
+        const fieldName = fieldPath.split('.')[1];
+        const updateData: any = {};
+        updateData[fieldName] = value;
+        await resumeApi.updatePersonalInfo(resume.id, updateData);
+      }
+
+      // Обновляем локальное состояние
+      const updatedResume = { ...resume };
+      if (fieldPath === 'title') {
+        updatedResume.title = value;
+      } else if (fieldPath === 'professionalSummary') {
+        updatedResume.professional_summary = value;
+      } else if (fieldPath.startsWith('personalInfo.')) {
+        const fieldName = fieldPath.split('.')[1];
+        if (updatedResume.personal_info) {
+          updatedResume.personal_info = { ...updatedResume.personal_info, [fieldName]: value };
+        }
+      }
+      
+      setResume(updatedResume);
+    } catch (error) {
+      console.error('Error updating field:', error);
+      // Можно добавить уведомление об ошибке
+    }
+  };
+
+  const handleFieldStartEdit = (fieldPath: string) => {
+    setEditingField(fieldPath);
+  };
+
+  const handleFieldEndEdit = (fieldPath: string) => {
+    setEditingField(null);
+  };
+
   // Если загрузка, показываем индикатор
   if (loading) {
     return (
@@ -127,7 +183,7 @@ const RefinePage: React.FC = () => {
         height: '100vh', 
         bgcolor: '#f5f6fa'
       }}>
-        <LoadingSpinner message="Загрузка резюме..." />
+        <LoadingSpinner message={t('refine.loading')} />
       </Box>
     );
   }
@@ -140,7 +196,7 @@ const RefinePage: React.FC = () => {
         bgcolor: '#f5f6fa'
       }}>
         <ErrorMessage 
-          message={error || 'Резюме не найдено'} 
+          message={error || t('refine.error.notFound')} 
           onRetry={() => window.location.reload()}
         />
       </Box>
@@ -237,27 +293,51 @@ const RefinePage: React.FC = () => {
           bgcolor: 'transparent',
           position: 'relative'
         }}>
-          {/* Кнопка редактирования в верхнем правом углу резюме */}
+          {/* Кнопки редактирования в верхнем правом углу резюме */}
           <Box sx={{
             position: 'absolute',
             top: 20,
             right: 20,
             zIndex: 10,
-            display: showEditor ? 'none' : 'block'
+            display: 'flex',
+            gap: 1
           }}>
+            {/* Кнопка inline-редактирования */}
             <IconButton
-              onClick={toggleEditor}
+              onClick={toggleInlineEditing}
               sx={{
-                bgcolor: 'rgba(255, 255, 255, 0.9)',
+                bgcolor: isInlineEditing ? 'primary.main' : 'rgba(255, 255, 255, 0.9)',
+                color: isInlineEditing ? 'white' : 'inherit',
                 backdropFilter: 'blur(4px)',
                 border: '1px solid rgba(0, 0, 0, 0.1)',
                 boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
                 '&:hover': {
-                  bgcolor: 'rgba(255, 255, 255, 1)',
+                  bgcolor: isInlineEditing ? 'primary.dark' : 'rgba(255, 255, 255, 1)',
                   transform: 'scale(1.05)'
                 },
                 transition: 'all 0.2s ease-in-out'
               }}
+              title={isInlineEditing ? 'Отключить прямое редактирование' : 'Включить прямое редактирование'}
+            >
+              <EditIcon />
+            </IconButton>
+            
+            {/* Кнопка панели редактирования */}
+            <IconButton
+              onClick={toggleEditor}
+              sx={{
+                bgcolor: showEditor ? 'secondary.main' : 'rgba(255, 255, 255, 0.9)',
+                color: showEditor ? 'white' : 'inherit',
+                backdropFilter: 'blur(4px)',
+                border: '1px solid rgba(0, 0, 0, 0.1)',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                '&:hover': {
+                  bgcolor: showEditor ? 'secondary.dark' : 'rgba(255, 255, 255, 1)',
+                  transform: 'scale(1.05)'
+                },
+                transition: 'all 0.2s ease-in-out'
+              }}
+              title={showEditor ? 'Закрыть панель редактирования' : 'Открыть панель редактирования'}
             >
               <EditIcon />
             </IconButton>
@@ -267,6 +347,11 @@ const RefinePage: React.FC = () => {
             data={displayData} 
             scale={1} 
             templateId={selectedTemplate?.id}
+            isEditing={isInlineEditing}
+            onFieldEdit={handleFieldEdit}
+            onFieldStartEdit={handleFieldStartEdit}
+            onFieldEndEdit={handleFieldEndEdit}
+            editingField={editingField}
           />
         </Box>
 
@@ -296,7 +381,7 @@ const RefinePage: React.FC = () => {
             bgcolor: '#f8f9fa'
           }}>
             <Box sx={{ fontSize: '1.1rem', fontWeight: 600, color: '#2c3e50' }}>
-              Редактирование
+              {t('refine.editor.title')}
             </Box>
             <IconButton
               onClick={toggleEditor}
@@ -348,7 +433,7 @@ const RefinePage: React.FC = () => {
           bgcolor: '#f8f9fa'
         }}>
           <Box sx={{ fontSize: '1.1rem', fontWeight: 600, color: '#2c3e50' }}>
-            Resume Preview
+            {t('refine.preview.title')}
           </Box>
           <IconButton
             onClick={togglePreview}
@@ -417,7 +502,7 @@ const RefinePage: React.FC = () => {
           bgcolor: '#f8f9fa'
         }}>
           <Box sx={{ fontSize: '1.1rem', fontWeight: 600, color: '#2c3e50' }}>
-            Редактирование резюме
+            {t('refine.editor.title')}
           </Box>
           <IconButton
             onClick={toggleEditor}

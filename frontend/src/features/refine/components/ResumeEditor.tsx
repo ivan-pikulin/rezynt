@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Box,
   TextField,
@@ -41,6 +42,7 @@ interface EditableField {
 }
 
 const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) => {
+  const { t } = useTranslation();
   const [localResume, setLocalResume] = useState<Resume>(resume);
   const [editableFields, setEditableFields] = useState<Record<string, EditableField>>({});
   const [isSaving, setIsSaving] = useState(false);
@@ -255,7 +257,7 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
               textOverflow: multiline ? 'clip' : 'ellipsis'
             }}
           >
-            {field.value || 'Не заполнено'}
+            {field.value || t('refine.editor.notFilled')}
           </Typography>
         </Box>
         <IconButton
@@ -271,22 +273,20 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
 
   return (
     <Box sx={{ p: 2, maxHeight: '100vh', overflow: 'auto' }}>
-      <Typography variant="h6" sx={{ mb: 3, color: '#2c3e50' }}>
-        Редактирование резюме
-      </Typography>
+
 
       {/* Основная информация */}
       <Accordion defaultExpanded>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
           <Typography variant="subtitle1" fontWeight="bold">
-            Основная информация
+            {t('refine.editor.basicInfo')}
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
-          <EditableField fieldName="title" label="Название резюме" />
+          <EditableField fieldName="title" label={t('refine.editor.resumeTitle')} />
           <EditableField 
             fieldName="professional_summary" 
-            label="Профессиональное резюме" 
+            label={t('refine.editor.professionalSummary')} 
             multiline 
             rows={4}
           />
@@ -297,19 +297,19 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
       <Accordion defaultExpanded>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
           <Typography variant="subtitle1" fontWeight="bold">
-            Личная информация
+            {t('refine.editor.personalInfo')}
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
           <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
-            <EditableField fieldName="first_name" label="Имя" />
-            <EditableField fieldName="last_name" label="Фамилия" />
-            <EditableField fieldName="middle_name" label="Отчество" />
-            <EditableField fieldName="phone" label="Телефон" type="tel" />
-            <EditableField fieldName="email" label="Email" type="email" />
-            <EditableField fieldName="location" label="Местоположение" />
-            <EditableField fieldName="website" label="Веб-сайт" type="url" />
-            <EditableField fieldName="linkedin" label="LinkedIn" type="url" />
+            <EditableField fieldName="first_name" label={t('refine.editor.firstName')} />
+            <EditableField fieldName="last_name" label={t('refine.editor.lastName')} />
+            <EditableField fieldName="middle_name" label={t('refine.editor.middleName')} />
+            <EditableField fieldName="phone" label={t('refine.editor.phone')} type="tel" />
+            <EditableField fieldName="email" label={t('refine.editor.email')} type="email" />
+            <EditableField fieldName="location" label={t('refine.editor.location')} />
+            <EditableField fieldName="website" label={t('refine.editor.website')} type="url" />
+            <EditableField fieldName="linkedin" label={t('refine.editor.linkedin')} type="url" />
             <EditableField fieldName="github" label="GitHub" type="url" />
           </Box>
         </AccordionDetails>
@@ -319,7 +319,7 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
       <Accordion>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
           <Typography variant="subtitle1" fontWeight="bold">
-            Навыки ({localResume.skills?.length || 0})
+            {t('refine.editor.skills')} ({localResume.skills?.length || 0})
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
@@ -338,12 +338,12 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
       <Accordion>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
           <Typography variant="subtitle1" fontWeight="bold">
-            Опыт работы ({localResume.experience?.length || 0})
+            {t('refine.editor.experience')} ({localResume.experience?.length || 0})
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            Редактирование опыта работы будет добавлено в следующем обновлении
+            {t('refine.editor.comingSoon')}
           </Typography>
           {localResume.experience?.map((exp) => (
             <Box key={exp.id} sx={{ mb: 2, p: 2, border: '1px solid #e0e0e0', borderRadius: 1 }}>
@@ -362,12 +362,12 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
       <Accordion>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
           <Typography variant="subtitle1" fontWeight="bold">
-            Образование ({localResume.education?.length || 0})
+            {t('refine.editor.education')} ({localResume.education?.length || 0})
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            Редактирование образования будет добавлено в следующем обновлении
+            {t('refine.editor.comingSoon')}
           </Typography>
           {localResume.education?.map((edu) => (
             <Box key={edu.id} sx={{ mb: 2, p: 2, border: '1px solid #e0e0e0', borderRadius: 1 }}>
