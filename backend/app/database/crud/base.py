@@ -1,4 +1,5 @@
 from typing import Any, Dict, Generic, List, Optional, Type, TypeVar, Union
+from datetime import date, datetime
 
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
@@ -32,8 +33,32 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         result = await db.execute(select(self.model).offset(skip).limit(limit))
         return result.scalars().all()
 
+    def _convert_date_fields(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Convert string dates back to date objects for SQLAlchemy"""
+        converted_data = {}
+        for key, value in data.items():
+            if key in ['start_date', 'end_date', 'graduation_date']:
+                if isinstance(value, str):
+                    try:
+                        # Try to parse as date
+                        converted_data[key] = datetime.strptime(value, "%Y-%m-%d").date()
+                    except ValueError:
+                        # If it's not a valid date string, keep as is
+                        converted_data[key] = value
+                elif isinstance(value, date):
+                    # Already a date object, keep as is
+                    converted_data[key] = value
+                else:
+                    # Keep other types as is
+                    converted_data[key] = value
+            else:
+                converted_data[key] = value
+        return converted_data
+
     async def create(self, db: AsyncSession, *, obj_in: CreateSchemaType) -> ModelType:
         obj_in_data = jsonable_encoder(obj_in)
+        # Convert date strings back to date objects
+        obj_in_data = self._convert_date_fields(obj_in_data)
         db_obj = self.model(**obj_in_data)
         db.add(db_obj)
         await db.commit()
@@ -52,6 +77,10 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             update_data = obj_in
         else:
             update_data = obj_in.model_dump(exclude_unset=True)
+        
+        # Convert date strings back to date objects
+        update_data = self._convert_date_fields(update_data)
+        
         for field in obj_data:
             if field in update_data:
                 setattr(db_obj, field, update_data[field])

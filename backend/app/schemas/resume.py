@@ -1,9 +1,23 @@
 from datetime import datetime, date
-from typing import Any, Dict, Optional, List
+from typing import Any, Dict, Optional, List, Union
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from app.schemas.template import Template
+
+
+def parse_date(value: Union[str, date, None]) -> Optional[date]:
+    """Parse date from string or return date object"""
+    if value is None:
+        return None
+    if isinstance(value, date):
+        return value
+    if isinstance(value, str):
+        try:
+            return datetime.strptime(value, "%Y-%m-%d").date()
+        except ValueError:
+            raise ValueError(f"Invalid date format: {value}. Expected YYYY-MM-DD")
+    raise ValueError(f"Invalid date type: {type(value)}")
 
 
 # Personal Info Schemas
@@ -48,9 +62,6 @@ class ResumeSkillCreate(BaseModel):
     order_index: Optional[int] = None
 
 
-
-
-
 class ResumeSkillUpdate(BaseModel):
     name: Optional[str] = None
     order_index: Optional[int] = None
@@ -74,6 +85,16 @@ class ResumeExperienceBase(BaseModel):
     responsibilities: Optional[List[str]] = None
     order_index: Optional[int] = 0
 
+    @field_validator('start_date', mode='before')
+    @classmethod
+    def validate_start_date(cls, v):
+        return parse_date(v)
+
+    @field_validator('end_date', mode='before')
+    @classmethod
+    def validate_end_date(cls, v):
+        return parse_date(v)
+
 
 class ResumeExperienceCreate(BaseModel):
     job_title: str
@@ -86,8 +107,15 @@ class ResumeExperienceCreate(BaseModel):
     resume_id: Optional[UUID] = None
     order_index: Optional[int] = None
 
+    @field_validator('start_date', mode='before')
+    @classmethod
+    def validate_start_date(cls, v):
+        return parse_date(v)
 
-
+    @field_validator('end_date', mode='before')
+    @classmethod
+    def validate_end_date(cls, v):
+        return parse_date(v)
 
 
 class ResumeExperienceUpdate(BaseModel):
@@ -99,6 +127,16 @@ class ResumeExperienceUpdate(BaseModel):
     is_current: Optional[bool] = None
     responsibilities: Optional[List[str]] = None
     order_index: Optional[int] = None
+
+    @field_validator('start_date', mode='before')
+    @classmethod
+    def validate_start_date(cls, v):
+        return parse_date(v)
+
+    @field_validator('end_date', mode='before')
+    @classmethod
+    def validate_end_date(cls, v):
+        return parse_date(v)
 
 
 class ResumeExperience(ResumeExperienceBase):
@@ -116,6 +154,11 @@ class ResumeEducationBase(BaseModel):
     graduation_date: Optional[date] = None
     order_index: Optional[int] = 0
 
+    @field_validator('graduation_date', mode='before')
+    @classmethod
+    def validate_graduation_date(cls, v):
+        return parse_date(v)
+
 
 class ResumeEducationCreate(BaseModel):
     degree: str
@@ -125,8 +168,10 @@ class ResumeEducationCreate(BaseModel):
     resume_id: Optional[UUID] = None
     order_index: Optional[int] = None
 
-
-
+    @field_validator('graduation_date', mode='before')
+    @classmethod
+    def validate_graduation_date(cls, v):
+        return parse_date(v)
 
 
 class ResumeEducationUpdate(BaseModel):
@@ -135,6 +180,11 @@ class ResumeEducationUpdate(BaseModel):
     location: Optional[str] = None
     graduation_date: Optional[date] = None
     order_index: Optional[int] = None
+
+    @field_validator('graduation_date', mode='before')
+    @classmethod
+    def validate_graduation_date(cls, v):
+        return parse_date(v)
 
 
 class ResumeEducation(ResumeEducationBase):
@@ -156,9 +206,6 @@ class ResumeExportCreate(BaseModel):
     file_size: Optional[int] = None
     export_settings: Optional[Dict[str, Any]] = None
     resume_id: Optional[UUID] = None
-
-
-
 
 
 class ResumeExportUpdate(BaseModel):
