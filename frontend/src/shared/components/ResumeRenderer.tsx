@@ -11,11 +11,6 @@ interface ResumeRendererProps {
   scale?: number; // Добавляем поддержку масштабирования
   fitToContainer?: boolean; // Новый проп для адаптивного масштабирования
   debug?: boolean; // Отладочный режим
-  isEditing?: boolean; // Режим inline-редактирования
-  onFieldEdit?: (fieldPath: string, value: string) => void; // Callback для редактирования полей
-  onFieldStartEdit?: (fieldPath: string) => void; // Callback для начала редактирования
-  onFieldEndEdit?: (fieldPath: string) => void; // Callback для завершения редактирования
-  editingField?: string | null; // Текущее редактируемое поле
 }
 
 const ResumeRenderer: React.FC<ResumeRendererProps> = ({ 
@@ -25,12 +20,7 @@ const ResumeRenderer: React.FC<ResumeRendererProps> = ({
   onExport,
   scale = 1,
   fitToContainer = true,
-  debug = false,
-  isEditing = false,
-  onFieldEdit,
-  onFieldStartEdit,
-  onFieldEndEdit,
-  editingField = null
+  debug = false
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [calculatedScale, setCalculatedScale] = useState(scale);
@@ -102,12 +92,7 @@ const ResumeRenderer: React.FC<ResumeRendererProps> = ({
     data,
     isPreview,
     onExport,
-    scale: calculatedScale,
-    isEditing,
-    onFieldEdit,
-    onFieldStartEdit,
-    onFieldEndEdit,
-    editingField
+    scale: calculatedScale
   });
 
 

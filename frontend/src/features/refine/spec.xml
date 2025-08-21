@@ -13,10 +13,6 @@
         │   ├── TemplateThumbnail.tsx   # Individual template card with A4 proportions
         │   ├── ResumeEditor.tsx        # Full resume editor with all editable fields
         │   └── SkillsEditor.tsx        # Skills management component
-        ├── shared/
-        │   └── templates/
-        │       ├── EditableField.tsx   # Inline editing component for resume fields
-        │       └── types.ts            # Extended types for inline editing
         ├── utils/
         │   └── resumeDataConverter.ts  # Data conversion between API and display formats
         ├── RefinePage.tsx              # Main refine page with editor and preview
@@ -42,7 +38,6 @@
                 <feature name="error_handling" desc="Displays loading states and error messages" />
                 <feature name="edit_button_position" desc="Edit button positioned in top-right corner of resume preview" />
                 <feature name="i18n_support" desc="Full internationalization support for English and Russian languages" />
-                <feature name="inline_editing" desc="Direct editing of resume fields within the resume preview" />
             </features>
             <mobile_features>
                 <feature name="full_screen_templates" desc="Template selector takes full screen on mobile" />
@@ -72,7 +67,6 @@
                 <feature name="undo_functionality" desc="Ability to cancel edits and revert changes" />
                 <feature name="save_notifications" desc="Success/error notifications for save operations" />
                 <feature name="i18n_labels" desc="All field labels and messages use i18n translations" />
-                <feature name="inline_field_editing" desc="Click-to-edit fields with real-time server updates" />
             </features>
             <sections>
                 <section name="basic_info" desc="Title and professional summary" />
