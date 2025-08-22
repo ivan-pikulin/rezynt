@@ -54,24 +54,11 @@ const TemplateSelector: React.FC<TemplateSelectorProps> = ({ onTemplateChange, h
 
   return (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      {/* Заголовок */}
-      <Typography 
-        variant="h6" 
-        sx={{ 
-          mb: 3,
-          fontWeight: 600,
-          color: '#2c3e50',
-          textAlign: 'center'
-        }}
-      >
-        Choose Template
-      </Typography>
-      
-      {/* Сетка шаблонов - 2 столбца */}
+      {/* Сетка шаблонов - 1 столбец */}
       <Box sx={{ 
         flex: 1,
-        display: 'grid',
-        gridTemplateColumns: '1fr 1fr',
+        display: 'flex',
+        flexDirection: 'column',
         gap: 1.5,
         overflowY: 'auto',
         p: 1,

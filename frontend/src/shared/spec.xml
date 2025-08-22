@@ -7,6 +7,118 @@
   
   <components>
     <component>
+      <name>HomeRedirect</name>
+      <description>
+        Компонент для умного перенаправления пользователей на главную страницу.
+        Проверяет наличие резюме у пользователя и перенаправляет на соответствующую страницу:
+        - Если у пользователя есть резюме → /resumes
+        - Если у пользователя нет резюме → /start
+        - Если пользователь не аутентифицирован → /auth
+      </description>
+      
+      <features>
+        <feature>
+          <name>Умное перенаправление</name>
+          <description>
+            Автоматически определяет куда перенаправить пользователя на основе его данных
+          </description>
+        </feature>
+        
+        <feature>
+          <name>Обработка загрузки</name>
+          <description>
+            Показывает красивый экран загрузки во время проверки аутентификации и загрузки данных о резюме
+          </description>
+        </feature>
+        
+        <feature>
+          <name>Защита маршрутов</name>
+          <description>
+            Работает только с аутентифицированными пользователями через ProtectedRoute
+          </description>
+        </feature>
+      </features>
+      
+             <technical_details>
+         <detail>
+           <name>Зависимости</name>
+           <value>useAuthContext, useResumes, React Router Navigate</value>
+         </detail>
+         
+         <detail>
+           <name>Состояния загрузки</name>
+           <value>authLoading, resumesLoading</value>
+         </detail>
+         
+         <detail>
+           <name>Логика перенаправления</name>
+           <value>Проверка isAuthenticated → Проверка наличия резюме → Перенаправление</value>
+         </detail>
+       </technical_details>
+     </component>
+     
+     <component>
+       <name>useResumeQuery</name>
+       <description>
+         Хук для работы с данными резюме с использованием React Query.
+         Обеспечивает кеширование данных и синхронизацию между компонентами.
+         Позволяет избежать повторных запросов к серверу при переключении между страницами.
+       </description>
+       
+       <features>
+         <feature>
+           <name>Кеширование данных</name>
+           <description>
+             Автоматически кеширует данные резюме на 5 минут (staleTime) и хранит в памяти 10 минут (gcTime)
+           </description>
+         </feature>
+         
+         <feature>
+           <name>Синхронизация между компонентами</name>
+           <description>
+             Все компоненты, использующие этот хук, автоматически получают обновленные данные
+           </description>
+         </feature>
+         
+         <feature>
+           <name>Оптимизация запросов</name>
+           <description>
+             Не делает повторные запросы при монтировании компонента, если данные уже есть в кеше
+           </description>
+         </feature>
+         
+         <feature>
+           <name>Управление кешем</name>
+           <description>
+             Предоставляет функции для обновления и инвалидации кеша
+           </description>
+         </feature>
+       </features>
+       
+       <technical_details>
+         <detail>
+           <name>Зависимости</name>
+           <value>@tanstack/react-query, resumeApi</value>
+         </detail>
+         
+         <detail>
+           <name>Время кеширования</name>
+           <value>staleTime: 5 минут, gcTime: 10 минут</value>
+         </detail>
+         
+         <detail>
+           <name>Ключ кеша</name>
+           <value>['resume', resumeId]</value>
+         </detail>
+         
+         <detail>
+           <name>Функции управления</name>
+           <value>refreshResume, updateResumeInCache, invalidateResume</value>
+         </detail>
+       </technical_details>
+    </component>
+    
+    <component>
       <name>ResumeRenderer</name>
       <description>
         Основной компонент для рендеринга резюме с поддержкой адаптивного масштабирования.

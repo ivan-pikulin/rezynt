@@ -7,13 +7,16 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import Header from '../../shared/components/Header/Header';
 import ChatWindow from './components/ChatWindow';
 import ResumeRenderer from '../../shared/components/ResumeRenderer';
-import { TemplateService } from '../../shared/services/templateService';
+import { useResumeQuery } from '../../shared/hooks/useResumeQuery';
+import { useTemplate } from '../../shared/hooks/useTemplate';
+import { convertApiResumeToResumeData } from '../../shared/utils/resumeDataConverter';
 
 const ChatPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const resumeId = searchParams.get('resume_id');
-  const demoData = TemplateService.createDemoData();
+  const { resume: resumeData, refreshResume } = useResumeQuery(resumeId);
+  const { selectedTemplate } = useTemplate(resumeId);
   const [showPreview, setShowPreview] = useState(false);
 
   const handleNext = () => {
@@ -119,7 +122,7 @@ const ChatPage: React.FC = () => {
             display: 'flex', 
             flexDirection: 'column' 
           }}>
-            <ChatWindow resumeId={resumeId} />
+            <ChatWindow resumeId={resumeId} onResumeUpdate={refreshResume} />
           </Box>
           
           {/* Правая часть: превью (скрыто на мобильных по умолчанию) */}
@@ -140,9 +143,15 @@ const ChatPage: React.FC = () => {
               alignItems: 'flex-start',
               position: 'relative',
               overflow: 'hidden',
-              '--resume-scale': '0.55' // Увеличиваем масштаб с 0.45 до 0.55
+              '--resume-scale': '0.4' // Уменьшаем масштаб для лучшего размещения
             }}>
-              <ResumeRenderer data={demoData} scale={0.55} />
+              {resumeData && (
+                <ResumeRenderer 
+                  data={convertApiResumeToResumeData(resumeData)} 
+                  scale={0.4}
+                  templateId={selectedTemplate?.id}
+                />
+              )}
             </Box>
           </Box>
         </Box>
@@ -206,9 +215,15 @@ const ChatPage: React.FC = () => {
             alignItems: 'flex-start',
             position: 'relative',
             overflow: 'hidden',
-            '--resume-scale': '0.8' // Увеличиваем масштаб с 0.7 до 0.8
+            '--resume-scale': '0.6' // Уменьшаем масштаб для лучшего размещения
           }}>
-            <ResumeRenderer data={demoData} scale={0.8} />
+            {resumeData && (
+              <ResumeRenderer 
+                data={convertApiResumeToResumeData(resumeData)} 
+                scale={0.6}
+                templateId={selectedTemplate?.id}
+              />
+            )}
           </Box>
         </Box>
       </Box>

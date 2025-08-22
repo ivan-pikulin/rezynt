@@ -1,4 +1,9 @@
 {
+  "common": {
+    "save": "Save",
+    "saving": "Saving...",
+    "cancel": "Cancel"
+  },
   "auth": {
     "login": {
       "title": "Sign In",
@@ -66,8 +71,6 @@
       "email": "Email",
       "phone": "Phone",
       "location": "Location",
-      "website": "Website",
-      "linkedin": "LinkedIn",
       "notFilled": "Not filled",
       "addSkill": "Add Skill",
       "editSkill": "Edit Skill",
@@ -77,7 +80,26 @@
       "delete": "Delete",
       "add": "Add",
       "edit": "Edit",
-      "comingSoon": "Coming soon in the next update"
+      "comingSoon": "Coming soon in the next update",
+      "addExperience": "Add Experience",
+      "editExperience": "Edit Experience",
+      "noExperience": "No work experience added yet",
+      "addFirstExperience": "Add Your First Experience",
+      "jobTitle": "Job Title",
+      "company": "Company",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "currentPosition": "Current Position",
+      "responsibilities": "Responsibilities",
+      "addResponsibility": "Add responsibility",
+      "present": "Present",
+      "addEducation": "Add Education",
+      "editEducation": "Edit Education",
+      "noEducation": "No education added yet",
+      "addFirstEducation": "Add Your First Education",
+      "degree": "Degree",
+      "institution": "Institution",
+      "graduationDate": "Graduation Date"
     },
     "preview": {
       "title": "Resume Preview"

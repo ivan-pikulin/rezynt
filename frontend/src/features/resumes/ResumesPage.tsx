@@ -125,15 +125,21 @@ const ResumesPage: React.FC = () => {
           My Resumes
         </Typography>
         
-        <Grid container spacing={3} justifyContent="center">
+        <Box sx={{ 
+          display: 'flex', 
+          flexDirection: 'row',
+          flexWrap: 'wrap',
+          gap: 3,
+          justifyContent: 'center',
+          alignItems: 'flex-start'
+        }}>
           {/* Карточки резюме */}
           {Array.isArray(resumes) && resumes.map((resume: any) => (
-            <Grid item xs={12} sm={6} md={4} lg={3} key={resume.id}>
-              <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-                <Card 
+            <Box key={resume.id}>
+                              <Card 
                   sx={{ 
-                    width: '260px',
-                    height: '400px',
+                    width: '140px',
+                    height: '200px',
                     cursor: 'pointer',
                     transition: 'all 0.3s ease',
                     bgcolor: '#fafafa',
@@ -143,64 +149,58 @@ const ResumesPage: React.FC = () => {
                       boxShadow: '0 8px 25px rgba(0, 0, 0, 0.15)'
                     }
                   }}
-                  onClick={() => handleResumeClick(resume.id)}
-                >
-                  <CardContent sx={{ 
-                    height: '100%', 
-                    display: 'flex', 
-                    flexDirection: 'column',
+                onClick={() => handleResumeClick(resume.id)}
+              >
+                <CardContent sx={{ 
+                  height: '100%', 
+                  display: 'flex', 
+                  flexDirection: 'column',
+                  p: 1
+                }}>
+                  {/* Название резюме вверху */}
+                                     <Typography 
+                     variant="h6" 
+                     component="h2" 
+                     sx={{ 
+                       fontWeight: 600,
+                       color: '#2c3e50',
+                       mb: 1,
+                       textAlign: 'center',
+                       fontSize: '0.9rem'
+                     }}
+                   >
+                     {resume.title}
+                   </Typography>
+                  
+                  {/* Превью резюме */}
+                  <Box sx={{ 
+                    flex: 1,
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    overflow: 'hidden',
+                    borderRadius: '4px',
+                    bgcolor: '#fafafa',
                     p: 1
                   }}>
-                    {/* Название резюме вверху */}
-                    <Typography 
-                      variant="h6" 
-                      component="h2" 
-                      sx={{ 
-                        fontWeight: 600,
-                        color: '#2c3e50',
-                        mb: 1,
-                        textAlign: 'center',
-                        fontSize: '1.2rem'
-                      }}
-                    >
-                      {resume.title}
-                    </Typography>
-                    
-                    {/* Превью резюме */}
-                    <Box sx={{ 
-                      flex: 1,
-                      display: 'flex',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      overflow: 'hidden',
-                      borderRadius: '4px',
-                      bgcolor: '#fafafa',
-                      p: 1
-                    }}>
-                      <ResumeRenderer 
-                        data={convertResumeToDemoData(resume)} 
-                        scale={0.30} 
-                        templateId={resume.template?.slug || 'tero'}
-                        fitToContainer={false}
-                      />
-                    </Box>
-                  </CardContent>
-                </Card>
-              </Box>
-            </Grid>
+                    <ResumeRenderer 
+                      data={convertResumeToDemoData(resume)} 
+                      scale={0.19} 
+                      templateId={resume.template?.slug || 'tero'}
+                      fitToContainer={false}
+                    />
+                  </Box>
+                </CardContent>
+              </Card>
+            </Box>
           ))}
           
           {/* Карточка добавления нового резюме */}
-          <Box sx={{ 
-            display: 'flex', 
-            justifyContent: 'center', 
-            width: '100%',
-            mt: 3
-          }}>
+          <Box>
             <Card 
               sx={{ 
-                width: '260px',
-                height: '400px',
+                width: '140px',
+                height: '200px',
                 cursor: 'pointer',
                 transition: 'all 0.3s ease',
                 border: '2px dashed #ddd',
@@ -223,9 +223,9 @@ const ResumesPage: React.FC = () => {
                 p: 2
               }}>
                 <AddIcon sx={{ 
-                  fontSize: 48, 
+                  fontSize: 28, 
                   color: '#1976d2',
-                  mb: 2
+                  mb: 1
                 }} />
                 <Typography 
                   variant="h6" 
@@ -233,7 +233,8 @@ const ResumesPage: React.FC = () => {
                   sx={{ 
                     fontWeight: 600,
                     color: '#1976d2',
-                    textAlign: 'center'
+                    textAlign: 'center',
+                    fontSize: '0.9rem'
                   }}
                 >
                   Create New Resume
@@ -241,14 +242,14 @@ const ResumesPage: React.FC = () => {
                 <Typography 
                   variant="body2" 
                   color="text.secondary"
-                  sx={{ textAlign: 'center', mt: 1 }}
+                  sx={{ textAlign: 'center', mt: 1, fontSize: '0.75rem' }}
                 >
                   Start building your next resume
                 </Typography>
-              </CardContent>
-            </Card>
-          </Box>
-        </Grid>
+                             </CardContent>
+             </Card>
+           </Box>
+         </Box>
       </Box>
     </Box>
   );

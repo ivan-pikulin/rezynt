@@ -1,91 +1,47 @@
-import { useState, useCallback } from 'react';
-import { ResumeData } from '../types/resume';
+import { useState, useEffect } from 'react';
+import { TemplateConfig } from '../types/resume';
 import { TemplateService } from '../services/templateService';
 
-/**
- * Хук для работы с шаблонами резюме
- */
-export const useTemplate = () => {
-  const [selectedTemplateId, setSelectedTemplateId] = useState<string>('tero');
-  const [resumeData, setResumeData] = useState<ResumeData>(TemplateService.createDemoData());
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+const TEMPLATE_STORAGE_KEY = 'selected_resume_template';
 
-  /**
-   * Получить все доступные шаблоны
-   */
-  const getTemplates = useCallback(() => {
-    return TemplateService.getTemplates();
-  }, []);
-
-  /**
-   * Получить текущий выбранный шаблон
-   */
-  const getCurrentTemplate = useCallback(() => {
-    return TemplateService.getTemplateById(selectedTemplateId);
-  }, [selectedTemplateId]);
-
-  /**
-   * Изменить выбранный шаблон
-   */
-  const selectTemplate = useCallback((templateId: string) => {
-    setSelectedTemplateId(templateId);
-    setError(null);
-  }, []);
-
-  /**
-   * Обновить данные резюме
-   */
-  const updateResumeData = useCallback((newData: Partial<ResumeData>) => {
-    setResumeData(prev => ({ ...prev, ...newData }));
-    setError(null);
-  }, []);
-
-  /**
-   * Валидировать данные резюме
-   */
-  const validateData = useCallback(() => {
-    const validation = TemplateService.validateResumeData(resumeData);
-    if (!validation.isValid) {
-      setError(validation.errors.join(', '));
-    } else {
-      setError(null);
+export const useTemplate = (resumeId?: string | null) => {
+  const [selectedTemplate, setSelectedTemplate] = useState<TemplateConfig | null>(() => {
+    // Инициализируем из localStorage или используем дефолтный шаблон
+    if (resumeId) {
+      const stored = localStorage.getItem(`${TEMPLATE_STORAGE_KEY}_${resumeId}`);
+      if (stored) {
+        try {
+          const template = JSON.parse(stored);
+          return TemplateService.getTemplateById(template.id) || TemplateService.getTemplates()[0];
+        } catch (error) {
+          console.error('Error parsing stored template:', error);
+        }
+      }
     }
-    return validation.isValid;
-  }, [resumeData]);
+    return TemplateService.getTemplates()[0];
+  });
 
-  /**
-   * Сбросить данные к демо
-   */
-  const resetToDemo = useCallback(() => {
-    setResumeData(TemplateService.createDemoData());
-    setError(null);
-  }, []);
+  // Сохраняем в localStorage при изменении
+  useEffect(() => {
+    if (resumeId && selectedTemplate) {
+      localStorage.setItem(`${TEMPLATE_STORAGE_KEY}_${resumeId}`, JSON.stringify(selectedTemplate));
+    }
+  }, [selectedTemplate, resumeId]);
 
-  /**
-   * Очистить ошибки
-   */
-  const clearError = useCallback(() => {
-    setError(null);
-  }, []);
+  // Функция для обновления шаблона
+  const updateTemplate = (template: TemplateConfig) => {
+    setSelectedTemplate(template);
+  };
+
+  // Функция для сброса к дефолтному шаблону
+  const resetTemplate = () => {
+    const defaultTemplate = TemplateService.getTemplates()[0];
+    setSelectedTemplate(defaultTemplate);
+  };
 
   return {
-    // Состояние
-    selectedTemplateId,
-    resumeData,
-    isLoading,
-    error,
-    
-    // Методы
-    getTemplates,
-    getCurrentTemplate,
-    selectTemplate,
-    updateResumeData,
-    validateData,
-    resetToDemo,
-    clearError,
-    
-    // Утилиты
-    isDataValid: TemplateService.validateResumeData(resumeData).isValid
+    selectedTemplate,
+    updateTemplate,
+    resetTemplate
   };
 }; 

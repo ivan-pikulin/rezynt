@@ -1,46 +1,32 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useTranslation } from 'react-i18next';
 import {
-  Box,
-  TextField,
-  Typography,
-  Tabs,
-  Tab,
-  IconButton,
-  Button,
-  Chip,
-  Divider,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Switch,
-  FormControlLabel,
-  Alert,
-  Snackbar
-} from '@mui/material';
-import {
-  Add as AddIcon,
-  Delete as DeleteIcon,
-  Save as SaveIcon,
   Person as PersonIcon,
-  Work as WorkIcon,
+  Save as SaveIcon,
   School as SchoolIcon,
-  Psychology as SkillsIcon
+  Psychology as SkillsIcon,
+  Work as WorkIcon
 } from '@mui/icons-material';
-import { Resume } from '../../../shared/services/api/types';
+import {
+  Alert,
+  Box,
+  Button,
+  Divider,
+  Snackbar,
+  Tab,
+  Tabs,
+  TextField,
+  Typography
+} from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { resumeApi } from '../../../shared/services/api';
+import { Resume } from '../../../shared/services/api/types';
+import EducationEditor from './EducationEditor';
+import ExperienceEditor from './ExperienceEditor';
 import SkillsEditor from './SkillsEditor';
 
 interface ResumeEditorProps {
   resume: Resume;
   onResumeUpdate: (resume: Resume) => void;
-}
-
-interface EditableField {
-  value: string;
-  isEditing: boolean;
-  originalValue: string;
 }
 
 interface TabPanelProps {
@@ -79,7 +65,20 @@ function a11yProps(index: number) {
 const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) => {
   const { t } = useTranslation();
   const [localResume, setLocalResume] = useState<Resume>(resume);
-  const [editableFields, setEditableFields] = useState<Record<string, EditableField>>({});
+  const [formData, setFormData] = useState({
+    // Основные поля
+    title: resume.title,
+    professional_summary: resume.professional_summary || '',
+    
+    // Личная информация
+    first_name: resume.personal_info?.first_name || '',
+    last_name: resume.personal_info?.last_name || '',
+    middle_name: resume.personal_info?.middle_name || '',
+    phone: resume.personal_info?.phone || '',
+    email: resume.personal_info?.email || '',
+    location: resume.personal_info?.location || ''
+  });
+  
   const [isSaving, setIsSaving] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
   const [saveStatus, setSaveStatus] = useState<{ show: boolean; message: string; severity: 'success' | 'error' }>({
@@ -88,49 +87,30 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
     severity: 'success'
   });
 
-  // Инициализация редактируемых полей
+  // Обновляем локальное состояние при изменении резюме
   useEffect(() => {
-    const fields: Record<string, EditableField> = {};
-    
-    // Основные поля
-    fields['title'] = { value: resume.title, isEditing: false, originalValue: resume.title };
-    fields['professional_summary'] = { value: resume.professional_summary || '', isEditing: false, originalValue: resume.professional_summary || '' };
-    
-    // Личная информация
-    if (resume.personal_info) {
-      fields['first_name'] = { value: resume.personal_info.first_name, isEditing: false, originalValue: resume.personal_info.first_name };
-      fields['last_name'] = { value: resume.personal_info.last_name, isEditing: false, originalValue: resume.personal_info.last_name };
-      fields['middle_name'] = { value: resume.personal_info.middle_name || '', isEditing: false, originalValue: resume.personal_info.middle_name || '' };
-      fields['phone'] = { value: resume.personal_info.phone || '', isEditing: false, originalValue: resume.personal_info.phone || '' };
-      fields['email'] = { value: resume.personal_info.email || '', isEditing: false, originalValue: resume.personal_info.email || '' };
-      fields['location'] = { value: resume.personal_info.location || '', isEditing: false, originalValue: resume.personal_info.location || '' };
-      fields['website'] = { value: resume.personal_info.website || '', isEditing: false, originalValue: resume.personal_info.website || '' };
-      fields['linkedin'] = { value: resume.personal_info.linkedin || '', isEditing: false, originalValue: resume.personal_info.linkedin || '' };
-      fields['github'] = { value: resume.personal_info.github || '', isEditing: false, originalValue: resume.personal_info.github || '' };
-    }
-    
-    setEditableFields(fields);
+    setLocalResume(resume);
+    setFormData({
+      title: resume.title,
+      professional_summary: resume.professional_summary || '',
+      first_name: resume.personal_info?.first_name || '',
+      last_name: resume.personal_info?.last_name || '',
+      middle_name: resume.personal_info?.middle_name || '',
+      phone: resume.personal_info?.phone || '',
+      email: resume.personal_info?.email || '',
+      location: resume.personal_info?.location || ''
+    });
   }, [resume]);
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setActiveTab(newValue);
   };
 
-  // Функция для начала редактирования поля
-  const startEditing = (fieldName: string) => {
-    setEditableFields(prev => ({
+  // Обработчик изменения полей формы
+  const handleFieldChange = (fieldName: string, value: string) => {
+    setFormData(prev => ({
       ...prev,
-      [fieldName]: { ...prev[fieldName], isEditing: true }
-    }));
-  };
-
-
-
-  // Функция для обновления значения поля
-  const updateFieldValue = (fieldName: string, value: string) => {
-    setEditableFields(prev => ({
-      ...prev,
-      [fieldName]: { ...prev[fieldName], value }
+      [fieldName]: value
     }));
   };
 
@@ -139,8 +119,19 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
     setIsSaving(true);
     try {
       // Собираем все измененные поля
-      const changedFields = Object.entries(editableFields).filter(
-        ([_, field]) => field.value !== field.originalValue
+      const originalData = {
+        title: resume.title,
+        professional_summary: resume.professional_summary || '',
+        first_name: resume.personal_info?.first_name || '',
+        last_name: resume.personal_info?.last_name || '',
+        middle_name: resume.personal_info?.middle_name || '',
+        phone: resume.personal_info?.phone || '',
+        email: resume.personal_info?.email || '',
+        location: resume.personal_info?.location || ''
+      };
+
+      const changedFields = Object.entries(formData).filter(
+        ([key, value]) => value !== originalData[key as keyof typeof originalData]
       );
 
       if (changedFields.length === 0) {
@@ -156,13 +147,13 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
       const mainUpdates: any = {};
       const personalInfoUpdates: any = {};
 
-      for (const [fieldName, field] of changedFields) {
+      for (const [fieldName, value] of changedFields) {
         if (['title', 'professional_summary'].includes(fieldName)) {
-          mainUpdates[fieldName] = field.value;
-        } else if (['first_name', 'last_name', 'middle_name', 'phone', 'email', 'location', 'website', 'linkedin', 'github'].includes(fieldName)) {
+          mainUpdates[fieldName] = value;
+        } else if (['first_name', 'last_name', 'middle_name', 'phone', 'email', 'location'].includes(fieldName)) {
           // Преобразуем имена полей для API
           const apiFieldName = fieldName.replace('_', '');
-          personalInfoUpdates[apiFieldName] = field.value;
+          personalInfoUpdates[apiFieldName] = value;
         }
       }
 
@@ -182,19 +173,6 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
       // Обновляем локальное состояние
       setLocalResume(updatedResume);
       onResumeUpdate(updatedResume);
-      
-      // Обновляем редактируемые поля
-      setEditableFields(prev => {
-        const updated = { ...prev };
-        for (const [fieldName, field] of changedFields) {
-          updated[fieldName] = {
-            ...field,
-            isEditing: false,
-            originalValue: field.value
-          };
-        }
-        return updated;
-      });
 
       setSaveStatus({
         show: true,
@@ -211,82 +189,6 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
     } finally {
       setIsSaving(false);
     }
-  };
-
-  // Компонент для редактируемого поля
-  const EditableField = ({ 
-    fieldName, 
-    label, 
-    multiline = false, 
-    rows = 1,
-    type = 'text'
-  }: {
-    fieldName: string;
-    label: string;
-    multiline?: boolean;
-    rows?: number;
-    type?: string;
-  }) => {
-    const field = editableFields[fieldName];
-    if (!field) return null;
-
-    if (field.isEditing) {
-      return (
-        <TextField
-          fullWidth
-          label={label}
-          value={field.value}
-          onChange={(e) => updateFieldValue(fieldName, e.target.value)}
-          multiline={multiline}
-          rows={rows}
-          type={type}
-          variant="outlined"
-          size="small"
-          sx={{ mb: 2 }}
-        />
-      );
-    }
-
-    return (
-      <Box 
-        sx={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          gap: 1, 
-          mb: 2,
-          p: 1,
-          border: '1px solid transparent',
-          borderRadius: 1,
-          '&:hover': {
-            border: '1px solid #e0e0e0',
-            backgroundColor: '#fafafa'
-          }
-        }}
-      >
-        <Box sx={{ flex: 1 }}>
-          <Typography variant="caption" color="text.secondary" display="block">
-            {label}
-          </Typography>
-          <Typography 
-            variant="body2" 
-            sx={{ 
-              whiteSpace: multiline ? 'pre-wrap' : 'nowrap',
-              overflow: multiline ? 'visible' : 'hidden',
-              textOverflow: multiline ? 'clip' : 'ellipsis'
-            }}
-          >
-            {field.value || t('refine.editor.notFilled')}
-          </Typography>
-        </Box>
-        <IconButton
-          size="small"
-          onClick={() => startEditing(fieldName)}
-          sx={{ opacity: 0.6, '&:hover': { opacity: 1 } }}
-        >
-          <AddIcon />
-        </IconButton>
-      </Box>
-    );
   };
 
   return (
@@ -317,40 +219,40 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
                 borderRadius: '8px 8px 0 0',
                 overflow: 'hidden',
                 gap: '2px',
-                padding: '8px 8px 0 8px'
+                padding: '4px 4px 0 4px'
               },
-                          '& .MuiTab-root': {
-              minHeight: 44,
-              fontSize: '0.875rem',
-              fontWeight: 500,
-              textTransform: 'none',
-              minWidth: 'auto',
-              px: 3,
-              py: 1.5,
-              position: 'relative',
-              background: '#f5f5f5',
-              border: 'none',
-              margin: 0,
-              borderRadius: '8px 8px 0 0',
-              transform: 'skewX(-15deg)',
-              transition: 'background-color 0.25s',
-              flex: 1,
-              '&:hover': {
-                background: '#e8e8e8'
-              },
-              '&.Mui-selected': {
-                background: '#007bff',
-                color: 'white',
+              '& .MuiTab-root': {
+                minHeight: 36,
+                fontSize: '0.8rem',
+                fontWeight: 500,
+                textTransform: 'none',
+                minWidth: 'auto',
+                px: 2,
+                py: 1,
+                position: 'relative',
+                background: '#f5f5f5',
+                border: 'none',
+                margin: 0,
+                borderRadius: '8px 8px 0 0',
+                transform: 'skewX(-15deg)',
+                transition: 'background-color 0.25s',
+                flex: 1,
+                '&:hover': {
+                  background: '#e8e8e8'
+                },
+                '&.Mui-selected': {
+                  background: '#007bff',
+                  color: 'white',
+                  '& .MuiSvgIcon-root': {
+                    color: 'white'
+                  }
+                },
                 '& .MuiSvgIcon-root': {
-                  color: 'white'
+                  fontSize: '1.2rem',
+                  transform: 'skewX(15deg)',
+                  color: 'inherit'
                 }
-              },
-              '& .MuiSvgIcon-root': {
-                fontSize: '1.5rem',
-                transform: 'skewX(15deg)',
-                color: 'inherit'
               }
-            }
             }}
           >
             <Tab 
@@ -382,72 +284,126 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
             overflow: 'auto',
             bgcolor: 'white'
           }}>
-          {/* Личная информация */}
-          <TabPanel value={activeTab} index={0}>
-            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
-              <EditableField fieldName="first_name" label={t('refine.editor.firstName')} />
-              <EditableField fieldName="last_name" label={t('refine.editor.lastName')} />
-              <EditableField fieldName="middle_name" label={t('refine.editor.middleName')} />
-              <EditableField fieldName="phone" label={t('refine.editor.phone')} type="tel" />
-              <EditableField fieldName="email" label={t('refine.editor.email')} type="email" />
-              <EditableField fieldName="location" label={t('refine.editor.location')} />
-              <EditableField fieldName="website" label={t('refine.editor.website')} type="url" />
-              <EditableField fieldName="linkedin" label={t('refine.editor.linkedin')} type="url" />
-              <EditableField fieldName="github" label="GitHub" type="url" />
-            </Box>
-          </TabPanel>
+            {/* Личная информация */}
+            <TabPanel value={activeTab} index={0}>
+              <Typography variant="h6" sx={{ mb: 3, fontWeight: 600, color: '#2c3e50' }}>
+                {t('refine.editor.personalInfo')}
+              </Typography>
+              
+              <Box sx={{ 
+                display: 'grid', 
+                gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, 
+                gap: 3 
+              }}>
+                <TextField
+                  fullWidth
+                  label={t('refine.editor.firstName')}
+                  value={formData.first_name}
+                  onChange={(e) => handleFieldChange('first_name', e.target.value)}
+                  variant="outlined"
+                  size="small"
+                />
+                <TextField
+                  fullWidth
+                  label={t('refine.editor.lastName')}
+                  value={formData.last_name}
+                  onChange={(e) => handleFieldChange('last_name', e.target.value)}
+                  variant="outlined"
+                  size="small"
+                />
+                <TextField
+                  fullWidth
+                  label={t('refine.editor.middleName')}
+                  value={formData.middle_name}
+                  onChange={(e) => handleFieldChange('middle_name', e.target.value)}
+                  variant="outlined"
+                  size="small"
+                />
+                <TextField
+                  fullWidth
+                  label={t('refine.editor.phone')}
+                  value={formData.phone}
+                  onChange={(e) => handleFieldChange('phone', e.target.value)}
+                  variant="outlined"
+                  size="small"
+                  type="tel"
+                />
+                <TextField
+                  fullWidth
+                  label={t('refine.editor.email')}
+                  value={formData.email}
+                  onChange={(e) => handleFieldChange('email', e.target.value)}
+                  variant="outlined"
+                  size="small"
+                  type="email"
+                />
+                <TextField
+                  fullWidth
+                  label={t('refine.editor.location')}
+                  value={formData.location}
+                  onChange={(e) => handleFieldChange('location', e.target.value)}
+                  variant="outlined"
+                  size="small"
+                />
+              </Box>
+            </TabPanel>
 
-          {/* Навыки */}
-          <TabPanel value={activeTab} index={1}>
-            <EditableField 
-              fieldName="professional_summary" 
-              label={t('refine.editor.professionalSummary')} 
-              multiline 
-              rows={4}
-            />
-            <Divider sx={{ my: 3 }} />
-            <SkillsEditor 
-              skills={localResume.skills || []}
+            {/* Навыки */}
+            <TabPanel value={activeTab} index={1}>
+              <Typography variant="h6" sx={{ mb: 3, fontWeight: 600, color: '#2c3e50' }}>
+                {t('refine.editor.professionalSummary')}
+              </Typography>
+              
+              <TextField
+                fullWidth
+                label={t('refine.editor.professionalSummary')}
+                value={formData.professional_summary}
+                onChange={(e) => handleFieldChange('professional_summary', e.target.value)}
+                multiline
+                rows={4}
+                variant="outlined"
+                size="small"
+                sx={{ mb: 3 }}
+              />
+              
+              <Divider sx={{ my: 3 }} />
+              
+              <Typography variant="h6" sx={{ mb: 3, fontWeight: 600, color: '#2c3e50' }}>
+                {t('refine.editor.skills')}
+              </Typography>
+              
+              <SkillsEditor 
+                skills={localResume.skills || []}
+                resumeId={resume.id}
+                onSkillsUpdate={(updatedSkills) => {
+                  setLocalResume(prev => ({ ...prev, skills: updatedSkills }));
+                  onResumeUpdate({ ...localResume, skills: updatedSkills });
+                }}
+              />
+            </TabPanel>
+
+                      {/* Опыт работы */}
+          <TabPanel value={activeTab} index={2}>
+            <ExperienceEditor 
+              experience={localResume.experience || []}
               resumeId={resume.id}
-              onSkillsUpdate={(updatedSkills) => {
-                setLocalResume(prev => ({ ...prev, skills: updatedSkills }));
-                onResumeUpdate({ ...localResume, skills: updatedSkills });
+              onExperienceUpdate={(updatedExperience) => {
+                setLocalResume(prev => ({ ...prev, experience: updatedExperience }));
+                onResumeUpdate({ ...localResume, experience: updatedExperience });
               }}
             />
           </TabPanel>
 
-          {/* Опыт работы */}
-          <TabPanel value={activeTab} index={2}>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-              {t('refine.editor.comingSoon')}
-            </Typography>
-            {localResume.experience?.map((exp) => (
-              <Box key={exp.id} sx={{ mb: 2, p: 2, border: '1px solid #e0e0e0', borderRadius: 1 }}>
-                <Typography variant="subtitle2" fontWeight="bold">
-                  {exp.job_title} в {exp.company}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {exp.start_date} - {exp.is_current ? 'Настоящее время' : exp.end_date}
-                </Typography>
-              </Box>
-            ))}
-          </TabPanel>
-
-          {/* Образование */}
+                      {/* Образование */}
           <TabPanel value={activeTab} index={3}>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-              {t('refine.editor.comingSoon')}
-            </Typography>
-            {localResume.education?.map((edu) => (
-              <Box key={edu.id} sx={{ mb: 2, p: 2, border: '1px solid #e0e0e0', borderRadius: 1 }}>
-                <Typography variant="subtitle2" fontWeight="bold">
-                  {edu.degree}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {edu.institution}
-                </Typography>
-              </Box>
-            ))}
+            <EducationEditor 
+              education={localResume.education || []}
+              resumeId={resume.id}
+              onEducationUpdate={(updatedEducation) => {
+                setLocalResume(prev => ({ ...prev, education: updatedEducation }));
+                onResumeUpdate({ ...localResume, education: updatedEducation });
+              }}
+            />
           </TabPanel>
           </Box>
         </Box>

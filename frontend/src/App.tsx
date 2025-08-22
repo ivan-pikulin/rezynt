@@ -16,6 +16,7 @@ const ExportPage = React.lazy(() => import('./features/export/ExportPage'));
 const ResumesPage = React.lazy(() => import('./features/resumes/ResumesPage'));
 const AuthPage = React.lazy(() => import('./features/auth/AuthPage'));
 const EmailConfirmationPage = React.lazy(() => import('./features/auth/EmailConfirmationPage'));
+const HomeRedirect = React.lazy(() => import('./shared/components/HomeRedirect'));
 
 function AppRoutes() {
   return (
@@ -63,7 +64,7 @@ function AppRoutes() {
         } />
         <Route path="/" element={
           <ProtectedRoute requireAuth={true}>
-            <StartPage />
+            <HomeRedirect />
           </ProtectedRoute>
         } />
       </Routes>

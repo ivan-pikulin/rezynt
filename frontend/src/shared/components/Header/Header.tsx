@@ -1,13 +1,10 @@
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
-import Tooltip from '@mui/material/Tooltip';
 import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
 import Stepper from '@mui/material/Stepper';
-import Avatar from '@mui/material/Avatar';
+import Tooltip from '@mui/material/Tooltip';
 import React, { useState } from 'react';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { HeaderProps } from './Header.types';
@@ -67,7 +64,7 @@ const Header: React.FC<HeaderProps> = ({
       bgcolor: 'white', 
       borderBottom: '1px solid #eee',
       px: { xs: 2, sm: 4 }, // Адаптивные отступы
-      py: 2,
+      py: 1,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between'
@@ -144,13 +141,13 @@ const Header: React.FC<HeaderProps> = ({
               {steps.map((label, index) => (
                 <Step key={label}>
                   <StepLabel 
-                    onClick={() => handleStepClick(index)}
+                    onClick={index === 0 ? undefined : () => handleStepClick(index)}
                     sx={{
-                      cursor: onStepClick ? 'pointer' : 'default',
+                      cursor: index === 0 ? 'default' : (onStepClick ? 'pointer' : 'default'),
                       transition: 'all 0.2s ease',
-                      '&:hover': onStepClick ? {
+                      '&:hover': index === 0 ? {} : (onStepClick ? {
                         transform: 'scale(1.05)',
-                      } : {},
+                      } : {}),
                       '& .MuiStepLabel-label': {
                         fontSize: { xs: '0.75rem', sm: '0.875rem' },
                         color: index <= activeStep ? '#1976d2' : '#999',

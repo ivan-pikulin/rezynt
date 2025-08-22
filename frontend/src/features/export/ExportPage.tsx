@@ -4,15 +4,23 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import Header from '../../shared/components/Header/Header';
 import DownloadOptions from './components/DownloadOptions';
 import SuccessPage from './components/SuccessPage';
-import { TemplateService } from '../../shared/services/templateService';
-import { TeroTemplate } from '../../shared/components/templates';
+import ResumeRenderer from '../../shared/components/ResumeRenderer';
+import { Resume } from '../../shared/services/api/types';
+import { useTemplate } from '../../shared/hooks/useTemplate';
+import { useResumeQuery } from '../../shared/hooks/useResumeQuery';
+import { convertApiResumeToDisplayData } from '../refine/utils/resumeDataConverter';
+import LoadingSpinner from '../refine/components/LoadingSpinner';
+import ErrorMessage from '../refine/components/ErrorMessage';
+import { useTranslation } from 'react-i18next';
 
 const ExportPage: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const resumeId = searchParams.get('resume_id');
   const templateContainerRef = useRef<HTMLDivElement>(null);
-  const demoData = TemplateService.createDemoData();
+  const { resume, isLoading: loading, error: queryError, refreshResume } = useResumeQuery(resumeId);
+  const { selectedTemplate } = useTemplate(resumeId);
   const [isExporting, setIsExporting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
@@ -39,11 +47,14 @@ const ExportPage: React.FC = () => {
   };
 
   const handleExportPDF = async () => {
-    if (!templateContainerRef.current) return;
+    if (!templateContainerRef.current || !resume) return;
     
     setIsExporting(true);
     
     try {
+      // Запрашиваем свежие данные перед экспортом
+      await refreshResume();
+      
       const { jsPDF } = await import('jspdf');
       const html2canvas = await import('html2canvas');
       
@@ -58,21 +69,31 @@ const ExportPage: React.FC = () => {
       
       const imgWidth = 210; // A4 width in mm
       const pageHeight = 295; // A4 height in mm
+      
+      // Рассчитываем размеры изображения для одной страницы
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      let heightLeft = imgHeight;
-      let position = 0;
       
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
+      // Если изображение выше страницы, масштабируем его
+      let finalImgWidth = imgWidth;
+      let finalImgHeight = imgHeight;
       
-      while (heightLeft >= 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
+      if (imgHeight > pageHeight) {
+        // Масштабируем по высоте, сохраняя пропорции
+        const scale = pageHeight / imgHeight;
+        finalImgWidth = imgWidth * scale;
+        finalImgHeight = pageHeight;
       }
       
-      const fullName = `${demoData.personalInfo.firstName} ${demoData.personalInfo.lastName}`;
+      // Центрируем изображение на странице
+      const xOffset = (imgWidth - finalImgWidth) / 2;
+      const yOffset = (pageHeight - finalImgHeight) / 2;
+      
+      // Добавляем изображение на одну страницу
+      pdf.addImage(imgData, 'PNG', xOffset, yOffset, finalImgWidth, finalImgHeight);
+      
+      // Используем реальные данные для имени файла
+      const displayData = convertApiResumeToDisplayData(resume);
+      const fullName = `${displayData.personalInfo.firstName} ${displayData.personalInfo.lastName}`;
       const filename = `${fullName.replace(/\s+/g, '_')}_resume.pdf`;
       pdf.save(filename);
       
@@ -90,10 +111,55 @@ const ExportPage: React.FC = () => {
     setShowSuccess(false);
   };
 
+  // Если нет resumeId, показываем ошибку
+  if (!resumeId) {
+    return (
+      <Box sx={{ 
+        height: '100vh', 
+        bgcolor: '#f5f6fa'
+      }}>
+        <ErrorMessage 
+          message={t('refine.error.noResumeId')} 
+          onRetry={() => window.location.reload()}
+        />
+      </Box>
+    );
+  }
+
+  // Если загрузка, показываем индикатор
+  if (loading) {
+    return (
+      <Box sx={{ 
+        height: '100vh', 
+        bgcolor: '#f5f6fa'
+      }}>
+        <LoadingSpinner message={t('refine.loading')} />
+      </Box>
+    );
+  }
+
+  // Если ошибка, показываем сообщение
+  if (queryError || !resume) {
+    return (
+      <Box sx={{ 
+        height: '100vh', 
+        bgcolor: '#f5f6fa'
+      }}>
+        <ErrorMessage 
+          message={queryError || t('refine.error.notFound')} 
+          onRetry={() => window.location.reload()}
+        />
+      </Box>
+    );
+  }
+
   // Если показываем страницу успеха, рендерим её
   if (showSuccess) {
     return <SuccessPage onBackToStart={handleBackToStart} />;
   }
+
+  // Преобразуем данные резюме для отображения
+  const displayData = convertApiResumeToDisplayData(resume);
 
   return (
     <Box sx={{ 
@@ -127,10 +193,10 @@ const ExportPage: React.FC = () => {
       {/* Скрытый template для экспорта */}
       <Box sx={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
         <div ref={templateContainerRef}>
-          <TeroTemplate 
-            data={demoData} 
-            isPreview={false}
+          <ResumeRenderer 
+            data={displayData} 
             scale={1}
+            templateId={selectedTemplate?.id}
           />
         </div>
       </Box>

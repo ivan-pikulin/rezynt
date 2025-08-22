@@ -14,13 +14,14 @@ import Header from '../../shared/components/Header/Header';
 import ResumeRenderer from '../../shared/components/ResumeRenderer';
 import { resumeApi } from '../../shared/services/api';
 import { Resume } from '../../shared/services/api/types';
-import { TemplateService } from '../../shared/services/templateService';
-import { TemplateConfig } from '../../shared/types/resume';
+import { useTemplate } from '../../shared/hooks/useTemplate';
+import { useResumeQuery } from '../../shared/hooks/useResumeQuery';
 import ErrorMessage from './components/ErrorMessage';
 import LoadingSpinner from './components/LoadingSpinner';
 import ResumeEditor from './components/ResumeEditor';
 import TemplateSelector from './components/TemplateSelector';
 import { convertApiResumeToDisplayData } from './utils/resumeDataConverter';
+import { TemplateConfig } from '../../shared/types/resume';
 
 const RefinePage: React.FC = () => {
   const { t } = useTranslation();
@@ -28,66 +29,36 @@ const RefinePage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const resumeId = searchParams.get('resume_id');
   
-  const [selectedTemplate, setSelectedTemplate] = useState<TemplateConfig | null>(
-    TemplateService.getTemplateById('tero') || TemplateService.getTemplates()[0]
-  );
+  const { selectedTemplate, updateTemplate } = useTemplate(resumeId);
   const [showPreview, setShowPreview] = useState(false);
-  const [resume, setResume] = useState<Resume | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { resume, isLoading: loading, error: queryError, updateResumeInCache } = useResumeQuery(resumeId);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [titleValue, setTitleValue] = useState('');
 
-  // Загружаем данные резюме с сервера
+  // Устанавливаем заголовок при загрузке резюме
   useEffect(() => {
-    const loadResume = async () => {
-      if (!resumeId) {
-        setError(t('refine.error.noResumeId'));
-        setLoading(false);
-        return;
-      }
-
-      try {
-        setLoading(true);
-        const resumeData = await resumeApi.getResume(resumeId);
-        setResume(resumeData);
-        setTitleValue(resumeData.title);
-        
-        // Устанавливаем шаблон из резюме, если он есть
-        if (resumeData.template_id) {
-          const template = TemplateService.getTemplateById(resumeData.template_id);
-          if (template) {
-            setSelectedTemplate(template);
-          }
-        }
-      } catch (err) {
-        console.error('Error loading resume:', err);
-        setError(t('refine.error.loadError'));
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadResume();
-  }, [resumeId]);
+    if (resume) {
+      setTitleValue(resume.title);
+    }
+  }, [resume]);
 
   // Обработчик обновления резюме
   const handleResumeUpdate = (updatedResume: Resume) => {
-    setResume(updatedResume);
+    updateResumeInCache(updatedResume);
     setTitleValue(updatedResume.title);
   };
 
   // Обработчик изменения шаблона
   const handleTemplateChange = async (template: TemplateConfig) => {
-    setSelectedTemplate(template);
+    updateTemplate(template);
     
     // Сохраняем новый шаблон на сервере
     if (resumeId) {
       try {
-        await resumeApi.assignTemplate(resumeId, template.id);
-        // Обновляем локальное состояние резюме
+        await resumeApi.assignTemplateBySlug(resumeId, template.id);
+        // Обновляем кеш резюме
         if (resume) {
-          setResume({ ...resume, template_id: template.id });
+          updateResumeInCache({ ...resume, template_id: template.id });
         }
       } catch (err) {
         console.error('Error updating template:', err);
@@ -106,7 +77,7 @@ const RefinePage: React.FC = () => {
     
     try {
       const updatedResume = await resumeApi.updateResumePartial(resumeId, { title: titleValue });
-      setResume(updatedResume);
+      updateResumeInCache(updatedResume);
       setIsEditingTitle(false);
     } catch (err) {
       console.error('Error saving title:', err);
@@ -154,6 +125,21 @@ const RefinePage: React.FC = () => {
     navigate(`/export?resume_id=${resumeId}`);
   };
 
+  // Если нет resumeId, показываем ошибку
+  if (!resumeId) {
+    return (
+      <Box sx={{ 
+        height: '100vh', 
+        bgcolor: '#f5f6fa'
+      }}>
+        <ErrorMessage 
+          message={t('refine.error.noResumeId')} 
+          onRetry={() => window.location.reload()}
+        />
+      </Box>
+    );
+  }
+
   // Если загрузка, показываем индикатор
   if (loading) {
     return (
@@ -167,14 +153,14 @@ const RefinePage: React.FC = () => {
   }
 
   // Если ошибка, показываем сообщение
-  if (error || !resume) {
+  if (queryError || !resume) {
     return (
       <Box sx={{ 
         height: '100vh', 
         bgcolor: '#f5f6fa'
       }}>
         <ErrorMessage 
-          message={error || t('refine.error.notFound')} 
+          message={queryError || t('refine.error.notFound')} 
           onRetry={() => window.location.reload()}
         />
       </Box>
@@ -212,9 +198,46 @@ const RefinePage: React.FC = () => {
         gap: 0,
         overflow: 'hidden'
       }}>
-        {/* Левая панель: шаблоны + редактор */}
+        {/* Вертикальная панель шаблонов слева */}
         <Box sx={{ 
-          width: { xs: '100%', md: '50%' },
+          display: { xs: 'none', md: 'flex' },
+          width: '180px',
+          height: '100%',
+          flexDirection: 'column',
+          bgcolor: '#f8fbff',
+          borderRight: '1px solid #e0e0e0',
+          overflow: 'hidden',
+          flexShrink: 0
+        }}>
+          <Box sx={{ 
+            p: 2,
+            overflow: 'auto',
+            height: '100%',
+            '&::-webkit-scrollbar': {
+              width: 6,
+            },
+            '&::-webkit-scrollbar-track': {
+              bgcolor: '#f1f1f1',
+              borderRadius: 3,
+            },
+            '&::-webkit-scrollbar-thumb': {
+              bgcolor: '#c1c1c1',
+              borderRadius: 3,
+              '&:hover': {
+                bgcolor: '#a8a8a8',
+              },
+            },
+          }}>
+            <TemplateSelector 
+              onTemplateChange={handleTemplateChange}
+              horizontalLayout={false}
+            />
+          </Box>
+        </Box>
+
+        {/* Левая панель: редактор */}
+        <Box sx={{ 
+          width: { xs: '100%', md: 'calc(50% - 180px)' },
           height: '100%',
           display: 'flex',
           flexDirection: 'column',
@@ -226,7 +249,7 @@ const RefinePage: React.FC = () => {
           <Box sx={{ 
             bgcolor: '#f8fbff',
             borderBottom: '1px solid #e0e0e0',
-            p: 2,
+            p: 1,
             display: 'flex',
             alignItems: 'center',
             gap: 1,
@@ -275,14 +298,16 @@ const RefinePage: React.FC = () => {
               </>
             )}
           </Box>
-
-          {/* Панель шаблонов сверху */}
+          
+          {/* Мобильная панель шаблонов (только на мобильных) */}
           <Box sx={{ 
+            display: { xs: 'block', md: 'none' },
             bgcolor: '#f8fbff',
             p: 2,
             overflow: 'hidden',
             height: 160,
-            flexShrink: 0
+            flexShrink: 0,
+            borderBottom: '1px solid #e0e0e0'
           }}>
             <Box sx={{ 
               display: 'flex',
@@ -311,8 +336,8 @@ const RefinePage: React.FC = () => {
               />
             </Box>
           </Box>
-          
-          {/* Редактор резюме снизу */}
+
+          {/* Редактор резюме */}
           <Box sx={{ 
             flex: 1,
             bgcolor: 'white',

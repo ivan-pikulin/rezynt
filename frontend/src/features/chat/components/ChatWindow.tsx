@@ -6,10 +6,11 @@ import { useChat } from '../hooks/useChat';
 
 interface ChatWindowProps {
   resumeId: string | null;
+  onResumeUpdate?: () => void;
 }
 
-const ChatWindow: React.FC<ChatWindowProps> = ({ resumeId }) => {
-  const { messages, isLoading, sendUserMessage } = useChat(resumeId);
+const ChatWindow: React.FC<ChatWindowProps> = ({ resumeId, onResumeUpdate }) => {
+  const { messages, isLoading, sendUserMessage, messagesEndRef } = useChat(resumeId, onResumeUpdate);
   
   return (
     <Box sx={{ 
@@ -41,6 +42,8 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ resumeId }) => {
             isLoading={isLoading}
           />
         ))}
+        {/* Invisible div for scrolling to bottom */}
+        <div ref={messagesEndRef} />
       </Box>
 
       {/* Поле ввода - зафиксировано внизу */}

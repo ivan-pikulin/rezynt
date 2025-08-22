@@ -1,4 +1,9 @@
 {
+  "common": {
+    "save": "Сохранить",
+    "saving": "Сохранение...",
+    "cancel": "Отмена"
+  },
   "auth": {
     "login": {
       "title": "Вход в систему",
@@ -66,8 +71,6 @@
       "email": "Email",
       "phone": "Телефон",
       "location": "Местоположение",
-      "website": "Веб-сайт",
-      "linkedin": "LinkedIn",
       "notFilled": "Не заполнено",
       "addSkill": "Добавить навык",
       "editSkill": "Редактировать навык",
@@ -77,7 +80,26 @@
       "delete": "Удалить",
       "add": "Добавить",
       "edit": "Редактировать",
-      "comingSoon": "Скоро в следующем обновлении"
+      "comingSoon": "Скоро в следующем обновлении",
+      "addExperience": "Добавить опыт",
+      "editExperience": "Редактировать опыт",
+      "noExperience": "Опыт работы еще не добавлен",
+      "addFirstExperience": "Добавить первый опыт",
+      "jobTitle": "Должность",
+      "company": "Компания",
+      "startDate": "Дата начала",
+      "endDate": "Дата окончания",
+      "currentPosition": "Текущая должность",
+      "responsibilities": "Обязанности",
+      "addResponsibility": "Добавить обязанность",
+      "present": "Настоящее время",
+      "addEducation": "Добавить образование",
+      "editEducation": "Редактировать образование",
+      "noEducation": "Образование еще не добавлено",
+      "addFirstEducation": "Добавить первое образование",
+      "degree": "Степень",
+      "institution": "Учебное заведение",
+      "graduationDate": "Дата окончания"
     },
     "preview": {
       "title": "Предварительный просмотр резюме"

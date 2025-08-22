@@ -2,8 +2,8 @@
 <feature>
     <info>
         <name>Export Feature</name>
-        <desc>Export resume to PDF format with download options. Includes success page after download completion. Optimized for mobile devices with responsive design.</desc>
-        <tech>React, TypeScript, Material-UI, jsPDF, html2canvas, Responsive Design</tech>
+        <desc>Export resume to PDF format with download options. Loads real resume data from API to ensure current user data is exported. Includes success page after download completion. Optimized for mobile devices with responsive design.</desc>
+        <tech>React, TypeScript, Material-UI, jsPDF, html2canvas, Responsive Design, API Integration</tech>
     </info>
 
     <folder_structure>
@@ -16,138 +16,87 @@
         │   ├── ProModal.tsx           # Pro features modal
         │   └── SuccessPage.tsx        # Success page after download completion
         ├── exportApi.ts               # API for export functionality
-        ├── ExportPage.tsx             # Main export page (mobile-optimized)
+        ├── ExportPage.tsx             # Main export page (mobile-optimized, loads real resume data)
         └── spec.xml                   # This file
     </folder_structure>
 
     <components>
-        <component name="ExportPage" desc="Main export page with download options and success page integration">
+        <component name="ExportPage" desc="Main export page with download options and success page integration. Loads real resume data from API to ensure current user data is exported.">
             <props>
-                <prop name="none" desc="No props required" />
-            </props>
-            <states>
-                <state name="isExporting" desc="Loading state during PDF generation" />
-                <state name="showSuccess" desc="Controls display of success page" />
-            </states>
-            <mobile_features>
-                <feature name="responsive_padding" desc="Adaptive padding based on screen size" />
-                <feature name="no_logo_mobile" desc="Logo is hidden on mobile devices to save space" />
-                <feature name="success_integration" desc="Shows success page after download completion" />
-            </mobile_features>
-        </component>
-        <component name="DownloadOptions" desc="Two cards for choosing download type, mobile-optimized and compact">
-            <props>
-                <prop name="onExportPDF" desc="Function to handle PDF export" />
-                <prop name="isExporting" desc="Boolean for loading state" />
-            </props>
-            <events>
-                <event name="onExportPDF" desc="Trigger PDF export process" />
-            </events>
-            <mobile_features>
-                <feature name="vertical_layout" desc="Cards stack vertically on mobile devices" />
-                <feature name="touch_optimized" desc="Larger touch targets and touch feedback" />
-                <feature name="adaptive_sizing" desc="Responsive typography, icons, and spacing" />
-                <feature name="mobile_hover" desc="Disabled hover effects on mobile, added active states" />
-                <feature name="compact_cards" desc="Reduced card heights and spacing for mobile" />
-                <feature name="smaller_icons" desc="Reduced icon sizes on mobile" />
-                <feature name="compact_typography" desc="Smaller font sizes and tighter line spacing on mobile" />
-                <feature name="reduced_padding" desc="Minimal padding and margins for compact mobile layout" />
-            </mobile_features>
-        </component>
-        <component name="SuccessPage" desc="Celebration page shown after successful download completion">
-            <props>
-                <prop name="onBackToStart" desc="Optional callback for returning to start page" />
+                <prop name="resumeId" type="string" desc="Resume ID from URL parameters"/>
+                <prop name="resume" type="Resume" desc="Loaded resume data from API"/>
+                <prop name="selectedTemplate" type="TemplateConfig" desc="Template configuration for resume rendering"/>
+                <prop name="loading" type="boolean" desc="Loading state while fetching resume data"/>
+                <prop name="error" type="string" desc="Error message if resume loading fails"/>
+                <prop name="isExporting" type="boolean" desc="Export process state"/>
+                <prop name="showSuccess" type="boolean" desc="Success page visibility"/>
             </props>
             <features>
-                <feature name="celebration_design" desc="Green success theme with animated checkmark icon" />
-                <feature name="responsive_layout" desc="Adaptive design for all screen sizes" />
-                <feature name="pulse_animation" desc="Animated pulse effect on success icon" />
-                <feature name="dual_actions" desc="Download again and back to start buttons" />
-                <feature name="mobile_optimized" desc="Full-screen card on mobile, centered card on desktop" />
+                <feature name="resume_loading" desc="Loads real resume data from API using resumeId parameter"/>
+                <feature name="template_selection" desc="Automatically selects template based on resume.template_id"/>
+                <feature name="pdf_export" desc="Exports resume to PDF using real user data"/>
+                <feature name="success_page" desc="Shows success page after successful export"/>
+                <feature name="error_handling" desc="Handles loading and export errors with user-friendly messages"/>
+                <feature name="responsive_design" desc="Mobile-optimized layout with adaptive padding and spacing"/>
             </features>
-            <mobile_features>
-                <feature name="full_screen_card" desc="Card takes full screen width on mobile" />
-                <feature name="vertical_buttons" desc="Buttons stack vertically on mobile" />
-                <feature name="touch_targets" desc="Minimum 44px height for all interactive elements" />
-                <feature name="adaptive_typography" desc="Responsive font sizes and spacing" />
-            </mobile_features>
+        </component>
+        
+        <component name="DownloadOptions" desc="Download choice cards with mobile-optimized design">
+            <props>
+                <prop name="onExportPDF" type="function" desc="Callback for PDF export"/>
+                <prop name="isExporting" type="boolean" desc="Export process state"/>
+            </props>
+            <features>
+                <feature name="mobile_optimized" desc="Responsive card layout optimized for mobile devices"/>
+                <feature name="loading_state" desc="Shows loading state during export process"/>
+                <feature name="export_trigger" desc="Triggers PDF export when user clicks download option"/>
+            </features>
+        </component>
+        
+        <component name="SuccessPage" desc="Success page shown after successful resume download">
+            <props>
+                <prop name="onBackToStart" type="function" desc="Callback to return to start page"/>
+            </props>
+            <features>
+                <feature name="success_message" desc="Displays success message after download"/>
+                <feature name="navigation" desc="Provides option to return to start page"/>
+                <feature name="mobile_optimized" desc="Responsive design for mobile devices"/>
+            </features>
         </component>
     </components>
 
-    <responsive_breakpoints>
-        <breakpoint name="xs" desc="Mobile phones (0px - 600px)" />
-        <breakpoint name="sm" desc="Tablets (600px - 960px)" />
-        <breakpoint name="md" desc="Desktop (960px+)" />
-    </responsive_breakpoints>
+    <api_integration>
+        <endpoint name="getResume" desc="Loads current resume data from API to ensure export contains latest user changes"/>
+        <endpoint name="template_selection" desc="Automatically selects correct template based on resume.template_id"/>
+    </api_integration>
 
-    <mobile_optimizations>
-        <optimization name="layout" desc="Vertical card stacking on mobile, horizontal on desktop" />
-        <optimization name="touch_targets" desc="Minimum 40px height for buttons and interactive elements" />
-        <optimization name="spacing" desc="Reduced padding and margins on smaller screens" />
-        <optimization name="typography" desc="Scalable font sizes based on screen size" />
-        <optimization name="icons" desc="Responsive icon sizes" />
-        <optimization name="interactions" desc="Touch feedback instead of hover effects on mobile" />
-        <optimization name="logo_hiding" desc="Logo hidden on mobile devices to maximize content space" />
-        <optimization name="compact_cards" desc="Reduced card heights for mobile" />
-        <optimization name="max_width" desc="Responsive max-width for different screen sizes" />
-        <optimization name="success_page" desc="Full-screen success page with mobile-optimized layout" />
-    </mobile_optimizations>
+    <data_flow>
+        <step name="load_resume" desc="Loads resume data from API using resumeId from URL parameters"/>
+        <step name="select_template" desc="Automatically selects template based on resume.template_id"/>
+        <step name="render_resume" desc="Renders resume using ResumeRenderer with real data and selected template"/>
+        <step name="export_pdf" desc="Exports rendered resume to PDF using html2canvas and jsPDF"/>
+        <step name="show_success" desc="Shows success page after successful export"/>
+    </data_flow>
 
-    <api>
-        <endpoint name="exportPDF" method="POST" path="/export/pdf/">
-            <desc>Generate and download PDF resume</desc>
-            <params>
-                <param name="resumeData" type="object" desc="Resume data to export" />
-                <param name="templateId" type="string" desc="Template ID for styling" />
-            </params>
-            <response>
-                <success desc="PDF file download" />
-                <error desc="Export failed" />
-            </response>
-        </endpoint>
-    </api>
+    <mobile_optimization>
+        <feature name="responsive_layout" desc="Adaptive layout that works on all screen sizes"/>
+        <feature name="touch_friendly" desc="Large touch targets for mobile interaction"/>
+        <feature name="adaptive_spacing" desc="Dynamic padding and margins based on screen size"/>
+        <feature name="mobile_navigation" desc="Optimized navigation for mobile devices"/>
+    </mobile_optimization>
 
-    <deps>
-        <dep name="Material-UI" purpose="UI components, icons, and responsive breakpoints" />
-        <dep name="jsPDF" purpose="PDF generation" />
-        <dep name="html2canvas" purpose="HTML to canvas conversion for PDF" />
-        <dep name="React Router" purpose="Navigation" />
-        <dep name="Shared Header" purpose="Common header component with mobile logo hiding" />
-    </deps>
+    <export_features>
+        <feature name="real_data_export" desc="Exports current user's resume data instead of demo data"/>
+        <feature name="template_aware" desc="Uses correct template based on resume configuration"/>
+        <feature name="high_quality" desc="High-resolution PDF export with 2x scale"/>
+        <feature name="proper_filename" desc="Generates filename based on user's actual name"/>
+        <feature name="multi_page" desc="Supports multi-page resumes with automatic page breaks"/>
+    </export_features>
 
-    <implementation>
-        <feature name="PDF Export">
-            <desc>Convert resume template to PDF using html2canvas and jsPDF</desc>
-            <steps>
-                <step desc="Capture template as canvas" />
-                <step desc="Convert canvas to image data" />
-                <step desc="Create PDF document" />
-                <step desc="Add image to PDF with proper scaling" />
-                <step desc="Handle multi-page documents" />
-                <step desc="Generate filename from user data" />
-                <step desc="Trigger download" />
-                <step desc="Show success page" />
-            </steps>
-        </feature>
-        <feature name="Success Page">
-            <desc>Celebration page shown after successful download</desc>
-            <elements>
-                <element name="animated_icon" desc="Pulsing green checkmark icon" />
-                <element name="success_message" desc="Download complete message" />
-                <element name="description" desc="Additional context about the download" />
-                <element name="action_buttons" desc="Download again and back to start options" />
-            </elements>
-            <animations>
-                <animation name="pulse" desc="2-second infinite pulse animation on success icon" />
-            </animations>
-        </feature>
-        <feature name="Mobile Optimization">
-            <desc>Responsive design optimized for mobile devices</desc>
-            <breakpoints>
-                <breakpoint name="xs" desc="Mobile phones - vertical layout, full-width cards" />
-                <breakpoint name="sm" desc="Tablets - hybrid layout with some desktop features" />
-                <breakpoint name="md" desc="Desktop - horizontal layout, larger cards" />
-            </breakpoints>
-        </feature>
-    </implementation>
+    <error_handling>
+        <scenario name="resume_not_found" desc="Shows error message if resume ID is invalid or resume not found"/>
+        <scenario name="loading_error" desc="Handles API errors during resume loading"/>
+        <scenario name="export_error" desc="Handles errors during PDF generation and download"/>
+        <scenario name="retry_functionality" desc="Provides retry option for failed operations"/>
+    </error_handling>
 </feature> 
