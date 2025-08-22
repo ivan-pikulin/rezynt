@@ -58,7 +58,7 @@
                     </description>
                     <authentication>VerifiedUser (JWT token + verified email)</authentication>
                     <params>
-                        <param name="resume_id" type="UUID">ID резюме</param>
+                        <param name="resume_id" type="int">ID резюме</param>
                     </params>
                     <returns type="ResumeInDB">Данные резюме (без связанных данных)</returns>
                     <status_codes>
@@ -77,12 +77,12 @@
                     </description>
                     <authentication>VerifiedUser (JWT token + verified email)</authentication>
                     <params>
-                        <param name="resume_id" type="UUID">ID резюме</param>
+                        <param name="resume_id" type="int">ID резюме</param>
                         <param name="section_name" type="str">Название раздела</param>
                     </params>
                     <returns type="Dict[str, Any]">
                         {
-                            "resume_id": "uuid",
+                            "resume_id": "int",
                             "section_name": "string",
                             "content": "section_data"
                         }
@@ -103,7 +103,7 @@
                     </description>
                     <authentication>VerifiedUser (JWT token + verified email)</authentication>
                     <params>
-                        <param name="resume_id" type="UUID">ID резюме</param>
+                        <param name="resume_id" type="int">ID резюме</param>
                         <param name="resume_update" type="ResumeUpdate">Данные для обновления</param>
                     </params>
                     <returns type="ResumeInDB">Обновленное резюме (без связанных данных)</returns>
@@ -123,13 +123,13 @@
                     </description>
                     <authentication>VerifiedUser (JWT token + verified email)</authentication>
                     <params>
-                        <param name="resume_id" type="UUID">ID резюме</param>
+                        <param name="resume_id" type="int">ID резюме</param>
                         <param name="section_name" type="str">Название раздела</param>
                         <param name="section_content" type="Dict[str, Any]">Новое содержимое раздела</param>
                     </params>
                     <returns type="Dict[str, Any]">
                         {
-                            "resume_id": "uuid",
+                            "resume_id": "int",
                             "section_name": "string",
                             "content": "updated_section_data",
                             "message": "Section updated successfully"
@@ -170,21 +170,19 @@
                 </endpoint>
                 
                 <endpoint>
-                    <path>/{resume_id}/template/{template_id}</path>
+                    <path>/{resume_id}/template/slug/{slug}</path>
                     <method>PUT</method>
                     <description>
                         Присвоение определенного шаблона резюме. Доступно только пользователям с подтвержденным email.
                     </description>
                     <authentication>VerifiedUser (JWT token + verified email)</authentication>
                     <params>
-                        <param name="resume_id" type="UUID">ID резюме</param>
-                        <param name="template_id" type="UUID">ID шаблона</param>
+                        <param name="resume_id" type="int">ID резюме</param>
+                        <param name="slug" type="str">Slug шаблона</param>
                     </params>
                     <returns type="Dict[str, Any]">
                         {
-                            "id": "resume_id",
-                            "template_id": "template_id", 
-                            "message": "Template assigned successfully"
+                            "status": "success"
                         }
                     </returns>
                     <status_codes>
@@ -211,13 +209,13 @@
                     </description>
                     <authentication>API Key (X-API-Key header)</authentication>
                     <params>
-                        <param name="resume_id" type="UUID">ID резюме</param>
+                        <param name="resume_id" type="int">ID резюме</param>
                         <param name="ai_update" type="OpenAIResumeUpdate">AI-сгенерированные данные для дополнения резюме</param>
                         <param name="X-API-Key" type="string">API ключ в заголовке</param>
                     </params>
                     <returns type="Dict[str, Any]">
                         {
-                            "resume_id": "uuid",
+                            "resume_id": "int",
                             "message": "Resume updated successfully with AI content",
                             "updated_fields": {
                                 "personal_info": "boolean",
@@ -268,10 +266,10 @@
             <name>Resume</name>
             <description>Основная модель резюме</description>
             <fields>
-                <field name="id" type="UUID">Уникальный идентификатор</field>
-                <field name="user_id" type="UUID">ID пользователя-владельца</field>
+                <field name="id" type="int">Уникальный идентификатор</field>
+                <field name="user_id" type="int">ID пользователя-владельца</field>
                 <field name="title" type="str">Название резюме</field>
-                <field name="template_id" type="UUID">ID используемого шаблона</field>
+                <field name="template_id" type="int">ID используемого шаблона</field>
                 <field name="content" type="Dict[str, Any]">Содержимое резюме по разделам</field>
                 <field name="conversation_id" type="Optional[str]">ID связанной беседы</field>
                 <field name="created_at" type="datetime">Дата создания</field>
@@ -284,7 +282,7 @@
             <description>Модель для обновления резюме</description>
             <fields>
                 <field name="title" type="Optional[str]">Название резюме</field>
-                <field name="template_id" type="Optional[UUID]">ID шаблона</field>
+                <field name="template_id" type="Optional[int]">ID шаблона</field>
                 <field name="content" type="Optional[Dict[str, Any]]">Содержимое резюме</field>
                 <field name="conversation_id" type="Optional[str]">ID беседы</field>
             </fields>
@@ -295,7 +293,7 @@
             <description>Модель для создания резюме</description>
             <fields>
                 <field name="title" type="str">Название резюме</field>
-                <field name="template_id" type="UUID">ID шаблона</field>
+                <field name="template_id" type="int">ID шаблона</field>
                 <field name="professional_summary" type="Optional[str]">Профессиональное резюме</field>
             </fields>
         </structure>
@@ -304,10 +302,10 @@
             <name>ResumeInDB</name>
             <description>Модель резюме без связанных данных (для создания)</description>
             <fields>
-                <field name="id" type="UUID">Уникальный идентификатор</field>
-                <field name="user_id" type="UUID">ID пользователя-владельца</field>
+                <field name="id" type="int">Уникальный идентификатор</field>
+                <field name="user_id" type="int">ID пользователя-владельца</field>
                 <field name="title" type="str">Название резюме</field>
-                <field name="template_id" type="UUID">ID используемого шаблона</field>
+                <field name="template_id" type="int">ID используемого шаблона</field>
                 <field name="professional_summary" type="Optional[str]">Профессиональное резюме</field>
                 <field name="conversation_id" type="Optional[str]">ID связанной беседы</field>
                 <field name="created_at" type="datetime">Дата создания</field>

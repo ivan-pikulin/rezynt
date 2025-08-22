@@ -13,7 +13,7 @@ export interface PaginatedResponse<T> {
 
 // User types
 export interface User {
-  id: string;
+  id: number;
   email: string;
   is_verified: boolean;
   is_premium: boolean;
@@ -59,15 +59,16 @@ export interface RefreshRequest {
 
 // Resume types
 export interface Resume {
-  id: string;
+  id: number;
   title: string;
-  template_id: string;
-  user_id: string;
+  template_id: number;
+  user_id: number;
   professional_summary?: string;
   conversation_id?: string;
   created_at: string;
   updated_at: string;
   personal_info?: ResumePersonalInfo;
+  contacts?: ResumeContact[];
   skills?: ResumeSkill[];
   experience?: ResumeExperience[];
   education?: ResumeEducation[];
@@ -86,30 +87,30 @@ export interface Resume {
 }
 
 export interface ResumeList {
-  id: string;
+  id: number;
   title: string;
-  template_id: string;
-  user_id: string;
+  template_id: number;
+  user_id: number;
   created_at: string;
   updated_at: string;
 }
 
 export interface ResumeCreate {
   title: string;
-  template_id: string;
+  template_id: number;
   professional_summary?: string;
 }
 
 export interface ResumeUpdate {
   title?: string;
-  template_id?: string;
+  template_id?: number;
   professional_summary?: string;
   conversation_id?: string;
 }
 
 export interface ResumePartialUpdate {
   title?: string;
-  template_id?: string;
+  template_id?: number;
   professional_summary?: string;
   conversation_id?: string;
   personal_info?: ResumePersonalInfoUpdate;
@@ -117,38 +118,39 @@ export interface ResumePartialUpdate {
 
 // Personal Info
 export interface ResumePersonalInfo {
-  id: string;
-  resume_id: string;
+  id: number;
+  resume_id: number;
   first_name: string;
   last_name: string;
-  middle_name?: string;
-  phone?: string;
-  email?: string;
   location?: string;
-  website?: string;
-  linkedin?: string;
-  github?: string;
-  order: number;
 }
 
 export interface ResumePersonalInfoUpdate {
   first_name?: string;
   last_name?: string;
-  middle_name?: string;
-  phone?: string;
-  email?: string;
   location?: string;
-  website?: string;
-  linkedin?: string;
-  github?: string;
+}
+
+// Contacts
+export interface ResumeContact {
+  id: number;
+  resume_id: number;
+  value: string;
+}
+
+export interface ResumeContactCreate {
+  value: string;
+}
+
+export interface ResumeContactUpdate {
+  value?: string;
 }
 
 // Skills
 export interface ResumeSkill {
-  id: string;
-  resume_id: string;
+  id: number;
+  resume_id: number;
   name: string;
-  order: number;
 }
 
 export interface ResumeSkillCreate {
@@ -161,16 +163,14 @@ export interface ResumeSkillUpdate {
 
 // Experience
 export interface ResumeExperience {
-  id: string;
-  resume_id: string;
+  id: number;
+  resume_id: number;
   job_title: string;
   company: string;
   location?: string;
   start_date: string;
   end_date?: string;
-  is_current: boolean;
   responsibilities: string[];
-  order: number;
 }
 
 export interface ResumeExperienceCreate {
@@ -179,7 +179,6 @@ export interface ResumeExperienceCreate {
   location?: string;
   start_date: string;
   end_date?: string;
-  is_current: boolean;
   responsibilities: string[];
 }
 
@@ -189,20 +188,18 @@ export interface ResumeExperienceUpdate {
   location?: string;
   start_date?: string;
   end_date?: string;
-  is_current?: boolean;
   responsibilities?: string[];
 }
 
 // Education
 export interface ResumeEducation {
-  id: string;
-  resume_id: string;
+  id: number;
+  resume_id: number;
   degree: string;
   institution: string;
   location?: string;
   graduation_date?: string;
   gpa?: number;
-  order: number;
 }
 
 export interface ResumeEducationCreate {
@@ -530,7 +527,7 @@ export interface ResumeExportCreate {
 
 // Template types
 export interface Template {
-  id: string;
+  id: number;
   name: string;
   slug: string;
   description?: string;

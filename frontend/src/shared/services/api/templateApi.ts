@@ -26,7 +26,7 @@ export class TemplateApi extends BaseApi {
   /**
    * Get a specific template by ID
    */
-  async getTemplate(templateId: string): Promise<Template> {
+  async getTemplate(templateId: number): Promise<Template> {
     return this.get<Template>(`/templates/${templateId}`);
   }
 
@@ -47,14 +47,14 @@ export class TemplateApi extends BaseApi {
   /**
    * Update a template
    */
-  async updateTemplate(templateId: string, data: TemplateUpdate): Promise<Template> {
+  async updateTemplate(templateId: number, data: TemplateUpdate): Promise<Template> {
     return this.put<Template>(`/templates/${templateId}`, data);
   }
 
   /**
    * Delete a template
    */
-  async deleteTemplate(templateId: string): Promise<void> {
+  async deleteTemplate(templateId: number): Promise<void> {
     return this.delete<void>(`/templates/${templateId}`);
   }
 }

@@ -19,7 +19,7 @@ export class UserApi extends BaseApi {
   /**
    * Enable premium status for a user (admin only)
    */
-  async enablePremium(userId: string, adminToken: string): Promise<User> {
+  async enablePremium(userId: number, adminToken: string): Promise<User> {
     return this.patch<User>(`/users/${userId}/premium/enable`, {}, {
       headers: {
         Authorization: `Bearer ${adminToken}`
@@ -30,7 +30,7 @@ export class UserApi extends BaseApi {
   /**
    * Disable premium status for a user (admin only)
    */
-  async disablePremium(userId: string, adminToken: string): Promise<User> {
+  async disablePremium(userId: number, adminToken: string): Promise<User> {
     return this.patch<User>(`/users/${userId}/premium/disable`, {}, {
       headers: {
         Authorization: `Bearer ${adminToken}`

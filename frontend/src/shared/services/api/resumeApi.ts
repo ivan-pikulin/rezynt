@@ -6,6 +6,7 @@ import {
   ResumeUpdate,
   ResumePartialUpdate,
   ResumePersonalInfoUpdate,
+  ResumeContactCreate,
   ResumeSkillCreate,
   ResumeExperienceCreate,
   ResumeEducationCreate,
@@ -42,81 +43,78 @@ export class ResumeApi extends BaseApi {
   /**
    * Get a specific resume by ID
    */
-  async getResume(resumeId: string): Promise<Resume> {
+  async getResume(resumeId: number): Promise<Resume> {
     return this.get<Resume>(`/resume/${resumeId}`);
   }
 
   /**
    * Update a resume partially
    */
-  async updateResumePartial(resumeId: string, data: ResumePartialUpdate): Promise<Resume> {
+  async updateResumePartial(resumeId: number, data: ResumePartialUpdate): Promise<Resume> {
     return this.patch<Resume>(`/resume/${resumeId}`, data);
   }
 
   /**
    * Update a resume completely
    */
-  async updateResume(resumeId: string, data: ResumeUpdate): Promise<Resume> {
+  async updateResume(resumeId: number, data: ResumeUpdate): Promise<Resume> {
     return this.put<Resume>(`/resume/${resumeId}`, data);
   }
 
   /**
    * Delete a resume
    */
-  async deleteResume(resumeId: string): Promise<void> {
+  async deleteResume(resumeId: number): Promise<void> {
     return this.delete<void>(`/resume/${resumeId}`);
   }
 
   // Personal Info
-  async updatePersonalInfo(resumeId: string, data: ResumePersonalInfoUpdate): Promise<any> {
+  async updatePersonalInfo(resumeId: number, data: ResumePersonalInfoUpdate): Promise<any> {
     return this.patch<any>(`/resume/${resumeId}/personal-info`, data);
   }
 
+  // Contacts
+  async addContact(resumeId: number, data: ResumeContactCreate): Promise<any> {
+    return this.post<any>(`/resume/${resumeId}/contacts`, data);
+  }
+
+  async removeContact(resumeId: number, contactId: number): Promise<any> {
+    return this.delete<any>(`/resume/${resumeId}/contacts/${contactId}`);
+  }
+
   // Skills
-  async addSkill(resumeId: string, data: ResumeSkillCreate): Promise<any> {
+  async addSkill(resumeId: number, data: ResumeSkillCreate): Promise<any> {
     return this.post<any>(`/resume/${resumeId}/skills`, data);
   }
 
-  async removeSkill(resumeId: string, skillId: string): Promise<any> {
+  async removeSkill(resumeId: number, skillId: number): Promise<any> {
     return this.delete<any>(`/resume/${resumeId}/skills/${skillId}`);
   }
 
-  async updateSkillOrder(resumeId: string, skillIds: string[]): Promise<any> {
-    return this.put<any>(`/resume/${resumeId}/skills/order`, skillIds);
-  }
-
   // Experience
-  async addExperience(resumeId: string, data: ResumeExperienceCreate): Promise<any> {
+  async addExperience(resumeId: number, data: ResumeExperienceCreate): Promise<any> {
     return this.post<any>(`/resume/${resumeId}/experience`, data);
   }
 
-  async updateExperience(resumeId: string, experienceId: string, data: any): Promise<any> {
+  async updateExperience(resumeId: number, experienceId: number, data: any): Promise<any> {
     return this.put<any>(`/resume/${resumeId}/experience/${experienceId}`, data);
   }
 
-  async removeExperience(resumeId: string, experienceId: string): Promise<any> {
+  async removeExperience(resumeId: number, experienceId: number): Promise<any> {
     return this.delete<any>(`/resume/${resumeId}/experience/${experienceId}`);
   }
 
-  async updateExperienceOrder(resumeId: string, experienceIds: string[]): Promise<any> {
-    return this.put<any>(`/resume/${resumeId}/experience/order`, experienceIds);
-  }
-
   // Education
-  async addEducation(resumeId: string, data: ResumeEducationCreate): Promise<any> {
+  async addEducation(resumeId: number, data: ResumeEducationCreate): Promise<any> {
     return this.post<any>(`/resume/${resumeId}/education`, data);
   }
 
-  async updateEducation(resumeId: string, educationId: string, data: any): Promise<any> {
+  async updateEducation(resumeId: number, educationId: number, data: any): Promise<any> {
     return this.put<any>(`/resume/${resumeId}/education/${educationId}`, data);
   }
 
-  async removeEducation(resumeId: string, educationId: string): Promise<any> {
+  async removeEducation(resumeId: number, educationId: number): Promise<any> {
     return this.delete<any>(`/resume/${resumeId}/education/${educationId}`);
-  }
-
-  async updateEducationOrder(resumeId: string, educationIds: string[]): Promise<any> {
-    return this.put<any>(`/resume/${resumeId}/education/order`, educationIds);
   }
 
   // Projects
@@ -276,20 +274,20 @@ export class ResumeApi extends BaseApi {
   }
 
   // Export
-  async addExportRecord(resumeId: string, data: ResumeExportCreate): Promise<any> {
+  async addExportRecord(resumeId: number, data: ResumeExportCreate): Promise<any> {
     return this.post<any>(`/resume/${resumeId}/exports`, data);
   }
 
-  async getExportHistory(resumeId: string): Promise<any> {
+  async getExportHistory(resumeId: number): Promise<any> {
     return this.get<any>(`/resume/${resumeId}/exports`);
   }
 
   // Template assignment
-  async assignTemplate(resumeId: string, templateId: string): Promise<any> {
+  async assignTemplate(resumeId: number, templateId: number): Promise<any> {
     return this.put<any>(`/resume/${resumeId}/template/${templateId}`, {});
   }
 
-  async assignTemplateBySlug(resumeId: string, templateSlug: string): Promise<any> {
+  async assignTemplateBySlug(resumeId: number, templateSlug: string): Promise<any> {
     return this.put<any>(`/resume/${resumeId}/template/slug/${templateSlug}`, {});
   }
 
@@ -302,7 +300,7 @@ export class ResumeApi extends BaseApi {
   }
 
   // AI update
-  async updateWithAI(resumeId: string, aiUpdate: any): Promise<any> {
+  async updateWithAI(resumeId: number, aiUpdate: any): Promise<any> {
     return this.post<any>(`/resume/${resumeId}/ai-update`, aiUpdate, {
       headers: {
         'X-API-Key': import.meta.env.VITE_APP_API_KEY

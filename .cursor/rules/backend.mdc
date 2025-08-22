@@ -9,11 +9,7 @@ Make as short and simple code as possible for the proposed functionality, do not
 Use uv for packages management.
 `uv add package` for adding new packages
 
-For alembic commands use a prefix: $env:PYTHONPATH='.';
-For example:
-```powershell
-$env:PYTHONPATH='.'; alembic upgrade head
-```
+Never do alembic migrations, i do them manually.
 
 <tech_stack>
     <framework>FastAPI</framework>

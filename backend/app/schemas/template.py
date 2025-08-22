@@ -1,6 +1,5 @@
 from datetime import datetime
 from typing import Optional
-from uuid import UUID
 
 from pydantic import BaseModel
 
@@ -24,7 +23,7 @@ class TemplateUpdate(BaseModel):
 
 
 class TemplateInDBBase(TemplateBase):
-    id: UUID
+    id: int
 
     model_config = {"from_attributes": True}
 

@@ -1,6 +1,5 @@
 from datetime import datetime
 from typing import Optional
-from uuid import UUID
 
 from pydantic import BaseModel, EmailStr
 
@@ -20,7 +19,7 @@ class UserUpdate(BaseModel):
 
 
 class UserInDBBase(UserBase):
-    id: UUID
+    id: int
     password_hash: str
     is_verified: bool
     is_premium: bool
@@ -32,7 +31,7 @@ class UserInDBBase(UserBase):
 
 # Public schema for API responses (no password)
 class UserPublic(UserBase):
-    id: UUID
+    id: int
     is_verified: bool
     is_premium: bool
     created_at: datetime

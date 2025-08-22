@@ -2,7 +2,6 @@ from app.api.deps import AsyncDB, CurrentUser, APIKeyVerified
 from app.schemas import user as user_schemas
 from app.database.crud.crud_user import user_crud
 from fastapi import APIRouter, HTTPException, status
-from uuid import UUID
 
 router = APIRouter()
 
@@ -20,7 +19,7 @@ async def read_user_me(
 
 @router.patch("/{user_id}/premium/enable", response_model=user_schemas.UserPublic)
 async def enable_premium(
-    user_id: UUID,
+    user_id: int,
     db: AsyncDB,
     _: APIKeyVerified,
 ) -> user_schemas.UserPublic:
@@ -38,7 +37,7 @@ async def enable_premium(
 
 @router.patch("/{user_id}/premium/disable", response_model=user_schemas.UserPublic)
 async def disable_premium(
-    user_id: UUID,
+    user_id: int,
     db: AsyncDB,
     _: APIKeyVerified,
 ) -> user_schemas.UserPublic:

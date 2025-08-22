@@ -1,5 +1,4 @@
 from typing import Any, Dict, Optional, Union
-from uuid import UUID
 
 from app.core.security import get_password_hash, verify_password
 from app.database.crud.base import CRUDBase
@@ -49,7 +48,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
     def is_active(self, user: User) -> bool:
         return user.is_verified
 
-    async def confirm_email(self, db: AsyncSession, *, user_id: UUID) -> Optional[User]:
+    async def confirm_email(self, db: AsyncSession, *, user_id: int) -> Optional[User]:
         user = await self.get(db, id=user_id)
         if user:
             user.is_verified = True
@@ -57,7 +56,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             await db.refresh(user)
         return user
 
-    async def update_premium_status(self, db: AsyncSession, *, user_id: UUID, is_premium: bool) -> Optional[User]:
+    async def update_premium_status(self, db: AsyncSession, *, user_id: int, is_premium: bool) -> Optional[User]:
         """
         Update premium status of a user. This method should only be called by admin endpoints.
         """

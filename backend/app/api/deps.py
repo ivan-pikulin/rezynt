@@ -1,5 +1,4 @@
 from typing import Annotated, AsyncGenerator, Optional
-from uuid import UUID
 
 from fastapi import Depends, HTTPException, status, Header
 from fastapi.security import OAuth2PasswordBearer
@@ -39,8 +38,8 @@ async def get_current_user(
         raise credentials_exception
 
     try:
-        user_uuid = UUID(user_id)
-        user = await db.get(User, user_uuid)
+        user_id_int = int(user_id)
+        user = await db.get(User, user_id_int)
         if user is None:
             raise credentials_exception
         return user

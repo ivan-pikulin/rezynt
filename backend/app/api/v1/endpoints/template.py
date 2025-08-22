@@ -1,5 +1,4 @@
 from typing import List
-from uuid import UUID
 
 from fastapi import APIRouter, HTTPException, status
 from app.api.deps import VerifiedUser, AsyncDB
@@ -44,7 +43,7 @@ async def get_free_templates(
 
 @router.get("/{template_id}", response_model=Template)
 async def get_template(
-    template_id: UUID,
+    template_id: int,
     db: AsyncDB = None
 ) -> Template:
     """
@@ -100,7 +99,7 @@ async def create_template(
 
 @router.put("/{template_id}", response_model=Template)
 async def update_template(
-    template_id: UUID,
+    template_id: int,
     template_update: TemplateUpdate,
     current_user: VerifiedUser = None,
     db: AsyncDB = None
@@ -131,7 +130,7 @@ async def update_template(
 
 @router.delete("/{template_id}")
 async def delete_template(
-    template_id: UUID,
+    template_id: int,
     current_user: VerifiedUser = None,
     db: AsyncDB = None
 ) -> dict:

@@ -1,5 +1,4 @@
 from typing import Any, Dict
-from uuid import UUID
 from pydantic import BaseModel
 
 from app.api.deps import VerifiedUser, get_db
@@ -14,7 +13,7 @@ router = APIRouter()
 
 class SendMessageRequest(BaseModel):
     message: str
-    resume_id: UUID
+    resume_id: int
 
 
 @router.post("/send-message")

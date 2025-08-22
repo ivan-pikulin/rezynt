@@ -1,5 +1,4 @@
 from typing import Optional
-from uuid import UUID
 from itsdangerous import URLSafeTimedSerializer
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -37,12 +36,12 @@ class UserService:
         try:
             # Расшифровываем токен (срок действия 24 часа)
             user_id = self.serializer.loads(token, salt='email-confirm', max_age=86400)
-            user_uuid = UUID(user_id)
+            user_id_int = int(user_id)
         except Exception:
             raise ValueError("Invalid or expired token")
         
         # Подтверждаем email
-        user = await user_crud.confirm_email(self.db, user_id=user_uuid)
+        user = await user_crud.confirm_email(self.db, user_id=user_id_int)
         if not user:
             raise ValueError("User not found")
         
