@@ -21,7 +21,19 @@ from sqlalchemy.ext.asyncio import AsyncSession
 class CRUDResume(CRUDBase[Resume, ResumeCreate, ResumeUpdate]):
     async def get_by_user_id(self, db: AsyncSession, *, user_id: int) -> List[UnifiedResume]:
         """Get all resumes for a user as unified objects"""
-        result = await db.execute(select(self.model).where(Resume.user_id == user_id))
+        from sqlalchemy.orm import selectinload
+        
+        result = await db.execute(
+            select(self.model)
+            .options(
+                selectinload(Resume.personal_info),
+                selectinload(Resume.contacts),
+                selectinload(Resume.skills),
+                selectinload(Resume.experience),
+                selectinload(Resume.education)
+            )
+            .where(Resume.user_id == user_id)
+        )
         resumes = result.scalars().all()
         return [await self._to_unified_resume(db, resume) for resume in resumes]
 
@@ -49,8 +61,18 @@ class CRUDResume(CRUDBase[Resume, ResumeCreate, ResumeUpdate]):
 
     async def get_by_user_id_and_id(self, db: AsyncSession, *, user_id: int, resume_id: int) -> Optional[UnifiedResume]:
         """Get a specific resume by user_id and resume_id as unified object"""
+        from sqlalchemy.orm import selectinload
+        
         result = await db.execute(
-            select(self.model).where(Resume.user_id == user_id, Resume.id == resume_id)
+            select(self.model)
+            .options(
+                selectinload(Resume.personal_info),
+                selectinload(Resume.contacts),
+                selectinload(Resume.skills),
+                selectinload(Resume.experience),
+                selectinload(Resume.education)
+            )
+            .where(Resume.user_id == user_id, Resume.id == resume_id)
         )
         resume = result.scalar_one_or_none()
         if resume:
@@ -59,9 +81,41 @@ class CRUDResume(CRUDBase[Resume, ResumeCreate, ResumeUpdate]):
 
     async def get_by_template_id(self, db: AsyncSession, *, template_id: int) -> List[UnifiedResume]:
         """Get all resumes by template_id as unified objects"""
-        result = await db.execute(select(self.model).where(Resume.template_id == template_id))
+        from sqlalchemy.orm import selectinload
+        
+        result = await db.execute(
+            select(self.model)
+            .options(
+                selectinload(Resume.personal_info),
+                selectinload(Resume.contacts),
+                selectinload(Resume.skills),
+                selectinload(Resume.experience),
+                selectinload(Resume.education)
+            )
+            .where(Resume.template_id == template_id)
+        )
         resumes = result.scalars().all()
         return [await self._to_unified_resume(db, resume) for resume in resumes]
+
+    async def get_by_id(self, db: AsyncSession, *, resume_id: int) -> Optional[UnifiedResume]:
+        """Get a specific resume by ID as unified object"""
+        from sqlalchemy.orm import selectinload
+        
+        result = await db.execute(
+            select(self.model)
+            .options(
+                selectinload(Resume.personal_info),
+                selectinload(Resume.contacts),
+                selectinload(Resume.skills),
+                selectinload(Resume.experience),
+                selectinload(Resume.education)
+            )
+            .where(Resume.id == resume_id)
+        )
+        resume = result.scalar_one_or_none()
+        if resume:
+            return await self._to_unified_resume(db, resume)
+        return None
 
     async def create(self, db: AsyncSession, *, obj_in: ResumeCreate, user_id: int) -> UnifiedResume:
         """Create a new resume with user_id and return as unified object"""
@@ -69,7 +123,7 @@ class CRUDResume(CRUDBase[Resume, ResumeCreate, ResumeUpdate]):
         db_obj = self.model(**obj_in_data, user_id=user_id)
         db.add(db_obj)
         await db.commit()
-        await db.refresh(db_obj)
+        await db.refresh(db_obj, ['personal_info', 'contacts', 'skills', 'experience', 'education'])
         return await self._to_unified_resume(db, db_obj)
 
     async def update(self, db: AsyncSession, *, db_obj: Resume, obj_in: ResumeUpdate) -> UnifiedResume:
@@ -80,7 +134,7 @@ class CRUDResume(CRUDBase[Resume, ResumeCreate, ResumeUpdate]):
             setattr(db_obj, field, value)
         
         await db.commit()
-        await db.refresh(db_obj)
+        await db.refresh(db_obj, ['personal_info', 'contacts', 'skills', 'experience', 'education'])
         return await self._to_unified_resume(db, db_obj)
 
     async def get_full_resume(self, db: AsyncSession, *, user_id: int, resume_id: int) -> Optional[UnifiedResume]:
@@ -134,36 +188,29 @@ class CRUDResume(CRUDBase[Resume, ResumeCreate, ResumeUpdate]):
 
     async def _to_unified_resume(self, db: AsyncSession, resume: Resume) -> UnifiedResume:
         """Convert database resume to unified resume object"""
-        # Load related data if not already loaded
-        if not resume.personal_info:
-            await db.refresh(resume, ['personal_info'])
-        if not resume.contacts:
-            await db.refresh(resume, ['contacts'])
-        if not resume.skills:
-            await db.refresh(resume, ['skills'])
-        if not resume.experience:
-            await db.refresh(resume, ['experience'])
-        if not resume.education:
-            await db.refresh(resume, ['education'])
-
+        # For a newly created resume, related data will be empty, so we don't need to load it
         # Extract personal info
         first_name = None
         last_name = None
         location = None
-        if resume.personal_info:
+        if hasattr(resume, 'personal_info') and resume.personal_info:
             first_name = resume.personal_info.first_name
             last_name = resume.personal_info.last_name
             location = resume.personal_info.location
 
         # Extract contacts
-        contacts = [contact.value for contact in resume.contacts] if resume.contacts else []
+        contacts = []
+        if hasattr(resume, 'contacts') and resume.contacts:
+            contacts = [contact.value for contact in resume.contacts]
 
         # Extract skills
-        skills = [skill.name for skill in resume.skills] if resume.skills else []
+        skills = []
+        if hasattr(resume, 'skills') and resume.skills:
+            skills = [skill.name for skill in resume.skills]
 
         # Extract experience
         experience = []
-        if resume.experience:
+        if hasattr(resume, 'experience') and resume.experience:
             for exp in resume.experience:
                 experience.append(UnifiedResumeExperience(
                     job_title=exp.job_title,
@@ -176,7 +223,7 @@ class CRUDResume(CRUDBase[Resume, ResumeCreate, ResumeUpdate]):
 
         # Extract education
         education = []
-        if resume.education:
+        if hasattr(resume, 'education') and resume.education:
             for edu in resume.education:
                 education.append(UnifiedResumeEducation(
                     degree=edu.degree,
@@ -270,6 +317,10 @@ class ResumeManager:
     async def get_resume(self, db: AsyncSession, *, user_id: int, resume_id: int) -> Optional[UnifiedResume]:
         """Get a specific resume by user_id and resume_id as unified object"""
         return await self.resume_crud.get_by_user_id_and_id(db, user_id=user_id, resume_id=resume_id)
+
+    async def get_resume_by_id(self, db: AsyncSession, *, resume_id: int) -> Optional[UnifiedResume]:
+        """Get a specific resume by ID without user_id check (for AI operations)"""
+        return await self.resume_crud.get_by_id(db, resume_id=resume_id)
 
     async def create_resume(self, db: AsyncSession, *, obj_in: ResumeCreate, user_id: int) -> UnifiedResume:
         """Create a new resume with user_id and return as unified object"""

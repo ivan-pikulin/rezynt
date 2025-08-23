@@ -202,7 +202,7 @@ async def update_resume_with_ai(
     Requires valid API key for authorization.
     """
     # Get the resume
-    resume = await resume_manager.get_resume(db, user_id=None, resume_id=resume_id)
+    resume = await resume_manager.get_resume_by_id(db, resume_id=resume_id)
     if not resume:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -284,7 +284,7 @@ async def update_resume_with_ai(
         updated_fields["education_added"] = len(ai_update.education)
     
     # Get updated resume
-    updated_resume = await resume_manager.get_resume(db, user_id=None, resume_id=resume_id)
+    updated_resume = await resume_manager.get_resume_by_id(db, resume_id=resume_id)
     
     return {
         "resume_id": resume_id,

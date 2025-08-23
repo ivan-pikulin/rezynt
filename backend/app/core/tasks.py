@@ -1,15 +1,13 @@
-from app.core.celery_app import celery_app
-from app.services.email_service import EmailService
-from app.services.parse_service import ParseService
-from app.database.session import SessionLocal
-from app.database.crud.crud_resume import resume_crud
-from app.schemas.resume import ResumeUpdate, ResumePersonalInfoUpdate
+import asyncio
 import logging
 import os
-import tempfile
-from pathlib import Path
-from sqlalchemy.ext.asyncio import AsyncSession
-import asyncio
+
+from app.core.celery_app import celery_app
+from app.database.crud.crud_resume import resume_crud
+from app.database.session import SessionLocal
+from app.schemas.resume import ResumePersonalInfoUpdate, ResumeUpdate
+from app.services.email_service import EmailService
+from app.services.parse_service import ParseService
 
 # Set up logging
 logger = logging.getLogger(__name__)
