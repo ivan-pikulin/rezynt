@@ -1,17 +1,14 @@
 from typing import Any, Dict, List
-from fastapi import APIRouter, HTTPException, status, File, UploadFile
 
-from app.api.deps import VerifiedUser, AsyncDB, APIKeyVerified
+from app.api.deps import APIKeyVerified, AsyncDB, VerifiedUser
+from app.core.config import settings
 from app.database.crud.crud_resume import resume_manager
 from app.database.crud.crud_template import template_crud
-from app.schemas.resume import (
-    ResumeCreate, ResumeUpdate,
-    ResumePersonalInfoUpdate, ResumeContactCreate,
-    ResumeExperienceCreate, ResumeEducationCreate,
-    OpenAIResumeUpdate, AIResumeUpdate
-)
+from app.schemas.resume import (AIResumeUpdate, ResumeCreate,
+                                ResumeEducationCreate, ResumeExperienceCreate,
+                                ResumePersonalInfoUpdate, ResumeUpdate)
 from app.services.platform_service import PlatformService
-from app.core.config import settings
+from fastapi import APIRouter, File, HTTPException, UploadFile, status
 
 router = APIRouter()
 

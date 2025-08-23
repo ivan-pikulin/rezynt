@@ -1,17 +1,18 @@
 from typing import List, Optional
 
 from app.database.crud.base import CRUDBase
-from app.database.models import Resume, ResumePersonalInfo, ResumeContact, ResumeSkill, ResumeExperience, ResumeEducation, ResumeExport
-from app.schemas.resume import (
-    ResumeCreate, ResumeUpdate, ResumePartialUpdate,
-    ResumePersonalInfoCreate, ResumePersonalInfoUpdate,
-    ResumeContactCreate, ResumeContactUpdate,
-    ResumeSkillCreate, ResumeSkillUpdate,
-    ResumeExperienceCreate, ResumeExperienceUpdate,
-    ResumeEducationCreate, ResumeEducationUpdate,
-    ResumeExportCreate, ResumeExportUpdate,
-    UnifiedResume, UnifiedResumeExperience, UnifiedResumeEducation
-)
+from app.database.models import (Resume, ResumeContact, ResumeEducation,
+                                 ResumeExperience, ResumeExport,
+                                 ResumePersonalInfo, ResumeSkill)
+from app.schemas.resume import (ResumeContactCreate, ResumeContactUpdate,
+                                ResumeCreate, ResumeEducationCreate,
+                                ResumeEducationUpdate, ResumeExperienceCreate,
+                                ResumeExperienceUpdate, ResumeExportCreate,
+                                ResumeExportUpdate, ResumePersonalInfoCreate,
+                                ResumePersonalInfoUpdate, ResumeSkillCreate,
+                                ResumeSkillUpdate, ResumeUpdate, UnifiedResume,
+                                UnifiedResumeEducation,
+                                UnifiedResumeExperience)
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
