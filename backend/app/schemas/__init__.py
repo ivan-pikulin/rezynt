@@ -3,7 +3,7 @@ from .resume import (Resume, ResumeCreate, ResumeEducationCreate,
                      ResumeExperienceUpdate, ResumeInDB, ResumePartialUpdate,
                      ResumePersonalInfoUpdate, ResumeSkillCreate,
                      ResumeSkillUpdate, ResumeUpdate, ResumeExportCreate,
-                     ResumeExportUpdate, AIResumeUpdate, ResumeWithTemplate)
+                     ResumeExportUpdate, AIResumeUpdate, OpenAIStructuredResume, ResumeWithTemplate)
 from .template import Template, TemplateCreate, TemplateUpdate, TemplateInDB
 from .token import Token, TokenPayload, RefreshRequest
 from .user import (User, UserCreate, UserInDB, UserPremiumUpdate, UserPublic,
@@ -34,6 +34,7 @@ __all__ = [
     "ResumeExportCreate",
     "ResumeExportUpdate",
     "AIResumeUpdate",
+    "OpenAIStructuredResume",
     "ResumeWithTemplate",
     "Template",
     "TemplateCreate",

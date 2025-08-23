@@ -349,6 +349,19 @@ class AIResumeUpdate(BaseModel):
     education: Optional[List[Dict[str, Any]]] = None
 
 
+# OpenAI Structured Output Schema for resume parsing
+class OpenAIStructuredResume(BaseModel):
+    """Schema for OpenAI structured output when parsing resumes"""
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    location: Optional[str] = None
+    professional_summary: Optional[str] = None
+    contacts: List[str] = []
+    skills: List[str] = []
+    experience: List[UnifiedResumeExperience] = []
+    education: List[UnifiedResumeEducation] = []
+
+
 # PDF Export Schema
 class PDFExportRequest(BaseModel):
     """Schema for PDF export request"""
