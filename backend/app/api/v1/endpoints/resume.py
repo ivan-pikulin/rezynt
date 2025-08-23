@@ -360,9 +360,8 @@ async def export_resume_pdf(
         filename = export_request.filename
         if not filename:
             # Use user's name from resume data
-            personal_info = resume.personal_info
-            if personal_info and personal_info.first_name and personal_info.last_name:
-                full_name = f"{personal_info.first_name}_{personal_info.last_name}"
+            if resume.first_name and resume.last_name:
+                full_name = f"{resume.first_name}_{resume.last_name}"
             else:
                 full_name = f"resume_{resume_id}"
             filename = f"{full_name}_resume.pdf"

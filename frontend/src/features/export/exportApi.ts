@@ -22,7 +22,7 @@ export const exportApi = {
 
   exportToPDF: async (resumeId: string, request: PDFExportRequest): Promise<Blob> => {
     const response = await baseApi.post(
-      `/resumes/${resumeId}/export-pdf`,
+      `/resume/${resumeId}/export-pdf`,
       request,
       {
         responseType: 'blob',

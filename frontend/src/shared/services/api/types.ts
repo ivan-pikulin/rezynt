@@ -4,6 +4,11 @@ export interface ApiResponse<T> {
   message?: string;
 }
 
+export interface ExportResponse {
+  success: boolean;
+  planId: 'pro' | 'lifetime';
+}
+
 export interface PaginatedResponse<T> {
   items: T[];
   total: number;
