@@ -1,19 +1,18 @@
+import os
+import tempfile
 from typing import Any, Dict, List
 
 from app.api.deps import APIKeyVerified, AsyncDB, VerifiedUser
-from app.core.config import settings
-from app.core.tasks import process_resume_upload
 from app.core.celery_app import celery_app
+from app.core.tasks import process_resume_upload
 from app.database.crud.crud_resume import resume_manager
 from app.database.crud.crud_template import template_crud
 from app.schemas.resume import (AIResumeUpdate, PDFExportRequest, ResumeCreate,
                                 ResumeEducationCreate, ResumeExperienceCreate,
                                 ResumePersonalInfoUpdate, ResumeUpdate)
-
 from app.services.pdf_service import pdf_service
+from app.services.parse_service import ParseService
 from fastapi import APIRouter, File, HTTPException, UploadFile, status
-import tempfile
-import os
 
 router = APIRouter()
 
@@ -440,4 +439,31 @@ async def get_upload_result(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to get task result: {str(e)}"
+        )
+
+
+@router.post("/test-structured-output", response_model=Dict[str, Any])
+async def test_structured_output(
+    *,
+    current_user: VerifiedUser,
+    sample_text: str = None
+) -> Dict[str, Any]:
+    """
+    Test OpenAI Structured Outputs feature with sample resume text.
+    Only available for users with verified email.
+    """
+    try:
+        parse_service = ParseService()
+        result = parse_service.test_structured_output(sample_text)
+        
+        return {
+            "success": result.get("success", False),
+            "data": result,
+            "message": "Structured output test completed"
+        }
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to test structured output: {str(e)}"
         )

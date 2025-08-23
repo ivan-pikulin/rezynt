@@ -1,4 +1,5 @@
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
+from datetime import datetime
 
 from app.database.crud.base import CRUDBase
 from app.database.models import (Resume, ResumeContact, ResumeEducation,
@@ -329,6 +330,22 @@ class ResumeManager:
             return removed_contact is not None
         return False
 
+    async def update_contacts(self, db: AsyncSession, *, resume_id: int, contacts: List[str]) -> List[ResumeContact]:
+        """Update all contacts for a resume by replacing existing ones"""
+        # Remove existing contacts
+        existing_contacts = await self.get_contacts(db, resume_id=resume_id)
+        for contact in existing_contacts:
+            await self.contact_crud.remove(db, id=contact.id)
+        
+        # Add new contacts
+        new_contacts = []
+        for contact_value in contacts:
+            if contact_value.strip():  # Skip empty contacts
+                new_contact = await self.add_contact(db, resume_id=resume_id, contact_value=contact_value.strip())
+                new_contacts.append(new_contact)
+        
+        return new_contacts
+
     # Skill methods
     async def get_skills(self, db: AsyncSession, *, resume_id: int) -> List[ResumeSkill]:
         """Get skills for a resume."""
@@ -348,6 +365,22 @@ class ResumeManager:
             removed_skill = await self.skill_crud.remove(db, id=skill_id)
             return removed_skill is not None
         return False
+
+    async def update_skills(self, db: AsyncSession, *, resume_id: int, skills: List[str]) -> List[ResumeSkill]:
+        """Update all skills for a resume by replacing existing ones"""
+        # Remove existing skills
+        existing_skills = await self.get_skills(db, resume_id=resume_id)
+        for skill in existing_skills:
+            await self.skill_crud.remove(db, id=skill.id)
+        
+        # Add new skills
+        new_skills = []
+        for skill_name in skills:
+            if skill_name.strip():  # Skip empty skills
+                new_skill = await self.add_skill(db, resume_id=resume_id, skill_name=skill_name.strip())
+                new_skills.append(new_skill)
+        
+        return new_skills
 
     # Experience methods
     async def get_experience(self, db: AsyncSession, *, resume_id: int) -> List[ResumeExperience]:
@@ -374,6 +407,46 @@ class ResumeManager:
             return removed_experience is not None
         return False
 
+    async def update_experience(self, db: AsyncSession, *, resume_id: int, experience: List[Dict[str, Any]]) -> List[ResumeExperience]:
+        """Update all experience for a resume by replacing existing ones"""
+        # Remove existing experience
+        existing_experience = await self.get_experience(db, resume_id=resume_id)
+        for exp in existing_experience:
+            await self.experience_crud.remove(db, id=exp.id)
+        
+        # Add new experience
+        new_experience = []
+        for exp_data in experience:
+            if exp_data.get('job_title') and exp_data.get('company'):  # Skip incomplete experience
+                # Convert date strings to date objects
+                start_date = None
+                end_date = None
+                
+                if exp_data.get('start_date'):
+                    try:
+                        start_date = datetime.strptime(exp_data['start_date'], "%Y-%m-%d").date()
+                    except (ValueError, TypeError):
+                        pass
+                
+                if exp_data.get('end_date'):
+                    try:
+                        end_date = datetime.strptime(exp_data['end_date'], "%Y-%m-%d").date()
+                    except (ValueError, TypeError):
+                        pass
+                
+                experience_create = ResumeExperienceCreate(
+                    job_title=exp_data['job_title'],
+                    company=exp_data['company'],
+                    location=exp_data.get('location'),
+                    start_date=start_date,
+                    end_date=end_date,
+                    responsibilities=exp_data.get('responsibilities', [])
+                )
+                new_exp = await self.add_experience(db, resume_id=resume_id, experience_data=experience_create)
+                new_experience.append(new_exp)
+        
+        return new_experience
+
     # Education methods
     async def get_education(self, db: AsyncSession, *, resume_id: int) -> List[ResumeEducation]:
         """Get education for a resume."""
@@ -398,6 +471,37 @@ class ResumeManager:
             removed_education = await self.education_crud.remove(db, id=education_id)
             return removed_education is not None
         return False
+
+    async def update_education(self, db: AsyncSession, *, resume_id: int, education: List[Dict[str, Any]]) -> List[ResumeEducation]:
+        """Update all education for a resume by replacing existing ones"""
+        # Remove existing education
+        existing_education = await self.get_education(db, resume_id=resume_id)
+        for edu in existing_education:
+            await self.education_crud.remove(db, id=edu.id)
+        
+        # Add new education
+        new_education = []
+        for edu_data in education:
+            if edu_data.get('degree') and edu_data.get('institution'):  # Skip incomplete education
+                # Convert date strings to date objects
+                graduation_date = None
+                
+                if edu_data.get('graduation_date'):
+                    try:
+                        graduation_date = datetime.strptime(edu_data['graduation_date'], "%Y-%m-%d").date()
+                    except (ValueError, TypeError):
+                        pass
+                
+                education_create = ResumeEducationCreate(
+                    degree=edu_data['degree'],
+                    institution=edu_data['institution'],
+                    location=edu_data.get('location'),
+                    graduation_date=graduation_date
+                )
+                new_edu = await self.add_education(db, resume_id=resume_id, education_data=education_create)
+                new_education.append(new_edu)
+        
+        return new_education
 
     # Export methods
     async def add_export_record(self, db: AsyncSession, *, resume_id: int, export_format: str, file_size: Optional[int] = None, export_settings: Optional[dict] = None) -> ResumeExport:

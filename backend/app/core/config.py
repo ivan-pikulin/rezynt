@@ -30,6 +30,13 @@ class RedisSettings(BaseSettings):
         return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
 
 
+class OpenAISettings(BaseSettings):
+    OPENAI_API_KEY: str
+    OPENAI_PROXY_URL: str
+
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf8", extra="ignore")
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", case_sensitive=True)
 
@@ -57,6 +64,9 @@ class Settings(BaseSettings):
 
     # Redis settings
     redis: RedisSettings = RedisSettings()
+
+    # OpenAI settings
+    openai: OpenAISettings = OpenAISettings()
 
     # Platform settings
     PLATFORM_APP_KEY: str

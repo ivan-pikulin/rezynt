@@ -2,10 +2,64 @@
 <specification>
     <name>Services Layer</name>
     <description>
-        Слой сервисов для бизнес-логики приложения. Содержит классы для работы с пользователями и отправки email.
+        Слой сервисов для бизнес-логики приложения. Содержит классы для работы с пользователями, отправки email и парсинга резюме.
     </description>
     
     <components>
+        <component>
+            <name>ParseService</name>
+            <description>
+                Сервис для парсинга резюме с использованием OpenAI Structured Outputs. Читает файлы через markitdown и извлекает структурированные данные с гарантированным форматом через Pydantic модели.
+            </description>
+            <methods>
+                <method>
+                    <name>parse_resume_file</name>
+                    <description>Парсит файл резюме и возвращает структурированные данные</description>
+                    <params>
+                        <param name="file_path" type="str">Путь к файлу резюме</param>
+                    </params>
+                    <returns type="ParsedResumeData">Структурированные данные резюме</returns>
+                </method>
+                <method>
+                    <name>_parse_with_openai_structured</name>
+                    <description>Парсит текст резюме через OpenAI Structured Outputs используя OpenAIStructuredResume schema</description>
+                    <params>
+                        <param name="text_content" type="str">Текст резюме</param>
+                    </params>
+                    <returns type="ParsedResumeData">Структурированные данные</returns>
+                </method>
+                <method>
+                    <name>_convert_structured_to_parsed</name>
+                    <description>Преобразует OpenAIStructuredResume в ParsedResumeData</description>
+                    <params>
+                        <param name="structured_data" type="OpenAIStructuredResume">Структурированные данные от OpenAI</param>
+                    </params>
+                    <returns type="ParsedResumeData">Преобразованные данные</returns>
+                </method>
+                <method>
+                    <name>parse_resume_to_unified</name>
+                    <description>Парсит файл резюме и возвращает данные в формате UnifiedResume</description>
+                    <params>
+                        <param name="file_path" type="str">Путь к файлу резюме</param>
+                        <param name="user_id" type="int">ID пользователя</param>
+                        <param name="title" type="str">Заголовок резюме</param>
+                    </params>
+                    <returns type="Dict[str, Any]">Данные в формате UnifiedResume</returns>
+                </method>
+            </methods>
+            <configuration>
+                <openai_api_key>OPENAI_API_KEY - API ключ OpenAI</openai_api_key>
+                <openai_proxy_url>OPENAI_PROXY_URL - URL прокси для OpenAI</openai_proxy_url>
+                <model>gpt-4o-mini - Модель OpenAI для парсинга</model>
+                <structured_output>Использует OpenAI Structured Outputs с Pydantic моделями для гарантированного формата</structured_output>
+            </configuration>
+            <schemas>
+                <schema name="OpenAIStructuredResume">Pydantic модель для OpenAI Structured Output</schema>
+                <schema name="OpenAIStructuredResumeExperience">Модель для опыта работы в structured output</schema>
+                <schema name="OpenAIStructuredResumeEducation">Модель для образования в structured output</schema>
+            </schemas>
+        </component>
+        
         <component>
             <name>PlatformChatflow</name>
             <description>
@@ -123,5 +177,7 @@
         <dependency>smtplib</dependency>
         <dependency>itsdangerous</dependency>
         <dependency>jinja2</dependency>
+        <dependency>openai</dependency>
+        <dependency>markitdown</dependency>
     </dependencies>
 </specification>

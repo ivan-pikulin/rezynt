@@ -299,6 +299,41 @@ class ResumeWithTemplate(ResumeInDBBase):
 
 
 # OpenAI Structured Output Schemas
+class OpenAIStructuredResumeExperience(BaseModel):
+    job_title: str
+    company: str
+    location: Optional[str] = None
+    start_date: Optional[str] = None  # YYYY-MM-DD format
+    end_date: Optional[str] = None    # YYYY-MM-DD format
+    responsibilities: List[str] = []
+
+
+class OpenAIStructuredResumeEducation(BaseModel):
+    degree: str
+    institution: str
+    location: Optional[str] = None
+    graduation_date: Optional[str] = None  # YYYY-MM-DD format
+
+
+class OpenAIStructuredResume(BaseModel):
+    """Schema for OpenAI Structured Output that matches UnifiedResume structure"""
+    # Personal information
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    location: Optional[str] = None
+    
+    # Professional information
+    professional_summary: Optional[str] = None
+    
+    # Contacts and skills
+    contacts: List[str] = []
+    skills: List[str] = []
+    
+    # Experience and education
+    experience: List[OpenAIStructuredResumeExperience] = []
+    education: List[OpenAIStructuredResumeEducation] = []
+
+
 class OpenAIResumePersonalInfo(BaseModel):
     firstName: Optional[str] = None
     lastName: Optional[str] = None
