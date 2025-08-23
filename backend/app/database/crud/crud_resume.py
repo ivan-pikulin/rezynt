@@ -117,13 +117,31 @@ class CRUDResume(CRUDBase[Resume, ResumeCreate, ResumeUpdate]):
             return await self._to_unified_resume(db, resume)
         return None
 
+    async def get_db_model_by_id(self, db: AsyncSession, *, resume_id: int) -> Optional[Resume]:
+        """Get a specific resume by ID as database model with relationships loaded"""
+        from sqlalchemy.orm import selectinload
+        
+        result = await db.execute(
+            select(self.model)
+            .options(
+                selectinload(Resume.personal_info),
+                selectinload(Resume.contacts),
+                selectinload(Resume.skills),
+                selectinload(Resume.experience),
+                selectinload(Resume.education)
+            )
+            .where(Resume.id == resume_id)
+        )
+        return result.scalar_one_or_none()
+
     async def create(self, db: AsyncSession, *, obj_in: ResumeCreate, user_id: int) -> UnifiedResume:
         """Create a new resume with user_id and return as unified object"""
         obj_in_data = obj_in.model_dump()
         db_obj = self.model(**obj_in_data, user_id=user_id)
         db.add(db_obj)
         await db.commit()
-        await db.refresh(db_obj, ['personal_info', 'contacts', 'skills', 'experience', 'education'])
+        # Refresh the entire object to ensure all fields are loaded
+        await db.refresh(db_obj)
         return await self._to_unified_resume(db, db_obj)
 
     async def update(self, db: AsyncSession, *, db_obj: Resume, obj_in: ResumeUpdate) -> UnifiedResume:
@@ -134,7 +152,8 @@ class CRUDResume(CRUDBase[Resume, ResumeCreate, ResumeUpdate]):
             setattr(db_obj, field, value)
         
         await db.commit()
-        await db.refresh(db_obj, ['personal_info', 'contacts', 'skills', 'experience', 'education'])
+        # Refresh the entire object to ensure all fields are loaded
+        await db.refresh(db_obj)
         return await self._to_unified_resume(db, db_obj)
 
     async def get_full_resume(self, db: AsyncSession, *, user_id: int, resume_id: int) -> Optional[UnifiedResume]:
@@ -233,14 +252,14 @@ class CRUDResume(CRUDBase[Resume, ResumeCreate, ResumeUpdate]):
                 ))
 
         return UnifiedResume(
-            id=resume.id,
-            user_id=resume.user_id,
-            title=resume.title,
-            template_id=resume.template_id,
-            professional_summary=resume.professional_summary,
-            conversation_id=resume.conversation_id,
-            created_at=resume.created_at,
-            updated_at=resume.updated_at,
+            id=getattr(resume, 'id', None),
+            user_id=getattr(resume, 'user_id', None),
+            title=getattr(resume, 'title', None),
+            template_id=getattr(resume, 'template_id', None),
+            professional_summary=getattr(resume, 'professional_summary', None),
+            conversation_id=getattr(resume, 'conversation_id', None),
+            created_at=getattr(resume, 'created_at', None),
+            updated_at=getattr(resume, 'updated_at', None),
             first_name=first_name,
             last_name=last_name,
             location=location,
@@ -328,8 +347,8 @@ class ResumeManager:
 
     async def update_resume(self, db: AsyncSession, *, resume_id: int, resume_update: ResumeUpdate) -> UnifiedResume:
         """Update a resume and return as unified object"""
-        # Get the database model for update
-        db_resume = await self.resume_crud.get(db, id=resume_id)
+        # Get the database model for update with relationships loaded
+        db_resume = await self.resume_crud.get_db_model_by_id(db, resume_id=resume_id)
         if not db_resume:
             raise ValueError("Resume not found")
         
