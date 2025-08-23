@@ -66,6 +66,7 @@ const ChatPage: React.FC = () => {
         nextButtonText="Refine"
         previousButtonText="Start"
         showLogo={true} // Показываем лого на десктопе
+        showBackButton={false} // Скрываем кнопку "Назад" на странице чата
         onStepClick={handleStepClick}
       />
       
