@@ -11,11 +11,11 @@ RUN apt-get update && apt-get install -y \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Install wkhtmltopdf from official source (compatible version)
-RUN wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-2/wkhtmltox_0.12.6.1-2.bookworm_amd64.deb \
+# Install wkhtmltopdf from official source
+RUN wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-2/wkhtmltox_0.12.6.1-2.bullseye_amd64.deb \
     && apt-get update \
-    && apt-get install -y ./wkhtmltox_0.12.6.1-2.bookworm_amd64.deb \
-    && rm wkhtmltox_0.12.6.1-2.bookworm_amd64.deb \
+    && apt-get install -y ./wkhtmltox_0.12.6.1-2.bullseye_amd64.deb \
+    && rm wkhtmltox_0.12.6.1-2.bullseye_amd64.deb \
     && rm -rf /var/lib/apt/lists/*
 
 # Install uv
