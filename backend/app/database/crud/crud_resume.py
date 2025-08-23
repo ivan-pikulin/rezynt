@@ -400,6 +400,53 @@ class ResumeManager:
         
         return await self.resume_crud.update(db, db_obj=db_resume, obj_in=resume_update)
 
+    async def partial_update_resume(self, db: AsyncSession, *, resume_id: int, resume_update: ResumePartialUpdate) -> UnifiedResume:
+        """Partially update a resume with flexible field updates"""
+        # Get the current resume
+        current_resume = await self.get_resume_by_id(db, resume_id=resume_id)
+        if not current_resume:
+            raise ValueError("Resume not found")
+        
+        # Update basic resume fields
+        if any([resume_update.title is not None, resume_update.template_id is not None, 
+                resume_update.professional_summary is not None, resume_update.conversation_id is not None]):
+            basic_update = ResumeUpdate(
+                title=resume_update.title,
+                template_id=resume_update.template_id,
+                professional_summary=resume_update.professional_summary,
+                conversation_id=resume_update.conversation_id
+            )
+            await self.update_resume(db, resume_id=resume_id, resume_update=basic_update)
+        
+        # Update personal info
+        if any([resume_update.first_name is not None, resume_update.last_name is not None, 
+                resume_update.location is not None]):
+            personal_info_update = ResumePersonalInfoUpdate(
+                first_name=resume_update.first_name,
+                last_name=resume_update.last_name,
+                location=resume_update.location
+            )
+            await self.update_personal_info(db, resume_id=resume_id, personal_info=personal_info_update)
+        
+        # Update contacts
+        if resume_update.contacts is not None:
+            await self.update_contacts(db, resume_id=resume_id, contacts=resume_update.contacts)
+        
+        # Update skills
+        if resume_update.skills is not None:
+            await self.update_skills(db, resume_id=resume_id, skills=resume_update.skills)
+        
+        # Update experience
+        if resume_update.experience is not None:
+            await self.update_experience_list(db, resume_id=resume_id, experience_list=resume_update.experience)
+        
+        # Update education
+        if resume_update.education is not None:
+            await self.update_education_list(db, resume_id=resume_id, education_list=resume_update.education)
+        
+        # Return updated resume
+        return await self.get_resume_by_id(db, resume_id=resume_id)
+
     async def get_full_resume(self, db: AsyncSession, *, user_id: int, resume_id: int) -> Optional[UnifiedResume]:
         """Get a complete resume with all related data as unified object"""
         return await self.resume_crud.get_full_resume(db, user_id=user_id, resume_id=resume_id)
