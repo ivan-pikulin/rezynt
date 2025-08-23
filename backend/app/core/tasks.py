@@ -1,7 +1,7 @@
 from app.core.celery_app import celery_app
 from app.services.email_service import EmailService
 from app.services.parse_service import ParseService
-from app.database.session import AsyncSessionLocal
+from app.database.session import SessionLocal
 from app.database.crud.crud_resume import resume_crud
 from app.schemas.resume import ResumeUpdate, ResumePersonalInfoUpdate
 import logging
@@ -116,7 +116,7 @@ def process_resume_upload(self, file_path: str, user_id: int, resume_id: int):
 
 async def _update_resume_in_db(resume_id: int, user_id: int, parsed_data):
     """Обновляет резюме в базе данных с данными из ParseService"""
-    async with AsyncSessionLocal() as db:
+    async with SessionLocal() as db:
         try:
             # Создаем объект для обновления резюме
             resume_update = ResumeUpdate(
