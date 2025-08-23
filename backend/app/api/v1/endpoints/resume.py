@@ -2,14 +2,18 @@ from typing import Any, Dict, List
 
 from app.api.deps import APIKeyVerified, AsyncDB, VerifiedUser
 from app.core.config import settings
+from app.core.tasks import process_resume_upload
+from app.core.celery_app import celery_app
 from app.database.crud.crud_resume import resume_manager
 from app.database.crud.crud_template import template_crud
 from app.schemas.resume import (AIResumeUpdate, PDFExportRequest, ResumeCreate,
                                 ResumeEducationCreate, ResumeExperienceCreate,
                                 ResumePersonalInfoUpdate, ResumeUpdate)
-from app.services.platform_service import PlatformService
+
 from app.services.pdf_service import pdf_service
 from fastapi import APIRouter, File, HTTPException, UploadFile, status
+import tempfile
+import os
 
 router = APIRouter()
 
@@ -103,7 +107,7 @@ async def upload_resume(
     current_user: VerifiedUser,
 ) -> Dict[str, Any]:
     """
-    Upload a resume file.
+    Upload a resume file and process it with markitdown.
     Only available for users with verified email.
     """
     # Validate file type
@@ -113,19 +117,8 @@ async def upload_resume(
             detail="Only PDF, DOC, and DOCX files are allowed"
         )
     
-    # Create platform service instance
-    platform_service = PlatformService(
-        app_key=settings.PLATFORM_APP_KEY,
-        app_url=settings.PLATFORM_APP_URL,
-        timeout=settings.PLATFORM_TIMEOUT
-    )
-    
     try:
-        # Upload file to platform
-        file_content = await file.read()
-        upload_response = await platform_service.upload_file(file_content, file.filename)
-        
-        # Create resume from uploaded file
+        # Create resume first
         resume_create = ResumeCreate(
             title=f"Resume from {file.filename}",
             template_id=1,  # Default template
@@ -134,10 +127,21 @@ async def upload_resume(
         
         resume = await resume_manager.create_resume(db, obj_in=resume_create, user_id=current_user.id)
         
+        # Save uploaded file to temporary location
+        file_content = await file.read()
+        temp_dir = tempfile.gettempdir()
+        temp_file_path = os.path.join(temp_dir, f"resume_{resume.id}_{file.filename}")
+        
+        with open(temp_file_path, 'wb') as temp_file:
+            temp_file.write(file_content)
+        
+        # Start Celery task for processing
+        task = process_resume_upload.delay(temp_file_path, current_user.id, resume.id)
+        
         return {
             "id": resume.id,
-            "file_id": upload_response.get("file_id"),
-            "message": "File uploaded and resume created successfully"
+            "task_id": task.id,
+            "message": "File uploaded and processing started"
         }
         
     except Exception as e:
@@ -336,4 +340,104 @@ async def export_resume_pdf(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to export PDF: {str(e)}"
+        )
+
+
+@router.get("/upload/status/{task_id}", response_model=Dict[str, Any])
+async def get_upload_status(
+    *,
+    task_id: str,
+    current_user: VerifiedUser,
+) -> Dict[str, Any]:
+    """
+    Get the status of a resume upload processing task.
+    Only available for users with verified email.
+    """
+    try:
+        task = celery_app.AsyncResult(task_id)
+        
+        if task.state == 'PENDING':
+            response = {
+                'state': task.state,
+                'status': 'pending',
+                'message': 'Task is pending'
+            }
+        elif task.state == 'PROCESSING':
+            response = {
+                'state': task.state,
+                'status': 'processing',
+                'message': task.info.get('message', 'Processing resume')
+            }
+        elif task.state == 'SUCCESS':
+            response = {
+                'state': task.state,
+                'status': 'completed',
+                'message': task.info.get('message', 'Resume processed successfully'),
+                'text_content': task.info.get('text_content'),
+                'resume_id': task.info.get('resume_id')
+            }
+        elif task.state == 'FAILURE':
+            response = {
+                'state': task.state,
+                'status': 'error',
+                'message': task.info.get('message', 'Task failed'),
+                'error': task.info.get('error')
+            }
+        else:
+            response = {
+                'state': task.state,
+                'status': 'unknown',
+                'message': 'Unknown task state'
+            }
+        
+        return response
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get task status: {str(e)}"
+        )
+
+
+@router.get("/upload/result/{task_id}", response_model=Dict[str, Any])
+async def get_upload_result(
+    *,
+    task_id: str,
+    current_user: VerifiedUser,
+) -> Dict[str, Any]:
+    """
+    Get the result of a completed resume upload processing task.
+    Only available for users with verified email.
+    """
+    try:
+        task = celery_app.AsyncResult(task_id)
+        
+        if task.state != 'SUCCESS':
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Task is not completed. Current state: {task.state}"
+            )
+        
+        result = task.result
+        
+        # Verify that the task belongs to the current user
+        if result.get('user_id') != current_user.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Access denied to this task result"
+            )
+        
+        return {
+            'status': 'completed',
+            'text_content': result.get('text_content'),
+            'resume_id': result.get('resume_id'),
+            'message': 'Resume processed successfully'
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get task result: {str(e)}"
         )
