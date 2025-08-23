@@ -449,3 +449,10 @@ class AIResumeUpdate(BaseModel):
     skills: Optional[List[str]] = None
     experience: Optional[List[Dict[str, Any]]] = None
     education: Optional[List[Dict[str, Any]]] = None
+
+
+# PDF Export Schema
+class PDFExportRequest(BaseModel):
+    """Schema for PDF export request"""
+    html_content: str
+    filename: Optional[str] = None

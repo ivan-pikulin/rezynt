@@ -4,10 +4,11 @@ from app.api.deps import APIKeyVerified, AsyncDB, VerifiedUser
 from app.core.config import settings
 from app.database.crud.crud_resume import resume_manager
 from app.database.crud.crud_template import template_crud
-from app.schemas.resume import (AIResumeUpdate, ResumeCreate,
+from app.schemas.resume import (AIResumeUpdate, PDFExportRequest, ResumeCreate,
                                 ResumeEducationCreate, ResumeExperienceCreate,
                                 ResumePersonalInfoUpdate, ResumeUpdate)
 from app.services.platform_service import PlatformService
+from app.services.pdf_service import pdf_service
 from fastapi import APIRouter, File, HTTPException, UploadFile, status
 
 router = APIRouter()
@@ -288,3 +289,51 @@ async def update_resume_with_ai(
         "updated_fields": updated_fields,
         "resume": updated_resume.to_json()
     }
+
+
+@router.post("/{resume_id}/export-pdf")
+async def export_resume_pdf(
+    *,
+    db: AsyncDB,
+    resume_id: int,
+    export_request: PDFExportRequest,
+    current_user: VerifiedUser,
+):
+    """
+    Export resume to PDF using HTML content from frontend.
+    Only available for users with verified email.
+    """
+    # Verify resume belongs to current user
+    resume = await resume_manager.get_resume(db, user_id=current_user.id, resume_id=resume_id)
+    if not resume:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Resume not found or access denied"
+        )
+    
+    try:
+        # Generate filename if not provided
+        filename = export_request.filename
+        if not filename:
+            # Use user's name from resume data
+            personal_info = resume.personal_info
+            if personal_info and personal_info.first_name and personal_info.last_name:
+                full_name = f"{personal_info.first_name}_{personal_info.last_name}"
+            else:
+                full_name = f"resume_{resume_id}"
+            filename = f"{full_name}_resume.pdf"
+        
+        # Generate PDF from HTML content
+        pdf_bytes, final_filename = pdf_service.generate_pdf_from_html(
+            html_content=export_request.html_content,
+            filename=filename
+        )
+        
+        # Return PDF as file response
+        return pdf_service.create_file_response(pdf_bytes, final_filename)
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to export PDF: {str(e)}"
+        )

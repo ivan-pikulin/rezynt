@@ -1,5 +1,11 @@
-import { resumeApi } from '../../shared/services/api';
+import baseApi from '../../shared/services/api/baseApi';
 import { ExportResponse } from '../../shared/services/api/types';
+
+export interface PDFExportRequest {
+  html_content: string;
+  filename?: string;
+  template_id?: string;
+}
 
 export const exportApi = {
   downloadResume: async (planId: 'pro' | 'lifetime'): Promise<ExportResponse> => {
@@ -12,5 +18,20 @@ export const exportApi = {
         resolve({ success: true, planId });
       }, 1000);
     });
+  },
+
+  exportToPDF: async (resumeId: string, request: PDFExportRequest): Promise<Blob> => {
+    const response = await baseApi.post(
+      `/resumes/${resumeId}/export-pdf`,
+      request,
+      {
+        responseType: 'blob',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    
+    return response.data;
   }
 }; 

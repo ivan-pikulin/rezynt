@@ -12,6 +12,7 @@ import { convertApiResumeToDisplayData } from '../refine/utils/resumeDataConvert
 import LoadingSpinner from '../refine/components/LoadingSpinner';
 import ErrorMessage from '../refine/components/ErrorMessage';
 import { useTranslation } from 'react-i18next';
+import { exportApi } from './exportApi';
 
 const ExportPage: React.FC = () => {
   const { t } = useTranslation();
@@ -55,47 +56,30 @@ const ExportPage: React.FC = () => {
       // Запрашиваем свежие данные перед экспортом
       await refreshResume();
       
-      const { jsPDF } = await import('jspdf');
-      const html2canvas = await import('html2canvas');
-      
-      const canvas = await html2canvas.default(templateContainerRef.current, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true
-      });
-      
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      
-      const imgWidth = 210; // A4 width in mm
-      const pageHeight = 295; // A4 height in mm
-      
-      // Рассчитываем размеры изображения для одной страницы
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      
-      // Если изображение выше страницы, масштабируем его
-      let finalImgWidth = imgWidth;
-      let finalImgHeight = imgHeight;
-      
-      if (imgHeight > pageHeight) {
-        // Масштабируем по высоте, сохраняя пропорции
-        const scale = pageHeight / imgHeight;
-        finalImgWidth = imgWidth * scale;
-        finalImgHeight = pageHeight;
-      }
-      
-      // Центрируем изображение на странице
-      const xOffset = (imgWidth - finalImgWidth) / 2;
-      const yOffset = (pageHeight - finalImgHeight) / 2;
-      
-      // Добавляем изображение на одну страницу
-      pdf.addImage(imgData, 'PNG', xOffset, yOffset, finalImgWidth, finalImgHeight);
+      // Получаем полный HTML с CSS стилями
+      const fullHtml = getFullHTMLWithStyles(templateContainerRef.current);
       
       // Используем реальные данные для имени файла
       const displayData = convertApiResumeToDisplayData(resume);
       const fullName = `${displayData.personalInfo.firstName} ${displayData.personalInfo.lastName}`;
       const filename = `${fullName.replace(/\s+/g, '_')}_resume.pdf`;
-      pdf.save(filename);
+      
+      // Отправляем запрос на бэкенд для генерации PDF
+      const pdfBlob = await exportApi.exportToPDF(resumeId!, {
+        html_content: fullHtml,
+        filename: filename,
+        template_id: selectedTemplate?.id
+      });
+      
+      // Создаем ссылку для скачивания
+      const url = window.URL.createObjectURL(pdfBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
       
       // Показываем страницу успеха после успешного скачивания
       setShowSuccess(true);
@@ -105,6 +89,53 @@ const ExportPage: React.FC = () => {
     } finally {
       setIsExporting(false);
     }
+  };
+
+  // Функция для получения полного HTML с CSS стилями
+  const getFullHTMLWithStyles = (element: HTMLElement): string => {
+    // Получаем все CSS стили из document
+    const styles = Array.from(document.styleSheets)
+      .map(styleSheet => {
+        try {
+          return Array.from(styleSheet.cssRules)
+            .map(rule => rule.cssText)
+            .join('\n');
+        } catch (e) {
+          // Игнорируем CORS ошибки для внешних стилей
+          return '';
+        }
+      })
+      .filter(style => style.length > 0)
+      .join('\n');
+
+    // Создаем полный HTML документ
+    const fullHtml = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Resume</title>
+          <style>
+            ${styles}
+            /* Дополнительные стили для PDF */
+            body {
+              margin: 0;
+              padding: 0;
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            }
+            * {
+              box-sizing: border-box;
+            }
+          </style>
+        </head>
+        <body>
+          ${element.outerHTML}
+        </body>
+      </html>
+    `;
+    
+    return fullHtml;
   };
 
   const handleBackToStart = () => {
@@ -192,11 +223,12 @@ const ExportPage: React.FC = () => {
 
       {/* Скрытый template для экспорта */}
       <Box sx={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
-        <div ref={templateContainerRef}>
+        <div ref={templateContainerRef} style={{ width: '794px', height: '1123px' }}>
           <ResumeRenderer 
             data={displayData} 
             scale={1}
             templateId={selectedTemplate?.id}
+            fitToContainer={false}
           />
         </div>
       </Box>
