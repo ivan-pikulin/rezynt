@@ -19,6 +19,38 @@ def parse_date(value: Union[str, date, None]) -> Optional[date]:
     raise ValueError(f"Invalid date type: {type(value)}")
 
 
+# Unified Resume Experience and Education schemas
+class UnifiedResumeExperience(BaseModel):
+    job_title: str
+    company: str
+    location: Optional[str] = None
+    start_date: Optional[date] = None
+    end_date: Optional[date] = None
+    responsibilities: List[str] = []
+
+    @field_validator('start_date', mode='before')
+    @classmethod
+    def validate_start_date(cls, v):
+        return parse_date(v)
+
+    @field_validator('end_date', mode='before')
+    @classmethod
+    def validate_end_date(cls, v):
+        return parse_date(v)
+
+
+class UnifiedResumeEducation(BaseModel):
+    degree: str
+    institution: str
+    location: Optional[str] = None
+    graduation_date: Optional[date] = None
+
+    @field_validator('graduation_date', mode='before')
+    @classmethod
+    def validate_graduation_date(cls, v):
+        return parse_date(v)
+
+
 # Partial update for flexible field updates
 class ResumePartialUpdate(BaseModel):
     title: Optional[str] = None
@@ -322,3 +354,67 @@ class PDFExportRequest(BaseModel):
     """Schema for PDF export request"""
     html_content: str
     filename: Optional[str] = None
+
+
+# Unified Resume Schema - единый объект резюме
+class UnifiedResume(BaseModel):
+    # Основная информация
+    id: int
+    user_id: int
+    title: str
+    template_id: Optional[int] = None
+    professional_summary: Optional[str] = None
+    conversation_id: Optional[str] = None
+    created_at: datetime
+    updated_at: datetime
+    
+    # Персональная информация
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    location: Optional[str] = None
+    
+    # Контакты и навыки
+    contacts: List[str] = []
+    skills: List[str] = []
+    
+    # Опыт и образование
+    experience: List[UnifiedResumeExperience] = []
+    education: List[UnifiedResumeEducation] = []
+    
+    def to_json(self) -> Dict[str, Any]:
+        """Преобразует объект в JSON для возврата в API"""
+        return {
+            "id": self.id,
+            "user_id": self.user_id,
+            "title": self.title,
+            "template_id": self.template_id,
+            "professional_summary": self.professional_summary,
+            "conversation_id": self.conversation_id,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+            "location": self.location,
+            "contacts": self.contacts,
+            "skills": self.skills,
+            "experience": [
+                {
+                    "job_title": exp.job_title,
+                    "company": exp.company,
+                    "location": exp.location,
+                    "start_date": exp.start_date.isoformat() if exp.start_date else None,
+                    "end_date": exp.end_date.isoformat() if exp.end_date else None,
+                    "responsibilities": exp.responsibilities
+                }
+                for exp in self.experience
+            ],
+            "education": [
+                {
+                    "degree": edu.degree,
+                    "institution": edu.institution,
+                    "location": edu.location,
+                    "graduation_date": edu.graduation_date.isoformat() if edu.graduation_date else None
+                }
+                for edu in self.education
+            ]
+        }

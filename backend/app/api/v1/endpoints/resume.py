@@ -8,8 +8,8 @@ from app.core.tasks import process_resume_upload
 from app.database.crud.crud_resume import resume_manager
 from app.database.crud.crud_template import template_crud
 from app.schemas.resume import (AIResumeUpdate, PDFExportRequest, ResumeCreate,
-                                ResumeEducationCreate, ResumeExperienceCreate,
-                                ResumePersonalInfoUpdate, ResumeUpdate, ResumePartialUpdate)
+                                ResumeUpdate, ResumePartialUpdate, ResumeExperienceCreate,
+                                ResumeEducationCreate, UnifiedResumeExperience)
 from app.services.pdf_service import pdf_service
 from app.services.parse_service import ParseService
 from fastapi import APIRouter, File, HTTPException, UploadFile, status
@@ -250,12 +250,12 @@ async def update_resume_with_ai(
     
     # Update personal info if provided
     if ai_update.first_name or ai_update.last_name or ai_update.location:
-        personal_info_update = ResumePersonalInfoUpdate(
+        personal_info_update = ResumePartialUpdate(
             first_name=ai_update.first_name,
             last_name=ai_update.last_name,
             location=ai_update.location
         )
-        await resume_manager.update_personal_info(db, resume_id=resume_id, personal_info=personal_info_update)
+        await resume_manager.partial_update_resume(db, resume_id=resume_id, resume_update=personal_info_update)
         updated_fields["personal_info"] = True
     
     # Add new contacts if provided
@@ -279,7 +279,9 @@ async def update_resume_with_ai(
             if exp_data.get("end_date"):
                 end_date = datetime.strptime(exp_data["end_date"], "%Y-%m-%dT%H:%M:%S").date()
             
-            experience_create = ResumeExperienceCreate(
+            # Use the existing experience list and add new item
+            current_experience = await resume_manager.get_experience(db, resume_id=resume_id)
+            new_experience = UnifiedResumeExperience(
                 job_title=exp_data["job_title"],
                 company=exp_data["company"],
                 location=exp_data["location"],
@@ -287,6 +289,16 @@ async def update_resume_with_ai(
                 end_date=end_date,
                 responsibilities=exp_data.get("responsibilities", [])
             )
+            # Convert to dict for experience creation
+            experience_dict = {
+                "job_title": exp_data["job_title"],
+                "company": exp_data["company"],
+                "location": exp_data["location"],
+                "start_date": start_date,
+                "end_date": end_date,
+                "responsibilities": exp_data.get("responsibilities", [])
+            }
+            experience_create = ResumeExperienceCreate(**experience_dict)
             await resume_manager.add_experience(db, resume_id=resume_id, experience_data=experience_create)
         updated_fields["experience_added"] = len(ai_update.experience)
     
@@ -298,12 +310,13 @@ async def update_resume_with_ai(
                 from datetime import datetime
                 graduation_date = datetime.strptime(edu_data["graduation_date"], "%Y-%m-%dT%H:%M:%S").date()
             
-            education_create = ResumeEducationCreate(
-                degree=edu_data["degree"],
-                institution=edu_data["institution"],
-                location=edu_data["location"],
-                graduation_date=graduation_date
-            )
+            education_dict = {
+                "degree": edu_data["degree"],
+                "institution": edu_data["institution"],
+                "location": edu_data["location"],
+                "graduation_date": graduation_date
+            }
+            education_create = ResumeEducationCreate(**education_dict)
             await resume_manager.add_education(db, resume_id=resume_id, education_data=education_create)
         updated_fields["education_added"] = len(ai_update.education)
     
