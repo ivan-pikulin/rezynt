@@ -38,7 +38,7 @@ const StartPage: React.FC = () => {
         showBackButton={false}
         showNextButton={false}
         showLogo={true} // Показываем лого на десктопе
-        onStepClick={handleStepClick}
+        onStepClick={undefined} // Отключаем кликабельность шагов
       />
       
       {/* Основная область */}
