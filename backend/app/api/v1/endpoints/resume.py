@@ -249,12 +249,16 @@ async def update_resume_with_ai(
         updated_fields["professional_summary"] = True
     
     # Update personal info if provided
-    if ai_update.first_name or ai_update.last_name or ai_update.location:
-        personal_info_update = ResumePartialUpdate(
-            first_name=ai_update.first_name,
-            last_name=ai_update.last_name,
-            location=ai_update.location
-        )
+    personal_info_data = {}
+    if ai_update.first_name:
+        personal_info_data['first_name'] = ai_update.first_name
+    if ai_update.last_name:
+        personal_info_data['last_name'] = ai_update.last_name
+    if ai_update.location:
+        personal_info_data['location'] = ai_update.location
+    
+    if personal_info_data:
+        personal_info_update = ResumePartialUpdate(**personal_info_data)
         await resume_manager.partial_update_resume(db, resume_id=resume_id, resume_update=personal_info_update)
         updated_fields["personal_info"] = True
     

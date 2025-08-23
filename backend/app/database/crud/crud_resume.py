@@ -407,25 +407,32 @@ class ResumeManager:
         if not current_resume:
             raise ValueError("Resume not found")
         
-        # Update basic resume fields
-        if any([resume_update.title is not None, resume_update.template_id is not None, 
-                resume_update.professional_summary is not None, resume_update.conversation_id is not None]):
-            basic_update = ResumeUpdate(
-                title=resume_update.title,
-                template_id=resume_update.template_id,
-                professional_summary=resume_update.professional_summary,
-                conversation_id=resume_update.conversation_id
-            )
+        # Update basic resume fields - only include fields that are not None
+        basic_update_data = {}
+        if resume_update.title is not None:
+            basic_update_data['title'] = resume_update.title
+        if resume_update.template_id is not None:
+            basic_update_data['template_id'] = resume_update.template_id
+        if resume_update.professional_summary is not None:
+            basic_update_data['professional_summary'] = resume_update.professional_summary
+        if resume_update.conversation_id is not None:
+            basic_update_data['conversation_id'] = resume_update.conversation_id
+        
+        if basic_update_data:
+            basic_update = ResumeUpdate(**basic_update_data)
             await self.update_resume(db, resume_id=resume_id, resume_update=basic_update)
         
-        # Update personal info
-        if any([resume_update.first_name is not None, resume_update.last_name is not None, 
-                resume_update.location is not None]):
-            personal_info_update = ResumePersonalInfoUpdate(
-                first_name=resume_update.first_name,
-                last_name=resume_update.last_name,
-                location=resume_update.location
-            )
+        # Update personal info - only include fields that are not None
+        personal_info_data = {}
+        if resume_update.first_name is not None:
+            personal_info_data['first_name'] = resume_update.first_name
+        if resume_update.last_name is not None:
+            personal_info_data['last_name'] = resume_update.last_name
+        if resume_update.location is not None:
+            personal_info_data['location'] = resume_update.location
+        
+        if personal_info_data:
+            personal_info_update = ResumePersonalInfoUpdate(**personal_info_data)
             await self.update_personal_info(db, resume_id=resume_id, personal_info=personal_info_update)
         
         # Update contacts

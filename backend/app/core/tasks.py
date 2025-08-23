@@ -127,12 +127,16 @@ async def _update_resume_in_db(resume_id: int, user_id: int, parsed_data):
                 await resume_crud.update(db, db_obj=resume_obj, obj_in=resume_update)
             
             # Обновляем персональную информацию
-            if parsed_data.first_name or parsed_data.last_name or parsed_data.location:
-                personal_info_update = ResumePersonalInfoUpdate(
-                    first_name=parsed_data.first_name,
-                    last_name=parsed_data.last_name,
-                    location=parsed_data.location
-                )
+            personal_info_data = {}
+            if parsed_data.first_name:
+                personal_info_data['first_name'] = parsed_data.first_name
+            if parsed_data.last_name:
+                personal_info_data['last_name'] = parsed_data.last_name
+            if parsed_data.location:
+                personal_info_data['location'] = parsed_data.location
+            
+            if personal_info_data:
+                personal_info_update = ResumePersonalInfoUpdate(**personal_info_data)
                 await resume_crud.update_personal_info(db, resume_id=resume_id, personal_info=personal_info_update)
             
             # Обновляем контакты
