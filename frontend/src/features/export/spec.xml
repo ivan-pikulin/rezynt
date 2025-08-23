@@ -2,8 +2,8 @@
 <feature>
     <info>
         <name>Export Feature</name>
-        <desc>Export resume to PDF format with download options using backend PDF generation. Loads real resume data from API to ensure current user data is exported. Uses PDFKit + wkhtmltopdf for high-quality PDF generation. Includes success page after download completion. Optimized for mobile devices with responsive design.</desc>
-        <tech>React, TypeScript, Material-UI, PDFKit, wkhtmltopdf, Backend PDF Generation, Responsive Design, API Integration</tech>
+        <desc>Export resume to PDF format with download options using backend PDF generation. Loads real resume data from API to ensure current user data is exported. Uses WeasyPrint for high-quality PDF generation with better CSS support. Includes success page after download completion. Optimized for mobile devices with responsive design.</desc>
+        <tech>React, TypeScript, Material-UI, WeasyPrint, Backend PDF Generation, Responsive Design, API Integration</tech>
     </info>
 
     <folder_structure>
@@ -76,7 +76,7 @@
         <step name="render_resume" desc="Renders resume using ResumeRenderer with real data and selected template"/>
         <step name="extract_html" desc="Extracts full HTML with CSS styles from rendered resume"/>
         <step name="send_to_backend" desc="Sends HTML content to backend API for PDF generation"/>
-        <step name="generate_pdf" desc="Backend generates PDF using PDFKit + wkhtmltopdf"/>
+        <step name="generate_pdf" desc="Backend generates PDF using WeasyPrint"/>
         <step name="download_pdf" desc="Downloads generated PDF file"/>
         <step name="show_success" desc="Shows success page after successful export"/>
     </data_flow>
@@ -91,7 +91,7 @@
     <export_features>
         <feature name="real_data_export" desc="Exports current user's resume data instead of demo data"/>
         <feature name="template_aware" desc="Uses correct template based on resume configuration"/>
-        <feature name="backend_generation" desc="Uses backend PDF generation with PDFKit + wkhtmltopdf for high quality"/>
+        <feature name="backend_generation" desc="Uses backend PDF generation with WeasyPrint for high quality and better CSS support"/>
         <feature name="full_css_support" desc="Includes all CSS styles in PDF generation for exact preview match"/>
         <feature name="proper_filename" desc="Generates filename based on user's actual name"/>
         <feature name="multi_page" desc="Supports multi-page resumes with automatic page breaks"/>

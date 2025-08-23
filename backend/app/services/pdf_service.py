@@ -3,42 +3,25 @@ import tempfile
 import uuid
 from pathlib import Path
 from typing import Optional
-import pdfkit
+from weasyprint import HTML, CSS
+from weasyprint.text.fonts import FontConfiguration
 from fastapi import HTTPException, status
 from fastapi.responses import FileResponse
 
 
 class PDFService:
-    """Service for PDF generation using PDFKit and wkhtmltopdf"""
+    """Service for PDF generation using WeasyPrint"""
     
     def __init__(self):
-        self.wkhtmltopdf_path = self._get_wkhtmltopdf_path()
-        self.config = pdfkit.configuration(wkhtmltopdf=self.wkhtmltopdf_path)
+        self.font_config = FontConfiguration()
         
-    def _get_wkhtmltopdf_path(self) -> str:
-        """Get wkhtmltopdf executable path"""
-        # Try common installation paths
-        possible_paths = [
-            '/usr/local/bin/wkhtmltopdf',
-            '/usr/bin/wkhtmltopdf',
-            'C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe',
-            'C:\\wkhtmltopdf\\bin\\wkhtmltopdf.exe',
-        ]
-        
-        for path in possible_paths:
-            if os.path.exists(path):
-                return path
-                
-        # If not found, assume it's in PATH
-        return 'wkhtmltopdf'
-    
     def generate_pdf_from_html(
         self, 
         html_content: str, 
         filename: Optional[str] = None
     ) -> tuple[bytes, str]:
         """
-        Generate PDF from HTML content
+        Generate PDF from HTML content using WeasyPrint
         
         Args:
             html_content: HTML string to convert
@@ -48,30 +31,37 @@ class PDFService:
             tuple: (pdf_bytes, filename)
         """
         try:
-            # PDF generation options
-            options = {
-                'page-size': 'A4',
-                'margin-top': '0.75in',
-                'margin-right': '0.75in',
-                'margin-bottom': '0.75in',
-                'margin-left': '0.75in',
-                'encoding': "UTF-8",
-                'enable-local-file-access': True,
-                'no-outline': None,
-                'print-media-type': None,
-                'dpi': 300,
-                'image-dpi': 300,
-                'image-quality': 100,
-                'disable-smart-shrinking': None,
-                'zoom': 1.0
-            }
+            # Create HTML object
+            html = HTML(string=html_content)
+            
+            # Define CSS for better PDF formatting
+            css_string = """
+                @page {
+                    size: A4;
+                    margin: 0.75in;
+                    @top-center {
+                        content: "";
+                    }
+                    @bottom-center {
+                        content: "";
+                    }
+                }
+                body {
+                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+                    line-height: 1.6;
+                    color: #333;
+                }
+                * {
+                    box-sizing: border-box;
+                }
+            """
+            
+            css = CSS(string=css_string, font_config=self.font_config)
             
             # Generate PDF
-            pdf_bytes = pdfkit.from_string(
-                html_content, 
-                False, 
-                options=options, 
-                configuration=self.config
+            pdf_bytes = html.write_pdf(
+                stylesheets=[css],
+                font_config=self.font_config
             )
             
             # Generate filename if not provided

@@ -2,12 +2,10 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-# Install dependencies and wkhtmltopdf
+# Install system dependencies for WeasyPrint
 RUN apt-get update && apt-get install -y \
     build-essential \
     libpq-dev \
-    wget \
-    xvfb \
     fontconfig \
     libfreetype6 \
     libjpeg62-turbo \
@@ -16,12 +14,8 @@ RUN apt-get update && apt-get install -y \
     libxcb1 \
     libxext6 \
     libxrender1 \
-    libssl1.1 \
     libglib2.0-0 \
     ca-certificates \
-    && wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.buster_amd64.deb \
-    && apt-get install -y ./wkhtmltox_0.12.6-1.buster_amd64.deb \
-    && rm ./wkhtmltox_0.12.6-1.buster_amd64.deb \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
