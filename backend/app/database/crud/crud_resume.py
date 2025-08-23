@@ -11,7 +11,7 @@ from app.schemas.resume import (ResumeContactCreate, ResumeContactUpdate,
                                 ResumeExperienceUpdate, ResumeExportCreate,
                                 ResumeExportUpdate, ResumePersonalInfoCreate,
                                 ResumePersonalInfoUpdate, ResumeSkillCreate,
-                                ResumeSkillUpdate, ResumeUpdate, UnifiedResume,
+                                ResumeSkillUpdate, ResumeUpdate, ResumePartialUpdate, UnifiedResume,
                                 UnifiedResumeEducation,
                                 UnifiedResumeExperience)
 from sqlalchemy import select
@@ -155,6 +155,52 @@ class CRUDResume(CRUDBase[Resume, ResumeCreate, ResumeUpdate]):
         # Refresh the entire object to ensure all fields are loaded
         await db.refresh(db_obj)
         return await self._to_unified_resume(db, db_obj)
+
+    async def partial_update_resume(self, db: AsyncSession, *, resume_id: int, resume_update: ResumePartialUpdate) -> UnifiedResume:
+        """Partially update a resume with support for UnifiedResume fields"""
+        # Get the resume
+        resume = await self.get(db, id=resume_id)
+        if not resume:
+            raise ValueError("Resume not found")
+        
+        update_data = resume_update.model_dump(exclude_unset=True)
+        
+        # Handle basic resume fields
+        basic_fields = ['title', 'template_id', 'professional_summary', 'conversation_id']
+        for field in basic_fields:
+            if field in update_data:
+                setattr(resume, field, update_data[field])
+        
+        # Handle personal info fields
+        personal_info_fields = ['first_name', 'last_name', 'location']
+        personal_info_data = {}
+        for field in personal_info_fields:
+            if field in update_data:
+                personal_info_data[field] = update_data[field]
+        
+        if personal_info_data:
+            await self.update_personal_info(db, resume_id=resume_id, personal_info=ResumePersonalInfoUpdate(**personal_info_data))
+        
+        # Handle contacts
+        if 'contacts' in update_data:
+            await self.update_contacts(db, resume_id=resume_id, contacts=update_data['contacts'])
+        
+        # Handle skills
+        if 'skills' in update_data:
+            await self.update_skills(db, resume_id=resume_id, skills=update_data['skills'])
+        
+        # Handle experience
+        if 'experience' in update_data:
+            await self.update_experience_list(db, resume_id=resume_id, experience_list=update_data['experience'])
+        
+        # Handle education
+        if 'education' in update_data:
+            await self.update_education_list(db, resume_id=resume_id, education_list=update_data['education'])
+        
+        await db.commit()
+        await db.refresh(resume)
+        
+        return await self._to_unified_resume(db, resume)
 
     async def get_full_resume(self, db: AsyncSession, *, user_id: int, resume_id: int) -> Optional[UnifiedResume]:
         """
@@ -517,6 +563,30 @@ class ResumeManager:
         
         return new_experience
 
+    async def update_experience_list(self, db: AsyncSession, *, resume_id: int, experience_list: List[UnifiedResumeExperience]) -> List[ResumeExperience]:
+        """Update all experience for a resume using UnifiedResumeExperience objects"""
+        # Remove existing experience
+        existing_experience = await self.get_experience(db, resume_id=resume_id)
+        for exp in existing_experience:
+            await self.experience_crud.remove(db, id=exp.id)
+        
+        # Add new experience
+        new_experience = []
+        for exp_data in experience_list:
+            if exp_data.job_title and exp_data.company:  # Skip incomplete experience
+                experience_create = ResumeExperienceCreate(
+                    job_title=exp_data.job_title,
+                    company=exp_data.company,
+                    location=exp_data.location,
+                    start_date=exp_data.start_date,
+                    end_date=exp_data.end_date,
+                    responsibilities=exp_data.responsibilities
+                )
+                new_exp = await self.add_experience(db, resume_id=resume_id, experience_data=experience_create)
+                new_experience.append(new_exp)
+        
+        return new_experience
+
     # Education methods
     async def get_education(self, db: AsyncSession, *, resume_id: int) -> List[ResumeEducation]:
         """Get education for a resume."""
@@ -542,8 +612,8 @@ class ResumeManager:
             return removed_education is not None
         return False
 
-    async def update_education(self, db: AsyncSession, *, resume_id: int, education: List[Dict[str, Any]]) -> List[ResumeEducation]:
-        """Update all education for a resume by replacing existing ones"""
+    async def update_education_list(self, db: AsyncSession, *, resume_id: int, education_list: List[UnifiedResumeEducation]) -> List[ResumeEducation]:
+        """Update all education for a resume using UnifiedResumeEducation objects"""
         # Remove existing education
         existing_education = await self.get_education(db, resume_id=resume_id)
         for edu in existing_education:
@@ -551,22 +621,13 @@ class ResumeManager:
         
         # Add new education
         new_education = []
-        for edu_data in education:
-            if edu_data.get('degree') and edu_data.get('institution'):  # Skip incomplete education
-                # Convert date strings to date objects
-                graduation_date = None
-                
-                if edu_data.get('graduation_date'):
-                    try:
-                        graduation_date = datetime.strptime(edu_data['graduation_date'], "%Y-%m-%d").date()
-                    except (ValueError, TypeError):
-                        pass
-                
+        for edu_data in education_list:
+            if edu_data.degree and edu_data.institution:  # Skip incomplete education
                 education_create = ResumeEducationCreate(
-                    degree=edu_data['degree'],
-                    institution=edu_data['institution'],
-                    location=edu_data.get('location'),
-                    graduation_date=graduation_date
+                    degree=edu_data.degree,
+                    institution=edu_data.institution,
+                    location=edu_data.location,
+                    graduation_date=edu_data.graduation_date
                 )
                 new_edu = await self.add_education(db, resume_id=resume_id, education_data=education_create)
                 new_education.append(new_edu)

@@ -9,13 +9,19 @@ import {
   Alert,
   Box,
   Button,
+  Chip,
   Divider,
+  IconButton,
   Snackbar,
   Tab,
   Tabs,
   TextField,
   Typography
 } from '@mui/material';
+import {
+  Add as AddIcon,
+  Delete as DeleteIcon
+} from '@mui/icons-material';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { resumeApi } from '../../../shared/services/api';
@@ -70,15 +76,13 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
     title: resume.title,
     professional_summary: resume.professional_summary || '',
     
-    // Личная информация
-    first_name: resume.personal_info?.first_name || '',
-    last_name: resume.personal_info?.last_name || '',
-    middle_name: resume.personal_info?.middle_name || '',
-    phone: resume.personal_info?.phone || '',
-    email: resume.personal_info?.email || '',
-    location: resume.personal_info?.location || ''
+    // Личная информация (используем новые поля UnifiedResume)
+    first_name: resume.first_name || '',
+    last_name: resume.last_name || '',
+    location: resume.location || ''
   });
   
+  const [newContact, setNewContact] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
   const [saveStatus, setSaveStatus] = useState<{ show: boolean; message: string; severity: 'success' | 'error' }>({
@@ -93,12 +97,9 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
     setFormData({
       title: resume.title,
       professional_summary: resume.professional_summary || '',
-      first_name: resume.personal_info?.first_name || '',
-      last_name: resume.personal_info?.last_name || '',
-      middle_name: resume.personal_info?.middle_name || '',
-      phone: resume.personal_info?.phone || '',
-      email: resume.personal_info?.email || '',
-      location: resume.personal_info?.location || ''
+      first_name: resume.first_name || '',
+      last_name: resume.last_name || '',
+      location: resume.location || ''
     });
   }, [resume]);
 
@@ -114,6 +115,52 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
     }));
   };
 
+  // Обработчики для контактов
+  const handleAddContact = async () => {
+    if (!newContact.trim()) return;
+
+    setIsSaving(true);
+    try {
+      const updatedContacts = [...localResume.contacts, newContact.trim()];
+      await resumeApi.updateContacts(localResume.id, updatedContacts);
+      
+      const updatedResume = { ...localResume, contacts: updatedContacts };
+      setLocalResume(updatedResume);
+      onResumeUpdate(updatedResume);
+      setNewContact('');
+    } catch (error) {
+      console.error('Error adding contact:', error);
+      setSaveStatus({
+        show: true,
+        message: 'Ошибка при добавлении контакта',
+        severity: 'error'
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleRemoveContact = async (contactIndex: number) => {
+    setIsSaving(true);
+    try {
+      const updatedContacts = localResume.contacts.filter((_, index) => index !== contactIndex);
+      await resumeApi.updateContacts(localResume.id, updatedContacts);
+      
+      const updatedResume = { ...localResume, contacts: updatedContacts };
+      setLocalResume(updatedResume);
+      onResumeUpdate(updatedResume);
+    } catch (error) {
+      console.error('Error removing contact:', error);
+      setSaveStatus({
+        show: true,
+        message: 'Ошибка при удалении контакта',
+        severity: 'error'
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   // Функция для сохранения всех изменений
   const saveAllChanges = async () => {
     setIsSaving(true);
@@ -122,12 +169,9 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
       const originalData = {
         title: resume.title,
         professional_summary: resume.professional_summary || '',
-        first_name: resume.personal_info?.first_name || '',
-        last_name: resume.personal_info?.last_name || '',
-        middle_name: resume.personal_info?.middle_name || '',
-        phone: resume.personal_info?.phone || '',
-        email: resume.personal_info?.email || '',
-        location: resume.personal_info?.location || ''
+        first_name: resume.first_name || '',
+        last_name: resume.last_name || '',
+        location: resume.location || ''
       };
 
       const changedFields = Object.entries(formData).filter(
@@ -150,10 +194,8 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
       for (const [fieldName, value] of changedFields) {
         if (['title', 'professional_summary'].includes(fieldName)) {
           mainUpdates[fieldName] = value;
-        } else if (['first_name', 'last_name', 'middle_name', 'phone', 'email', 'location'].includes(fieldName)) {
-          // Преобразуем имена полей для API
-          const apiFieldName = fieldName.replace('_', '');
-          personalInfoUpdates[apiFieldName] = value;
+        } else if (['first_name', 'last_name', 'location'].includes(fieldName)) {
+          personalInfoUpdates[fieldName] = value;
         }
       }
 
@@ -162,7 +204,7 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
         await resumeApi.updateResumePartial(resume.id, mainUpdates);
       }
 
-      // Сохраняем личную информацию
+      // Сохраняем личную информацию (используем новый метод для UnifiedResume)
       if (Object.keys(personalInfoUpdates).length > 0) {
         await resumeApi.updatePersonalInfo(resume.id, personalInfoUpdates);
       }
@@ -293,7 +335,8 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
               <Box sx={{ 
                 display: 'grid', 
                 gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, 
-                gap: 3 
+                gap: 3,
+                mb: 4
               }}>
                 <TextField
                   fullWidth
@@ -313,38 +356,60 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
                 />
                 <TextField
                   fullWidth
-                  label={t('refine.editor.middleName')}
-                  value={formData.middle_name}
-                  onChange={(e) => handleFieldChange('middle_name', e.target.value)}
-                  variant="outlined"
-                  size="small"
-                />
-                <TextField
-                  fullWidth
-                  label={t('refine.editor.phone')}
-                  value={formData.phone}
-                  onChange={(e) => handleFieldChange('phone', e.target.value)}
-                  variant="outlined"
-                  size="small"
-                  type="tel"
-                />
-                <TextField
-                  fullWidth
-                  label={t('refine.editor.email')}
-                  value={formData.email}
-                  onChange={(e) => handleFieldChange('email', e.target.value)}
-                  variant="outlined"
-                  size="small"
-                  type="email"
-                />
-                <TextField
-                  fullWidth
                   label={t('refine.editor.location')}
                   value={formData.location}
                   onChange={(e) => handleFieldChange('location', e.target.value)}
                   variant="outlined"
                   size="small"
                 />
+              </Box>
+
+              <Divider sx={{ my: 3 }} />
+
+              {/* Контакты */}
+              <Typography variant="h6" sx={{ mb: 3, fontWeight: 600, color: '#2c3e50' }}>
+                {t('refine.editor.contacts')}
+              </Typography>
+              
+              <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  placeholder={t('refine.editor.addContactPlaceholder')}
+                  value={newContact}
+                  onChange={(e) => setNewContact(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleAddContact()}
+                  disabled={isSaving}
+                />
+                <Button
+                  variant="contained"
+                  startIcon={<AddIcon />}
+                  onClick={handleAddContact}
+                  disabled={!newContact.trim() || isSaving}
+                  size="small"
+                >
+                  {t('refine.editor.add')}
+                </Button>
+              </Box>
+
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                {localResume.contacts?.map((contact, index) => (
+                  <Chip
+                    key={index}
+                    label={contact}
+                    onDelete={() => handleRemoveContact(index)}
+                    deleteIcon={<DeleteIcon />}
+                    variant="outlined"
+                    sx={{
+                      '& .MuiChip-deleteIcon': {
+                        color: 'error.main',
+                        '&:hover': {
+                          color: 'error.dark'
+                        }
+                      }
+                    }}
+                  />
+                ))}
               </Box>
             </TabPanel>
 
@@ -382,29 +447,29 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
               />
             </TabPanel>
 
-                      {/* Опыт работы */}
-          <TabPanel value={activeTab} index={2}>
-            <ExperienceEditor 
-              experience={localResume.experience || []}
-              resumeId={resume.id}
-              onExperienceUpdate={(updatedExperience) => {
-                setLocalResume(prev => ({ ...prev, experience: updatedExperience }));
-                onResumeUpdate({ ...localResume, experience: updatedExperience });
-              }}
-            />
-          </TabPanel>
+            {/* Опыт работы */}
+            <TabPanel value={activeTab} index={2}>
+              <ExperienceEditor 
+                experience={localResume.experience || []}
+                resumeId={resume.id}
+                onExperienceUpdate={(updatedExperience) => {
+                  setLocalResume(prev => ({ ...prev, experience: updatedExperience }));
+                  onResumeUpdate({ ...localResume, experience: updatedExperience });
+                }}
+              />
+            </TabPanel>
 
-                      {/* Образование */}
-          <TabPanel value={activeTab} index={3}>
-            <EducationEditor 
-              education={localResume.education || []}
-              resumeId={resume.id}
-              onEducationUpdate={(updatedEducation) => {
-                setLocalResume(prev => ({ ...prev, education: updatedEducation }));
-                onResumeUpdate({ ...localResume, education: updatedEducation });
-              }}
-            />
-          </TabPanel>
+            {/* Образование */}
+            <TabPanel value={activeTab} index={3}>
+              <EducationEditor 
+                education={localResume.education || []}
+                resumeId={resume.id}
+                onEducationUpdate={(updatedEducation) => {
+                  setLocalResume(prev => ({ ...prev, education: updatedEducation }));
+                  onResumeUpdate({ ...localResume, education: updatedEducation });
+                }}
+              />
+            </TabPanel>
           </Box>
         </Box>
       </Box>

@@ -9,7 +9,7 @@ from app.database.crud.crud_resume import resume_manager
 from app.database.crud.crud_template import template_crud
 from app.schemas.resume import (AIResumeUpdate, PDFExportRequest, ResumeCreate,
                                 ResumeEducationCreate, ResumeExperienceCreate,
-                                ResumePersonalInfoUpdate, ResumeUpdate)
+                                ResumePersonalInfoUpdate, ResumeUpdate, ResumePartialUpdate)
 from app.services.pdf_service import pdf_service
 from app.services.parse_service import ParseService
 from fastapi import APIRouter, File, HTTPException, UploadFile, status
@@ -95,6 +95,30 @@ async def update_resume(
     
     # Update the resume
     updated_resume = await resume_manager.update_resume(db, resume_id=resume_id, resume_update=resume_in)
+    return updated_resume.to_json()
+
+
+@router.patch("/{resume_id}", response_model=Dict[str, Any])
+async def partial_update_resume(
+    *,
+    db: AsyncDB,
+    resume_id: int,
+    resume_update: ResumePartialUpdate,
+    current_user: VerifiedUser,
+) -> Dict[str, Any]:
+    """
+    Partially update a resume.
+    Only available for users with verified email.
+    """
+    resume = await resume_manager.get_resume(db, user_id=current_user.id, resume_id=resume_id)
+    if not resume:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Resume not found or access denied"
+        )
+    
+    # Perform partial update
+    updated_resume = await resume_manager.partial_update_resume(db, resume_id=resume_id, resume_update=resume_update)
     return updated_resume.to_json()
 
 

@@ -57,39 +57,54 @@ export interface RefreshRequest {
   refresh_token: string;
 }
 
-// Resume types
-export interface Resume {
+// Unified Resume types (new structure)
+export interface UnifiedResume {
   id: number;
-  title: string;
-  template_id: number;
   user_id: number;
+  title: string;
+  template_id?: number;
   professional_summary?: string;
   conversation_id?: string;
   created_at: string;
   updated_at: string;
-  personal_info?: ResumePersonalInfo;
-  contacts?: ResumeContact[];
-  skills?: ResumeSkill[];
-  experience?: ResumeExperience[];
-  education?: ResumeEducation[];
-  projects?: ResumeProject[];
-  certifications?: ResumeCertification[];
-  languages?: ResumeLanguage[];
-  references?: ResumeReference[];
-  volunteer?: ResumeVolunteer[];
-  awards?: ResumeAward[];
-  publications?: ResumePublication[];
-  patents?: ResumePatent[];
-  courses?: ResumeCourse[];
-  test_scores?: ResumeTestScore[];
-  hobbies?: ResumeHobby[];
-  custom_sections?: ResumeCustomSection[];
+  
+  // Personal info (flattened)
+  first_name?: string;
+  last_name?: string;
+  location?: string;
+  
+  // Contacts and skills (simplified arrays)
+  contacts: string[];
+  skills: string[];
+  
+  // Experience and education (simplified)
+  experience: UnifiedResumeExperience[];
+  education: UnifiedResumeEducation[];
 }
+
+export interface UnifiedResumeExperience {
+  job_title: string;
+  company: string;
+  location?: string;
+  start_date?: string;
+  end_date?: string;
+  responsibilities: string[];
+}
+
+export interface UnifiedResumeEducation {
+  degree: string;
+  institution: string;
+  location?: string;
+  graduation_date?: string;
+}
+
+// Resume types (using UnifiedResume as base)
+export interface Resume extends UnifiedResume {}
 
 export interface ResumeList {
   id: number;
   title: string;
-  template_id: number;
+  template_id?: number;
   user_id: number;
   created_at: string;
   updated_at: string;
@@ -97,7 +112,7 @@ export interface ResumeList {
 
 export interface ResumeCreate {
   title: string;
-  template_id: number;
+  template_id?: number;
   professional_summary?: string;
 }
 
@@ -113,10 +128,18 @@ export interface ResumePartialUpdate {
   template_id?: number;
   professional_summary?: string;
   conversation_id?: string;
-  personal_info?: ResumePersonalInfoUpdate;
+  
+  // UnifiedResume fields
+  first_name?: string;
+  last_name?: string;
+  location?: string;
+  contacts?: string[];
+  skills?: string[];
+  experience?: UnifiedResumeExperience[];
+  education?: UnifiedResumeEducation[];
 }
 
-// Personal Info
+// Legacy types for API compatibility (simplified)
 export interface ResumePersonalInfo {
   id: number;
   resume_id: number;
@@ -131,7 +154,6 @@ export interface ResumePersonalInfoUpdate {
   location?: string;
 }
 
-// Contacts
 export interface ResumeContact {
   id: number;
   resume_id: number;
@@ -146,7 +168,6 @@ export interface ResumeContactUpdate {
   value?: string;
 }
 
-// Skills
 export interface ResumeSkill {
   id: number;
   resume_id: number;
@@ -161,7 +182,6 @@ export interface ResumeSkillUpdate {
   name?: string;
 }
 
-// Experience
 export interface ResumeExperience {
   id: number;
   resume_id: number;
@@ -191,7 +211,6 @@ export interface ResumeExperienceUpdate {
   responsibilities?: string[];
 }
 
-// Education
 export interface ResumeEducation {
   id: number;
   resume_id: number;
@@ -218,21 +237,20 @@ export interface ResumeEducationUpdate {
   gpa?: number;
 }
 
-// Projects
+// Project types
 export interface ResumeProject {
-  id: string;
-  resume_id: string;
-  name: string;
+  id: number;
+  resume_id: number;
+  title: string;
   description: string;
   url?: string;
   technologies: string[];
   start_date?: string;
   end_date?: string;
-  order: number;
 }
 
 export interface ResumeProjectCreate {
-  name: string;
+  title: string;
   description: string;
   url?: string;
   technologies: string[];
@@ -241,7 +259,7 @@ export interface ResumeProjectCreate {
 }
 
 export interface ResumeProjectUpdate {
-  name?: string;
+  title?: string;
   description?: string;
   url?: string;
   technologies?: string[];
@@ -249,17 +267,16 @@ export interface ResumeProjectUpdate {
   end_date?: string;
 }
 
-// Certifications
+// Certification types
 export interface ResumeCertification {
-  id: string;
-  resume_id: string;
+  id: number;
+  resume_id: number;
   name: string;
   issuing_organization: string;
   issue_date?: string;
   expiry_date?: string;
   credential_id?: string;
-  url?: string;
-  order: number;
+  credential_url?: string;
 }
 
 export interface ResumeCertificationCreate {
@@ -268,7 +285,7 @@ export interface ResumeCertificationCreate {
   issue_date?: string;
   expiry_date?: string;
   credential_id?: string;
-  url?: string;
+  credential_url?: string;
 }
 
 export interface ResumeCertificationUpdate {
@@ -277,16 +294,15 @@ export interface ResumeCertificationUpdate {
   issue_date?: string;
   expiry_date?: string;
   credential_id?: string;
-  url?: string;
+  credential_url?: string;
 }
 
-// Languages
+// Language types
 export interface ResumeLanguage {
-  id: string;
-  resume_id: string;
+  id: number;
+  resume_id: number;
   language: string;
   proficiency: string;
-  order: number;
 }
 
 export interface ResumeLanguageCreate {
@@ -299,16 +315,15 @@ export interface ResumeLanguageUpdate {
   proficiency?: string;
 }
 
-// References
+// Reference types
 export interface ResumeReference {
-  id: string;
-  resume_id: string;
+  id: number;
+  resume_id: number;
   name: string;
   title: string;
   company: string;
   email?: string;
   phone?: string;
-  order: number;
 }
 
 export interface ResumeReferenceCreate {
@@ -327,74 +342,71 @@ export interface ResumeReferenceUpdate {
   phone?: string;
 }
 
-// Volunteer
+// Volunteer types
 export interface ResumeVolunteer {
-  id: string;
-  resume_id: string;
+  id: number;
+  resume_id: number;
   organization: string;
   role: string;
+  description: string;
   start_date?: string;
   end_date?: string;
-  description: string[];
-  order: number;
 }
 
 export interface ResumeVolunteerCreate {
   organization: string;
   role: string;
+  description: string;
   start_date?: string;
   end_date?: string;
-  description: string[];
 }
 
 export interface ResumeVolunteerUpdate {
   organization?: string;
   role?: string;
+  description?: string;
   start_date?: string;
   end_date?: string;
-  description?: string[];
 }
 
-// Awards
+// Award types
 export interface ResumeAward {
-  id: string;
-  resume_id: string;
-  name: string;
-  issuing_organization: string;
-  issue_date?: string;
+  id: number;
+  resume_id: number;
+  title: string;
+  issuer: string;
+  date?: string;
   description?: string;
-  order: number;
 }
 
 export interface ResumeAwardCreate {
-  name: string;
-  issuing_organization: string;
-  issue_date?: string;
+  title: string;
+  issuer: string;
+  date?: string;
   description?: string;
 }
 
 export interface ResumeAwardUpdate {
-  name?: string;
-  issuing_organization?: string;
-  issue_date?: string;
+  title?: string;
+  issuer?: string;
+  date?: string;
   description?: string;
 }
 
-// Publications
+// Publication types
 export interface ResumePublication {
-  id: string;
-  resume_id: string;
+  id: number;
+  resume_id: number;
   title: string;
-  authors: string;
+  authors: string[];
   journal?: string;
   publication_date?: string;
   url?: string;
-  order: number;
 }
 
 export interface ResumePublicationCreate {
   title: string;
-  authors: string;
+  authors: string[];
   journal?: string;
   publication_date?: string;
   url?: string;
@@ -402,21 +414,20 @@ export interface ResumePublicationCreate {
 
 export interface ResumePublicationUpdate {
   title?: string;
-  authors?: string;
+  authors?: string[];
   journal?: string;
   publication_date?: string;
   url?: string;
 }
 
-// Patents
+// Patent types
 export interface ResumePatent {
-  id: string;
-  resume_id: string;
+  id: number;
+  resume_id: number;
   title: string;
   patent_number: string;
   issue_date?: string;
   description?: string;
-  order: number;
 }
 
 export interface ResumePatentCreate {
@@ -433,15 +444,14 @@ export interface ResumePatentUpdate {
   description?: string;
 }
 
-// Courses
+// Course types
 export interface ResumeCourse {
-  id: string;
-  resume_id: string;
+  id: number;
+  resume_id: number;
   name: string;
   institution: string;
   completion_date?: string;
   description?: string;
-  order: number;
 }
 
 export interface ResumeCourseCreate {
@@ -458,35 +468,36 @@ export interface ResumeCourseUpdate {
   description?: string;
 }
 
-// Test Scores
+// Test Score types
 export interface ResumeTestScore {
-  id: string;
-  resume_id: string;
+  id: number;
+  resume_id: number;
   test_name: string;
   score: string;
   test_date?: string;
-  order: number;
+  description?: string;
 }
 
 export interface ResumeTestScoreCreate {
   test_name: string;
   score: string;
   test_date?: string;
+  description?: string;
 }
 
 export interface ResumeTestScoreUpdate {
   test_name?: string;
   score?: string;
   test_date?: string;
+  description?: string;
 }
 
-// Hobbies
+// Hobby types
 export interface ResumeHobby {
-  id: string;
-  resume_id: string;
+  id: number;
+  resume_id: number;
   name: string;
   description?: string;
-  order: number;
 }
 
 export interface ResumeHobbyCreate {
@@ -499,10 +510,10 @@ export interface ResumeHobbyUpdate {
   description?: string;
 }
 
-// Custom Sections
+// Custom Section types
 export interface ResumeCustomSection {
-  id: string;
-  resume_id: string;
+  id: number;
+  resume_id: number;
   title: string;
   content: string;
   order: number;
@@ -511,18 +522,36 @@ export interface ResumeCustomSection {
 export interface ResumeCustomSectionCreate {
   title: string;
   content: string;
+  order: number;
 }
 
 export interface ResumeCustomSectionUpdate {
   title?: string;
   content?: string;
+  order?: number;
 }
 
-// Export
+// Export types
+export interface ResumeExport {
+  id: number;
+  resume_id: number;
+  format: string;
+  status: string;
+  file_path?: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface ResumeExportCreate {
-  export_format: string;
-  file_size: number;
-  export_settings: Record<string, any>;
+  format: string;
+  status: string;
+  file_path?: string;
+}
+
+export interface ResumeExportUpdate {
+  format?: string;
+  status?: string;
+  file_path?: string;
 }
 
 // Template types
@@ -531,7 +560,8 @@ export interface Template {
   name: string;
   slug: string;
   description?: string;
-  is_premium: boolean;
+  thumbnail_url?: string;
+  is_active: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -540,47 +570,34 @@ export interface TemplateCreate {
   name: string;
   slug: string;
   description?: string;
-  is_premium: boolean;
+  thumbnail_url?: string;
+  is_active?: boolean;
 }
 
 export interface TemplateUpdate {
   name?: string;
   slug?: string;
   description?: string;
-  is_premium?: boolean;
+  thumbnail_url?: string;
+  is_active?: boolean;
 }
 
 // Chat types
-export interface SendMessageRequest {
-  message: string;
-  resume_id: string;
+export interface ChatMessage {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: string;
 }
 
-export interface SendMessageResponse {
+export interface ChatRequest {
   message: string;
-  response: string;
+  resume_id: number;
+  conversation_id?: string;
+}
+
+export interface ChatResponse {
+  message: string;
   conversation_id: string;
-}
-
-// Refine types
-export interface Suggestion {
-  id: string;
-  type: string;
-  title: string;
-  description: string;
-  action: string;
-}
-
-// Export types
-export interface ExportPlan {
-  id: string;
-  name: string;
-  price: number;
-  features: string[];
-}
-
-export interface ExportResponse {
-  success: boolean;
-  planId: string;
   download_url?: string;
 } 

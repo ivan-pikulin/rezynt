@@ -24,13 +24,13 @@ import {
   Save as SaveIcon,
   Cancel as CancelIcon
 } from '@mui/icons-material';
-import { ResumeExperience, ResumeExperienceCreate, ResumeExperienceUpdate } from '../../../shared/services/api/types';
+import { UnifiedResumeExperience } from '../../../shared/services/api/types';
 import { resumeApi } from '../../../shared/services/api';
 
 interface ExperienceEditorProps {
-  experience: ResumeExperience[];
-  resumeId: string;
-  onExperienceUpdate: (experience: ResumeExperience[]) => void;
+  experience: UnifiedResumeExperience[];
+  resumeId: number;
+  onExperienceUpdate: (experience: UnifiedResumeExperience[]) => void;
 }
 
 interface ExperienceFormData {
@@ -49,9 +49,9 @@ const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
   onExperienceUpdate
 }) => {
   const { t } = useTranslation();
-  const [localExperience, setLocalExperience] = useState<ResumeExperience[]>(experience);
+  const [localExperience, setLocalExperience] = useState<UnifiedResumeExperience[]>(experience);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingExperience, setEditingExperience] = useState<ResumeExperience | null>(null);
+  const [editingExperienceIndex, setEditingExperienceIndex] = useState<number | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [newResponsibility, setNewResponsibility] = useState('');
   
@@ -76,19 +76,19 @@ const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
       responsibilities: []
     });
     setNewResponsibility('');
-    setEditingExperience(null);
+    setEditingExperienceIndex(null);
   };
 
-  const handleOpenDialog = (exp?: ResumeExperience) => {
-    if (exp) {
-      setEditingExperience(exp);
+  const handleOpenDialog = (exp?: UnifiedResumeExperience, index?: number) => {
+    if (exp && index !== undefined) {
+      setEditingExperienceIndex(index);
       setFormData({
         job_title: exp.job_title,
         company: exp.company,
         location: exp.location || '',
-        start_date: exp.start_date,
+        start_date: exp.start_date || '',
         end_date: exp.end_date || '',
-        is_current: exp.is_current,
+        is_current: !exp.end_date,
         responsibilities: [...exp.responsibilities]
       });
     } else {
@@ -102,14 +102,71 @@ const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
     resetForm();
   };
 
-  const handleFormChange = (field: keyof ExperienceFormData, value: any) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
+  const handleSaveExperience = async () => {
+    if (!formData.job_title.trim() || !formData.company.trim()) {
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const experienceData: UnifiedResumeExperience = {
+        job_title: formData.job_title.trim(),
+        company: formData.company.trim(),
+        location: formData.location.trim() || undefined,
+        start_date: formData.start_date || undefined,
+        end_date: formData.is_current ? undefined : (formData.end_date || undefined),
+        responsibilities: formData.responsibilities.filter(r => r.trim())
+      };
+
+      let updatedExperience: UnifiedResumeExperience[];
+      
+      if (editingExperienceIndex !== null) {
+        // Update existing experience
+        updatedExperience = [...localExperience];
+        updatedExperience[editingExperienceIndex] = experienceData;
+      } else {
+        // Add new experience
+        updatedExperience = [...localExperience, experienceData];
+      }
+
+      // Update the resume with new experience data
+      const resumeUpdate = {
+        experience: updatedExperience
+      };
+      
+      await resumeApi.updateResumePartial(resumeId, resumeUpdate);
+      
+      setLocalExperience(updatedExperience);
+      onExperienceUpdate(updatedExperience);
+      handleCloseDialog();
+    } catch (error) {
+      console.error('Error saving experience:', error);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const handleAddResponsibility = () => {
+  const handleDeleteExperience = async (index: number) => {
+    setIsSaving(true);
+    try {
+      const updatedExperience = localExperience.filter((_, i) => i !== index);
+      
+      const resumeUpdate = {
+        experience: updatedExperience
+      };
+      
+      await resumeApi.updateResumePartial(resumeId, resumeUpdate);
+      
+      setLocalExperience(updatedExperience);
+      onExperienceUpdate(updatedExperience);
+    } catch (error) {
+      console.error('Error deleting experience:', error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const addResponsibility = () => {
     if (newResponsibility.trim()) {
       setFormData(prev => ({
         ...prev,
@@ -119,336 +176,194 @@ const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
     }
   };
 
-  const handleRemoveResponsibility = (index: number) => {
+  const removeResponsibility = (index: number) => {
     setFormData(prev => ({
       ...prev,
       responsibilities: prev.responsibilities.filter((_, i) => i !== index)
     }));
   };
 
-  const handleSaveExperience = async () => {
-    if (!formData.job_title || !formData.company || !formData.start_date) {
-      return; // Basic validation
-    }
-
-    setIsSaving(true);
-    try {
-      if (editingExperience) {
-        // Update existing experience
-        const updateData: ResumeExperienceUpdate = {
-          job_title: formData.job_title,
-          company: formData.company,
-          location: formData.location || undefined,
-          start_date: formData.start_date,
-          end_date: formData.is_current ? undefined : (formData.end_date || undefined),
-          is_current: formData.is_current,
-          responsibilities: formData.responsibilities
-        };
-
-        const response = await resumeApi.updateExperience(resumeId, editingExperience.id, updateData);
-        
-        // Update local state with the returned data
-        const updatedExperience = localExperience.map(exp => 
-          exp.id === editingExperience.id 
-            ? response.experience
-            : exp
-        );
-        setLocalExperience(updatedExperience);
-        onExperienceUpdate(updatedExperience);
-      } else {
-        // Add new experience
-        const newExperienceData: ResumeExperienceCreate = {
-          job_title: formData.job_title,
-          company: formData.company,
-          location: formData.location || undefined,
-          start_date: formData.start_date,
-          end_date: formData.is_current ? undefined : (formData.end_date || undefined),
-          is_current: formData.is_current,
-          responsibilities: formData.responsibilities
-        };
-
-        const response = await resumeApi.addExperience(resumeId, newExperienceData);
-        
-        // Add to local state - use the returned experience data
-        const newExperience: ResumeExperience = {
-          id: response.experience.id,
-          resume_id: resumeId,
-          job_title: response.experience.job_title,
-          company: response.experience.company,
-          location: response.experience.location,
-          start_date: response.experience.start_date,
-          end_date: response.experience.end_date,
-          is_current: response.experience.is_current,
-          responsibilities: response.experience.responsibilities,
-          order: response.experience.order
-        };
-        
-        const updatedExperience = [...localExperience, newExperience];
-        setLocalExperience(updatedExperience);
-        onExperienceUpdate(updatedExperience);
-      }
-      
-      handleCloseDialog();
-    } catch (error) {
-      console.error('Error saving experience:', error);
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleDeleteExperience = async (experienceId: string) => {
-    try {
-      await resumeApi.removeExperience(resumeId, experienceId);
-      
-      const updatedExperience = localExperience.filter(exp => exp.id !== experienceId);
-      setLocalExperience(updatedExperience);
-      onExperienceUpdate(updatedExperience);
-    } catch (error) {
-      console.error('Error deleting experience:', error);
-    }
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('ru-RU', {
-      year: 'numeric',
-      month: 'long'
-    });
-  };
-
   return (
     <Box>
-      {/* Header with Add button */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Typography variant="h6" sx={{ fontWeight: 600, color: '#2c3e50' }}>
-          {t('refine.editor.experience')} ({localExperience.length})
+          {t('refine.editor.experience')}
         </Typography>
         <Button
           variant="contained"
           startIcon={<AddIcon />}
           onClick={() => handleOpenDialog()}
-          sx={{
-            borderRadius: 2,
-            textTransform: 'none',
-            fontWeight: 600
-          }}
+          disabled={isSaving}
         >
           {t('refine.editor.addExperience')}
         </Button>
       </Box>
 
-      {/* Experience list */}
-      {localExperience.length === 0 ? (
-        <Box sx={{ 
-          textAlign: 'center', 
-          py: 4, 
-          color: 'text.secondary',
-          border: '2px dashed #e0e0e0',
-          borderRadius: 2
-        }}>
-          <Typography variant="body1">
-            {t('refine.editor.noExperience')}
-          </Typography>
-          <Button
-            variant="outlined"
-            startIcon={<AddIcon />}
-            onClick={() => handleOpenDialog()}
-            sx={{ mt: 2 }}
-          >
-            {t('refine.editor.addFirstExperience')}
-          </Button>
-        </Box>
-      ) : (
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          {localExperience.map((exp) => (
-            <Card key={exp.id} sx={{ 
-              border: '1px solid #e0e0e0',
-              '&:hover': {
-                borderColor: '#007bff',
-                boxShadow: '0 2px 8px rgba(0,123,255,0.1)'
-              }
-            }}>
-              <CardContent>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-                  <Box sx={{ flex: 1 }}>
-                    <Typography variant="h6" fontWeight="bold" color="primary">
-                      {exp.job_title}
-                    </Typography>
-                    <Typography variant="subtitle1" color="text.secondary">
-                      {exp.company}
-                      {exp.location && ` • ${exp.location}`}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {formatDate(exp.start_date)} - {exp.is_current ? t('refine.editor.present') : (exp.end_date ? formatDate(exp.end_date) : '')}
-                    </Typography>
-                  </Box>
-                  <Box sx={{ display: 'flex', gap: 1 }}>
-                    <IconButton
+      {/* Список опыта работы */}
+      {localExperience.map((exp, index) => (
+        <Card key={index} sx={{ mb: 2, border: '1px solid #e0e0e0' }}>
+          <CardContent>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+              <Box sx={{ flex: 1 }}>
+                <Typography variant="h6" sx={{ fontWeight: 600, color: '#2c3e50' }}>
+                  {exp.job_title}
+                </Typography>
+                <Typography variant="subtitle1" sx={{ color: '#7f8c8d', mb: 1 }}>
+                  {exp.company}
+                  {exp.location && ` • ${exp.location}`}
+                </Typography>
+                <Typography variant="body2" sx={{ color: '#95a5a6' }}>
+                  {exp.start_date && new Date(exp.start_date).toLocaleDateString()}
+                  {exp.end_date && ` - ${new Date(exp.end_date).toLocaleDateString()}`}
+                  {!exp.end_date && exp.start_date && ' - Present'}
+                </Typography>
+              </Box>
+              <Box sx={{ display: 'flex', gap: 1 }}>
+                <IconButton
+                  size="small"
+                  onClick={() => handleOpenDialog(exp, index)}
+                  disabled={isSaving}
+                >
+                  <EditIcon />
+                </IconButton>
+                <IconButton
+                  size="small"
+                  onClick={() => handleDeleteExperience(index)}
+                  disabled={isSaving}
+                  color="error"
+                >
+                  <DeleteIcon />
+                </IconButton>
+              </Box>
+            </Box>
+            
+            {exp.responsibilities && exp.responsibilities.length > 0 && (
+              <Box>
+                <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1, color: '#34495e' }}>
+                  {t('refine.editor.responsibilities')}:
+                </Typography>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                  {exp.responsibilities.map((resp, respIndex) => (
+                    <Chip
+                      key={respIndex}
+                      label={resp}
                       size="small"
-                      onClick={() => handleOpenDialog(exp)}
-                      sx={{ color: '#007bff' }}
-                    >
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton
-                      size="small"
-                      onClick={() => handleDeleteExperience(exp.id)}
-                      sx={{ color: '#dc3545' }}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </Box>
+                      variant="outlined"
+                      sx={{ fontSize: '0.75rem' }}
+                    />
+                  ))}
                 </Box>
-                
-                {exp.responsibilities.length > 0 && (
-                  <Box>
-                    <Typography variant="subtitle2" fontWeight="bold" sx={{ mb: 1 }}>
-                      {t('refine.editor.responsibilities')}:
-                    </Typography>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                      {exp.responsibilities.map((responsibility, index) => (
-                        <Typography key={index} variant="body2" sx={{ pl: 2, position: 'relative' }}>
-                          • {responsibility}
-                        </Typography>
-                      ))}
-                    </Box>
-                  </Box>
-                )}
-              </CardContent>
-            </Card>
-          ))}
-        </Box>
-      )}
+              </Box>
+            )}
+          </CardContent>
+        </Card>
+      ))}
 
-      {/* Add/Edit Dialog */}
-      <Dialog 
-        open={isDialogOpen} 
-        onClose={handleCloseDialog}
-        maxWidth="md"
-        fullWidth
-      >
+      {/* Диалог добавления/редактирования */}
+      <Dialog open={isDialogOpen} onClose={handleCloseDialog} maxWidth="md" fullWidth>
         <DialogTitle>
-          {editingExperience ? t('refine.editor.editExperience') : t('refine.editor.addExperience')}
+          {editingExperienceIndex !== null ? t('refine.editor.editExperience') : t('refine.editor.addExperience')}
         </DialogTitle>
         <DialogContent>
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2, mt: 1 }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2, mt: 1 }}>
             <TextField
               fullWidth
               label={t('refine.editor.jobTitle')}
               value={formData.job_title}
-              onChange={(e) => handleFormChange('job_title', e.target.value)}
-              variant="outlined"
-              size="small"
+              onChange={(e) => setFormData(prev => ({ ...prev, job_title: e.target.value }))}
               required
             />
             <TextField
               fullWidth
               label={t('refine.editor.company')}
               value={formData.company}
-              onChange={(e) => handleFormChange('company', e.target.value)}
-              variant="outlined"
-              size="small"
+              onChange={(e) => setFormData(prev => ({ ...prev, company: e.target.value }))}
               required
             />
             <TextField
               fullWidth
               label={t('refine.editor.location')}
               value={formData.location}
-              onChange={(e) => handleFormChange('location', e.target.value)}
-              variant="outlined"
-              size="small"
+              onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
             />
             <TextField
               fullWidth
               label={t('refine.editor.startDate')}
-              value={formData.start_date}
-              onChange={(e) => handleFormChange('start_date', e.target.value)}
-              variant="outlined"
-              size="small"
               type="date"
-              required
+              value={formData.start_date}
+              onChange={(e) => setFormData(prev => ({ ...prev, start_date: e.target.value }))}
               InputLabelProps={{ shrink: true }}
             />
             <TextField
               fullWidth
               label={t('refine.editor.endDate')}
-              value={formData.end_date}
-              onChange={(e) => handleFormChange('end_date', e.target.value)}
-              variant="outlined"
-              size="small"
               type="date"
-              disabled={formData.is_current}
+              value={formData.end_date}
+              onChange={(e) => setFormData(prev => ({ ...prev, end_date: e.target.value }))}
               InputLabelProps={{ shrink: true }}
+              disabled={formData.is_current}
             />
-            <Box sx={{ display: 'flex', alignItems: 'center', height: 56 }}>
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={formData.is_current}
-                    onChange={(e) => handleFormChange('is_current', e.target.checked)}
-                  />
-                }
-                label={t('refine.editor.currentPosition')}
-              />
-            </Box>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={formData.is_current}
+                  onChange={(e) => setFormData(prev => ({ 
+                    ...prev, 
+                    is_current: e.target.checked,
+                    end_date: e.target.checked ? '' : prev.end_date
+                  }))}
+                />
+              }
+              label={t('refine.editor.currentPosition')}
+            />
           </Box>
 
           <Divider sx={{ my: 3 }} />
 
-          {/* Responsibilities */}
           <Typography variant="h6" sx={{ mb: 2 }}>
             {t('refine.editor.responsibilities')}
           </Typography>
-          
+
           <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
             <TextField
               fullWidth
-              label={t('refine.editor.addResponsibility')}
+              size="small"
+              placeholder={t('refine.editor.addResponsibility')}
               value={newResponsibility}
               onChange={(e) => setNewResponsibility(e.target.value)}
-              variant="outlined"
-              size="small"
-              onKeyPress={(e) => e.key === 'Enter' && handleAddResponsibility()}
+              onKeyPress={(e) => e.key === 'Enter' && addResponsibility()}
             />
             <Button
-              variant="contained"
-              onClick={handleAddResponsibility}
+              variant="outlined"
+              onClick={addResponsibility}
               disabled={!newResponsibility.trim()}
-              sx={{ minWidth: 'auto', px: 2 }}
             >
-              <AddIcon />
+              {t('refine.editor.add')}
             </Button>
           </Box>
 
-          {formData.responsibilities.length > 0 && (
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-              {formData.responsibilities.map((responsibility, index) => (
-                <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Typography variant="body2" sx={{ flex: 1 }}>
-                    • {responsibility}
-                  </Typography>
-                  <IconButton
-                    size="small"
-                    onClick={() => handleRemoveResponsibility(index)}
-                    sx={{ color: '#dc3545' }}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </Box>
-              ))}
-            </Box>
-          )}
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+            {formData.responsibilities.map((resp, index) => (
+              <Chip
+                key={index}
+                label={resp}
+                onDelete={() => removeResponsibility(index)}
+                variant="outlined"
+              />
+            ))}
+          </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDialog} startIcon={<CancelIcon />}>
-            {t('common.cancel')}
+          <Button onClick={handleCloseDialog}>
+            {t('refine.editor.cancel')}
           </Button>
           <Button
             onClick={handleSaveExperience}
             variant="contained"
+            disabled={!formData.job_title.trim() || !formData.company.trim() || isSaving}
             startIcon={<SaveIcon />}
-            disabled={isSaving || !formData.job_title || !formData.company || !formData.start_date}
           >
-            {isSaving ? t('common.saving') : t('common.save')}
+            {isSaving ? t('refine.editor.saving') : t('refine.editor.save')}
           </Button>
         </DialogActions>
       </Dialog>
