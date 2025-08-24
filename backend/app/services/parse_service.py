@@ -78,7 +78,7 @@ class ParseService:
         """
         try:
             # Используем OpenAI Structured Outputs с Pydantic моделью
-            response = await self.client.beta.chat.completions.parse(
+            response = self.client.beta.chat.completions.parse(
                 model="gpt-4o-mini",
                 messages=[
                     {
