@@ -1,5 +1,3 @@
-import os
-import tempfile
 from typing import Any, Dict, List
 
 from app.api.deps import APIKeyVerified, AsyncDB, VerifiedUser
@@ -125,7 +123,6 @@ async def partial_update_resume(
 @router.post("/upload", response_model=Dict[str, Any])
 async def upload_resume(
     *,
-    db: AsyncDB,
     file: UploadFile = File(...),
     current_user: VerifiedUser,
 ) -> Dict[str, Any]:
@@ -141,28 +138,13 @@ async def upload_resume(
         )
     
     try:
-        # Create resume first
-        resume_create = ResumeCreate(
-            title=f"Resume from {file.filename}",
-            template_id=1,  # Default template
-            professional_summary=""
-        )
-        
-        resume = await resume_manager.create_resume(db, obj_in=resume_create, user_id=current_user.id)
-        
-        # Save uploaded file to temporary location
+        # Read file content
         file_content = await file.read()
-        temp_dir = tempfile.gettempdir()
-        temp_file_path = os.path.join(temp_dir, f"resume_{resume.id}_{file.filename}")
         
-        with open(temp_file_path, 'wb') as temp_file:
-            temp_file.write(file_content)
-        
-        # Start Celery task for processing
-        task = process_resume_upload_task.delay(temp_file_path, current_user.id, resume.id)
+        # Start Celery task for processing (resume creation happens inside the task)
+        task = process_resume_upload_task.delay(file_content, file.filename, current_user.id)
         
         return {
-            "id": resume.id,
             "task_id": task.id,
             "message": "File uploaded and processing started"
         }
@@ -411,8 +393,7 @@ async def get_upload_status(
             response = {
                 'state': task.state,
                 'status': 'completed',
-                'message': task.info.get('message', 'Resume processed successfully'),
-                'text_content': task.info.get('text_content'),
+                'message': task.info.get('message', 'Resume created and processed successfully'),
                 'resume_id': task.info.get('resume_id')
             }
         elif task.state == 'FAILURE':
@@ -468,9 +449,8 @@ async def get_upload_result(
         
         return {
             'status': 'completed',
-            'text_content': result.get('text_content'),
             'resume_id': result.get('resume_id'),
-            'message': 'Resume processed successfully'
+            'message': 'Resume created and processed successfully'
         }
         
     except HTTPException:

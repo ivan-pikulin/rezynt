@@ -1,12 +1,14 @@
 import asyncio
 import logging
 import os
+import tempfile
 
 from asgiref.sync import async_to_sync
 from app.core.celery_app import celery_app
 from app.database.crud.crud_resume import resume_crud
 from app.database.session import SessionLocal
-from app.schemas.resume import ResumePersonalInfoUpdate, ResumeUpdate
+from app.database.crud.crud_resume import resume_manager
+from app.schemas.resume import ResumePersonalInfoUpdate, ResumeUpdate, ResumeCreate
 from app.services.email_service import EmailService
 from app.services.parse_service import ParseService
 
@@ -43,66 +45,78 @@ async def _send_confirmation_email_task(email: str, token: str):
 
 
 @celery_app.task(name="process_resume_upload_task", bind=True)
-def process_resume_upload_task(self, file_path: str, user_id: int, resume_id: int):
+def process_resume_upload_task(self, file_content: bytes, filename: str, user_id: int):
     """Обработка загруженного резюме с помощью ParseService"""
-    async_to_sync(_process_resume_upload_task)(self, file_path, user_id, resume_id)
+    async_to_sync(_process_resume_upload_task)(self, file_content, filename, user_id)
 
 
-async def _process_resume_upload_task(self, file_path: str, user_id: int, resume_id: int):
+async def _process_resume_upload_task(self, file_content: bytes, filename: str, user_id: int):
     """Async implementation of resume processing task"""
-    logger.info(f"Starting resume processing task for user {user_id}, resume {resume_id}")
+    logger.info(f"Starting resume processing task for user {user_id}, filename: {filename}")
+    
+    temp_file_path = None
     
     try:
         # Update task status to processing
         self.update_state(
             state='PROCESSING',
-            meta={'status': 'processing', 'message': 'Processing resume with ParseService'}
+            meta={'status': 'processing', 'message': 'Creating resume and processing with ParseService'}
         )
+        
+        # Create resume first
+        resume = await _create_resume_in_db(user_id, filename)
+        
+        # Save uploaded file to temporary location
+        temp_dir = tempfile.gettempdir()
+        temp_file_path = os.path.join(temp_dir, f"resume_{resume.id}_{filename}")
+        
+        with open(temp_file_path, 'wb') as temp_file:
+            temp_file.write(file_content)
         
         # Initialize ParseService
         parse_service = ParseService()
         
         # Parse the resume file
-        parsed_data = parse_service.parse_resume_file(file_path)
+        parsed_data = parse_service.parse_resume_file(temp_file_path)
         
         # Update resume in database with parsed data
-        await _update_resume_in_db(resume_id, user_id, parsed_data)
+        await _update_resume_in_db(resume.id, user_id, parsed_data)
         
         # Clean up temporary file
         try:
-            os.remove(file_path)
-            logger.info(f"Temporary file removed: {file_path}")
+            os.remove(temp_file_path)
+            logger.info(f"Temporary file removed: {temp_file_path}")
         except Exception as e:
-            logger.warning(f"Failed to remove temporary file {file_path}: {e}")
+            logger.warning(f"Failed to remove temporary file {temp_file_path}: {e}")
         
         # Update task status to completed
         self.update_state(
             state='SUCCESS',
             meta={
                 'status': 'completed',
-                'message': 'Resume processed and updated successfully',
+                'message': 'Resume created and processed successfully',
                 'user_id': user_id,
-                'resume_id': resume_id
+                'resume_id': resume.id
             }
         )
         
-        logger.info(f"Resume processing completed for user {user_id}, resume {resume_id}")
+        logger.info(f"Resume processing completed for user {user_id}, resume {resume.id}")
         return {
             'status': 'completed',
             'user_id': user_id,
-            'resume_id': resume_id
+            'resume_id': resume.id
         }
         
     except Exception as e:
         logger.error(f"Exception in process_resume_upload task: {e}", exc_info=True)
         
         # Clean up temporary file on error
-        try:
-            if os.path.exists(file_path):
-                os.remove(file_path)
-                logger.info(f"Temporary file removed after error: {file_path}")
-        except Exception as cleanup_error:
-            logger.warning(f"Failed to remove temporary file {file_path} after error: {cleanup_error}")
+        if temp_file_path and os.path.exists(temp_file_path):
+            try:
+                os.remove(temp_file_path)
+                logger.info(f"Temporary file removed after error: {temp_file_path}")
+            except Exception as cleanup_error:
+                logger.warning(f"Failed to remove temporary file {temp_file_path} after error: {cleanup_error}")
         
         # Update task status to failed
         self.update_state(
@@ -110,17 +124,35 @@ async def _process_resume_upload_task(self, file_path: str, user_id: int, resume
             meta={
                 'status': 'error',
                 'message': f'Failed to process resume: {str(e)}',
-                'user_id': user_id,
-                'resume_id': resume_id
+                'user_id': user_id
             }
         )
         
         return {
             'status': 'error',
             'error': str(e),
-            'user_id': user_id,
-            'resume_id': resume_id
+            'user_id': user_id
         }
+
+
+async def _create_resume_in_db(user_id: int, filename: str):
+    """Создает резюме в базе данных"""
+    async with SessionLocal() as db:
+        try:
+            # Create resume with default template
+            resume_create = ResumeCreate(
+                title=f"Resume from {filename}",
+                template_id=1,  # Default template
+                professional_summary=""
+            )
+            
+            resume = await resume_manager.create_resume(db, obj_in=resume_create, user_id=user_id)
+            logger.info(f"Resume {resume.id} created successfully for user {user_id}")
+            return resume
+            
+        except Exception as e:
+            logger.error(f"Error creating resume in database: {e}", exc_info=True)
+            raise
 
 
 async def _update_resume_in_db(resume_id: int, user_id: int, parsed_data):
