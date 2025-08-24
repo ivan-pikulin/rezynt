@@ -401,18 +401,19 @@ async def get_upload_status(
                 'message': 'Creating resume and processing with ParseService'
             }
         elif task.state == 'SUCCESS':
+            task_result = task.result or {}
             response = {
                 'state': task.state,
                 'status': 'completed',
-                'message': task.info.get('message', 'Resume created and processed successfully'),
-                'resume_id': task.info.get('resume_id')
+                'message': task_result.get('message', 'Resume created and processed successfully'),
+                'resume_id': task_result.get('resume_id')
             }
         elif task.state == 'FAILURE':
             response = {
                 'state': task.state,
                 'status': 'error',
                 'message': 'Task failed',
-                'error': str(task.result) if task.result else 'Unknown error'
+                'error': str(task.result) if task.result is not None else 'Unknown error'
             }
         else:
             response = {
@@ -450,6 +451,12 @@ async def get_upload_result(
             )
         
         result = task.result
+        
+        if result is None:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Task completed but no result available"
+            )
         
         # Verify that the task belongs to the current user
         if result.get('user_id') != current_user.id:

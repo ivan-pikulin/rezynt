@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 @celery_app.task(name="send_confirmation_email_task")
 def send_confirmation_email_task(email: str, token: str):
     """Отправка email с подтверждением регистрации через EmailService"""
-    async_to_sync(_send_confirmation_email_task)(email, token)
+    return async_to_sync(_send_confirmation_email_task)(email, token)
 
 
 async def _send_confirmation_email_task(email: str, token: str):
@@ -44,7 +44,7 @@ async def _send_confirmation_email_task(email: str, token: str):
 @celery_app.task(name="process_resume_upload_task")
 def process_resume_upload_task(file_content: bytes, filename: str, user_id: int):
     """Обработка загруженного резюме с помощью ParseService"""
-    async_to_sync(_process_resume_upload_task)(file_content, filename, user_id)
+    return async_to_sync(_process_resume_upload_task)(file_content, filename, user_id)
 
 
 async def _process_resume_upload_task(file_content: bytes, filename: str, user_id: int):
