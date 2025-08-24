@@ -44,25 +44,19 @@ async def _send_confirmation_email_task(email: str, token: str):
         return {"status": "error", "email": email, "error": str(e)}
 
 
-@celery_app.task(name="process_resume_upload_task", bind=True)
-def process_resume_upload_task(self, file_content: bytes, filename: str, user_id: int):
+@celery_app.task(name="process_resume_upload_task")
+def process_resume_upload_task(file_content: bytes, filename: str, user_id: int):
     """Обработка загруженного резюме с помощью ParseService"""
-    async_to_sync(_process_resume_upload_task)(self, file_content, filename, user_id)
+    return async_to_sync(_process_resume_upload_task)(file_content, filename, user_id)
 
 
-async def _process_resume_upload_task(self, file_content: bytes, filename: str, user_id: int):
+async def _process_resume_upload_task(file_content: bytes, filename: str, user_id: int):
     """Async implementation of resume processing task"""
     logger.info(f"Starting resume processing task for user {user_id}, filename: {filename}")
     
     temp_file_path = None
     
     try:
-        # Update task status to processing
-        self.update_state(
-            state='PROCESSING',
-            meta={'status': 'processing', 'message': 'Creating resume and processing with ParseService'}
-        )
-        
         # Create resume first
         resume = await _create_resume_in_db(user_id, filename)
         
@@ -89,17 +83,6 @@ async def _process_resume_upload_task(self, file_content: bytes, filename: str, 
         except Exception as e:
             logger.warning(f"Failed to remove temporary file {temp_file_path}: {e}")
         
-        # Update task status to completed
-        self.update_state(
-            state='SUCCESS',
-            meta={
-                'status': 'completed',
-                'message': 'Resume created and processed successfully',
-                'user_id': user_id,
-                'resume_id': resume.id
-            }
-        )
-        
         logger.info(f"Resume processing completed for user {user_id}, resume {resume.id}")
         return {
             'status': 'completed',
@@ -117,16 +100,6 @@ async def _process_resume_upload_task(self, file_content: bytes, filename: str, 
                 logger.info(f"Temporary file removed after error: {temp_file_path}")
             except Exception as cleanup_error:
                 logger.warning(f"Failed to remove temporary file {temp_file_path} after error: {cleanup_error}")
-        
-        # Update task status to failed
-        self.update_state(
-            state='FAILURE',
-            meta={
-                'status': 'error',
-                'message': f'Failed to process resume: {str(e)}',
-                'user_id': user_id
-            }
-        )
         
         return {
             'status': 'error',

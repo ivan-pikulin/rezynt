@@ -383,11 +383,11 @@ async def get_upload_status(
                 'status': 'pending',
                 'message': 'Task is pending'
             }
-        elif task.state == 'PROCESSING':
+        elif task.state == 'STARTED':
             response = {
                 'state': task.state,
                 'status': 'processing',
-                'message': task.info.get('message', 'Processing resume')
+                'message': 'Creating resume and processing with ParseService'
             }
         elif task.state == 'SUCCESS':
             response = {
