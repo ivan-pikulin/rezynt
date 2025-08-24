@@ -4,7 +4,7 @@ from typing import Any, Dict, List
 
 from app.api.deps import APIKeyVerified, AsyncDB, VerifiedUser
 from app.core.celery_app import celery_app
-from app.core.tasks import process_resume_upload
+from app.core.tasks import process_resume_upload_task
 from app.database.crud.crud_resume import resume_manager
 from app.database.crud.crud_template import template_crud
 from app.schemas.resume import (AIResumeUpdate, PDFExportRequest, ResumeCreate,
@@ -159,7 +159,7 @@ async def upload_resume(
             temp_file.write(file_content)
         
         # Start Celery task for processing
-        task = process_resume_upload.delay(temp_file_path, current_user.id, resume.id)
+        task = process_resume_upload_task.delay(temp_file_path, current_user.id, resume.id)
         
         return {
             "id": resume.id,

@@ -28,4 +28,5 @@ dependencies = [
     "weasyprint>=62.0",
     "markitdown[all]>=0.1.2",
     "openai>=1.101.0",
+    "asgiref>=3.9.1",
 ]

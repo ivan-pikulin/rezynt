@@ -26,8 +26,8 @@ class UserService:
         token = self.serializer.dumps(str(user.id), salt='email-confirm')
         
         # Отправляем email в фоновом режиме
-        from app.core.tasks import send_confirmation_email
-        send_confirmation_email.delay(user.email, token)
+        from app.core.tasks import send_confirmation_email_task
+        send_confirmation_email_task.delay(user.email, token)
         
         return user
 

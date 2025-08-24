@@ -2,6 +2,7 @@ import asyncio
 import logging
 import os
 
+from asgiref.sync import async_to_sync
 from app.core.celery_app import celery_app
 from app.database.crud.crud_resume import resume_crud
 from app.database.session import SessionLocal
@@ -13,9 +14,14 @@ from app.services.parse_service import ParseService
 logger = logging.getLogger(__name__)
 
 
-@celery_app.task
-def send_confirmation_email(email: str, token: str):
+@celery_app.task(name="send_confirmation_email_task")
+def send_confirmation_email_task(email: str, token: str):
     """Отправка email с подтверждением регистрации через EmailService"""
+    async_to_sync(_send_confirmation_email_task)(email, token)
+
+
+async def _send_confirmation_email_task(email: str, token: str):
+    """Async implementation of confirmation email task"""
     logger.info(f"Starting confirmation email task for {email}")
     
     try:
@@ -36,9 +42,14 @@ def send_confirmation_email(email: str, token: str):
         return {"status": "error", "email": email, "error": str(e)}
 
 
-@celery_app.task(bind=True)
-def process_resume_upload(self, file_path: str, user_id: int, resume_id: int):
+@celery_app.task(name="process_resume_upload_task", bind=True)
+def process_resume_upload_task(self, file_path: str, user_id: int, resume_id: int):
     """Обработка загруженного резюме с помощью ParseService"""
+    async_to_sync(_process_resume_upload_task)(self, file_path, user_id, resume_id)
+
+
+async def _process_resume_upload_task(self, file_path: str, user_id: int, resume_id: int):
+    """Async implementation of resume processing task"""
     logger.info(f"Starting resume processing task for user {user_id}, resume {resume_id}")
     
     try:
@@ -55,7 +66,7 @@ def process_resume_upload(self, file_path: str, user_id: int, resume_id: int):
         parsed_data = parse_service.parse_resume_file(file_path)
         
         # Update resume in database with parsed data
-        asyncio.run(_update_resume_in_db(resume_id, user_id, parsed_data))
+        await _update_resume_in_db(resume_id, user_id, parsed_data)
         
         # Clean up temporary file
         try:
