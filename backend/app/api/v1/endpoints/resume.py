@@ -130,8 +130,14 @@ async def upload_resume(
     Upload a resume file and process it with markitdown.
     Only available for users with verified email.
     """
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    logger.info(f"Starting resume upload for user {current_user.id}, filename: {file.filename}")
+    
     # Validate file type
     if not file.filename.lower().endswith(('.pdf', '.doc', '.docx')):
+        logger.warning(f"Invalid file type: {file.filename}")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Only PDF, DOC, and DOCX files are allowed"
@@ -139,10 +145,14 @@ async def upload_resume(
     
     try:
         # Read file content
+        logger.info(f"Reading file content for {file.filename}")
         file_content = await file.read()
+        logger.info(f"File content read successfully, size: {len(file_content)} bytes")
         
         # Start Celery task for processing (resume creation happens inside the task)
+        logger.info(f"Starting Celery task for user {current_user.id}")
         task = process_resume_upload_task.delay(file_content, file.filename, current_user.id)
+        logger.info(f"Celery task started successfully with ID: {task.id}")
         
         return {
             "task_id": task.id,
@@ -150,6 +160,7 @@ async def upload_resume(
         }
         
     except Exception as e:
+        logger.error(f"Error in resume upload for user {current_user.id}: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to upload file: {str(e)}"
@@ -474,7 +485,7 @@ async def test_structured_output(
     """
     try:
         parse_service = ParseService()
-        result = parse_service.test_structured_output(sample_text)
+        result = await parse_service.test_structured_output(sample_text)
         
         return {
             "success": result.get("success", False),

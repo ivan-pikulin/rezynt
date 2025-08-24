@@ -14,19 +14,21 @@
             <methods>
                 <method>
                     <name>parse_resume_file</name>
-                    <description>Парсит файл резюме и возвращает структурированные данные</description>
+                    <description>Парсит файл резюме и возвращает структурированные данные (асинхронно)</description>
                     <params>
                         <param name="file_path" type="str">Путь к файлу резюме</param>
                     </params>
                     <returns type="ParsedResumeData">Структурированные данные резюме</returns>
+                    <async>True - использует асинхронные HTTP запросы к OpenAI API</async>
                 </method>
                 <method>
                     <name>_parse_with_openai_structured</name>
-                    <description>Парсит текст резюме через OpenAI Structured Outputs используя OpenAIStructuredResume schema</description>
+                    <description>Парсит текст резюме через OpenAI Structured Outputs используя OpenAIStructuredResume schema (асинхронно)</description>
                     <params>
                         <param name="text_content" type="str">Текст резюме</param>
                     </params>
                     <returns type="ParsedResumeData">Структурированные данные</returns>
+                    <async>True - использует асинхронные HTTP запросы к OpenAI API</async>
                 </method>
                 <method>
                     <name>_convert_structured_to_parsed</name>
@@ -45,6 +47,15 @@
                         <param name="title" type="str">Заголовок резюме</param>
                     </params>
                     <returns type="Dict[str, Any]">Данные в формате UnifiedResume</returns>
+                </method>
+                <method>
+                    <name>test_structured_output</name>
+                    <description>Тестирует OpenAI Structured Outputs с примером текста (асинхронно)</description>
+                    <params>
+                        <param name="sample_text" type="str">Пример текста резюме для тестирования</param>
+                    </params>
+                    <returns type="Dict[str, Any]">Результат парсинга</returns>
+                    <async>True - использует асинхронные HTTP запросы к OpenAI API</async>
                 </method>
             </methods>
             <configuration>

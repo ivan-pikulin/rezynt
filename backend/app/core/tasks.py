@@ -69,7 +69,7 @@ async def _process_resume_upload_task(file_content: bytes, filename: str, user_i
         logger.info("ParseService initialized successfully")
         
         logger.info("Starting resume parsing with ParseService")
-        parsed_data = parse_service.parse_resume_file(temp_file_path)
+        parsed_data = await parse_service.parse_resume_file(temp_file_path)
         logger.info(f"Resume parsing completed. Parsed data summary: first_name={parsed_data.first_name}, last_name={parsed_data.last_name}, experience_count={len(parsed_data.experience)}, education_count={len(parsed_data.education)}")
         
         # Create resume with all parsed data

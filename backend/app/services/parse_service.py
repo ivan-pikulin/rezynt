@@ -35,7 +35,7 @@ class ParseService:
         )
         self.md = MarkItDown(enable_plugins=False)
     
-    def parse_resume_file(self, file_path: str) -> ParsedResumeData:
+    async def parse_resume_file(self, file_path: str) -> ParsedResumeData:
         """
         Парсит файл резюме и возвращает структурированные данные
         
@@ -50,13 +50,14 @@ class ParseService:
             logger.info(f"Processing file: {file_path}")
             result = self.md.convert(file_path)
             text_content = result.text_content
+            logger.info(f"Text content: {text_content}")
             
             if not text_content:
                 logger.warning("No text content extracted from file")
                 return ParsedResumeData()
             
             # Парсим через OpenAI с structured output
-            parsed_data = self._parse_with_openai_structured(text_content)
+            parsed_data = await self._parse_with_openai_structured(text_content)
             
             logger.info("Resume parsing completed successfully")
             return parsed_data
@@ -65,7 +66,7 @@ class ParseService:
             logger.error(f"Error parsing resume file: {e}", exc_info=True)
             raise
     
-    def _parse_with_openai_structured(self, text_content: str) -> ParsedResumeData:
+    async def _parse_with_openai_structured(self, text_content: str) -> ParsedResumeData:
         """
         Парсит текст резюме через OpenAI с structured output используя OpenAIStructuredResume schema
         
@@ -77,7 +78,7 @@ class ParseService:
         """
         try:
             # Используем OpenAI Structured Outputs с Pydantic моделью
-            response = self.client.beta.chat.completions.parse(
+            response = await self.client.beta.chat.completions.parse(
                 model="gpt-4o-mini",
                 messages=[
                     {
@@ -105,9 +106,12 @@ class ParseService:
             
             # Получаем структурированные данные
             structured_data = response.choices[0].message.parsed
+            logger.info(f"Structured data: {structured_data}")
             
             # Преобразуем в ParsedResumeData
-            return self._convert_structured_to_parsed(structured_data)
+            parsed_data = self._convert_structured_to_parsed(structured_data)
+            logger.info(f"Parsed data: {parsed_data}")
+            return parsed_data
             
         except Exception as e:
             logger.error(f"Error in OpenAI structured parsing: {e}", exc_info=True)
@@ -225,7 +229,7 @@ class ParseService:
             "education": education
         }
     
-    def test_structured_output(self, sample_text: str = None) -> Dict[str, Any]:
+    async def test_structured_output(self, sample_text: str = None) -> Dict[str, Any]:
         """
         Тестирует OpenAI Structured Outputs с примером текста
         
@@ -263,7 +267,7 @@ class ParseService:
         
         try:
             # Тестируем structured output
-            structured_data = self._parse_with_openai_structured(sample_text)
+            structured_data = await self._parse_with_openai_structured(sample_text)
             
             # Преобразуем в словарь для удобства
             result = {
