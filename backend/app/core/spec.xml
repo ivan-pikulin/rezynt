@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<specification>
+    <name>Core Tasks</name>
+    <description>
+        Модуль с Celery задачами для асинхронной обработки. Содержит задачи для отправки email и обработки загруженных резюме.
+    </description>
+    
+    <components>
+        <component>
+            <name>Email Tasks</name>
+            <description>
+                Задачи для отправки email сообщений через Celery
+            </description>
+            <tasks>
+                <task>
+                    <name>send_confirmation_email_task</name>
+                    <description>Отправляет email с подтверждением регистрации через EmailService</description>
+                    <params>
+                        <param name="email" type="str">Email пользователя</param>
+                        <param name="token" type="str">Токен подтверждения</param>
+                    </params>
+                    <returns type="Dict">Результат отправки с статусом и деталями</returns>
+                    <implementation>
+                        <async_wrapper>Использует async_to_sync для обертывания асинхронной функции</async_wrapper>
+                        <error_handling>Логирует ошибки и возвращает статус error при неудаче</error_handling>
+                        <logging>Подробное логирование всех этапов отправки email</logging>
+                    </implementation>
+                </task>
+            </tasks>
+        </component>
+        
+        <component>
+            <name>Resume Processing Tasks</name>
+            <description>
+                Задачи для обработки загруженных резюме с использованием ParseService
+            </description>
+            <tasks>
+                <task>
+                    <name>process_resume_upload_task</name>
+                    <description>Обрабатывает загруженное резюме: сохраняет во временный файл, парсит через ParseService и создает записи в БД</description>
+                    <params>
+                        <param name="file_content" type="bytes">Содержимое файла резюме</param>
+                        <param name="filename" type="str">Имя файла</param>
+                        <param name="user_id" type="int">ID пользователя</param>
+                    </params>
+                    <returns type="Dict">Результат обработки с статусом и ID созданного резюме</returns>
+                    <implementation>
+                        <file_handling>Сохраняет файл во временную директорию с уникальным именем</file_handling>
+                        <parsing>Использует ParseService для извлечения структурированных данных</parsing>
+                        <database>Создает резюме и все связанные записи (личная информация, контакты, навыки, опыт, образование)</database>
+                        <cleanup>Автоматически удаляет временные файлы после обработки</cleanup>
+                        <error_handling>Обрабатывает ошибки парсинга и создания записей в БД</error_handling>
+                        <logging>Подробное логирование всех этапов обработки</logging>
+                    </implementation>
+                </task>
+            </tasks>
+        </component>
+    </components>
+    
+    <database_operations>
+        <operation>
+            <name>_create_resume_with_data</name>
+            <description>Создает резюме в базе данных со всеми данными из ParseService</description>
+            <steps>
+                <step>Создание основной записи резюме</step>
+                <step>Создание личной информации (если доступна)</step>
+                <step>Создание контактов (если доступны)</step>
+                <step>Создание навыков (если доступны)</step>
+                <step>Создание опыта работы (если доступен)</step>
+                <step>Создание образования (если доступно)</step>
+            </steps>
+            <data_handling>
+                <experience>Обрабатывает словари с ключами: job_title, company, location, start_date, end_date, responsibilities</experience>
+                <education>Обрабатывает словари с ключами: degree, institution, location, graduation_date</education>
+                <error_safety>Использует .get() метод для безопасного доступа к ключам словарей</error_safety>
+            </data_handling>
+            <logging>
+                <summary>Логирует сводку данных перед началом операций</summary>
+                <progress>Логирует прогресс создания каждой категории данных</summary>
+                <details>Логирует детали каждого создаваемого элемента</summary>
+                <completion>Логирует успешное завершение всех операций</summary>
+            </logging>
+        </operation>
+    </database_operations>
+    
+    <dependencies>
+        <dependency>app.core.celery_app</dependency>
+        <dependency>app.services.email_service</dependency>
+        <dependency>app.services.parse_service</dependency>
+        <dependency>app.database.models.resume</dependency>
+        <dependency>app.database.session</dependency>
+        <dependency>asgiref.sync</dependency>
+        <dependency>tempfile</dependency>
+        <dependency>os</dependency>
+    </dependencies>
+    
+    <error_handling>
+        <strategy>Все задачи оборачивают операции в try-catch блоки</strategy>
+        <logging>Подробное логирование ошибок с полным стектрейсом</logging>
+        <cleanup>Автоматическая очистка временных файлов при ошибках</logging>
+        <rollback>Откат транзакций БД при ошибках создания записей</logging>
+    </error_handling>
+</specification>
