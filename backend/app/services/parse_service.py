@@ -1,6 +1,7 @@
 import logging
 from datetime import datetime
 from typing import Any, Dict, List, Optional
+from weakref import proxy
 
 import httpx
 from app.core.config import settings
@@ -30,7 +31,7 @@ class ParseService:
     def __init__(self):
         self.client = OpenAI(
             api_key=settings.openai.OPENAI_API_KEY,
-            http_client=httpx.Client(proxies=settings.openai.OPENAI_PROXY_URL)
+            http_client=httpx.Client(proxy=settings.openai.OPENAI_PROXY_URL)
         )
         self.md = MarkItDown(enable_plugins=False)
     
