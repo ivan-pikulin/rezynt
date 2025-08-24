@@ -3,27 +3,29 @@ import logging
 import os
 import tempfile
 
-from asgiref.sync import async_to_sync
 from app.core.celery_app import celery_app
 from app.database.crud.crud_resume import resume_crud
-from app.database.session import SessionLocal
+from app.database.session import engine
 from app.database.crud.crud_resume import resume_manager
+from app.database.models.resume import Resume
 from app.schemas.resume import ResumePersonalInfoUpdate, ResumeUpdate, ResumeCreate
 from app.services.email_service import EmailService
 from app.services.parse_service import ParseService
+from sqlalchemy.orm import Session, sessionmaker
 
 # Set up logging
 logger = logging.getLogger(__name__)
+
+# Create synchronous session for Celery tasks
+SyncSessionLocal = sessionmaker(
+    bind=engine.sync_engine,
+    expire_on_commit=False
+)
 
 
 @celery_app.task(name="send_confirmation_email_task")
 def send_confirmation_email_task(email: str, token: str):
     """Отправка email с подтверждением регистрации через EmailService"""
-    async_to_sync(_send_confirmation_email_task)(email, token)
-
-
-async def _send_confirmation_email_task(email: str, token: str):
-    """Async implementation of confirmation email task"""
     logger.info(f"Starting confirmation email task for {email}")
     
     try:
@@ -47,18 +49,13 @@ async def _send_confirmation_email_task(email: str, token: str):
 @celery_app.task(name="process_resume_upload_task")
 def process_resume_upload_task(file_content: bytes, filename: str, user_id: int):
     """Обработка загруженного резюме с помощью ParseService"""
-    return async_to_sync(_process_resume_upload_task)(file_content, filename, user_id)
-
-
-async def _process_resume_upload_task(file_content: bytes, filename: str, user_id: int):
-    """Async implementation of resume processing task"""
     logger.info(f"Starting resume processing task for user {user_id}, filename: {filename}")
     
     temp_file_path = None
     
     try:
         # Create resume first
-        resume = await _create_resume_in_db(user_id, filename)
+        resume = _create_resume_in_db(user_id, filename)
         
         # Save uploaded file to temporary location
         temp_dir = tempfile.gettempdir()
@@ -74,7 +71,7 @@ async def _process_resume_upload_task(file_content: bytes, filename: str, user_i
         parsed_data = parse_service.parse_resume_file(temp_file_path)
         
         # Update resume in database with parsed data
-        await _update_resume_in_db(resume.id, user_id, parsed_data)
+        _update_resume_in_db(resume.id, user_id, parsed_data)
         
         # Clean up temporary file
         try:
@@ -108,71 +105,140 @@ async def _process_resume_upload_task(file_content: bytes, filename: str, user_i
         }
 
 
-async def _create_resume_in_db(user_id: int, filename: str):
+def _create_resume_in_db(user_id: int, filename: str):
     """Создает резюме в базе данных"""
-    async with SessionLocal() as db:
-        try:
-            # Create resume with default template
-            resume_create = ResumeCreate(
-                title=f"Resume from {filename}",
-                template_id=1,  # Default template
-                professional_summary=""
-            )
-            
-            resume = await resume_manager.create_resume(db, obj_in=resume_create, user_id=user_id)
-            logger.info(f"Resume {resume.id} created successfully for user {user_id}")
-            return resume
-            
-        except Exception as e:
-            logger.error(f"Error creating resume in database: {e}", exc_info=True)
-            raise
+    db = SyncSessionLocal()
+    try:
+        # Create resume directly using the model
+        resume = Resume(
+            title=f"Resume from {filename}",
+            template_id=1,  # Default template
+            professional_summary="",
+            user_id=user_id
+        )
+        
+        db.add(resume)
+        db.commit()
+        db.refresh(resume)
+        
+        logger.info(f"Resume {resume.id} created successfully for user {user_id}")
+        return resume
+        
+    except Exception as e:
+        logger.error(f"Error creating resume in database: {e}", exc_info=True)
+        db.rollback()
+        raise
+    finally:
+        db.close()
 
 
-async def _update_resume_in_db(resume_id: int, user_id: int, parsed_data):
+def _update_resume_in_db(resume_id: int, user_id: int, parsed_data):
     """Обновляет резюме в базе данных с данными из ParseService"""
-    async with SessionLocal() as db:
-        try:
-            # Создаем объект для обновления резюме
-            resume_update = ResumeUpdate(
-                professional_summary=parsed_data.professional_summary
-            )
+    db = SyncSessionLocal()
+    try:
+        # Get the resume
+        resume = db.query(Resume).filter(Resume.id == resume_id).first()
+        if not resume:
+            raise ValueError(f"Resume {resume_id} not found")
+        
+        # Update professional summary
+        if parsed_data.professional_summary:
+            resume.professional_summary = parsed_data.professional_summary
+        
+        # Update personal info if available
+        if parsed_data.first_name or parsed_data.last_name or parsed_data.location:
+            from app.database.models.resume import ResumePersonalInfo
             
-            # Обновляем основную информацию резюме
-            resume_obj = await resume_crud.get(db, id=resume_id)
-            if resume_obj:
-                await resume_crud.update(db, db_obj=resume_obj, obj_in=resume_update)
+            # Get or create personal info
+            personal_info = db.query(ResumePersonalInfo).filter(
+                ResumePersonalInfo.resume_id == resume_id
+            ).first()
             
-            # Обновляем персональную информацию
-            personal_info_data = {}
+            if not personal_info:
+                personal_info = ResumePersonalInfo(resume_id=resume_id)
+                db.add(personal_info)
+            
             if parsed_data.first_name:
-                personal_info_data['first_name'] = parsed_data.first_name
+                personal_info.first_name = parsed_data.first_name
             if parsed_data.last_name:
-                personal_info_data['last_name'] = parsed_data.last_name
+                personal_info.last_name = parsed_data.last_name
             if parsed_data.location:
-                personal_info_data['location'] = parsed_data.location
+                personal_info.location = parsed_data.location
+        
+        # Update contacts if available
+        if parsed_data.contacts:
+            from app.database.models.resume import ResumeContact
             
-            if personal_info_data:
-                personal_info_update = ResumePersonalInfoUpdate(**personal_info_data)
-                await resume_crud.update_personal_info(db, resume_id=resume_id, personal_info=personal_info_update)
+            # Clear existing contacts
+            db.query(ResumeContact).filter(ResumeContact.resume_id == resume_id).delete()
             
-            # Обновляем контакты
-            if parsed_data.contacts:
-                await resume_crud.update_contacts(db, resume_id=resume_id, contacts=parsed_data.contacts)
+            # Add new contacts
+            for contact_value in parsed_data.contacts:
+                contact = ResumeContact(
+                    resume_id=resume_id,
+                    value=contact_value
+                )
+                db.add(contact)
+        
+        # Update skills if available
+        if parsed_data.skills:
+            from app.database.models.resume import ResumeSkill
             
-            # Обновляем навыки
-            if parsed_data.skills:
-                await resume_crud.update_skills(db, resume_id=resume_id, skills=parsed_data.skills)
+            # Clear existing skills
+            db.query(ResumeSkill).filter(ResumeSkill.resume_id == resume_id).delete()
             
-            # Обновляем опыт работы
-            if parsed_data.experience:
-                await resume_crud.update_experience(db, resume_id=resume_id, experience=parsed_data.experience)
+            # Add new skills
+            for skill_name in parsed_data.skills:
+                skill = ResumeSkill(
+                    resume_id=resume_id,
+                    name=skill_name
+                )
+                db.add(skill)
+        
+        # Update experience if available
+        if parsed_data.experience:
+            from app.database.models.resume import ResumeExperience
             
-            # Обновляем образование
-            if parsed_data.education:
-                await resume_crud.update_education(db, resume_id=resume_id, education=parsed_data.education)
+            # Clear existing experience
+            db.query(ResumeExperience).filter(ResumeExperience.resume_id == resume_id).delete()
             
-            logger.info(f"Resume {resume_id} updated successfully with parsed data")
+            # Add new experience
+            for exp_data in parsed_data.experience:
+                experience = ResumeExperience(
+                    resume_id=resume_id,
+                    job_title=exp_data.job_title,
+                    company=exp_data.company,
+                    location=exp_data.location,
+                    start_date=exp_data.start_date,
+                    end_date=exp_data.end_date,
+                    responsibilities=exp_data.responsibilities
+                )
+                db.add(experience)
+        
+        # Update education if available
+        if parsed_data.education:
+            from app.database.models.resume import ResumeEducation
             
-        except Exception as e:
-            logger.error(f"Error updating resume {resume_id} in database: {e}", exc_info=True)
-            raise 
+            # Clear existing education
+            db.query(ResumeEducation).filter(ResumeEducation.resume_id == resume_id).delete()
+            
+            # Add new education
+            for edu_data in parsed_data.education:
+                education = ResumeEducation(
+                    resume_id=resume_id,
+                    degree=edu_data.degree,
+                    institution=edu_data.institution,
+                    location=edu_data.location,
+                    graduation_date=edu_data.graduation_date
+                )
+                db.add(education)
+        
+        db.commit()
+        logger.info(f"Resume {resume_id} updated successfully with parsed data")
+        
+    except Exception as e:
+        logger.error(f"Error updating resume {resume_id} in database: {e}", exc_info=True)
+        db.rollback()
+        raise
+    finally:
+        db.close() 

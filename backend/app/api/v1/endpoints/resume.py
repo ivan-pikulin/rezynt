@@ -400,8 +400,8 @@ async def get_upload_status(
             response = {
                 'state': task.state,
                 'status': 'error',
-                'message': task.info.get('message', 'Task failed'),
-                'error': task.info.get('error')
+                'message': 'Task failed',
+                'error': str(task.result) if task.result else 'Unknown error'
             }
         else:
             response = {
