@@ -101,18 +101,22 @@ services:
       dockerfile: Dockerfile
     environment:
       <<: *backend-variables
+      CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP: "true"
+      CELERY_BROKER_CONNECTION_MAX_RETRIES: "10"
+      CELERY_BROKER_CONNECTION_RETRY: "true"
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
-    command: uv run celery -A app.core.celery_app worker --loglevel=info
+    command: uv run celery -A app.core.celery_app worker --loglevel=info --concurrency=2 --prefetch-multiplier=1
     volumes:
       - ${EMAIL_DKIM_PRIVATE_KEY_PATH}:/app/dkim-key.private
       - migrations_data:/app/app/database/migrations
     networks:
       - app-network
       - backend-network
+    restart: unless-stopped
 
   postgres:
     image: postgres:15-alpine
@@ -137,6 +141,7 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
+    command: redis-server --appendonly yes --save 60 1000 --stop-writes-on-bgsave-error no --maxmemory-policy allkeys-lru
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -145,6 +150,7 @@ services:
     networks:
       - app-network
       - backend-network
+    restart: unless-stopped
 
 volumes:
   postgres_data:
