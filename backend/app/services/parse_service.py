@@ -1,12 +1,13 @@
 import logging
-from typing import Dict, Any, Optional
-from openai import OpenAI
-from markitdown import MarkItDown
-from pydantic import BaseModel
-from datetime import date, datetime
-from typing import List
+from datetime import datetime
+from typing import Any, Dict, List, Optional
+
+import httpx
 from app.core.config import settings
-from app.schemas.resume import OpenAIStructuredResume, UnifiedResumeExperience, UnifiedResumeEducation
+from app.schemas.resume import OpenAIStructuredResume
+from markitdown import MarkItDown
+from openai import OpenAI
+from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +30,7 @@ class ParseService:
     def __init__(self):
         self.client = OpenAI(
             api_key=settings.openai.OPENAI_API_KEY,
-            base_url=settings.openai.OPENAI_PROXY_URL
+            http_client=httpx.Client(proxies=settings.openai.OPENAI_PROXY_URL)
         )
         self.md = MarkItDown(enable_plugins=False)
     
