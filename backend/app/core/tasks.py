@@ -85,11 +85,14 @@ async def _process_resume_upload_task(file_content: bytes, filename: str, user_i
             logger.warning(f"Failed to remove temporary file {temp_file_path}: {e}")
         
         logger.info(f"Resume processing completed for user {user_id}, resume {resume.id}")
-        return {
+        result = {
             'status': 'completed',
             'user_id': user_id,
-            'resume_id': resume.id
+            'resume_id': resume.id,
+            'message': 'Resume created and processed successfully'
         }
+        logger.info(f"Returning task result: {result}")
+        return result
         
     except Exception as e:
         logger.error(f"Exception in process_resume_upload task: {e}", exc_info=True)
@@ -102,11 +105,14 @@ async def _process_resume_upload_task(file_content: bytes, filename: str, user_i
             except Exception as cleanup_error:
                 logger.warning(f"Failed to remove temporary file {temp_file_path} after error: {cleanup_error}")
         
-        return {
+        result = {
             'status': 'error',
             'error': str(e),
-            'user_id': user_id
+            'user_id': user_id,
+            'message': f'Task failed: {str(e)}'
         }
+        logger.error(f"Returning error result: {result}")
+        return result
 
 
 async def _create_resume_with_data(user_id: int, filename: str, parsed_data):

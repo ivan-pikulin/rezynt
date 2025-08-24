@@ -3,6 +3,7 @@
     <name>API Endpoints</name>
     <description>
         API эндпоинты для работы с резюме. Включает загрузку файлов, управление шаблонами, получение и обновление резюме и их разделов.
+        Обновлено с улучшенной обработкой ошибок для Celery задач и дополнительным логированием для отладки.
     </description>
     
     <components>
@@ -153,20 +154,93 @@
                     <path>/upload</path>
                     <method>POST</method>
                     <description>
-                        Загрузка файла резюме. Доступно только пользователям с подтвержденным email.
+                        Загрузка файла резюме и запуск обработки через Celery task. Доступно только пользователям с подтвержденным email.
                     </description>
                     <authentication>VerifiedUser (JWT token + verified email)</authentication>
                     <params>
-                        <param name="file" type="UploadFile">Файл резюме для загрузки</param>
+                        <param name="file" type="UploadFile">Файл резюме для загрузки (PDF, DOC, DOCX)</param>
                     </params>
                     <returns type="Dict[str, Any]">
-                        {"id": "file_id"} - ID загруженного файла
+                        {
+                            "task_id": "string",
+                            "message": "File uploaded and processing started"
+                        }
                     </returns>
                     <status_codes>
-                        <code>200">Успешная загрузка</code>
+                        <code>200">Файл загружен и обработка запущена</code>
+                        <code>400">Неверный тип файла</code>
                         <code>401">Не авторизован</code>
                         <code>403">Email не подтвержден</code>
+                        <code>500">Ошибка загрузки файла</code>
                     </status_codes>
+                    <business_logic>
+                        <step>Валидация типа файла (PDF, DOC, DOCX)</step>
+                        <step>Чтение содержимого файла</step>
+                        <step>Запуск Celery task для обработки</step>
+                        <step>Возврат task_id для отслеживания статуса</step>
+                    </business_logic>
+                </endpoint>
+                
+                <endpoint>
+                    <path>/upload/status/{task_id}</path>
+                    <method>GET</method>
+                    <description>
+                        Получение статуса обработки загруженного резюме. Доступно только пользователям с подтвержденным email.
+                    </description>
+                    <authentication>VerifiedUser (JWT token + verified email)</authentication>
+                    <params>
+                        <param name="task_id" type="str">ID задачи Celery</param>
+                    </params>
+                    <returns type="Dict[str, Any]">
+                        {
+                            "state": "string",
+                            "status": "string",
+                            "message": "string",
+                            "resume_id": "Optional[int]"
+                        }
+                    </returns>
+                    <status_codes>
+                        <code>200">Статус задачи получен</code>
+                        <code>401">Не авторизован</code>
+                        <code>403">Email не подтвержден</code>
+                        <code>500">Ошибка получения статуса</code>
+                    </status_codes>
+                    <business_logic>
+                        <step>Получение задачи по task_id</step>
+                        <step>Определение состояния задачи (PENDING, STARTED, SUCCESS, FAILURE)</step>
+                        <step>Формирование ответа в зависимости от состояния</step>
+                    </business_logic>
+                </endpoint>
+                
+                <endpoint>
+                    <path>/upload/result/{task_id}</path>
+                    <method>GET</method>
+                    <description>
+                        Получение результата завершенной обработки резюме. Доступно только пользователям с подтвержденным email.
+                    </description>
+                    <authentication>VerifiedUser (JWT token + verified email)</authentication>
+                    <params>
+                        <param name="task_id" type="str">ID задачи Celery</param>
+                    </params>
+                    <returns type="Dict[str, Any]">
+                        {
+                            "status": "completed",
+                            "resume_id": "int",
+                            "message": "Resume created and processed successfully"
+                        }
+                    </returns>
+                    <status_codes>
+                        <code>200">Результат получен</code>
+                        <code>400">Задача не завершена</code>
+                        <code>401">Не авторизован</code>
+                        <code>403">Email не подтвержден или доступ запрещен</code>
+                        <code>500">Ошибка получения результата</code>
+                    </status_codes>
+                    <business_logic>
+                        <step>Проверка завершения задачи</step>
+                        <step>Проверка принадлежности задачи пользователю</step>
+                        <step>Возврат результата с resume_id</step>
+                    </business_logic>
                 </endpoint>
                 
                 <endpoint>
@@ -241,6 +315,64 @@
                         <step>Добавление нового опыта работы к существующему</step>
                         <step>Добавление нового образования к существующему</step>
                         <step>Возврат обновленного резюме с информацией об изменениях</step>
+                    </business_logic>
+                </endpoint>
+                
+                <endpoint>
+                    <path>/test-structured-output</path>
+                    <method>POST</method>
+                    <description>
+                        Тестирование OpenAI Structured Outputs с образцом текста резюме. Доступно только пользователям с подтвержденным email.
+                    </description>
+                    <authentication>VerifiedUser (JWT token + verified email)</authentication>
+                    <params>
+                        <param name="sample_text" type="Optional[str]">Образцовый текст резюме для тестирования</param>
+                    </params>
+                    <returns type="Dict[str, Any]">
+                        {
+                            "success": "boolean",
+                            "data": "Dict[str, Any]",
+                            "message": "Structured output test completed"
+                        }
+                    </returns>
+                    <status_codes>
+                        <code>200">Тест завершен успешно</code>
+                        <code>401">Не авторизован</code>
+                        <code>403">Email не подтвержден</code>
+                        <code>500">Ошибка тестирования</code>
+                    </status_codes>
+                    <business_logic>
+                        <step>Инициализация ParseService</step>
+                        <step>Вызов test_structured_output с образцовым текстом</step>
+                        <step>Возврат результата тестирования</step>
+                    </business_logic>
+                </endpoint>
+                
+                <endpoint>
+                    <path>/test-celery</path>
+                    <method>GET</method>
+                    <description>
+                        Тестирование подключения к Celery и создания задач. Доступно только пользователям с подтвержденным email.
+                    </description>
+                    <authentication>VerifiedUser (JWT token + verified email)</authentication>
+                    <returns type="Dict[str, Any]">
+                        {
+                            "success": "boolean",
+                            "task_id": "string",
+                            "task_state": "string",
+                            "message": "Celery connection test completed"
+                        }
+                    </returns>
+                    <status_codes>
+                        <code>200">Тест подключения завершен успешно</code>
+                        <code>401">Не авторизован</code>
+                        <code>403">Email не подтвержден</code>
+                        <code>500">Ошибка подключения к Celery</code>
+                    </status_codes>
+                    <business_logic>
+                        <step>Создание тестовой задачи send_confirmation_email_task</step>
+                        <step>Проверка состояния задачи</step>
+                        <step>Возврат результата тестирования</step>
                     </business_logic>
                 </endpoint>
             </endpoints>
