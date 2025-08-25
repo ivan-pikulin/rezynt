@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Avatar, Typography } from '@mui/material';
-import { ChatMessage as ChatMessageType } from '../types/chat';
+import { ChatMessage as ChatMessageType } from '../hooks/useChat';
 
 interface ChatMessageProps {
   message: ChatMessageType;
@@ -40,6 +40,16 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, isLoading = f
   const isUser = message.sender === 'user';
   const showLoading = isLoading && !isUser && !message.content;
   
+  // Добавляем логи для отладки
+  console.log('ChatMessage debug:', {
+    messageId: message.id,
+    sender: message.sender,
+    role: (message as any).role, // Проверяем, есть ли поле role
+    content: message.content,
+    isUser: isUser,
+    messageKeys: Object.keys(message)
+  });
+  
   return (
     <Box sx={{ 
       display: 'flex', 
@@ -51,7 +61,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, isLoading = f
         <Avatar sx={{ 
           width: 36, // Увеличиваем с 32 до 36
           height: 36, // Увеличиваем с 32 до 36
-          bgcolor: '#9c27b0',
+          bgcolor: '#4a5899', // Синий цвет для бота
           fontSize: '1rem' // Увеличиваем с 0.875rem до 1rem
         }}>
           A
@@ -59,8 +69,8 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, isLoading = f
       )}
       
       <Box sx={{ 
-        bgcolor: isUser ? '#1976d2' : 'white',
-        color: isUser ? 'white' : 'inherit',
+        bgcolor: isUser ? '#4a5899' : '#e3f2fd', // Синий для пользователя, голубой для бота
+        color: isUser ? 'white' : '#1976d2', // Белый текст для пользователя, синий для бота
         p: 1.5,
         borderRadius: '8px',
         maxWidth: '70%',
@@ -88,7 +98,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, isLoading = f
         <Avatar sx={{ 
           width: 36, // Увеличиваем с 32 до 36
           height: 36, // Увеличиваем с 32 до 36
-          bgcolor: '#ff9800',
+          bgcolor: '#8e6e53', // Коричневый цвет для пользователя
           fontSize: '1rem' // Увеличиваем с дефолтного до 1rem
         }}>
           U
