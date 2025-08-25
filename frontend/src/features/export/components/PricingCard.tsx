@@ -32,7 +32,13 @@ const PricingCard: React.FC<PricingCardProps> = ({
 }) => {
   const handleDownload = async () => {
     try {
-      const plan = title.toLowerCase() as 'free' | 'pro';
+      // Map plan names to API expected values
+      const planMap: Record<string, 'pro' | 'lifetime'> = {
+        'free': 'pro', // Free plan uses pro endpoint
+        'pro': 'pro',
+        'lifetime': 'lifetime'
+      };
+      const plan = planMap[title.toLowerCase()] || 'pro';
       await exportApi.downloadResume(plan);
       console.log(`Successfully downloaded ${title} plan`);
     } catch (error) {

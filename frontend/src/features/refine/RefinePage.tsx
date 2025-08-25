@@ -55,10 +55,10 @@ const RefinePage: React.FC = () => {
     // Сохраняем новый шаблон на сервере
     if (resumeId) {
       try {
-        await resumeApi.assignTemplateBySlug(resumeId, template.id);
+        await resumeApi.assignTemplateBySlug(parseInt(resumeId), template.id);
         // Обновляем кеш резюме
         if (resume) {
-          updateResumeInCache({ ...resume, template_id: template.id });
+          updateResumeInCache({ ...resume, template_id: parseInt(template.id) });
         }
       } catch (err) {
         console.error('Error updating template:', err);
@@ -76,7 +76,7 @@ const RefinePage: React.FC = () => {
     if (!resume || !resumeId) return;
     
     try {
-      const updatedResume = await resumeApi.updateResumePartial(resumeId, { title: titleValue });
+      const updatedResume = await resumeApi.updateResumePartial(parseInt(resumeId), { title: titleValue });
       updateResumeInCache(updatedResume);
       setIsEditingTitle(false);
     } catch (err) {

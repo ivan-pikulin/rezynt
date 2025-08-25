@@ -62,6 +62,13 @@ export class ResumeApi extends BaseApi {
   }
 
   /**
+   * Assign a template to a resume by slug
+   */
+  async assignTemplateBySlug(resumeId: number, templateSlug: string): Promise<any> {
+    return this.put<any>(`/resume/${resumeId}/template/slug/${templateSlug}`);
+  }
+
+  /**
    * Delete a resume
    */
   async deleteResume(resumeId: number): Promise<void> {
