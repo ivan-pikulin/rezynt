@@ -22,6 +22,7 @@ import ResumeEditor from './components/ResumeEditor';
 import TemplateSelector from './components/TemplateSelector';
 import { convertApiResumeToDisplayData } from './utils/resumeDataConverter';
 import { TemplateConfig } from '../../shared/types/resume';
+import { COLORS } from '../../shared/theme/theme';
 
 const RefinePage: React.FC = () => {
   const { t } = useTranslation();
@@ -130,7 +131,7 @@ const RefinePage: React.FC = () => {
     return (
       <Box sx={{ 
         height: '100vh', 
-        bgcolor: '#f5f6fa'
+        bgcolor: COLORS.resume.section.background
       }}>
         <ErrorMessage 
           message={t('refine.error.noResumeId')} 
@@ -145,7 +146,7 @@ const RefinePage: React.FC = () => {
     return (
       <Box sx={{ 
         height: '100vh', 
-        bgcolor: '#f5f6fa'
+        bgcolor: COLORS.resume.section.background
       }}>
         <LoadingSpinner message={t('refine.loading')} />
       </Box>
@@ -157,7 +158,7 @@ const RefinePage: React.FC = () => {
     return (
       <Box sx={{ 
         height: '100vh', 
-        bgcolor: '#f5f6fa'
+        bgcolor: COLORS.resume.section.background
       }}>
         <ErrorMessage 
           message={queryError || t('refine.error.notFound')} 
@@ -175,7 +176,7 @@ const RefinePage: React.FC = () => {
       height: '100vh', 
       display: 'flex', 
       flexDirection: 'column', 
-      bgcolor: '#f5f6fa',
+      bgcolor: COLORS.resume.section.background,
       position: 'relative',
       overflow: 'hidden'
     }}>
@@ -204,8 +205,8 @@ const RefinePage: React.FC = () => {
           width: '180px',
           height: '100%',
           flexDirection: 'column',
-          bgcolor: '#f8fbff',
-          borderRight: '1px solid #e0e0e0',
+          bgcolor: COLORS.resume.header.background,
+          borderRight: `1px solid ${COLORS.resume.section.border}`,
           overflow: 'hidden',
           flexShrink: 0
         }}>
@@ -217,14 +218,14 @@ const RefinePage: React.FC = () => {
               width: 6,
             },
             '&::-webkit-scrollbar-track': {
-              bgcolor: '#f1f1f1',
+              bgcolor: COLORS.grey[100],
               borderRadius: 3,
             },
             '&::-webkit-scrollbar-thumb': {
-              bgcolor: '#c1c1c1',
+              bgcolor: COLORS.grey[400],
               borderRadius: 3,
               '&:hover': {
-                bgcolor: '#a8a8a8',
+                bgcolor: COLORS.grey[500],
               },
             },
           }}>
@@ -243,12 +244,12 @@ const RefinePage: React.FC = () => {
           flexDirection: 'column',
           overflow: 'hidden',
           position: 'relative',
-          bgcolor: '#f8fbff'
+          bgcolor: COLORS.resume.header.background
         }}>
           {/* Заголовок резюме */}
           <Box sx={{ 
-            bgcolor: '#f8fbff',
-            borderBottom: '1px solid #e0e0e0',
+            bgcolor: COLORS.resume.header.background,
+            borderBottom: `1px solid ${COLORS.resume.section.border}`,
             p: 1,
             display: 'flex',
             alignItems: 'center',
@@ -302,12 +303,12 @@ const RefinePage: React.FC = () => {
           {/* Мобильная панель шаблонов (только на мобильных) */}
           <Box sx={{ 
             display: { xs: 'block', md: 'none' },
-            bgcolor: '#f8fbff',
+            bgcolor: COLORS.resume.header.background,
             p: 2,
             overflow: 'hidden',
             height: 160,
             flexShrink: 0,
-            borderBottom: '1px solid #e0e0e0'
+            borderBottom: `1px solid ${COLORS.resume.section.border}`
           }}>
             <Box sx={{ 
               display: 'flex',
@@ -319,14 +320,14 @@ const RefinePage: React.FC = () => {
                 height: 6,
               },
               '&::-webkit-scrollbar-track': {
-                bgcolor: '#f1f1f1',
+                bgcolor: COLORS.grey[100],
                 borderRadius: 3,
               },
               '&::-webkit-scrollbar-thumb': {
-                bgcolor: '#c1c1c1',
+                bgcolor: COLORS.grey[400],
                 borderRadius: 3,
                 '&:hover': {
-                  bgcolor: '#a8a8a8',
+                  bgcolor: COLORS.grey[500],
                 },
               },
             }}>
@@ -357,7 +358,7 @@ const RefinePage: React.FC = () => {
         <Box sx={{ 
           display: { xs: 'none', md: 'block' },
           width: '1px',
-          bgcolor: '#e0e0e0',
+          bgcolor: COLORS.resume.section.border,
           mx: 0
         }} />
         
@@ -439,10 +440,10 @@ const RefinePage: React.FC = () => {
           alignItems: 'center',
           justifyContent: 'space-between',
           p: 2,
-          borderBottom: '1px solid #eee',
-          bgcolor: '#f8f9fa'
+          borderBottom: `1px solid ${COLORS.chat.input.border}`,
+          bgcolor: COLORS.chat.input.background
         }}>
-          <Box sx={{ fontSize: '1.1rem', fontWeight: 600, color: '#2c3e50' }}>
+          <Box sx={{ fontSize: '1.1rem', fontWeight: 600, color: COLORS.chat.input.text }}>
             {t('refine.preview.title')}
           </Box>
           <IconButton

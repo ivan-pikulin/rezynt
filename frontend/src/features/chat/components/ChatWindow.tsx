@@ -4,6 +4,7 @@ import StarIcon from '@mui/icons-material/Star';
 import { ChatMessage } from './ChatMessage';
 import { ChatInput } from './ChatInput';
 import { useChat } from '../hooks/useChat';
+import { COLORS } from '../../../shared/theme/theme';
 
 interface ChatWindowProps {
   resumeId: string | null;
@@ -19,7 +20,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ resumeId, onResumeUpdate }) => 
       width: '100%', 
       display: 'flex', 
       flexDirection: 'column', 
-      background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+      background: COLORS.gradients.secondary,
       borderRadius: '16px',
       overflow: 'hidden',
       boxShadow: '0 20px 40px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.06)',
@@ -34,7 +35,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ resumeId, onResumeUpdate }) => 
         alignItems: 'center',
         justifyContent: 'space-between',
         p: 2, // Уменьшил с 3 до 2
-        background: 'linear-gradient(135deg, #4a5899 0%, #7a7265 100%)', // Использую цвета приложения
+        background: COLORS.gradients.primary, // Использую цвета приложения
         position: 'relative',
         overflow: 'hidden'
       }}>
@@ -72,7 +73,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ resumeId, onResumeUpdate }) => 
         </Typography>
         
         <Chip
-          icon={<StarIcon sx={{ fontSize: '1rem', color: '#c69c72' }} />} // Использую цвет c69c72ff
+          icon={<StarIcon sx={{ fontSize: '1rem', color: COLORS.warning.main }} />} // Использую цвет c69c72ff
           label="21/100"
           size="small"
           sx={{
@@ -83,7 +84,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ resumeId, onResumeUpdate }) => 
             fontWeight: 600,
             fontSize: '0.8rem', // Уменьшил с 0.875rem до 0.8rem
             '& .MuiChip-icon': {
-              color: '#c69c72' // Использую цвет c69c72ff
+              color: COLORS.warning.main // Использую цвет c69c72ff
             },
             '&:hover': {
               background: 'rgba(255, 255, 255, 0.25)',
@@ -106,7 +107,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ resumeId, onResumeUpdate }) => 
         p: 3,
         minHeight: 0,
         maxHeight: 'calc(100% - 60px - 56px)', // Обновил с учетом новой высоты области ввода (60px)
-        background: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)',
+        background: COLORS.gradients.white,
         position: 'relative'
       }}>
         {/* Декоративная сетка на фоне */}

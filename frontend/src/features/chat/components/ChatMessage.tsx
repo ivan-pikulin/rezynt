@@ -2,6 +2,7 @@ import React from 'react';
 import { Box, Avatar, Typography } from '@mui/material';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
 import { ChatMessage as ChatMessageType } from '../hooks/useChat';
+import { COLORS } from '../../../shared/theme/theme';
 
 interface ChatMessageProps {
   message: ChatMessageType;
@@ -62,7 +63,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, isLoading = f
         <Avatar sx={{ 
           width: 36, // Увеличиваем с 32 до 36
           height: 36, // Увеличиваем с 32 до 36
-          bgcolor: '#4a5899', // Синий цвет для бота
+          bgcolor: COLORS.chat.bot.avatar, // Синий цвет для бота
           fontSize: '1rem' // Увеличиваем с 0.875rem до 1rem
         }}>
           <SmartToyIcon sx={{ fontSize: '1.2rem', color: 'white' }} />
@@ -70,8 +71,8 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, isLoading = f
       )}
       
       <Box sx={{ 
-        bgcolor: isUser ? '#4a5899' : '#e3f2fd', // Синий для пользователя, голубой для бота
-        color: isUser ? 'white' : '#1976d2', // Белый текст для пользователя, синий для бота
+        bgcolor: isUser ? COLORS.chat.user.background : COLORS.chat.bot.background, // Синий для пользователя, голубой для бота
+        color: isUser ? COLORS.chat.user.text : COLORS.chat.bot.text, // Белый текст для пользователя, синий для бота
         p: 1.5,
         borderRadius: '8px',
         maxWidth: '70%',
@@ -99,7 +100,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, isLoading = f
         <Avatar sx={{ 
           width: 36, // Увеличиваем с 32 до 36
           height: 36, // Увеличиваем с 32 до 36
-          bgcolor: '#8e6e53', // Коричневый цвет для пользователя
+          bgcolor: COLORS.chat.user.avatar, // Коричневый цвет для пользователя
           fontSize: '1rem' // Увеличиваем с дефолтного до 1rem
         }}>
           U

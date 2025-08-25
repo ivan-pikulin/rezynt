@@ -8,6 +8,7 @@ import DownloadIcon from '@mui/icons-material/Download';
 import LockIcon from '@mui/icons-material/Lock';
 import CircularProgress from '@mui/material/CircularProgress';
 import PaywallModal from '../../../shared/components/PaywallModal';
+import { COLORS } from '../../../shared/theme/theme';
 
 interface DownloadOptionsProps {
   onExportPDF?: () => Promise<void>;
@@ -82,14 +83,14 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({ onExportPDF, isExport
               <CircularProgress 
                 size={48} 
                 sx={{ 
-                  color: '#757575',
+                  color: COLORS.grey[600],
                   mb: { xs: 1.5, sm: 2 }
                 }} 
               />
             ) : (
               <DownloadIcon sx={{ 
                 fontSize: { xs: 48, sm: 56, md: 64 }, // Адаптивный размер иконки
-                color: '#757575',
+                color: COLORS.grey[600],
                 mb: { xs: 1.5, sm: 2 }
               }} />
             )}
@@ -99,7 +100,7 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({ onExportPDF, isExport
               sx={{ 
                 mb: { xs: 1.5, sm: 2 },
                 fontWeight: 600,
-                color: '#757575',
+                color: COLORS.grey[600],
                 fontSize: { xs: '1.1rem', sm: '1.25rem', md: '1.5rem' } // Адаптивный размер шрифта
               }}
             >
@@ -109,7 +110,7 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({ onExportPDF, isExport
               variant="body1" 
               sx={{ 
                 mb: { xs: 2, sm: 3 },
-                color: '#757575',
+                color: COLORS.grey[600],
                 fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' } // Адаптивный размер шрифта
               }}
             >
@@ -126,16 +127,16 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({ onExportPDF, isExport
                 fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' },
                 fontWeight: 600,
                 textTransform: 'none',
-                borderColor: '#757575',
-                color: '#757575',
+                borderColor: COLORS.grey[600],
+                color: COLORS.grey[600],
                 minHeight: { xs: 40, sm: 44, md: 48 }, // Минимальная высота для touch
                 '&:hover': {
-                  borderColor: '#616161',
-                  color: '#616161'
+                  borderColor: COLORS.grey[700],
+                  color: COLORS.grey[700]
                 },
                 '&:disabled': {
-                  borderColor: '#bdbdbd',
-                  color: '#bdbdbd'
+                  borderColor: COLORS.grey[400],
+                  color: COLORS.grey[400]
                 }
               }}
             >
@@ -150,7 +151,7 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({ onExportPDF, isExport
             flex: 1,
             cursor: 'pointer',
             transition: 'all 0.3s ease',
-            border: '2px solid #1976d2',
+            border: `2px solid ${COLORS.primary.main}`,
             minHeight: { xs: 200, sm: 250, md: 300 }, // Адаптивная высота
             '&:hover': {
               transform: { xs: 'none', md: 'translateY(-4px)' }, // Отключаем hover на мобильных
@@ -174,7 +175,7 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({ onExportPDF, isExport
           }}>
             <LockIcon sx={{ 
               fontSize: { xs: 48, sm: 56, md: 64 }, // Адаптивный размер иконки
-              color: '#1976d2',
+              color: COLORS.primary.main,
               mb: { xs: 1.5, sm: 2 }
             }} />
             <Typography 
@@ -183,7 +184,7 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({ onExportPDF, isExport
               sx={{ 
                 mb: { xs: 1.5, sm: 2 },
                 fontWeight: 600,
-                color: '#1976d2',
+                color: COLORS.primary.main,
                 fontSize: { xs: '1.1rem', sm: '1.25rem', md: '1.5rem' } // Адаптивный размер шрифта
               }}
             >
@@ -193,7 +194,7 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({ onExportPDF, isExport
               variant="body1" 
               sx={{ 
                 mb: { xs: 2, sm: 3 },
-                color: '#1976d2',
+                color: COLORS.primary.main,
                 fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' } // Адаптивный размер шрифта
               }}
             >
@@ -209,10 +210,10 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({ onExportPDF, isExport
                 fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' },
                 fontWeight: 600,
                 textTransform: 'none',
-                bgcolor: '#1976d2',
+                bgcolor: COLORS.primary.main,
                 minHeight: { xs: 40, sm: 44, md: 48 }, // Минимальная высота для touch
                 '&:hover': {
-                  bgcolor: '#1565c0'
+                  bgcolor: COLORS.primary.dark
                 }
               }}
             >

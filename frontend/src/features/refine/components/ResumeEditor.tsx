@@ -26,6 +26,7 @@ import { Resume } from '../../../shared/services/api/types';
 import EducationEditor from './EducationEditor';
 import ExperienceEditor from './ExperienceEditor';
 import SkillsEditor from './SkillsEditor';
+import { COLORS } from '../../../shared/theme/theme';
 
 interface ResumeEditorProps {
   resume: Resume;
@@ -233,7 +234,7 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
   return (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       {/* Содержимое вкладок */}
-      <Box sx={{ flex: 1, bgcolor: '#f8fbff', p: 2, minHeight: 0 }}>
+              <Box sx={{ flex: 1, bgcolor: COLORS.resume.header.background, p: 2, minHeight: 0 }}>
         <Box sx={{ 
           bgcolor: 'white', 
           borderRadius: 2, 
@@ -269,7 +270,7 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
                 px: 2,
                 py: 1,
                 position: 'relative',
-                background: '#f5f5f5',
+                background: COLORS.grey[100],
                 border: 'none',
                 margin: 0,
                 borderRadius: '8px 8px 0 0',
@@ -277,10 +278,10 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
                 transition: 'background-color 0.25s',
                 flex: 1,
                 '&:hover': {
-                  background: '#e8e8e8'
+                  background: COLORS.grey[200]
                 },
                 '&.Mui-selected': {
-                  background: '#007bff',
+                  background: COLORS.primary.main,
                   color: 'white',
                   '& .MuiSvgIcon-root': {
                     color: 'white'
@@ -325,7 +326,7 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
           }}>
             {/* Личная информация */}
             <TabPanel value={activeTab} index={0}>
-              <Typography variant="h6" sx={{ mb: 3, fontWeight: 600, color: '#2c3e50' }}>
+              <Typography variant="h6" sx={{ mb: 3, fontWeight: 600, color: COLORS.resume.text.primary }}>
                 {t('refine.editor.personalInfo')}
               </Typography>
               
@@ -364,7 +365,7 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
               <Divider sx={{ my: 3 }} />
 
               {/* Контакты */}
-              <Typography variant="h6" sx={{ mb: 3, fontWeight: 600, color: '#2c3e50' }}>
+              <Typography variant="h6" sx={{ mb: 3, fontWeight: 600, color: COLORS.resume.text.primary }}>
                 {t('refine.editor.contacts')}
               </Typography>
               
@@ -412,7 +413,7 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
 
             {/* Навыки */}
             <TabPanel value={activeTab} index={1}>
-              <Typography variant="h6" sx={{ mb: 3, fontWeight: 600, color: '#2c3e50' }}>
+              <Typography variant="h6" sx={{ mb: 3, fontWeight: 600, color: COLORS.resume.text.primary }}>
                 {t('refine.editor.professionalSummary')}
               </Typography>
               
@@ -430,7 +431,7 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
               
               <Divider sx={{ my: 3 }} />
               
-              <Typography variant="h6" sx={{ mb: 3, fontWeight: 600, color: '#2c3e50' }}>
+              <Typography variant="h6" sx={{ mb: 3, fontWeight: 600, color: COLORS.resume.text.primary }}>
                 {t('refine.editor.skills')}
               </Typography>
               
@@ -473,7 +474,7 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
 
       {/* Блок с кнопкой сохранения */}
       <Box sx={{ 
-        bgcolor: '#f8fbff', 
+        bgcolor: COLORS.resume.header.background, 
         p: 2, 
         display: 'flex',
         justifyContent: 'center',

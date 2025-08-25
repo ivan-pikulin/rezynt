@@ -10,6 +10,7 @@ import ResumeRenderer from '../../shared/components/ResumeRenderer';
 import { useResumeQuery } from '../../shared/hooks/useResumeQuery';
 import { useTemplate } from '../../shared/hooks/useTemplate';
 import { convertApiResumeToResumeData } from '../../shared/utils/resumeDataConverter';
+import { COLORS } from '../../shared/theme/theme';
 
 const ChatPage: React.FC = () => {
   const navigate = useNavigate();
@@ -54,7 +55,7 @@ const ChatPage: React.FC = () => {
       height: '100vh', 
       display: 'flex', 
       flexDirection: 'column', 
-      bgcolor: '#f5f6fa',
+      bgcolor: COLORS.resume.section.background,
       position: 'relative',
       overflow: 'hidden'
     }}>
@@ -179,10 +180,10 @@ const ChatPage: React.FC = () => {
           alignItems: 'center',
           justifyContent: 'space-between',
           p: 2,
-          borderBottom: '1px solid #eee',
-          bgcolor: '#f8f9fa'
+          borderBottom: `1px solid ${COLORS.chat.input.border}`,
+          bgcolor: COLORS.chat.input.background
         }}>
-          <Box sx={{ fontSize: '1.1rem', fontWeight: 600, color: '#2c3e50' }}>
+          <Box sx={{ fontSize: '1.1rem', fontWeight: 600, color: COLORS.chat.input.text }}>
             Resume Preview
           </Box>
           <IconButton

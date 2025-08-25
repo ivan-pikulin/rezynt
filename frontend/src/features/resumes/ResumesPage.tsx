@@ -11,6 +11,7 @@ import ResumeRenderer from '../../shared/components/ResumeRenderer';
 import { useUser } from '../../shared/hooks';
 import { ResumeData } from '../../shared/types/resume';
 import { useResumes } from './hooks/useResumes';
+import { COLORS } from '../../shared/theme/theme';
 
 const ResumesPage: React.FC = () => {
   const navigate = useNavigate();
@@ -72,7 +73,7 @@ const ResumesPage: React.FC = () => {
         minHeight: '100vh', 
         display: 'flex', 
         flexDirection: 'column', 
-        bgcolor: '#f5f6fa',
+        bgcolor: COLORS.resume.section.background,
         justifyContent: 'center',
         alignItems: 'center'
       }}>
@@ -90,7 +91,7 @@ const ResumesPage: React.FC = () => {
         minHeight: '100vh', 
         display: 'flex', 
         flexDirection: 'column', 
-        bgcolor: '#f5f6fa',
+        bgcolor: COLORS.resume.section.background,
         justifyContent: 'center',
         alignItems: 'center'
       }}>
@@ -107,7 +108,7 @@ const ResumesPage: React.FC = () => {
       minHeight: '100vh', 
       display: 'flex', 
       flexDirection: 'column', 
-      bgcolor: '#f5f6fa'
+      bgcolor: COLORS.resume.section.background
     }}>
       {/* Шапка только с логотипом */}
       <Header showLogo={true} showSteps={false} />
@@ -125,7 +126,7 @@ const ResumesPage: React.FC = () => {
             mb: 4, 
             textAlign: 'center',
             fontWeight: 600,
-            color: '#2c3e50'
+            color: COLORS.resume.text.primary
           }}
         >
           My Resumes
@@ -148,7 +149,7 @@ const ResumesPage: React.FC = () => {
                     height: '200px',
                     cursor: 'pointer',
                     transition: 'all 0.3s ease',
-                    bgcolor: '#fafafa',
+                    bgcolor: COLORS.auth.card.background,
                     borderRadius: '12px',
                     '&:hover': {
                       transform: 'translateY(-4px)',
@@ -169,7 +170,7 @@ const ResumesPage: React.FC = () => {
                      component="h2" 
                      sx={{ 
                        fontWeight: 600,
-                       color: '#2c3e50',
+                       color: COLORS.resume.text.primary,
                        mb: 1,
                        textAlign: 'center',
                        fontSize: '0.9rem'
@@ -186,7 +187,7 @@ const ResumesPage: React.FC = () => {
                     alignItems: 'center',
                     overflow: 'hidden',
                     borderRadius: '4px',
-                    bgcolor: '#fafafa',
+                    bgcolor: COLORS.auth.card.background,
                     p: 1
                   }}>
                     <ResumeRenderer 
@@ -209,11 +210,11 @@ const ResumesPage: React.FC = () => {
                 height: '200px',
                 cursor: 'pointer',
                 transition: 'all 0.3s ease',
-                border: '2px dashed #ddd',
+                border: `2px dashed ${COLORS.common.border}`,
                 bgcolor: 'transparent',
                 borderRadius: '12px',
                 '&:hover': {
-                  borderColor: '#1976d2',
+                  borderColor: COLORS.primary.main,
                   bgcolor: 'rgba(25, 118, 210, 0.04)',
                   transform: 'translateY(-4px)'
                 }
@@ -230,7 +231,7 @@ const ResumesPage: React.FC = () => {
               }}>
                 <AddIcon sx={{ 
                   fontSize: 28, 
-                  color: '#1976d2',
+                  color: COLORS.primary.main,
                   mb: 1
                 }} />
                 <Typography 
@@ -238,7 +239,7 @@ const ResumesPage: React.FC = () => {
                   component="h2" 
                   sx={{ 
                     fontWeight: 600,
-                    color: '#1976d2',
+                    color: COLORS.primary.main,
                     textAlign: 'center',
                     fontSize: '0.9rem'
                   }}

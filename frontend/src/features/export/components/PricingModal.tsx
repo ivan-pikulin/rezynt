@@ -11,6 +11,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
 import Chip from '@mui/material/Chip';
 import { exportApi } from '../exportApi';
+import { COLORS } from '../../../shared/theme/theme';
 
 interface PricingModalProps {
   open: boolean;
@@ -58,7 +59,7 @@ const PricingModal: React.FC<PricingModalProps> = ({ open }) => {
       <Box sx={{
         width: 500,
         maxWidth: '90vw',
-        bgcolor: '#1a1a1a',
+        bgcolor: COLORS.common.overlay,
         borderRadius: '12px',
         p: 4,
         position: 'relative',

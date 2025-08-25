@@ -8,6 +8,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import Chip from '@mui/material/Chip';
 import { exportApi } from '../exportApi';
+import { COLORS } from '../../../shared/theme/theme';
 
 interface PricingCardProps {
   title: string;
@@ -53,7 +54,7 @@ const PricingCard: React.FC<PricingCardProps> = ({
         position: 'relative',
         transition: 'all 0.3s ease',
         transform: isPopular ? 'scale(1.05)' : 'scale(1)',
-        border: isPopular ? '2px solid #1976d2' : '2px solid transparent',
+        border: isPopular ? `2px solid ${COLORS.primary.main}` : '2px solid transparent',
         '&:hover': {
           transform: isPopular ? 'scale(1.07)' : 'scale(1.02)',
           boxShadow: '0 8px 25px rgba(0,0,0,0.15)'
@@ -82,7 +83,7 @@ const PricingCard: React.FC<PricingCardProps> = ({
             sx={{ 
               mb: 1,
               fontWeight: 700,
-              color: '#2c3e50'
+              color: COLORS.resume.text.primary
             }}
           >
             {title}
@@ -91,7 +92,7 @@ const PricingCard: React.FC<PricingCardProps> = ({
             variant="h3" 
             sx={{ 
               fontWeight: 700,
-              color: '#1976d2'
+              color: COLORS.primary.main
             }}
           >
             {price === 0 ? 'Free' : `$${price}`}
@@ -116,22 +117,22 @@ const PricingCard: React.FC<PricingCardProps> = ({
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 py: 1,
-                borderBottom: index < features.length - 1 ? '1px solid #f0f0f0' : 'none'
+                borderBottom: index < features.length - 1 ? `1px solid ${COLORS.common.shadow}` : 'none'
               }}
             >
               <Typography 
                 variant="body2" 
                 sx={{ 
-                  color: featureValues[index] ? '#2c3e50' : '#7f8c8d',
+                  color: featureValues[index] ? COLORS.resume.text.primary : COLORS.resume.text.secondary,
                   textDecoration: featureValues[index] ? 'none' : 'line-through'
                 }}
               >
                 {feature}
               </Typography>
               {featureValues[index] ? (
-                <CheckIcon sx={{ color: '#2e7d32', fontSize: 20 }} />
+                <CheckIcon sx={{ color: COLORS.success.dark, fontSize: 20 }} />
               ) : (
-                <CloseIcon sx={{ color: '#d32f2f', fontSize: 20 }} />
+                <CloseIcon sx={{ color: COLORS.error.main, fontSize: 20 }} />
               )}
             </Box>
           ))}
@@ -149,11 +150,11 @@ const PricingCard: React.FC<PricingCardProps> = ({
             fontSize: '1rem',
             fontWeight: 600,
             textTransform: 'none',
-            bgcolor: buttonVariant === 'contained' ? '#1976d2' : 'transparent',
-            color: buttonVariant === 'contained' ? 'white' : '#1976d2',
-            borderColor: '#1976d2',
+            bgcolor: buttonVariant === 'contained' ? COLORS.primary.main : 'transparent',
+            color: buttonVariant === 'contained' ? 'white' : COLORS.primary.main,
+            borderColor: COLORS.primary.main,
             '&:hover': {
-              bgcolor: buttonVariant === 'contained' ? '#1565c0' : 'rgba(25, 118, 210, 0.04)'
+              bgcolor: buttonVariant === 'contained' ? COLORS.primary.dark : 'rgba(25, 118, 210, 0.04)'
             }
           }}
         >

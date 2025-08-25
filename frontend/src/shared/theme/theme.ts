@@ -4,55 +4,93 @@ import { createTheme, Theme } from '@mui/material/styles';
 const COLORS = {
   chat: {
     bot: {
-      avatar: '',
-      background: '',
-      text: ''
+      avatar: '#4a5899',
+      background: '#e3f2fd',
+      text: '#1976d2'
     },
     user: {
-      avatar: '',
-      background: '',
-      text: ''
+      avatar: '#8e6e53',
+      background: '#4a5899',
+      text: 'white'
     },
     input: {
-      background: '',
-      border: '',
-      text: ''
+      background: '#f8f9fa',
+      border: '#eee',
+      text: '#2c3e50'
     }
   },
   resume: {
     header: {
-      background: '',
-      text: ''
+      background: '#f8fbff',
+      text: '#2c3e50'
     },
     section: {
-      background: '',
-      border: ''
+      background: '#f5f6fa',
+      border: '#e0e0e0'
     },
     text: {
-      primary: '',
-      secondary: ''
+      primary: '#2c3e50',
+      secondary: '#7f8c8d'
     }
   },
   auth: {
-    background: '',
+    background: '#f5f6fa',
     card: {
-      background: '',
-      border: ''
+      background: '#fafafa',
+      border: '#ddd'
     },
     input: {
-      background: '',
-      border: '',
-      text: ''
+      background: '#f8f9fa',
+      border: '#eee',
+      text: '#2c3e50'
     },
     button: {
-      background: '',
-      text: ''
+      background: '#1976d2',
+      text: 'white'
     }
   },
   common: {
-    border: '',
-    shadow: '',
-    overlay: ''
+    border: '#ddd',
+    shadow: '#f0f0f0',
+    overlay: '#1a1a1a'
+  },
+  // Additional colors found in the project
+  primary: {
+    main: '#1976d2',
+    dark: '#1565c0',
+    light: '#e3f2fd'
+  },
+  secondary: {
+    main: '#673ab7',
+    dark: '#5e35b1',
+    light: '#f8fafc'
+  },
+  success: {
+    main: '#4caf50',
+    dark: '#2e7d32'
+  },
+  error: {
+    main: '#d32f2f'
+  },
+  warning: {
+    main: '#c69c72'
+  },
+  grey: {
+    50: '#fafafa',
+    100: '#f5f5f5',
+    200: '#eeeeee',
+    300: '#e0e0e0',
+    400: '#bdbdbd',
+    500: '#9e9e9e',
+    600: '#757575',
+    700: '#616161',
+    800: '#424242',
+    900: '#212121'
+  },
+  gradients: {
+    primary: 'linear-gradient(135deg, #4a5899 0%, #7a7265 100%)',
+    secondary: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+    white: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)'
   }
 };
 

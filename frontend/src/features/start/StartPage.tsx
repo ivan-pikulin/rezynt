@@ -3,6 +3,7 @@ import Box from '@mui/material/Box';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../shared/components/Header/Header';
 import StartOptions from './components/StartOptions';
+import { COLORS } from '../../shared/theme/theme';
 
 const StartPage: React.FC = () => {
   const navigate = useNavigate();
@@ -30,7 +31,7 @@ const StartPage: React.FC = () => {
       minHeight: '100vh', 
       display: 'flex', 
       flexDirection: 'column', 
-      bgcolor: '#f5f6fa'
+      bgcolor: COLORS.resume.section.background
     }}>
       {/* Общая шапка */}
       <Header 
