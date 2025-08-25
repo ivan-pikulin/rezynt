@@ -1,4 +1,6 @@
 import {
+  Add as AddIcon,
+  Delete as DeleteIcon,
   Person as PersonIcon,
   Save as SaveIcon,
   School as SchoolIcon,
@@ -11,17 +13,12 @@ import {
   Button,
   Chip,
   Divider,
-  IconButton,
   Snackbar,
   Tab,
   Tabs,
   TextField,
   Typography
 } from '@mui/material';
-import {
-  Add as AddIcon,
-  Delete as DeleteIcon
-} from '@mui/icons-material';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { resumeApi } from '../../../shared/services/api';

@@ -49,13 +49,5 @@ I run all the code on the remote server. NEVER try to find docker containers or 
 All the texts should be stored in the `i18n` folder. 
 Always use yarn + vite, not npm.
 Never build and start app by yourself: i always do it manually.
+All the colors should be stored in theme.ts file
 </frontend>
-
-<design>
-Use this colors for app:
-4a5899ff
-8e6e53ff
-c69c72ff
-002626ff
-92bceaff
-</design>

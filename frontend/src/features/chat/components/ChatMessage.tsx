@@ -1,5 +1,6 @@
 import React from 'react';
 import { Box, Avatar, Typography } from '@mui/material';
+import SmartToyIcon from '@mui/icons-material/SmartToy';
 import { ChatMessage as ChatMessageType } from '../hooks/useChat';
 
 interface ChatMessageProps {
@@ -64,7 +65,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, isLoading = f
           bgcolor: '#4a5899', // Синий цвет для бота
           fontSize: '1rem' // Увеличиваем с 0.875rem до 1rem
         }}>
-          A
+          <SmartToyIcon sx={{ fontSize: '1.2rem', color: 'white' }} />
         </Avatar>
       )}
       
