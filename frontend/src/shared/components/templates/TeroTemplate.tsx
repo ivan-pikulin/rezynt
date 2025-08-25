@@ -62,7 +62,7 @@ export class TeroTemplate extends BaseTemplate {
                   position: 'relative'
                 }}
               >
-                {data.personalInfo.firstName.charAt(0)}{data.personalInfo.lastName.charAt(0)}
+                {data.first_name?.charAt(0) || ''}{data.last_name?.charAt(0) || ''}
               </Typography>
             </Box>
             
@@ -115,7 +115,7 @@ export class TeroTemplate extends BaseTemplate {
                 textAlign: 'justify'
               }}
             >
-              {data.professionalSummary}
+              {data.professional_summary}
             </Typography>
           </Box>
 
@@ -146,8 +146,8 @@ export class TeroTemplate extends BaseTemplate {
                 marginLeft: '10px'
               }} />
             </Box>
-            {data.experience.map((exp, index) => (
-              <Box key={exp.id} sx={{ marginBottom: '20px' }}>
+            {data.experience?.map((exp, index) => (
+              <Box key={index} sx={{ marginBottom: '20px' }}>
                 <Box sx={{ 
                   display: 'flex', 
                   justifyContent: 'space-between', 
@@ -162,7 +162,7 @@ export class TeroTemplate extends BaseTemplate {
                       color: '#2c3e50'
                     }}
                   >
-                    {exp.jobTitle}
+                    {exp.job_title}
                   </Typography>
                   <Typography 
                     variant="body2" 
@@ -172,7 +172,7 @@ export class TeroTemplate extends BaseTemplate {
                       fontStyle: 'italic'
                     }}
                   >
-                    {this.getWorkPeriod(exp.startDate, exp.endDate, exp.isCurrent)}
+                    {this.getWorkPeriod(exp.start_date || '', exp.end_date, this.isCurrentJob(exp.end_date))}
                   </Typography>
                 </Box>
                 <Typography 
@@ -184,14 +184,14 @@ export class TeroTemplate extends BaseTemplate {
                     fontWeight: '500'
                   }}
                 >
-                  {exp.company} | {exp.location}
+                  {exp.company} {exp.location ? `| ${exp.location}` : ''}
                 </Typography>
                 <Box component="ul" sx={{ 
                   margin: 0, 
                   paddingLeft: '20px',
                   listStyleType: 'disc'
                 }}>
-                  {exp.responsibilities.map((responsibility, respIndex) => (
+                  {exp.responsibilities?.map((responsibility, respIndex) => (
                     <Typography 
                       key={respIndex}
                       component="li"
@@ -238,8 +238,8 @@ export class TeroTemplate extends BaseTemplate {
                 marginLeft: '10px'
               }} />
             </Box>
-            {data.education.map((edu, index) => (
-              <Box key={edu.id} sx={{ marginBottom: '16px' }}>
+            {data.education?.map((edu, index) => (
+              <Box key={index} sx={{ marginBottom: '16px' }}>
                 <Box sx={{ 
                   display: 'flex', 
                   justifyContent: 'space-between', 
@@ -264,7 +264,7 @@ export class TeroTemplate extends BaseTemplate {
                       fontStyle: 'italic'
                     }}
                   >
-                    {this.formatDate(edu.graduationDate)}
+                    {this.formatDate(edu.graduation_date || '')}
                   </Typography>
                 </Box>
                 <Typography 
@@ -275,7 +275,7 @@ export class TeroTemplate extends BaseTemplate {
                     fontWeight: '500'
                   }}
                 >
-                  {edu.institution}, {edu.location}
+                  {edu.institution} {edu.location ? `, ${edu.location}` : ''}
                 </Typography>
               </Box>
             ))}
@@ -293,26 +293,19 @@ export class TeroTemplate extends BaseTemplate {
         }}>
           {/* Contact Information */}
           <Box sx={{ marginBottom: '40px' }}>
-            <Typography 
-              variant="body1" 
-              sx={{ 
-                fontSize: '14px',
-                marginBottom: '8px',
-                fontWeight: '500'
-              }}
-            >
-              {data.personalInfo.phone}
-            </Typography>
-            <Typography 
-              variant="body1" 
-              sx={{ 
-                fontSize: '14px',
-                marginBottom: '8px',
-                fontWeight: '500'
-              }}
-            >
-              W: {data.personalInfo.email}
-            </Typography>
+            {data.contacts?.map((contact, index) => (
+              <Typography 
+                key={index}
+                variant="body1" 
+                sx={{ 
+                  fontSize: '14px',
+                  marginBottom: '8px',
+                  fontWeight: '500'
+                }}
+              >
+                {contact}
+              </Typography>
+            ))}
           </Box>
 
           {/* Skills Section */}
@@ -334,9 +327,9 @@ export class TeroTemplate extends BaseTemplate {
               paddingLeft: '20px',
               listStyleType: 'disc'
             }}>
-              {data.skills.map((skill, index) => (
+              {data.skills?.map((skill, index) => (
                 <Typography 
-                  key={skill.id}
+                  key={index}
                   component="li"
                   variant="body2" 
                   sx={{ 
@@ -345,7 +338,7 @@ export class TeroTemplate extends BaseTemplate {
                     lineHeight: 1.4
                   }}
                 >
-                  {skill.name}
+                  {skill}
                 </Typography>
               ))}
             </Box>

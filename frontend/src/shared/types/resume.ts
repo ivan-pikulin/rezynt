@@ -2,47 +2,48 @@
  * Resume data interfaces
  */
 
-export interface PersonalInfo {
-  firstName: string;
-  lastName: string;
-  middleName?: string;
-  phone: string;
-  email: string;
-  location: string;
-}
-
-export interface Experience {
-  id: string;
-  jobTitle: string;
+// Упрощенная структура опыта работы
+export interface ResumeExperience {
+  job_title: string;
   company: string;
-  location: string;
-  startDate: string;
-  endDate?: string;
-  isCurrent: boolean;
+  location?: string;
+  start_date?: string;
+  end_date?: string;
   responsibilities: string[];
 }
 
-export interface Education {
-  id: string;
+// Упрощенная структура образования
+export interface ResumeEducation {
   degree: string;
   institution: string;
-  location: string;
-  graduationDate: string;
-  fieldOfStudy?: string;
+  location?: string;
+  graduation_date?: string;
 }
 
-export interface Skill {
-  id: string;
-  name: string;
-  category?: string;
-}
-
+// Основная структура ResumeData в соответствии с UnifiedResume
 export interface ResumeData {
-  personalInfo: PersonalInfo;
-  professionalSummary: string;
-  skills: Skill[];
-  experience: Experience[];
-  education: Education[];
+  // Основные поля резюме
+  id?: number;
+  user_id?: number;
+  title?: string;
+  template_id?: number;
+  professional_summary?: string;
+  conversation_id?: string;
+  created_at?: string;
+  updated_at?: string;
+  
+  // Персональная информация (плоская структура как в UnifiedResume)
+  first_name?: string;
+  last_name?: string;
+  location?: string;
+  
+  // Контакты и навыки (массивы строк как в UnifiedResume)
+  contacts: string[];
+  skills: string[];
+  
+  // Опыт и образование (упрощенная структура)
+  experience: ResumeExperience[];
+  education: ResumeEducation[];
 }
 
 export interface TemplateConfig {

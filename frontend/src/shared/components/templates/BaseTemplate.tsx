@@ -14,24 +14,24 @@ export abstract class BaseTemplate extends React.Component<BaseTemplateProps, {}
    * Получить полное имя из данных резюме
    */
   protected getFullName(): string {
-    const { firstName, lastName, middleName } = this.props.data.personalInfo;
-    return middleName 
-      ? `${firstName} ${middleName} ${lastName}`
-      : `${firstName} ${lastName}`;
+    const { first_name, last_name } = this.props.data;
+    return `${first_name || ''} ${last_name || ''}`.trim();
   }
 
   /**
    * Получить контактную информацию
    */
   protected getContactInfo(): string {
-    const { phone, email, location } = this.props.data.personalInfo;
-    return `${phone} | ${email} | ${location}`;
+    const { contacts, location } = this.props.data;
+    const contactStr = contacts.join(' | ');
+    return location ? `${contactStr} | ${location}` : contactStr;
   }
 
   /**
    * Форматировать дату
    */
   protected formatDate(dateString: string): string {
+    if (!dateString) return '';
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { 
       year: 'numeric', 
@@ -44,10 +44,17 @@ export abstract class BaseTemplate extends React.Component<BaseTemplateProps, {}
    */
   protected getWorkPeriod(startDate: string, endDate?: string, isCurrent?: boolean): string {
     const start = this.formatDate(startDate);
-    if (isCurrent) {
+    if (isCurrent || !endDate) {
       return `${start} - Current`;
     }
-    return endDate ? `${start} - ${this.formatDate(endDate)}` : start;
+    return `${start} - ${this.formatDate(endDate)}`;
+  }
+
+  /**
+   * Проверить, является ли работа текущей
+   */
+  protected isCurrentJob(endDate?: string): boolean {
+    return !endDate || new Date(endDate) > new Date();
   }
 
   /**

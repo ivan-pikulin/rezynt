@@ -31,33 +31,39 @@ export class TemplateService {
    */
   static createDemoData(): ResumeData {
     return {
-      personalInfo: {
-        firstName: 'Elon',
-        lastName: 'Musk',
-        middleName: '',
-        phone: '+1 (310) 363-6000',
-        email: 'elon.musk@tesla.com',
-        location: 'Austin, Texas, USA'
-      },
-      professionalSummary: 'Visionary entrepreneur and engineer with over 25 years of experience revolutionizing multiple industries. Proven track record of building world-changing companies including Tesla, SpaceX, Neuralink, and The Boring Company. Expert in sustainable technology, rocket engineering, and disruptive innovation.',
-      skills: [
-        { id: '1', name: 'Strategic Leadership' },
-        { id: '2', name: 'Electric Vehicle Engineering' },
-        { id: '3', name: 'Rocket Propulsion Systems' },
-        { id: '4', name: 'Artificial Intelligence' },
-        { id: '5', name: 'Sustainable Energy' },
-        { id: '6', name: 'Neural Interface Technology' },
-        { id: '7', name: 'Manufacturing Innovation' },
-        { id: '8', name: 'Global Operations Management' }
+      title: 'Elon Musk Resume',
+      professional_summary: 'Visionary entrepreneur and engineer with over 25 years of experience revolutionizing multiple industries. Proven track record of building world-changing companies including Tesla, SpaceX, Neuralink, and The Boring Company. Expert in sustainable technology, rocket engineering, and disruptive innovation.',
+      
+      // Персональная информация
+      first_name: 'Elon',
+      last_name: 'Musk',
+      location: 'Austin, Texas, USA',
+      
+      // Контакты
+      contacts: [
+        '+1 (310) 363-6000',
+        'elon.musk@tesla.com'
       ],
+      
+      // Навыки
+      skills: [
+        'Strategic Leadership',
+        'Electric Vehicle Engineering',
+        'Rocket Propulsion Systems',
+        'Artificial Intelligence',
+        'Sustainable Energy',
+        'Neural Interface Technology',
+        'Manufacturing Innovation',
+        'Global Operations Management'
+      ],
+      
+      // Опыт работы
       experience: [
         {
-          id: '1',
-          jobTitle: 'CEO & Chief Engineer',
+          job_title: 'CEO & Chief Engineer',
           company: 'SpaceX',
           location: 'Hawthorne, California',
-          startDate: '2002-06-01',
-          isCurrent: true,
+          start_date: '2002-06-01',
           responsibilities: [
             'Founded and lead the world\'s most advanced space exploration company',
             'Developed reusable rocket technology reducing launch costs by 90%',
@@ -66,12 +72,10 @@ export class TemplateService {
           ]
         },
         {
-          id: '2',
-          jobTitle: 'CEO & Product Architect',
+          job_title: 'CEO & Product Architect',
           company: 'Tesla, Inc.',
           location: 'Austin, Texas',
-          startDate: '2008-10-01',
-          isCurrent: true,
+          start_date: '2008-10-01',
           responsibilities: [
             'Transformed automotive industry with electric vehicle revolution',
             'Led development of Model S, Model 3, Model X, Model Y, and Cybertruck',
@@ -80,12 +84,10 @@ export class TemplateService {
           ]
         },
         {
-          id: '3',
-          jobTitle: 'CEO & Founder',
+          job_title: 'CEO & Founder',
           company: 'Neuralink',
           location: 'Fremont, California',
-          startDate: '2016-07-01',
-          isCurrent: true,
+          start_date: '2016-07-01',
           responsibilities: [
             'Developing brain-computer interface technology',
             'Creating implantable devices for medical applications',
@@ -94,20 +96,20 @@ export class TemplateService {
           ]
         }
       ],
+      
+      // Образование
       education: [
         {
-          id: '1',
           degree: 'Bachelor of Science in Physics',
           institution: 'University of Pennsylvania',
           location: 'Philadelphia, Pennsylvania',
-          graduationDate: '1997-05-01'
+          graduation_date: '1997-05-01'
         },
         {
-          id: '2',
           degree: 'Bachelor of Science in Economics',
           institution: 'University of Pennsylvania',
           location: 'Philadelphia, Pennsylvania',
-          graduationDate: '1997-05-01'
+          graduation_date: '1997-05-01'
         }
       ]
     };
@@ -120,14 +122,17 @@ export class TemplateService {
     const errors: string[] = [];
 
     // Проверка персональной информации
-    if (!data.personalInfo.firstName) errors.push('First name is required');
-    if (!data.personalInfo.lastName) errors.push('Last name is required');
-    if (!data.personalInfo.phone) errors.push('Phone is required');
-    if (!data.personalInfo.email) errors.push('Email is required');
-    if (!data.personalInfo.location) errors.push('Location is required');
+    if (!data.first_name) errors.push('First name is required');
+    if (!data.last_name) errors.push('Last name is required');
+    if (!data.location) errors.push('Location is required');
+
+    // Проверка контактов
+    if (!data.contacts || data.contacts.length === 0) {
+      errors.push('At least one contact is required');
+    }
 
     // Проверка профессионального резюме
-    if (!data.professionalSummary) errors.push('Professional summary is required');
+    if (!data.professional_summary) errors.push('Professional summary is required');
 
     // Проверка навыков
     if (!data.skills || data.skills.length === 0) {

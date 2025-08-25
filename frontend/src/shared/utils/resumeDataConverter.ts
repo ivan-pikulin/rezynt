@@ -1,51 +1,26 @@
 import { Resume } from '../services/api/types';
-import { ResumeData, PersonalInfo, Experience, Education, Skill } from '../types/resume';
+import { ResumeData } from '../types/resume';
 
+/**
+ * Конвертер для преобразования UnifiedResume в новую структуру ResumeData
+ * Простое копирование, так как структуры совпадают
+ */
 export const convertApiResumeToResumeData = (apiResume: Resume): ResumeData => {
-  // Convert personal info
-  const personalInfo: PersonalInfo = {
-    firstName: apiResume.personal_info?.first_name || '',
-    lastName: apiResume.personal_info?.last_name || '',
-    middleName: apiResume.personal_info?.middle_name || '',
-    phone: apiResume.personal_info?.phone || '',
-    email: apiResume.personal_info?.email || '',
-    location: apiResume.personal_info?.location || ''
-  };
-
-  // Convert skills
-  const skills: Skill[] = (apiResume.skills || []).map(skill => ({
-    id: skill.id,
-    name: skill.name,
-    category: skill.category
-  }));
-
-  // Convert experience
-  const experience: Experience[] = (apiResume.experience || []).map(exp => ({
-    id: exp.id,
-    jobTitle: exp.job_title,
-    company: exp.company,
-    location: exp.location,
-    startDate: exp.start_date,
-    endDate: exp.end_date,
-    isCurrent: exp.is_current,
-    responsibilities: exp.responsibilities || []
-  }));
-
-  // Convert education
-  const education: Education[] = (apiResume.education || []).map(edu => ({
-    id: edu.id,
-    degree: edu.degree,
-    institution: edu.institution,
-    location: edu.location,
-    graduationDate: edu.graduation_date,
-    fieldOfStudy: edu.field_of_study
-  }));
-
   return {
-    personalInfo,
-    professionalSummary: apiResume.professional_summary || '',
-    skills,
-    experience,
-    education
+    id: apiResume.id,
+    user_id: apiResume.user_id,
+    title: apiResume.title,
+    template_id: apiResume.template_id,
+    professional_summary: apiResume.professional_summary,
+    conversation_id: apiResume.conversation_id,
+    created_at: apiResume.created_at,
+    updated_at: apiResume.updated_at,
+    first_name: apiResume.first_name,
+    last_name: apiResume.last_name,
+    location: apiResume.location,
+    contacts: apiResume.contacts,
+    skills: apiResume.skills,
+    experience: apiResume.experience,
+    education: apiResume.education
   };
 };

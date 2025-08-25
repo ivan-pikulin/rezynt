@@ -61,7 +61,7 @@ const ExportPage: React.FC = () => {
       
       // Используем реальные данные для имени файла
       const displayData = convertApiResumeToDisplayData(resume);
-      const fullName = `${displayData.personalInfo.firstName} ${displayData.personalInfo.lastName}`;
+      const fullName = `${displayData.first_name || ''} ${displayData.last_name || ''}`.trim();
       const filename = `${fullName.replace(/\s+/g, '_')}_resume.pdf`;
       
       // Отправляем запрос на бэкенд для генерации PDF

@@ -6,38 +6,21 @@ import { ResumeData } from '../../../shared/types/resume';
  */
 export function convertApiResumeToDisplayData(apiResume: Resume): ResumeData {
   return {
-    personalInfo: {
-      firstName: apiResume.personal_info?.first_name || '',
-      lastName: apiResume.personal_info?.last_name || '',
-      middleName: apiResume.personal_info?.middle_name || '',
-      phone: apiResume.personal_info?.phone || '',
-      email: apiResume.personal_info?.email || '',
-      location: apiResume.personal_info?.location || '',
-    },
-    professionalSummary: apiResume.professional_summary || '',
-    skills: apiResume.skills?.map(skill => ({
-      id: skill.id,
-      name: skill.name,
-      category: undefined // API не содержит категории
-    })) || [],
-    experience: apiResume.experience?.map(exp => ({
-      id: exp.id,
-      jobTitle: exp.job_title,
-      company: exp.company,
-      location: exp.location || '',
-      startDate: exp.start_date,
-      endDate: exp.end_date || '',
-      isCurrent: exp.is_current,
-      responsibilities: exp.responsibilities
-    })) || [],
-    education: apiResume.education?.map(edu => ({
-      id: edu.id,
-      degree: edu.degree,
-      institution: edu.institution,
-      location: edu.location || '',
-      graduationDate: edu.graduation_date || '',
-      fieldOfStudy: undefined // API не содержит fieldOfStudy
-    })) || []
+    id: apiResume.id,
+    user_id: apiResume.user_id,
+    title: apiResume.title,
+    template_id: apiResume.template_id,
+    professional_summary: apiResume.professional_summary,
+    conversation_id: apiResume.conversation_id,
+    created_at: apiResume.created_at,
+    updated_at: apiResume.updated_at,
+    first_name: apiResume.first_name,
+    last_name: apiResume.last_name,
+    location: apiResume.location,
+    contacts: apiResume.contacts,
+    skills: apiResume.skills,
+    experience: apiResume.experience,
+    education: apiResume.education
   };
 }
 
@@ -47,49 +30,14 @@ export function convertApiResumeToDisplayData(apiResume: Resume): ResumeData {
 export function convertDisplayDataToApiResume(displayData: ResumeData, resumeId: string): Partial<Resume> {
   return {
     id: resumeId,
-    title: '', // Заполняется отдельно
-    professional_summary: displayData.professionalSummary,
-    personal_info: {
-      id: '', // Заполняется сервером
-      resume_id: resumeId,
-      first_name: displayData.personalInfo.firstName,
-      last_name: displayData.personalInfo.lastName,
-      middle_name: displayData.personalInfo.middleName,
-      phone: displayData.personalInfo.phone,
-      email: displayData.personalInfo.email,
-      location: displayData.personalInfo.location,
-      website: '',
-      linkedin: '',
-      github: '',
-      order: 0
-    },
-    skills: displayData.skills.map(skill => ({
-      id: skill.id,
-      resume_id: resumeId,
-      name: skill.name,
-      order: 0
-    })),
-    experience: displayData.experience.map(exp => ({
-      id: exp.id,
-      resume_id: resumeId,
-      job_title: exp.jobTitle,
-      company: exp.company,
-      location: exp.location,
-      start_date: exp.startDate,
-      end_date: exp.endDate,
-      is_current: exp.isCurrent,
-      responsibilities: exp.responsibilities,
-      order: 0
-    })),
-    education: displayData.education.map(edu => ({
-      id: edu.id,
-      resume_id: resumeId,
-      degree: edu.degree,
-      institution: edu.institution,
-      location: edu.location,
-      graduation_date: edu.graduationDate,
-      gpa: undefined,
-      order: 0
-    }))
+    title: displayData.title || '',
+    professional_summary: displayData.professional_summary,
+    first_name: displayData.first_name,
+    last_name: displayData.last_name,
+    location: displayData.location,
+    contacts: displayData.contacts,
+    skills: displayData.skills,
+    experience: displayData.experience,
+    education: displayData.education
   };
 }

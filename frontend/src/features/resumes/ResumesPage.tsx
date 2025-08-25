@@ -25,38 +25,21 @@ const ResumesPage: React.FC = () => {
 
   const convertResumeToDemoData = (resume: any): ResumeData => {
     return {
-      personalInfo: {
-        firstName: resume.personal_info?.first_name || '',
-        lastName: resume.personal_info?.last_name || '',
-        middleName: resume.personal_info?.middle_name || '',
-        phone: resume.personal_info?.phone || '',
-        email: resume.personal_info?.email || '',
-        location: resume.personal_info?.location || ''
-      },
-      professionalSummary: resume.professional_summary || '',
-      skills: resume.skills?.map((skill: any) => ({
-        id: skill.id,
-        name: skill.name,
-        category: skill.category
-      })) || [],
-      experience: resume.experience?.map((exp: any) => ({
-        id: exp.id,
-        jobTitle: exp.job_title,
-        company: exp.company,
-        location: exp.location || '',
-        startDate: exp.start_date,
-        endDate: exp.end_date,
-        isCurrent: exp.is_current,
-        responsibilities: exp.responsibilities || []
-      })) || [],
-      education: resume.education?.map((edu: any) => ({
-        id: edu.id,
-        degree: edu.degree,
-        institution: edu.institution,
-        location: edu.location || '',
-        graduationDate: edu.graduation_date,
-        fieldOfStudy: edu.field_of_study
-      })) || []
+      id: resume.id,
+      user_id: resume.user_id,
+      title: resume.title,
+      template_id: resume.template_id,
+      professional_summary: resume.professional_summary,
+      conversation_id: resume.conversation_id,
+      created_at: resume.created_at,
+      updated_at: resume.updated_at,
+      first_name: resume.first_name,
+      last_name: resume.last_name,
+      location: resume.location,
+      contacts: resume.contacts || [],
+      skills: resume.skills || [],
+      experience: resume.experience || [],
+      education: resume.education || []
     };
   };
 
