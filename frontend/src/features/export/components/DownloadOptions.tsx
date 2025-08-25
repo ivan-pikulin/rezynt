@@ -7,7 +7,7 @@ import Button from '@mui/material/Button';
 import DownloadIcon from '@mui/icons-material/Download';
 import LockIcon from '@mui/icons-material/Lock';
 import CircularProgress from '@mui/material/CircularProgress';
-import ProModal from './ProModal';
+import PaywallModal from '../../../shared/components/PaywallModal';
 
 interface DownloadOptionsProps {
   onExportPDF?: () => Promise<void>;
@@ -15,7 +15,7 @@ interface DownloadOptionsProps {
 }
 
 const DownloadOptions: React.FC<DownloadOptionsProps> = ({ onExportPDF, isExporting = false }) => {
-  const [isProModalOpen, setIsProModalOpen] = useState(false);
+  const [isPaywallModalOpen, setIsPaywallModalOpen] = useState(false);
 
   const handleWatermarkedDownload = async () => {
     try {
@@ -28,11 +28,16 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({ onExportPDF, isExport
   };
 
   const handleCleanDownload = () => {
-    setIsProModalOpen(true);
+    setIsPaywallModalOpen(true);
   };
 
-  const handleCloseProModal = () => {
-    setIsProModalOpen(false);
+  const handleClosePaywallModal = () => {
+    setIsPaywallModalOpen(false);
+  };
+
+  const handlePaywallSuccess = () => {
+    setIsPaywallModalOpen(false);
+    // После успешной оплаты можно выполнить дополнительную логику
   };
 
   return (
@@ -217,10 +222,11 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({ onExportPDF, isExport
         </Card>
       </Box>
 
-      {/* Pro Modal */}
-      <ProModal 
-        open={isProModalOpen} 
-        onClose={handleCloseProModal} 
+      {/* Paywall Modal */}
+      <PaywallModal 
+        open={isPaywallModalOpen} 
+        onClose={handleClosePaywallModal}
+        onSuccess={handlePaywallSuccess}
       />
     </>
   );

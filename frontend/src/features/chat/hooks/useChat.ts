@@ -17,7 +17,7 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void) =>
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: 'assistant-1',
-      content: 'Hello! What is your name profession?',
+      content: 'Welcome aboard! I\'m your AI Resume Builder, here to save you time and boost your chances. Let\'s get personal: what\'s your name?',
       sender: 'assistant',
       timestamp: new Date()
     }

@@ -2,24 +2,47 @@ import AddIcon from '@mui/icons-material/Add';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
-import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../shared/components/Header/Header';
+import PaywallModal from '../../shared/components/PaywallModal';
 import ResumeRenderer from '../../shared/components/ResumeRenderer';
+import { useUser } from '../../shared/hooks';
 import { ResumeData } from '../../shared/types/resume';
 import { useResumes } from './hooks/useResumes';
 
 const ResumesPage: React.FC = () => {
   const navigate = useNavigate();
   const { resumes, isLoading, error } = useResumes();
+  const { user } = useUser();
+  const [showPaywall, setShowPaywall] = useState(false);
 
   const handleResumeClick = (resumeId: string) => {
     navigate(`/refine?resume_id=${resumeId}`);
   };
 
   const handleAddResume = () => {
+    // Check if user already has resumes and is not pro
+    const hasResumes = Array.isArray(resumes) && resumes.length > 0;
+    const isPro = user?.is_premium;
+    
+    if (hasResumes && !isPro) {
+      // Show paywall for non-pro users with existing resumes
+      setShowPaywall(true);
+    } else {
+      // Переходим к созданию резюме
+      navigate('/start');
+    }
+  };
+
+  const handlePaywallClose = () => {
+    setShowPaywall(false);
+  };
+
+  const handlePaywallSuccess = () => {
+    setShowPaywall(false);
+    // После успешной оплаты переходим к созданию резюме
     navigate('/start');
   };
 
@@ -231,9 +254,16 @@ const ResumesPage: React.FC = () => {
                 </Typography>
                              </CardContent>
              </Card>
-           </Box>
-         </Box>
+                     </Box>
+        </Box>
       </Box>
+      
+      {/* Paywall Modal */}
+      <PaywallModal 
+        open={showPaywall}
+        onClose={handlePaywallClose}
+        onSuccess={handlePaywallSuccess}
+      />
     </Box>
   );
 };

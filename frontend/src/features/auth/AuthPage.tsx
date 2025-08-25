@@ -15,7 +15,7 @@ const AuthPage: React.FC = () => {
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const { isAuthenticated } = useAuthContext();
 
-  // Определяем начальный режим из URL параметров
+  // Determine initial mode from URL parameters
   useEffect(() => {
     const urlMode = searchParams.get('mode') as AuthMode;
     if (urlMode === 'login' || urlMode === 'signup') {
@@ -24,7 +24,7 @@ const AuthPage: React.FC = () => {
   }, [searchParams]);
 
   const handleLoginSuccess = () => {
-    // Редиректим на страницу, с которой пришел пользователь, или на /start
+    // Redirect to the page user came from, or to /start
     const from = (location.state as any)?.from?.pathname || '/start';
     navigate(from, { replace: true });
   };

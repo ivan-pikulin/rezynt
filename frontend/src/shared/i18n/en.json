@@ -79,6 +79,7 @@
       "contacts": "Contacts",
       "addContactPlaceholder": "Enter contact (email, phone, etc.)",
       "save": "Save",
+      "saveChanges": "Save Changes",
       "cancel": "Cancel",
       "delete": "Delete",
       "add": "Add",
@@ -103,7 +104,12 @@
       "addFirstEducation": "Add Your First Education",
       "degree": "Degree",
       "institution": "Institution",
-      "graduationDate": "Graduation Date"
+      "graduationDate": "Graduation Date",
+      "noChangesToSave": "No changes to save",
+      "allChangesSaved": "All changes saved",
+      "errorSavingChanges": "Error saving changes",
+      "errorAddingContact": "Error adding contact",
+      "errorRemovingContact": "Error removing contact"
     },
     "preview": {
       "title": "Resume Preview"

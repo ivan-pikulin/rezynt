@@ -72,11 +72,11 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
   const { t } = useTranslation();
   const [localResume, setLocalResume] = useState<Resume>(resume);
   const [formData, setFormData] = useState({
-    // Основные поля
+    // Main fields
     title: resume.title,
     professional_summary: resume.professional_summary || '',
     
-    // Личная информация (используем новые поля UnifiedResume)
+    // Personal information (using new UnifiedResume fields)
     first_name: resume.first_name || '',
     last_name: resume.last_name || '',
     location: resume.location || ''
@@ -132,7 +132,7 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
       console.error('Error adding contact:', error);
       setSaveStatus({
         show: true,
-        message: 'Ошибка при добавлении контакта',
+        message: t('refine.editor.errorAddingContact'),
         severity: 'error'
       });
     } finally {
@@ -153,7 +153,7 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
       console.error('Error removing contact:', error);
       setSaveStatus({
         show: true,
-        message: 'Ошибка при удалении контакта',
+        message: t('refine.editor.errorRemovingContact'),
         severity: 'error'
       });
     } finally {
@@ -181,7 +181,7 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
       if (changedFields.length === 0) {
         setSaveStatus({
           show: true,
-          message: 'Нет изменений для сохранения',
+          message: t('refine.editor.noChangesToSave'),
           severity: 'success'
         });
         return;
@@ -218,14 +218,14 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
 
       setSaveStatus({
         show: true,
-        message: 'Все изменения сохранены',
+        message: t('refine.editor.allChangesSaved'),
         severity: 'success'
       });
     } catch (error) {
       console.error('Error saving changes:', error);
       setSaveStatus({
         show: true,
-        message: 'Ошибка при сохранении изменений',
+        message: t('refine.editor.errorSavingChanges'),
         severity: 'error'
       });
     } finally {
@@ -502,7 +502,7 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
             transition: 'all 0.2s ease-in-out'
           }}
         >
-          {isSaving ? 'Saving...' : 'Save Changes'}
+          {isSaving ? t('refine.editor.saving') : t('refine.editor.saveChanges')}
         </Button>
       </Box>
 

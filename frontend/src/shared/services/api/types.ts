@@ -605,4 +605,15 @@ export interface ChatResponse {
   message: string;
   conversation_id: string;
   download_url?: string;
+}
+
+// Chat API types
+export interface SendMessageRequest {
+  message: string;
+  resume_id: string;
+}
+
+export interface SendMessageResponse {
+  response: string;
+  conversation_id?: string;
 } 

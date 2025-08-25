@@ -22,7 +22,7 @@ function AppRoutes() {
   return (
     <React.Suspense fallback={<div>Loading...</div>}>
       <Routes>
-        {/* Публичные маршруты */}
+        {/* Public routes */}
         <Route path="/auth" element={
           <ProtectedRoute requireAuth={false}>
             <AuthPage />
@@ -36,7 +36,7 @@ function AppRoutes() {
         <Route path="/auth/email-confirmed" element={<EmailConfirmationPage />} />
         <Route path="/auth/email-confirmation-error" element={<EmailConfirmationPage />} />
         
-        {/* Защищенные маршруты */}
+        {/* Protected routes */}
         <Route path="/resumes" element={
           <ProtectedRoute requireAuth={true}>
             <ResumesPage />

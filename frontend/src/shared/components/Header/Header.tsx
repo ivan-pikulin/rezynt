@@ -150,7 +150,7 @@ const Header: React.FC<HeaderProps> = ({
                       } : {}),
                       '& .MuiStepLabel-label': {
                         fontSize: { xs: '0.75rem', sm: '0.875rem' },
-                        color: index <= activeStep ? '#1976d2' : '#999',
+                        color: index <= activeStep ? '#1976d2 !important' : '#999 !important',
                         fontWeight: index === activeStep ? 600 : 400,
                         transform: index === activeStep ? 'scale(1.1)' : 'scale(1)',
                         transition: 'all 0.2s ease',
