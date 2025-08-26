@@ -26,6 +26,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { userApi } from '../../services/api/userApi';
 import { User } from '../../services/api/types';
+import { COLORS } from '../../theme/theme';
 
 interface UserSidebarProps {
   open: boolean;
@@ -138,7 +139,7 @@ const UserSidebar: React.FC<UserSidebarProps> = ({
             sx={{
               width: 80,
               height: 80,
-              bgcolor: '#1976d2',
+              bgcolor: COLORS.primary.main,
               fontSize: '2rem',
               fontWeight: 600,
               mb: 2
@@ -167,80 +168,95 @@ const UserSidebar: React.FC<UserSidebarProps> = ({
 
         <Divider sx={{ mb: 2 }} />
 
-        {/* Навигация */}
-        <List sx={{ mb: 2 }}>
-          <ListItem 
-            button 
+        {/* Основная навигация */}
+        <Box sx={{ mb: 2 }}>
+          <Button
+            variant="contained"
+            startIcon={<DescriptionIcon />}
             onClick={handleNavigateToResumes}
+            fullWidth
             sx={{
-              borderRadius: '8px',
-              mb: 1,
+              justifyContent: 'flex-start',
+              py: 2.5,
+              px: 3,
+              fontWeight: 600,
+              textTransform: 'none',
+              borderRadius: '16px',
+              bgcolor: COLORS.primary.main,
+              color: 'white',
+              fontSize: '1.1rem',
+              position: 'relative',
+              animation: 'gentlePulse 3s ease-in-out infinite',
+              '@keyframes gentlePulse': {
+                '0%, 100%': {
+                  transform: 'scale(1)',
+                  boxShadow: `0 4px 12px ${COLORS.primary.main}30`
+                },
+                '50%': {
+                  transform: 'scale(1.02)',
+                  boxShadow: `0 6px 20px ${COLORS.primary.main}50`
+                }
+              },
               '&:hover': {
-                bgcolor: 'rgba(25, 118, 210, 0.08)'
-              }
+                animation: 'none',
+                bgcolor: COLORS.primary.dark,
+                transform: 'scale(1.05)',
+                boxShadow: `0 8px 25px ${COLORS.primary.main}60`
+              },
+              transition: 'all 0.3s ease-in-out'
             }}
           >
-            <ListItemIcon>
-              <DescriptionIcon color="primary" />
-            </ListItemIcon>
-            <ListItemText 
-              primary="My Resumes" 
-              primaryTypographyProps={{
-                fontWeight: 500,
-                color: '#2c3e50'
-              }}
-            />
-          </ListItem>
+            My Resumes
+          </Button>
+        </Box>
 
-          <ListItem 
-            button 
-            onClick={handleNavigateToPasswordReset}
-            sx={{
-              borderRadius: '8px',
-              mb: 1,
-              '&:hover': {
-                bgcolor: 'rgba(25, 118, 210, 0.08)'
-              }
-            }}
-          >
-            <ListItemIcon>
-              <LockIcon color="primary" />
-            </ListItemIcon>
-            <ListItemText 
-              primary="Change Password" 
-              primaryTypographyProps={{
-                fontWeight: 500,
-                color: '#2c3e50'
-              }}
-            />
-          </ListItem>
-        </List>
-
-        {/* Spacer для выталкивания кнопки выхода вниз */}
+        {/* Spacer для выталкивания кнопок вниз */}
         <Box sx={{ flex: 1 }} />
 
-        {/* Кнопка выхода внизу */}
-        <Button
-          variant="outlined"
-          color="error"
-          startIcon={<LogoutIcon />}
-          onClick={handleLogout}
-          fullWidth
-          sx={{
-            borderRadius: '8px',
-            py: 1.5,
-            fontWeight: 600,
-            textTransform: 'none',
-            borderColor: '#d32f2f',
-            color: '#d32f2f',
-            '&:hover': {
-              borderColor: '#b71c1c',
-              bgcolor: '#ffebee'
-            }
-          }}
-        >
-          Sign Out
-        </Button>
+        {/* Дополнительные опции внизу */}
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+          <Button
+            variant="text"
+            startIcon={<LockIcon />}
+            onClick={handleNavigateToPasswordReset}
+            fullWidth
+            sx={{
+              justifyContent: 'flex-start',
+              py: 1,
+              px: 2,
+              fontWeight: 400,
+              textTransform: 'none',
+              color: '#666',
+              '&:hover': {
+                bgcolor: 'rgba(0, 0, 0, 0.04)'
+              }
+            }}
+          >
+            Change Password
+          </Button>
+
+          <Button
+            variant="outlined"
+            color="error"
+            startIcon={<LogoutIcon />}
+            onClick={handleLogout}
+            fullWidth
+            sx={{
+              borderRadius: '8px',
+              py: 1.5,
+              fontWeight: 600,
+              textTransform: 'none',
+              borderColor: '#d32f2f',
+              color: '#d32f2f',
+              '&:hover': {
+                borderColor: '#b71c1c',
+                bgcolor: '#ffebee'
+              }
+            }}
+          >
+            Sign Out
+          </Button>
+        </Box>
       </Box>
     </Drawer>
   );
