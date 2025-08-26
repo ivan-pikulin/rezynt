@@ -6,6 +6,7 @@ import StepLabel from '@mui/material/StepLabel';
 import Stepper from '@mui/material/Stepper';
 import Tooltip from '@mui/material/Tooltip';
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { HeaderProps } from './Header.types';
 import UserSidebar from './UserSidebar';
@@ -23,6 +24,7 @@ const Header: React.FC<HeaderProps> = ({
   showSteps = true
 }) => {
   const { user } = useAuthContext();
+  const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const steps = ['Start', 'Generate', 'Refine', 'Export'];
 
@@ -36,6 +38,10 @@ const Header: React.FC<HeaderProps> = ({
 
   const handleSidebarClose = () => {
     setSidebarOpen(false);
+  };
+
+  const handleLogoClick = () => {
+    navigate('/');
   };
 
   const getPreviousStepName = (step: number) => {
@@ -71,10 +77,18 @@ const Header: React.FC<HeaderProps> = ({
     }}>
       {/* Логотип */}
       {showLogo && (
-        <Box sx={{ 
-          display: { xs: 'none', sm: 'flex' }, // Скрываем на мобильных
-          alignItems: 'center' 
-        }}>
+        <Box 
+          onClick={handleLogoClick}
+          sx={{ 
+            display: { xs: 'none', sm: 'flex' }, // Скрываем на мобильных
+            alignItems: 'center',
+            cursor: 'pointer',
+            '&:hover': {
+              opacity: 0.8
+            },
+            transition: 'opacity 0.2s ease'
+          }}
+        >
           <img 
             src="/rezynt-logo-with-name.svg" 
             alt="Rezynt" 

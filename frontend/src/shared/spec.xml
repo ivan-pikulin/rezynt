@@ -7,6 +7,136 @@
   
   <components>
     <component>
+      <name>Header</name>
+      <description>
+        Основной компонент шапки приложения с логотипом, навигационными кнопками, степпером и профилем пользователя.
+        Поддерживает адаптивный дизайн и различные конфигурации отображения элементов.
+      </description>
+      
+      <features>
+        <feature>
+          <name>Кликабельный логотип</name>
+          <description>
+            При клике на логотип происходит переход на главную страницу (/) с умным перенаправлением
+          </description>
+        </feature>
+        
+        <feature>
+          <name>Адаптивный дизайн</name>
+          <description>
+            Логотип скрывается на мобильных устройствах для экономии места
+          </description>
+        </feature>
+        
+        <feature>
+          <name>Навигационные кнопки</name>
+          <description>
+            Кнопки "Назад" и "Вперед" с анимацией при наведении
+          </description>
+        </feature>
+        
+        <feature>
+          <name>Степпер</name>
+          <description>
+            Отображает прогресс создания резюме с возможностью клика по шагам
+          </description>
+        </feature>
+        
+        <feature>
+          <name>Профиль пользователя</name>
+          <description>
+            Аватар с инициалами пользователя, открывающий боковую панель
+          </description>
+        </feature>
+      </features>
+      
+      <props>
+        <prop>
+          <name>activeStep</name>
+          <type>number</type>
+          <required>false</required>
+          <default>0</default>
+          <description>Активный шаг в степпере</description>
+        </prop>
+        
+        <prop>
+          <name>onNext</name>
+          <type>() => void</type>
+          <required>false</required>
+          <description>Callback для кнопки "Вперед"</description>
+        </prop>
+        
+        <prop>
+          <name>onBack</name>
+          <type>() => void</type>
+          <required>false</required>
+          <description>Callback для кнопки "Назад"</description>
+        </prop>
+        
+        <prop>
+          <name>onStepClick</name>
+          <type>(stepIndex: number) => void</type>
+          <required>false</required>
+          <description>Callback для клика по шагу степпера</description>
+        </prop>
+        
+        <prop>
+          <name>showLogo</name>
+          <type>boolean</type>
+          <required>false</required>
+          <default>true</default>
+          <description>Показывать ли логотип</description>
+        </prop>
+        
+        <prop>
+          <name>showSteps</name>
+          <type>boolean</type>
+          <required>false</required>
+          <default>true</default>
+          <description>Показывать ли степпер</description>
+        </prop>
+        
+        <prop>
+          <name>showBackButton</name>
+          <type>boolean</type>
+          <required>false</required>
+          <default>true</default>
+          <description>Показывать ли кнопку "Назад"</description>
+        </prop>
+        
+        <prop>
+          <name>showNextButton</name>
+          <type>boolean</type>
+          <required>false</required>
+          <default>true</default>
+          <description>Показывать ли кнопку "Вперед"</description>
+        </prop>
+      </props>
+      
+      <technical_details>
+        <detail>
+          <name>Зависимости</name>
+          <value>Material-UI, React Router, AuthContext</value>
+        </detail>
+        
+        <detail>
+          <name>Навигация</name>
+          <value>useNavigate для перехода на главную страницу</value>
+        </detail>
+        
+        <detail>
+          <name>Анимации</name>
+          <value>CSS transitions для hover эффектов</value>
+        </detail>
+        
+        <detail>
+          <name>Адаптивность</name>
+          <value>Скрытие логотипа на xs экранах</value>
+        </detail>
+      </technical_details>
+    </component>
+    
+    <component>
       <name>HomeRedirect</name>
       <description>
         Компонент для умного перенаправления пользователей на главную страницу.
