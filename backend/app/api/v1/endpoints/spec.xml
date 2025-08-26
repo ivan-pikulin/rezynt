@@ -28,12 +28,12 @@
             <description>Resume CRUD operations and management</description>
             <endpoints>
                 <endpoint path="/resume/" method="GET" description="Get all resumes for current user"/>
-                <endpoint path="/resume/" method="POST" description="Create new resume"/>
+                <endpoint path="/resume/" method="POST" description="Create new resume (with plan validation)"/>
                 <endpoint path="/resume/{resume_id}" method="GET" description="Get specific resume"/>
                 <endpoint path="/resume/{resume_id}" method="PUT" description="Update resume"/>
                 <endpoint path="/resume/{resume_id}" method="PATCH" description="Partial update resume"/>
                 <endpoint path="/resume/{resume_id}" method="DELETE" description="Delete resume"/>
-                <endpoint path="/resume/{resume_id}/upload" method="POST" description="Upload resume file"/>
+                <endpoint path="/resume/upload" method="POST" description="Upload resume file (with plan validation)"/>
                 <endpoint path="/resume/{resume_id}/export-pdf" method="POST" description="Export resume to PDF"/>
                 <endpoint path="/resume/{resume_id}/contacts" method="POST" description="Add contact to resume"/>
                 <endpoint path="/resume/{resume_id}/contacts/{contact_id}" method="DELETE" description="Remove contact from resume"/>
@@ -46,6 +46,9 @@
                 <endpoint path="/resume/{resume_id}/education/{education_id}" method="PUT" description="Update education"/>
                 <endpoint path="/resume/{resume_id}/education/{education_id}" method="DELETE" description="Remove education from resume"/>
             </endpoints>
+            <business_rules>
+                <rule name="free_plan_resume_limit" description="Free plan users can only create one resume. Premium users can create unlimited resumes."/>
+            </business_rules>
         </module>
         
         <module name="ai">
@@ -114,10 +117,13 @@
         <standard_errors>
             <error code="400" description="Bad Request - Invalid input data"/>
             <error code="401" description="Unauthorized - Invalid or missing authentication"/>
-            <error code="403" description="Forbidden - Insufficient permissions"/>
+            <error code="403" description="Forbidden - Insufficient permissions or plan limitations"/>
             <error code="404" description="Not Found - Resource not found"/>
             <error code="422" description="Unprocessable Entity - Validation error"/>
             <error code="500" description="Internal Server Error - Server error"/>
         </standard_errors>
+        <business_errors>
+            <error code="403" description="Free plan users can only create one resume. Please upgrade to premium to create additional resumes."/>
+        </business_errors>
     </error_handling>
 </specification>

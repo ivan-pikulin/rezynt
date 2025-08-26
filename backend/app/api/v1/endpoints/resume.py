@@ -5,6 +5,7 @@ from app.core.celery_app import celery_app
 from app.core.tasks import process_resume_upload_task
 from app.database.crud.crud_resume import resume_manager
 from app.database.crud.crud_template import template_crud
+from app.database.crud.crud_user import user_crud
 from app.schemas.resume import (PDFExportRequest, ResumeCreate,
                                 ResumeUpdate, ResumePartialUpdate)
 from app.services.pdf_service import pdf_service
@@ -38,6 +39,24 @@ async def create_resume(
     Create a new resume for the current user.
     Only available for users with verified email.
     """
+    # Check user's plan and existing resumes
+    user = await user_crud.get(db, id=current_user.id)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    
+    # Get user's existing resumes count
+    existing_resumes = await resume_manager.get_all_resumes(db, user_id=current_user.id)
+    
+    # Check if user is on free plan and already has a resume
+    if not user.is_premium and len(existing_resumes) >= 1:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Free plan users can only create one resume. Please upgrade to premium to create additional resumes."
+        )
+    
     # Check if template exists
     if resume_in.template_id:
         template = await template_crud.get(db, id=resume_in.template_id)
@@ -122,6 +141,7 @@ async def partial_update_resume(
 @router.post("/upload", response_model=Dict[str, Any])
 async def upload_resume(
     *,
+    db: AsyncDB,
     file: UploadFile = File(...),
     current_user: VerifiedUser,
 ) -> Dict[str, Any]:
@@ -133,6 +153,24 @@ async def upload_resume(
     logger = logging.getLogger(__name__)
     
     logger.info(f"Starting resume upload for user {current_user.id}, filename: {file.filename}")
+    
+    # Check user's plan and existing resumes
+    user = await user_crud.get(db, id=current_user.id)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    
+    # Get user's existing resumes count
+    existing_resumes = await resume_manager.get_all_resumes(db, user_id=current_user.id)
+    
+    # Check if user is on free plan and already has a resume
+    if not user.is_premium and len(existing_resumes) >= 1:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Free plan users can only create one resume. Please upgrade to premium to create additional resumes."
+        )
     
     # Validate file type
     if not file.filename.lower().endswith(('.pdf', '.doc', '.docx')):

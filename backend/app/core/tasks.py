@@ -150,6 +150,25 @@ async def _create_resume_with_data(user_id: int, filename: str, parsed_data):
     
     async with SessionLocal() as db:
         try:
+            # Check user's plan and existing resumes
+            from app.database.models.user import User
+            from app.database.models.resume import Resume as ResumeModel
+            from sqlalchemy import select
+            
+            # Get user
+            user_result = await db.execute(select(User).where(User.id == user_id))
+            user = user_result.scalar_one_or_none()
+            if not user:
+                raise ValueError(f"User {user_id} not found")
+            
+            # Get user's existing resumes count
+            resumes_result = await db.execute(select(ResumeModel).where(ResumeModel.user_id == user_id))
+            existing_resumes = resumes_result.scalars().all()
+            
+            # Check if user is on free plan and already has a resume
+            if not user.is_premium and len(existing_resumes) >= 1:
+                raise ValueError("Free plan users can only create one resume. Please upgrade to premium to create additional resumes.")
+            
             logger.info(f"Creating resume record for user {user_id}")
             # Create resume with parsed data
             resume = Resume(
