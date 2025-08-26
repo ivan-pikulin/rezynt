@@ -26,10 +26,10 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled })
   
   return (
     <Box sx={{ 
-      p: 2,
+      p: 1,
       display: 'flex',
       gap: 1.5,
-      alignItems: 'flex-end', // Выравниваем по нижнему краю для лучшего вида
+      alignItems: 'center', // Центрируем по вертикали
       width: '100%',
       position: 'relative' // Для правильного позиционирования
     }}>
@@ -48,7 +48,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled })
             borderRadius: '20px', // Более округлые углы
             bgcolor: '#f8f9fa', // Светло-серый фон
             fontSize: '0.95rem',
-            minHeight: '44px', // Минимальная высота для удобства
+            height: '55px', // Минимальная высота для удобства
             paddingRight: '60px', // Место для кнопки
             '& fieldset': {
               borderColor: 'transparent', // Убираем границу
@@ -86,14 +86,11 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled })
         sx={{ 
           bgcolor: message.trim() ? '#1976d2' : '#e0e0e0',
           color: message.trim() ? 'white' : '#9e9e9e',
-          width: '48px',
-          height: '48px',
+          width: '40px',
+          height: '40px',
           borderRadius: '50%', // Круглая кнопка
           transition: 'all 0.2s ease-in-out',
-          position: 'absolute', // Абсолютное позиционирование
-          right: '24px', // Отступ от правого края
-          bottom: '24px', // Отступ от нижнего края
-          zIndex: 1, // Поверх текстового поля
+          flexShrink: 0, // Предотвращаем сжатие кнопки
           '&:hover': {
             bgcolor: message.trim() ? '#1565c0' : '#d5d5d5',
             transform: 'scale(1.05)',

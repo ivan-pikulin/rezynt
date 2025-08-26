@@ -138,7 +138,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ resumeId, onResumeUpdate }) => 
       {/* Современное поле ввода */}
       <Box sx={{
         flexShrink: 0,
-        p: 1.5, // Уменьшил с 2 до 1.5
         height: 'auto',
         minHeight: '60px', // Уменьшил с 72px до 60px
         display: 'flex',
