@@ -577,7 +577,7 @@ class ResumeManager:
             return removed_experience is not None
         return False
 
-    async def update_experience(self, db: AsyncSession, *, resume_id: int, experience: List[Dict[str, Any]]) -> List[ResumeExperience]:
+    async def update_experience_list(self, db: AsyncSession, *, resume_id: int, experience: List[Dict[str, Any]]) -> List[ResumeExperience]:
         """Update all experience for a resume by replacing existing ones"""
         # Remove existing experience
         existing_experience = await self.get_experience(db, resume_id=resume_id)

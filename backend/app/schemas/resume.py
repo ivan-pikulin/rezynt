@@ -431,3 +431,79 @@ class UnifiedResume(BaseModel):
                 for edu in self.education
             ]
         }
+
+# API Endpoint Schemas
+class ResumePatchRequest(BaseModel):
+    """Schema for PATCH /resume/{id} endpoint"""
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    location: Optional[str] = None
+    professional_summary: Optional[str] = None
+    skills: Optional[List[str]] = None
+    contacts: Optional[List[str]] = None
+
+
+class ExperienceCreateRequest(BaseModel):
+    """Schema for POST /resume/{id}/experience endpoint"""
+    job_title: str
+    company: str
+    location: Optional[str] = None
+    start_date: Optional[date] = None
+    end_date: Optional[date] = None
+    responsibilities: Optional[List[str]] = None
+
+    @field_validator('start_date', mode='before')
+    @classmethod
+    def validate_start_date(cls, v):
+        return parse_date(v)
+
+    @field_validator('end_date', mode='before')
+    @classmethod
+    def validate_end_date(cls, v):
+        return parse_date(v)
+
+
+class ExperienceUpdateRequest(BaseModel):
+    """Schema for PATCH /resume/{id}/experience/{experience_id} endpoint"""
+    job_title: Optional[str] = None
+    company: Optional[str] = None
+    location: Optional[str] = None
+    start_date: Optional[date] = None
+    end_date: Optional[date] = None
+    responsibilities: Optional[List[str]] = None
+
+    @field_validator('start_date', mode='before')
+    @classmethod
+    def validate_start_date(cls, v):
+        return parse_date(v)
+
+    @field_validator('end_date', mode='before')
+    @classmethod
+    def validate_end_date(cls, v):
+        return parse_date(v)
+
+
+class EducationCreateRequest(BaseModel):
+    """Schema for POST /resume/{id}/education endpoint"""
+    degree: str
+    institution: str
+    location: Optional[str] = None
+    graduation_date: Optional[date] = None
+
+    @field_validator('graduation_date', mode='before')
+    @classmethod
+    def validate_graduation_date(cls, v):
+        return parse_date(v)
+
+
+class EducationUpdateRequest(BaseModel):
+    """Schema for PATCH /resume/{id}/education/{education_id} endpoint"""
+    degree: Optional[str] = None
+    institution: Optional[str] = None
+    location: Optional[str] = None
+    graduation_date: Optional[date] = None
+
+    @field_validator('graduation_date', mode='before')
+    @classmethod
+    def validate_graduation_date(cls, v):
+        return parse_date(v)

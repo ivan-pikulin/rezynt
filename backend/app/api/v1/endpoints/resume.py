@@ -1,13 +1,12 @@
 from typing import Any, Dict, List
 
-from app.api.deps import APIKeyVerified, AsyncDB, VerifiedUser
+from app.api.deps import AsyncDB, VerifiedUser
 from app.core.celery_app import celery_app
 from app.core.tasks import process_resume_upload_task
 from app.database.crud.crud_resume import resume_manager
 from app.database.crud.crud_template import template_crud
-from app.schemas.resume import (AIResumeUpdate, PDFExportRequest, ResumeCreate,
-                                ResumeUpdate, ResumePartialUpdate, ResumeExperienceCreate,
-                                ResumeEducationCreate, UnifiedResumeExperience)
+from app.schemas.resume import (PDFExportRequest, ResumeCreate,
+                                ResumeUpdate, ResumePartialUpdate)
 from app.services.pdf_service import pdf_service
 from app.services.parse_service import ParseService
 from fastapi import APIRouter, File, HTTPException, UploadFile, status
@@ -204,128 +203,7 @@ async def assign_template(
     }
 
 
-@router.post("/{resume_id}/ai-update", response_model=Dict[str, Any], tags=["ai"])
-async def update_resume_with_ai(
-    *,
-    db: AsyncDB,
-    resume_id: int,
-    ai_update: AIResumeUpdate,
-    _: APIKeyVerified,
-) -> Dict[str, Any]:
-    """
-    Update resume with AI-generated content.
-    All fields are optional - only passed fields are updated.
-    For lists (skills, experience, education) items are added to existing ones.
-    Requires valid API key for authorization.
-    """
-    # Get the resume
-    resume = await resume_manager.get_resume_by_id(db, resume_id=resume_id)
-    if not resume:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Resume not found"
-        )
-    
-    updated_fields = {
-        "personal_info": False,
-        "professional_summary": False,
-        "skills_added": 0,
-        "experience_added": 0,
-        "education_added": 0,
-        "contacts_added": 0
-    }
-    
-    # Update professional summary if provided
-    if ai_update.professional_summary:
-        resume_update = ResumeUpdate(professional_summary=ai_update.professional_summary)
-        await resume_manager.update_resume(db, resume_id=resume_id, resume_update=resume_update)
-        updated_fields["professional_summary"] = True
-    
-    # Update personal info if provided
-    personal_info_data = {}
-    if ai_update.first_name:
-        personal_info_data['first_name'] = ai_update.first_name
-    if ai_update.last_name:
-        personal_info_data['last_name'] = ai_update.last_name
-    if ai_update.location:
-        personal_info_data['location'] = ai_update.location
-    
-    if personal_info_data:
-        personal_info_update = ResumePartialUpdate(**personal_info_data)
-        await resume_manager.partial_update_resume(db, resume_id=resume_id, resume_update=personal_info_update)
-        updated_fields["personal_info"] = True
-    
-    # Add new contacts if provided
-    if ai_update.contacts:
-        for contact_value in ai_update.contacts:
-            await resume_manager.add_contact(db, resume_id=resume_id, contact_value=contact_value)
-        updated_fields["contacts_added"] = len(ai_update.contacts)
-    
-    # Add new skills if provided
-    if ai_update.skills:
-        for skill_name in ai_update.skills:
-            await resume_manager.add_skill(db, resume_id=resume_id, skill_name=skill_name)
-        updated_fields["skills_added"] = len(ai_update.skills)
-    
-    # Add new experience if provided
-    if ai_update.experience:
-        for exp_data in ai_update.experience:
-            from datetime import datetime
-            start_date = datetime.strptime(exp_data["start_date"], "%Y-%m-%dT%H:%M:%S").date()
-            end_date = None
-            if exp_data.get("end_date"):
-                end_date = datetime.strptime(exp_data["end_date"], "%Y-%m-%dT%H:%M:%S").date()
-            
-            # Use the existing experience list and add new item
-            current_experience = await resume_manager.get_experience(db, resume_id=resume_id)
-            new_experience = UnifiedResumeExperience(
-                job_title=exp_data["job_title"],
-                company=exp_data["company"],
-                location=exp_data["location"],
-                start_date=start_date,
-                end_date=end_date,
-                responsibilities=exp_data.get("responsibilities", [])
-            )
-            # Convert to dict for experience creation
-            experience_dict = {
-                "job_title": exp_data["job_title"],
-                "company": exp_data["company"],
-                "location": exp_data["location"],
-                "start_date": start_date,
-                "end_date": end_date,
-                "responsibilities": exp_data.get("responsibilities", [])
-            }
-            experience_create = ResumeExperienceCreate(**experience_dict)
-            await resume_manager.add_experience(db, resume_id=resume_id, experience_data=experience_create)
-        updated_fields["experience_added"] = len(ai_update.experience)
-    
-    # Add new education if provided
-    if ai_update.education:
-        for edu_data in ai_update.education:
-            graduation_date = None
-            if edu_data.get("graduation_date"):
-                from datetime import datetime
-                graduation_date = datetime.strptime(edu_data["graduation_date"], "%Y-%m-%dT%H:%M:%S").date()
-            
-            education_dict = {
-                "degree": edu_data["degree"],
-                "institution": edu_data["institution"],
-                "location": edu_data["location"],
-                "graduation_date": graduation_date
-            }
-            education_create = ResumeEducationCreate(**education_dict)
-            await resume_manager.add_education(db, resume_id=resume_id, education_data=education_create)
-        updated_fields["education_added"] = len(ai_update.education)
-    
-    # Get updated resume
-    updated_resume = await resume_manager.get_resume_by_id(db, resume_id=resume_id)
-    
-    return {
-        "resume_id": resume_id,
-        "message": "Resume updated successfully with AI content",
-        "updated_fields": updated_fields,
-        "resume": updated_resume.to_json()
-    }
+
 
 
 @router.post("/{resume_id}/export-pdf")
