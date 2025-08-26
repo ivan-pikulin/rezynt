@@ -8,7 +8,7 @@ import Alert from '@mui/material/Alert';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
-import authApi from '../authApi';
+import { authApi } from '../../../shared/services/api';
 import { SignupCredentials } from '../types/auth';
 
 interface SignupFormProps {

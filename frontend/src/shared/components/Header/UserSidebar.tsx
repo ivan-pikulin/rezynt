@@ -24,7 +24,7 @@ import {
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { userApi } from '../../services/api/userApi';
+import { userApi } from '../../services/api';
 import { User } from '../../services/api/types';
 import { COLORS } from '../../theme/theme';
 
