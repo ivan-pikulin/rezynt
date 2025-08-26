@@ -6,7 +6,7 @@ import enum
 from .base import Base
 
 
-class MessageRole(enum.Enum):
+class MessageRole(str, enum.Enum):
     USER = "user"
     ASSISTANT = "assistant"
     SYSTEM = "system"
