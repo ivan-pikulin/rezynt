@@ -136,28 +136,64 @@ class CRUDResume(CRUDBase[Resume, ResumeCreate, ResumeUpdate]):
 
     async def create(self, db: AsyncSession, *, obj_in: ResumeCreate, user_id: int) -> UnifiedResume:
         """Create a new resume with user_id and return as unified object"""
+        from sqlalchemy.orm import selectinload
+        
         obj_in_data = obj_in.model_dump()
         db_obj = self.model(**obj_in_data, user_id=user_id)
         db.add(db_obj)
         await db.commit()
-        # Refresh the entire object to ensure all fields are loaded
         await db.refresh(db_obj)
-        return await self._to_unified_resume(db, db_obj)
+        
+        # Загружаем объект с полными данными через eager loading
+        result = await db.execute(
+            select(self.model)
+            .options(
+                selectinload(Resume.personal_info),
+                selectinload(Resume.contacts),
+                selectinload(Resume.skills),
+                selectinload(Resume.experience),
+                selectinload(Resume.education),
+                selectinload(Resume.template)
+            )
+            .where(Resume.id == db_obj.id)
+        )
+        resume_with_data = result.scalar_one()
+        
+        return await self._to_unified_resume(db, resume_with_data)
 
     async def update(self, db: AsyncSession, *, db_obj: Resume, obj_in: ResumeUpdate) -> UnifiedResume:
         """Update a resume and return as unified object"""
+        from sqlalchemy.orm import selectinload
+        
         # Update the database model
         update_data = obj_in.model_dump(exclude_unset=True)
         for field, value in update_data.items():
             setattr(db_obj, field, value)
         
         await db.commit()
-        # Refresh the entire object to ensure all fields are loaded
         await db.refresh(db_obj)
-        return await self._to_unified_resume(db, db_obj)
+        
+        # Загружаем объект с полными данными через eager loading
+        result = await db.execute(
+            select(self.model)
+            .options(
+                selectinload(Resume.personal_info),
+                selectinload(Resume.contacts),
+                selectinload(Resume.skills),
+                selectinload(Resume.experience),
+                selectinload(Resume.education),
+                selectinload(Resume.template)
+            )
+            .where(Resume.id == db_obj.id)
+        )
+        resume_with_data = result.scalar_one()
+        
+        return await self._to_unified_resume(db, resume_with_data)
 
     async def partial_update_resume(self, db: AsyncSession, *, resume_id: int, resume_update: ResumePartialUpdate) -> UnifiedResume:
         """Partially update a resume with support for UnifiedResume fields"""
+        from sqlalchemy.orm import selectinload
+        
         # Get the resume
         resume = await self.get(db, id=resume_id)
         if not resume:
@@ -198,9 +234,23 @@ class CRUDResume(CRUDBase[Resume, ResumeCreate, ResumeUpdate]):
             await self.update_education_list(db, resume_id=resume_id, education_list=update_data['education'])
         
         await db.commit()
-        await db.refresh(resume)
         
-        return await self._to_unified_resume(db, resume)
+        # Загружаем объект с полными данными через eager loading
+        result = await db.execute(
+            select(self.model)
+            .options(
+                selectinload(Resume.personal_info),
+                selectinload(Resume.contacts),
+                selectinload(Resume.skills),
+                selectinload(Resume.experience),
+                selectinload(Resume.education),
+                selectinload(Resume.template)
+            )
+            .where(Resume.id == resume_id)
+        )
+        resume_with_data = result.scalar_one()
+        
+        return await self._to_unified_resume(db, resume_with_data)
 
     async def get_full_resume(self, db: AsyncSession, *, user_id: int, resume_id: int) -> Optional[UnifiedResume]:
         """
