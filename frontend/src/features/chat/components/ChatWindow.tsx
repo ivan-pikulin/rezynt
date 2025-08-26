@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Typography, Chip } from '@mui/material';
+import { Box, Typography, Chip, CircularProgress } from '@mui/material';
 import StarIcon from '@mui/icons-material/Star';
 import { ChatMessage } from './ChatMessage';
 import { ChatInput } from './ChatInput';
@@ -12,7 +12,23 @@ interface ChatWindowProps {
 }
 
 const ChatWindow: React.FC<ChatWindowProps> = ({ resumeId, onResumeUpdate }) => {
-  const { messages, isLoading, sendUserMessage, messagesEndRef } = useChat(resumeId, onResumeUpdate);
+  const { 
+    messages, 
+    isLoading, 
+    isLoadingMessages,
+    hasMoreMessages,
+    sendUserMessage, 
+    loadOlderMessages,
+    messagesEndRef 
+  } = useChat(resumeId, onResumeUpdate);
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const { scrollTop } = e.currentTarget;
+    // Load older messages when user scrolls to the top
+    if (scrollTop === 0 && hasMoreMessages && !isLoadingMessages) {
+      loadOlderMessages();
+    }
+  };
   
   return (
     <Box sx={{ 
@@ -109,7 +125,9 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ resumeId, onResumeUpdate }) => 
         maxHeight: 'calc(100% - 60px - 56px)', // Обновил с учетом новой высоты области ввода (60px)
         background: COLORS.gradients.white,
         position: 'relative'
-      }}>
+      }}
+      onScroll={handleScroll}
+      >
         {/* Декоративная сетка на фоне */}
         <Box sx={{
           position: 'absolute',
@@ -123,6 +141,18 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ resumeId, onResumeUpdate }) => 
           `,
           pointerEvents: 'none'
         }} />
+        
+        {/* Loading indicator for older messages */}
+        {isLoadingMessages && (
+          <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            alignItems: 'center', 
+            py: 2 
+          }}>
+            <CircularProgress size={24} sx={{ color: COLORS.primary.main }} />
+          </Box>
+        )}
         
         {messages.map((message) => (
           <ChatMessage 

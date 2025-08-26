@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<spec>
+    <title>Database Models</title>
+    <description>
+        SQLAlchemy models for the Rezynt application database.
+        Includes models for users, resumes, templates, and chat messages.
+    </description>
+    
+    <models>
+        <model name="User">
+            <description>User account model with authentication and subscription data</description>
+            <fields>
+                <field name="id" type="Integer" primary_key="true" autoincrement="true"/>
+                <field name="email" type="String" unique="true" nullable="false"/>
+                <field name="hashed_password" type="String" nullable="false"/>
+                <field name="is_verified" type="Boolean" default="false"/>
+                <field name="is_premium" type="Boolean" default="false"/>
+                <field name="created_at" type="TIMESTAMP" server_default="func.now()"/>
+                <field name="updated_at" type="TIMESTAMP" server_default="func.now()" onupdate="func.now()"/>
+            </fields>
+            <relationships>
+                <relationship name="resumes" type="one-to-many" target="Resume" back_populates="user"/>
+            </relationships>
+        </model>
+        
+        <model name="Template">
+            <description>Resume template model for different design options</description>
+            <fields>
+                <field name="id" type="Integer" primary_key="true" autoincrement="true"/>
+                <field name="name" type="String" nullable="false"/>
+                <field name="slug" type="String" unique="true" nullable="false"/>
+                <field name="description" type="Text" nullable="true"/>
+                <field name="thumbnail_url" type="String" nullable="true"/>
+                <field name="is_active" type="Boolean" default="true"/>
+                <field name="created_at" type="TIMESTAMP" server_default="func.now()"/>
+                <field name="updated_at" type="TIMESTAMP" server_default="func.now()" onupdate="func.now()"/>
+            </fields>
+            <relationships>
+                <relationship name="resumes" type="one-to-many" target="Resume" back_populates="template"/>
+            </relationships>
+        </model>
+        
+        <model name="Resume">
+            <description>Main resume model with all resume data and relationships</description>
+            <fields>
+                <field name="id" type="Integer" primary_key="true" autoincrement="true"/>
+                <field name="user_id" type="Integer" foreign_key="users.id" nullable="false"/>
+                <field name="title" type="String(100)" nullable="false"/>
+                <field name="template_id" type="Integer" foreign_key="templates.id" nullable="false"/>
+                <field name="professional_summary" type="Text" nullable="true"/>
+                <field name="conversation_id" type="String(255)" nullable="true"/>
+                <field name="created_at" type="TIMESTAMP" server_default="func.now()" nullable="false"/>
+                <field name="updated_at" type="TIMESTAMP" server_default="func.now()" onupdate="func.now()" nullable="false"/>
+            </fields>
+            <relationships>
+                <relationship name="user" type="many-to-one" target="User" back_populates="resumes"/>
+                <relationship name="template" type="many-to-one" target="Template" back_populates="resumes"/>
+                <relationship name="personal_info" type="one-to-one" target="ResumePersonalInfo" back_populates="resume" cascade="all, delete-orphan"/>
+                <relationship name="contacts" type="one-to-many" target="ResumeContact" back_populates="resume" cascade="all, delete-orphan"/>
+                <relationship name="skills" type="one-to-many" target="ResumeSkill" back_populates="resume" cascade="all, delete-orphan"/>
+                <relationship name="experience" type="one-to-many" target="ResumeExperience" back_populates="resume" cascade="all, delete-orphan"/>
+                <relationship name="education" type="one-to-many" target="ResumeEducation" back_populates="resume" cascade="all, delete-orphan"/>
+                <relationship name="exports" type="one-to-many" target="ResumeExport" back_populates="resume" cascade="all, delete-orphan"/>
+                <relationship name="messages" type="one-to-many" target="Message" back_populates="resume" cascade="all, delete-orphan"/>
+            </relationships>
+        </model>
+        
+        <model name="Message">
+            <description>Chat message model for storing conversation history</description>
+            <fields>
+                <field name="id" type="Integer" primary_key="true" autoincrement="true"/>
+                <field name="resume_id" type="Integer" foreign_key="resumes.id" nullable="false"/>
+                <field name="role" type="Enum(MessageRole)" nullable="false"/>
+                <field name="content" type="Text" nullable="false"/>
+                <field name="created_at" type="TIMESTAMP" server_default="func.now()" nullable="false"/>
+            </fields>
+            <relationships>
+                <relationship name="resume" type="many-to-one" target="Resume" back_populates="messages"/>
+            </relationships>
+            <enums>
+                <enum name="MessageRole">
+                    <value name="USER" value="user"/>
+                    <value name="ASSISTANT" value="assistant"/>
+                    <value name="SYSTEM" value="system"/>
+                </enum>
+            </enums>
+        </model>
+        
+        <model name="ResumePersonalInfo">
+            <description>Personal information for a resume</description>
+            <fields>
+                <field name="id" type="Integer" primary_key="true" autoincrement="true"/>
+                <field name="resume_id" type="Integer" foreign_key="resumes.id" unique="true" nullable="false"/>
+                <field name="first_name" type="String(100)" nullable="true"/>
+                <field name="last_name" type="String(100)" nullable="true"/>
+                <field name="location" type="String(255)" nullable="true"/>
+            </fields>
+            <relationships>
+                <relationship name="resume" type="one-to-one" target="Resume" back_populates="personal_info"/>
+            </relationships>
+        </model>
+        
+        <model name="ResumeContact">
+            <description>Contact information for a resume</description>
+            <fields>
+                <field name="id" type="Integer" primary_key="true" autoincrement="true"/>
+                <field name="resume_id" type="Integer" foreign_key="resumes.id" nullable="false"/>
+                <field name="value" type="String(255)" nullable="false"/>
+            </fields>
+            <relationships>
+                <relationship name="resume" type="many-to-one" target="Resume" back_populates="contacts"/>
+            </relationships>
+        </model>
+        
+        <model name="ResumeSkill">
+            <description>Skills for a resume</description>
+            <fields>
+                <field name="id" type="Integer" primary_key="true" autoincrement="true"/>
+                <field name="resume_id" type="Integer" foreign_key="resumes.id" nullable="false"/>
+                <field name="name" type="String(255)" nullable="false"/>
+            </fields>
+            <relationships>
+                <relationship name="resume" type="many-to-one" target="Resume" back_populates="skills"/>
+            </relationships>
+        </model>
+        
+        <model name="ResumeExperience">
+            <description>Work experience for a resume</description>
+            <fields>
+                <field name="id" type="Integer" primary_key="true" autoincrement="true"/>
+                <field name="resume_id" type="Integer" foreign_key="resumes.id" nullable="false"/>
+                <field name="job_title" type="String(255)" nullable="false"/>
+                <field name="company" type="String(255)" nullable="false"/>
+                <field name="location" type="String(255)" nullable="true"/>
+                <field name="start_date" type="Date" nullable="false"/>
+                <field name="end_date" type="Date" nullable="true"/>
+                <field name="responsibilities" type="JSONB" nullable="true"/>
+            </fields>
+            <relationships>
+                <relationship name="resume" type="many-to-one" target="Resume" back_populates="experience"/>
+            </relationships>
+        </model>
+        
+        <model name="ResumeEducation">
+            <description>Education for a resume</description>
+            <fields>
+                <field name="id" type="Integer" primary_key="true" autoincrement="true"/>
+                <field name="resume_id" type="Integer" foreign_key="resumes.id" nullable="false"/>
+                <field name="degree" type="String(255)" nullable="false"/>
+                <field name="institution" type="String(255)" nullable="false"/>
+                <field name="location" type="String(255)" nullable="true"/>
+                <field name="graduation_date" type="Date" nullable="true"/>
+            </fields>
+            <relationships>
+                <relationship name="resume" type="many-to-one" target="Resume" back_populates="education"/>
+            </relationships>
+        </model>
+        
+        <model name="ResumeExport">
+            <description>Export history for resumes</description>
+            <fields>
+                <field name="id" type="Integer" primary_key="true" autoincrement="true"/>
+                <field name="resume_id" type="Integer" foreign_key="resumes.id" nullable="false"/>
+                <field name="export_format" type="String(50)" nullable="false"/>
+                <field name="exported_at" type="TIMESTAMP" server_default="func.now()" nullable="false"/>
+                <field name="file_size" type="Integer" nullable="true"/>
+                <field name="export_settings" type="JSONB" nullable="true"/>
+            </fields>
+            <relationships>
+                <relationship name="resume" type="many-to-one" target="Resume" back_populates="exports"/>
+            </relationships>
+        </model>
+    </models>
+    
+    <features>
+        <feature name="Message Storage">
+            <description>Chat messages are stored in the database with proper relationships to resumes</description>
+            <implementation>
+                - Messages are linked to resumes via foreign key
+                - Messages have roles (user, assistant, system)
+                - Messages are ordered by creation time
+                - Cascade delete when resume is deleted
+            </implementation>
+        </feature>
+        
+        <feature name="Welcome Messages">
+            <description>Automatic welcome messages are created when resumes are created</description>
+            <implementation>
+                - Welcome message created in create_resume endpoint
+                - Welcome message created in upload_resume task
+                - TODO: Different logic for uploaded resumes
+            </implementation>
+        </feature>
+    </features>
+</spec>

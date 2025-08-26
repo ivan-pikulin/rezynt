@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { chatApi } from '../../../shared/services/api';
-import { SendMessageRequest } from '../../../shared/services/api/types';
+import { SendMessageRequest, Message } from '../../../shared/services/api/types';
 
 // Local chat message type for UI
 export interface ChatMessage {
@@ -14,24 +14,76 @@ export interface ChatMessage {
 export const useChat = (resumeId: string | null, onResumeUpdate?: () => void) => {
   const queryClient = useQueryClient();
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: 'assistant-1',
-      content: 'Welcome aboard! I\'m your AI Resume Builder, here to save you time and boost your chances. Let\'s get personal: what\'s your name?',
-      sender: 'assistant',
-      timestamp: new Date()
-    }
-  ]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingMessages, setIsLoadingMessages] = useState(false);
+  const [hasMoreMessages, setHasMoreMessages] = useState(true);
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, []);
 
+  const loadLatestMessages = useCallback(async () => {
+    if (!resumeId) return;
+
+    setIsLoadingMessages(true);
+    try {
+      const response = await chatApi.getLatestMessages(parseInt(resumeId), 10);
+      const chatMessages = response.messages.map((msg: Message) => ({
+        id: msg.id.toString(),
+        content: msg.content,
+        sender: msg.role as 'user' | 'assistant',
+        timestamp: new Date(msg.created_at)
+      }));
+      
+      // Reverse messages to show in chronological order
+      setMessages(chatMessages.reverse());
+      setHasMoreMessages(response.has_more);
+    } catch (error) {
+      console.error('Error loading messages:', error);
+    } finally {
+      setIsLoadingMessages(false);
+    }
+  }, [resumeId]);
+
   // Auto-scroll when messages change
   useEffect(() => {
     scrollToBottom();
   }, [messages, scrollToBottom]);
+
+  // Load initial messages when resumeId changes
+  useEffect(() => {
+    if (resumeId) {
+      loadLatestMessages();
+    } else {
+      setMessages([]);
+    }
+  }, [resumeId, loadLatestMessages]);
+
+  const loadOlderMessages = useCallback(async () => {
+    if (!resumeId || messages.length === 0 || !hasMoreMessages) return;
+
+    const oldestMessageId = parseInt(messages[0].id);
+    setIsLoadingMessages(true);
+    
+    try {
+      const response = await chatApi.getOlderMessages(parseInt(resumeId), oldestMessageId, 10);
+      const chatMessages = response.messages.map((msg: Message) => ({
+        id: msg.id.toString(),
+        content: msg.content,
+        sender: msg.role as 'user' | 'assistant',
+        timestamp: new Date(msg.created_at)
+      }));
+      
+      // Add older messages to the beginning
+      setMessages(prev => [...chatMessages.reverse(), ...prev]);
+      setHasMoreMessages(response.has_more);
+    } catch (error) {
+      console.error('Error loading older messages:', error);
+    } finally {
+      setIsLoadingMessages(false);
+    }
+  }, [resumeId, messages, hasMoreMessages]);
 
   const sendUserMessage = useCallback(async (content: string) => {
     if (!resumeId) {
@@ -102,12 +154,15 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void) =>
     } finally {
       setIsLoading(false);
     }
-  }, [resumeId]);
+  }, [resumeId, onResumeUpdate, queryClient]);
 
   return {
     messages,
     isLoading,
+    isLoadingMessages,
+    hasMoreMessages,
     sendUserMessage,
+    loadOlderMessages,
     messagesEndRef
   };
 }; 

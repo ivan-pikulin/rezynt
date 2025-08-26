@@ -48,7 +48,16 @@
             </endpoints>
             <business_rules>
                 <rule name="free_plan_resume_limit" description="Free plan users can only create one resume. Premium users can create unlimited resumes."/>
+                <rule name="welcome_message" description="Welcome message is automatically created when resume is created"/>
             </business_rules>
+            <features>
+                <feature name="Welcome Messages" description="Automatic welcome messages are created for new resumes">
+                    <implementation>
+                        - create_resume: Creates welcome message for manually created resumes
+                        - upload_resume: Creates welcome message for uploaded resumes (TODO: different logic)
+                    </implementation>
+                </feature>
+            </features>
         </module>
         
         <module name="ai">
@@ -72,11 +81,28 @@
         </module>
         
         <module name="chat">
-            <description>Chat functionality for AI interactions</description>
+            <description>Chat functionality for AI interactions with message storage</description>
             <endpoints>
-                <endpoint path="/chat/" method="POST" description="Send chat message"/>
-                <endpoint path="/chat/{conversation_id}" method="GET" description="Get conversation history"/>
+                <endpoint path="/chat/send-message" method="POST" description="Send chat message and store in database"/>
+                <endpoint path="/chat/messages/{resume_id}" method="GET" description="Get messages with cursor-based pagination (latest/older)"/>
             </endpoints>
+            <features>
+                <feature name="Message Storage" description="All chat messages are stored in database with proper relationships"/>
+                <feature name="Cursor-based Pagination" description="Efficient pagination using message IDs as cursors"/>
+                <feature name="Real-time Updates" description="Messages are saved immediately when sent"/>
+            </features>
+            <pagination>
+                <type>Cursor-based</type>
+                <parameters>
+                    <parameter name="limit" type="int" default="10" description="Number of messages to return"/>
+                    <parameter name="cursor" type="int" optional="true" description="Message ID to start from (null for latest)"/>
+                    <parameter name="direction" type="string" default="backward" description="Direction: backward for older messages"/>
+                </parameters>
+                <usage>
+                    <example>GET /chat/messages/123 - Get latest 10 messages</example>
+                    <example>GET /chat/messages/123?cursor=456&direction=backward - Get 10 messages before ID 456</example>
+                </usage>
+            </pagination>
         </module>
         
         <module name="health">

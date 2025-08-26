@@ -616,4 +616,19 @@ export interface SendMessageRequest {
 export interface SendMessageResponse {
   response: string;
   conversation_id?: string;
+}
+
+// Message types
+export interface Message {
+  id: number;
+  resume_id: number;
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+  created_at: string;
+}
+
+export interface MessageList {
+  messages: Message[];
+  total: number;
+  has_more: boolean;
 } 

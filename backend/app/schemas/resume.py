@@ -507,3 +507,33 @@ class EducationUpdateRequest(BaseModel):
     @classmethod
     def validate_graduation_date(cls, v):
         return parse_date(v)
+
+
+# Message schemas
+class MessageBase(BaseModel):
+    role: str
+    content: str
+
+
+class MessageCreate(BaseModel):
+    resume_id: int
+    role: str
+    content: str
+
+
+class MessageUpdate(BaseModel):
+    content: Optional[str] = None
+
+
+class Message(MessageBase):
+    id: int
+    resume_id: int
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class MessageList(BaseModel):
+    messages: List[Message]
+    total: int
+    has_more: bool
