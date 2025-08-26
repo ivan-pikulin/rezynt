@@ -27,6 +27,7 @@ RUN apt-get update && apt-get install -y \
     libxrender1 \
     libglib2.0-0 \
     ca-certificates \
+    curl \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 

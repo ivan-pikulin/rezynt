@@ -45,7 +45,9 @@ jobs:
             
             # Start new containers with zero-downtime (recreate only changed)
             echo "Starting containers..."
-            docker compose --env-file .env up -d --remove-orphans
+            # --force-recreate ensures containers are recreated even if images haven't changed
+            # Alternative: use --build flag to rebuild and recreate: docker compose --env-file .env up -d --remove-orphans --build
+            docker compose --env-file .env up -d --remove-orphans --force-recreate
             
             # Restart nginx container to ensure it picks up any configuration changes
             echo "Restarting nginx container..."
