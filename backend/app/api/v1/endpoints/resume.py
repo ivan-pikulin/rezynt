@@ -138,6 +138,40 @@ async def partial_update_resume(
     return updated_resume.to_json()
 
 
+@router.delete("/{resume_id}", response_model=Dict[str, Any])
+async def delete_resume(
+    *,
+    db: AsyncDB,
+    resume_id: int,
+    current_user: VerifiedUser,
+) -> Dict[str, Any]:
+    """
+    Delete a resume.
+    Only available for users with verified email.
+    """
+    # Check if resume exists and belongs to user
+    resume = await resume_manager.get_resume(db, user_id=current_user.id, resume_id=resume_id)
+    if not resume:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Resume not found or access denied"
+        )
+    
+    # Delete the resume using the base CRUD remove method
+    deleted_resume = await resume_manager.resume_crud.remove(db, id=resume_id)
+    if not deleted_resume:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to delete resume"
+        )
+    
+    return {
+        "status": "success",
+        "message": "Resume deleted successfully",
+        "resume_id": resume_id
+    }
+
+
 @router.post("/upload", response_model=Dict[str, Any])
 async def upload_resume(
     *,

@@ -32,7 +32,7 @@
                 <endpoint path="/resume/{resume_id}" method="GET" description="Get specific resume"/>
                 <endpoint path="/resume/{resume_id}" method="PUT" description="Update resume"/>
                 <endpoint path="/resume/{resume_id}" method="PATCH" description="Partial update resume"/>
-                <endpoint path="/resume/{resume_id}" method="DELETE" description="Delete resume"/>
+                <endpoint path="/resume/{resume_id}" method="DELETE" description="Delete resume (with cascade delete of all related data)"/>
                 <endpoint path="/resume/upload" method="POST" description="Upload resume file (with plan validation)"/>
                 <endpoint path="/resume/{resume_id}/export-pdf" method="POST" description="Export resume to PDF"/>
                 <endpoint path="/resume/{resume_id}/contacts" method="POST" description="Add contact to resume"/>
