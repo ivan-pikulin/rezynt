@@ -492,8 +492,10 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
             fontSize: '1rem',
             fontWeight: 600,
             borderRadius: 2,
+            bgcolor: COLORS.primary.main,
             boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
             '&:hover': {
+              bgcolor: COLORS.primary.dark,
               boxShadow: '0 6px 16px rgba(0, 0, 0, 0.2)',
               transform: 'translateY(-1px)'
             },

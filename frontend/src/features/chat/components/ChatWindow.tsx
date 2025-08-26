@@ -73,7 +73,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ resumeId, onResumeUpdate }) => 
         </Typography>
         
         <Chip
-          icon={<StarIcon sx={{ fontSize: '1rem', color: COLORS.warning.main }} />} // Использую цвет c69c72ff
+          icon={<StarIcon sx={{ fontSize: '1rem', color: COLORS.credits.star }} />}
           label="21/100"
           size="small"
           sx={{
@@ -84,7 +84,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ resumeId, onResumeUpdate }) => 
             fontWeight: 600,
             fontSize: '0.8rem', // Уменьшил с 0.875rem до 0.8rem
             '& .MuiChip-icon': {
-              color: COLORS.warning.main // Использую цвет c69c72ff
+              color: COLORS.credits.star
             },
             '&:hover': {
               background: 'rgba(255, 255, 255, 0.25)',

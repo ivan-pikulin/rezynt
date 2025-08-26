@@ -4,12 +4,12 @@ import { createTheme, Theme } from '@mui/material/styles';
 const COLORS = {
   chat: {
     bot: {
-      avatar: '#4a5899',
+      avatar: '#c69c72',
       background: '#e3f2fd',
       text: '#1976d2'
     },
     user: {
-      avatar: '#8e6e53',
+      avatar: '#ffc857ff',
       background: '#4a5899',
       text: 'white'
     },
@@ -56,8 +56,8 @@ const COLORS = {
   },
   // Additional colors found in the project
   primary: {
-    main: '#1976d2',
-    dark: '#1565c0',
+    main: '#6b7fd7',
+    dark: '#5a6bc8',
     light: '#e3f2fd'
   },
   secondary: {
@@ -69,11 +69,18 @@ const COLORS = {
     main: '#4caf50',
     dark: '#2e7d32'
   },
+  upload: {
+    main: '#66bb6a',
+    dark: '#43a047'
+  },
   error: {
     main: '#d32f2f'
   },
   warning: {
     main: '#c69c72'
+  },
+  credits: {
+    star: '#ffc857'
   },
   grey: {
     50: '#fafafa',
@@ -88,7 +95,7 @@ const COLORS = {
     900: '#212121'
   },
   gradients: {
-    primary: 'linear-gradient(135deg, #4a5899 0%, #7a7265 100%)',
+    primary: 'linear-gradient(135deg, #92bcea 0%, #4a5899 100%)',
     secondary: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
     white: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)'
   }

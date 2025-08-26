@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { HeaderProps } from './Header.types';
 import UserSidebar from './UserSidebar';
+import { COLORS } from '../../theme/theme';
 
 const Header: React.FC<HeaderProps> = ({ 
   activeStep = 0, 
@@ -124,7 +125,7 @@ const Header: React.FC<HeaderProps> = ({
               width: { xs: 32, sm: 40 },
               height: { xs: 32, sm: 40 },
               '&:hover': {
-                color: '#1976d2',
+                color: COLORS.primary.main,
                 transform: 'scale(1.1)'
               },
               transition: 'all 0.2s ease'
@@ -164,7 +165,7 @@ const Header: React.FC<HeaderProps> = ({
                       } : {}),
                       '& .MuiStepLabel-label': {
                         fontSize: { xs: '0.75rem', sm: '0.875rem' },
-                        color: index <= activeStep ? '#1976d2 !important' : '#999 !important',
+                        color: index <= activeStep ? `${COLORS.primary.main} !important` : '#999 !important',
                         fontWeight: index === activeStep ? 600 : 400,
                         transform: index === activeStep ? 'scale(1.1)' : 'scale(1)',
                         transition: 'all 0.2s ease',
@@ -172,6 +173,9 @@ const Header: React.FC<HeaderProps> = ({
                       '& .MuiStepLabel-iconContainer': {
                         transform: index === activeStep ? 'scale(1.2)' : 'scale(1)',
                         transition: 'all 0.2s ease',
+                        '& .MuiStepIcon-root': {
+                          color: index <= activeStep ? COLORS.primary.main : '#999',
+                        }
                       }
                     }}
                   >
@@ -191,14 +195,14 @@ const Header: React.FC<HeaderProps> = ({
               cursor: 'pointer',
               fontSize: { xs: '1.5rem', sm: '2rem' },
               fontWeight: 'bold',
-              color: '#1976d2',
+              color: COLORS.primary.main,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               width: { xs: 32, sm: 40 },
               height: { xs: 32, sm: 40 },
               '&:hover': {
-                color: '#1565c0',
+                color: COLORS.primary.dark,
                 transform: 'scale(1.1)'
               },
               transition: 'all 0.2s ease'
@@ -229,7 +233,7 @@ const Header: React.FC<HeaderProps> = ({
               sx={{
                 width: 40,
                 height: 40,
-                bgcolor: '#1976d2',
+                bgcolor: COLORS.primary.main,
                 fontSize: '1.2rem',
                 fontWeight: 600
               }}

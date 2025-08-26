@@ -8,6 +8,7 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CreateIcon from '@mui/icons-material/Create';
 import { useNavigate } from 'react-router-dom';
 import { startApi } from '../startApi';
+import { COLORS } from '../../../shared/theme/theme';
 
 const StartOptions: React.FC = () => {
   const navigate = useNavigate();
@@ -87,7 +88,7 @@ const StartOptions: React.FC = () => {
         }}>
           <CreateIcon sx={{ 
             fontSize: { xs: 40, sm: 48, md: 56 }, // Уменьшаем размер иконки
-            color: '#1976d2',
+            color: COLORS.primary.main,
             mb: { xs: 1, sm: 1.5, md: 2 }
           }} />
           <Typography 
@@ -123,10 +124,10 @@ const StartOptions: React.FC = () => {
               fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' },
               fontWeight: 600,
               textTransform: 'none',
-              bgcolor: '#1976d2',
+              bgcolor: COLORS.primary.main,
               minHeight: { xs: 40, sm: 44, md: 48 }, // Уменьшаем минимальную высоту
               '&:hover': {
-                bgcolor: '#1565c0'
+                bgcolor: COLORS.primary.dark
               }
             }}
           >
@@ -164,7 +165,7 @@ const StartOptions: React.FC = () => {
         }}>
           <CloudUploadIcon sx={{ 
             fontSize: { xs: 40, sm: 48, md: 56 }, // Уменьшаем размер иконки
-            color: '#2e7d32',
+            color: COLORS.upload.main,
             mb: { xs: 1, sm: 1.5, md: 2 }
           }} />
           <Typography 
@@ -200,10 +201,10 @@ const StartOptions: React.FC = () => {
               fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' },
               fontWeight: 600,
               textTransform: 'none',
-              bgcolor: '#2e7d32',
+              bgcolor: COLORS.upload.main,
               minHeight: { xs: 40, sm: 44, md: 48 }, // Уменьшаем минимальную высоту
               '&:hover': {
-                bgcolor: '#1b5e20'
+                bgcolor: COLORS.upload.dark
               }
             }}
           >
