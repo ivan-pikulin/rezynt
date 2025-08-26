@@ -16,9 +16,9 @@ from .resume import (AIResumeUpdate, OpenAIStructuredResume, PDFExportRequest,
 from .template import (Template, TemplateBase, TemplateCreate, TemplateInDB,
                        TemplateInDBBase, TemplateUpdate)
 from .token import RefreshRequest, Token, TokenPayload
-from .user import (User, UserBase, UserCreate, UserInDB, UserInDBBase,
-                   UserPremiumUpdate, UserPublic, UserRoleUpdate, UserUpdate,
-                   PasswordResetRequest, PasswordResetConfirm)
+from .user import (PasswordResetConfirm, PasswordResetRequest, User, UserBase,
+                   UserCreate, UserInDB, UserInDBBase, UserPremiumUpdate,
+                   UserPublic, UserRoleUpdate, UserUpdate)
 
 __all__ = [
     "User",
