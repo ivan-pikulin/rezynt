@@ -17,7 +17,8 @@ from .template import (Template, TemplateBase, TemplateCreate, TemplateInDB,
                        TemplateInDBBase, TemplateUpdate)
 from .token import RefreshRequest, Token, TokenPayload
 from .user import (User, UserBase, UserCreate, UserInDB, UserInDBBase,
-                   UserPremiumUpdate, UserPublic, UserRoleUpdate, UserUpdate)
+                   UserPremiumUpdate, UserPublic, UserRoleUpdate, UserUpdate,
+                   PasswordResetRequest, PasswordResetConfirm)
 
 __all__ = [
     "User",
@@ -77,4 +78,6 @@ __all__ = [
     "TemplateInDB",
     "TemplateInDBBase",
     "RefreshRequest",
+    "PasswordResetRequest",
+    "PasswordResetConfirm",
 ] 
