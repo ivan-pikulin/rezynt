@@ -56,6 +56,15 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             await db.refresh(user)
         return user
 
+    async def update_password(self, db: AsyncSession, *, user_id: int, new_password: str) -> Optional[User]:
+        """Обновляет пароль пользователя"""
+        user = await self.get(db, id=user_id)
+        if user:
+            user.password_hash = get_password_hash(new_password)
+            await db.commit()
+            await db.refresh(user)
+        return user
+
     async def update_premium_status(self, db: AsyncSession, *, user_id: int, is_premium: bool) -> Optional[User]:
         """
         Update premium status of a user. This method should only be called by admin endpoints.

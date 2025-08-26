@@ -19,7 +19,8 @@ import {
   Person as PersonIcon,
   Description as DescriptionIcon,
   Close as CloseIcon,
-  Star as StarIcon
+  Star as StarIcon,
+  Lock as LockIcon
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -70,6 +71,11 @@ const UserSidebar: React.FC<UserSidebarProps> = ({
 
   const handleNavigateToResumes = () => {
     navigate('/resumes');
+    onClose();
+  };
+
+  const handleNavigateToPasswordReset = () => {
+    navigate('/auth/request-password-reset');
     onClose();
   };
 
@@ -179,6 +185,29 @@ const UserSidebar: React.FC<UserSidebarProps> = ({
             </ListItemIcon>
             <ListItemText 
               primary="My Resumes" 
+              primaryTypographyProps={{
+                fontWeight: 500,
+                color: '#2c3e50'
+              }}
+            />
+          </ListItem>
+
+          <ListItem 
+            button 
+            onClick={handleNavigateToPasswordReset}
+            sx={{
+              borderRadius: '8px',
+              mb: 1,
+              '&:hover': {
+                bgcolor: 'rgba(25, 118, 210, 0.08)'
+              }
+            }}
+          >
+            <ListItemIcon>
+              <LockIcon color="primary" />
+            </ListItemIcon>
+            <ListItemText 
+              primary="Change Password" 
               primaryTypographyProps={{
                 fontWeight: 500,
                 color: '#2c3e50'

@@ -5,7 +5,7 @@ from app.api.deps import AsyncDB
 from app.core import security
 from app.core.config import settings
 from app.database.crud import user_crud
-from app.schemas import RefreshRequest, Token, UserCreate, UserPublic
+from app.schemas import RefreshRequest, Token, UserCreate, UserPublic, PasswordResetRequest, PasswordResetConfirm
 from app.services.user_service import UserService
 from fastapi import APIRouter, Body, Depends, HTTPException, status, Response
 from fastapi.security import OAuth2PasswordRequestForm
@@ -87,6 +87,50 @@ async def confirm_registration(
         response.status_code = status.HTTP_302_FOUND
         
         return {"message": "Email confirmation failed", "redirect_url": error_url}
+
+
+@router.post("/request-password-reset", status_code=status.HTTP_200_OK)
+async def request_password_reset(
+    *,
+    db: AsyncDB,
+    reset_request: PasswordResetRequest,
+) -> dict[str, str]:
+    """
+    Request password reset by sending email with reset token.
+    """
+    try:
+        service = UserService(db)
+        await service.request_password_reset(email=reset_request.email)
+        
+        return {
+            "message": "If an account with that email exists, a password reset link has been sent."
+        }
+    except Exception as e:
+        # Для безопасности всегда возвращаем успешный ответ
+        return {
+            "message": "If an account with that email exists, a password reset link has been sent."
+        }
+
+
+@router.post("/reset-password", status_code=status.HTTP_200_OK)
+async def reset_password(
+    *,
+    db: AsyncDB,
+    reset_confirm: PasswordResetConfirm,
+) -> dict[str, str]:
+    """
+    Reset password using token from email.
+    """
+    try:
+        service = UserService(db)
+        await service.confirm_password_reset(token=reset_confirm.token, new_password=reset_confirm.new_password)
+        
+        return {"message": "Password has been reset successfully"}
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e),
+        )
 
 
 @router.post("/refresh", response_model=Token)

@@ -16,6 +16,8 @@ const ExportPage = React.lazy(() => import('./features/export/ExportPage'));
 const ResumesPage = React.lazy(() => import('./features/resumes/ResumesPage'));
 const AuthPage = React.lazy(() => import('./features/auth/AuthPage'));
 const EmailConfirmationPage = React.lazy(() => import('./features/auth/EmailConfirmationPage'));
+const RequestPasswordResetPage = React.lazy(() => import('./features/auth/RequestPasswordResetPage'));
+const ResetPasswordPage = React.lazy(() => import('./features/auth/ResetPasswordPage'));
 const HomeRedirect = React.lazy(() => import('./shared/components/HomeRedirect'));
 
 function AppRoutes() {
@@ -35,6 +37,8 @@ function AppRoutes() {
         } />
         <Route path="/auth/email-confirmed" element={<EmailConfirmationPage />} />
         <Route path="/auth/email-confirmation-error" element={<EmailConfirmationPage />} />
+        <Route path="/auth/request-password-reset" element={<RequestPasswordResetPage />} />
+        <Route path="/auth/reset-password" element={<ResetPasswordPage />} />
         
         {/* Protected routes */}
         <Route path="/resumes" element={

@@ -41,6 +41,34 @@ async def _send_confirmation_email_task(email: str, token: str):
         return {"status": "error", "email": email, "error": str(e)}
 
 
+@celery_app.task(name="send_password_reset_email_task")
+def send_password_reset_email_task(email: str, token: str):
+    """Отправка email с токеном для сброса пароля через EmailService"""
+    return async_to_sync(_send_password_reset_email_task)(email, token)
+
+
+async def _send_password_reset_email_task(email: str, token: str):
+    """Async implementation of password reset email task"""
+    logger.info(f"Starting password reset email task for {email}")
+    
+    try:
+        email_service = EmailService()
+        logger.info("EmailService initialized successfully")
+        
+        success = email_service.send_password_reset_email(email, token)
+        
+        if success:
+            logger.info(f"Password reset email sent successfully to {email}")
+            return {"status": "success", "email": email}
+        else:
+            logger.error(f"Failed to send password reset email to {email}")
+            return {"status": "error", "email": email, "error": "Failed to send email"}
+            
+    except Exception as e:
+        logger.error(f"Exception in send_password_reset_email task: {e}", exc_info=True)
+        return {"status": "error", "email": email, "error": str(e)}
+
+
 @celery_app.task(name="process_resume_upload_task")
 def process_resume_upload_task(file_content: bytes, filename: str, user_id: int):
     """Обработка загруженного резюме с помощью ParseService"""

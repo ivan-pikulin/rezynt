@@ -8,6 +8,15 @@ import {
 } from './types';
 import { tokenService } from './tokenService';
 
+export interface PasswordResetRequest {
+  email: string;
+}
+
+export interface PasswordResetConfirm {
+  token: string;
+  new_password: string;
+}
+
 export class AuthApi extends BaseApi {
   /**
    * User login with email and password
@@ -41,6 +50,20 @@ export class AuthApi extends BaseApi {
     return this.post<TokenResponse>('/auth/refresh', {
       refresh_token: refreshToken
     });
+  }
+
+  /**
+   * Request password reset via email
+   */
+  async requestPasswordReset(request: PasswordResetRequest): Promise<{ message: string }> {
+    return this.post<{ message: string }>('/auth/request-password-reset', request);
+  }
+
+  /**
+   * Reset password using token from email
+   */
+  async resetPassword(confirm: PasswordResetConfirm): Promise<{ message: string }> {
+    return this.post<{ message: string }>('/auth/reset-password', confirm);
   }
 
   /**

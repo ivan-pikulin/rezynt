@@ -44,6 +44,10 @@ const AuthPage: React.FC = () => {
     setShowSuccessMessage(false);
   };
 
+  const handleSwitchToPasswordReset = () => {
+    navigate('/auth/request-password-reset');
+  };
+
   const getTitle = () => {
     return mode === 'login' ? 'Вход в систему' : 'Регистрация';
   };
@@ -60,6 +64,7 @@ const AuthPage: React.FC = () => {
         <LoginForm 
           onSuccess={handleLoginSuccess}
           onSwitchToSignup={handleSwitchToSignup}
+          onSwitchToPasswordReset={handleSwitchToPasswordReset}
         />
       ) : (
         <SignupForm 

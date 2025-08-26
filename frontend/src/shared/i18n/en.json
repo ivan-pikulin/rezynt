@@ -12,6 +12,9 @@
       "submit": "Sign In",
       "noAccount": "Don't have an account?",
       "signup": "Sign Up",
+      "forgotPassword": "Forgot password?",
+      "resetPassword": "Reset Password",
+      "passwordResetSuccess": "Password changed successfully! You can now sign in with your new password.",
       "emailRequired": "Email is required",
       "passwordRequired": "Password is required",
       "invalidEmail": "Please enter a valid email",
@@ -33,6 +36,34 @@
       "passwordsMatch": "Passwords must match",
       "signupError": "Registration error. Please try again.",
       "successMessage": "Registration successful! Please check your email to confirm your account."
+    },
+    "passwordReset": {
+      "request": {
+        "title": "Reset Password",
+        "description": "Enter your email and we'll send you a password reset link",
+        "email": "Email",
+        "submit": "Send Reset Link",
+        "backToLogin": "Remember your password?",
+        "backToLoginLink": "Back to Sign In",
+        "successMessage": "If an account with that email exists, a password reset link has been sent to your email.",
+        "errorMessage": "An error occurred while sending the request. Please try again."
+      },
+      "reset": {
+        "title": "Set New Password",
+        "description": "Enter a new password for your account",
+        "newPassword": "New Password",
+        "confirmPassword": "Confirm Password",
+        "submit": "Set New Password",
+        "passwordMinLength": "Password must be at least 8 characters",
+        "passwordsMatch": "Passwords must match",
+        "newPasswordRequired": "New password is required",
+        "confirmPasswordRequired": "Password confirmation is required",
+        "errorMessage": "An error occurred while resetting your password. The link may be expired or invalid."
+      },
+      "invalidLink": {
+        "title": "Invalid Link",
+        "message": "The password reset link is invalid or missing."
+      }
     },
     "emailConfirmation": {
       "title": "Email Confirmation",

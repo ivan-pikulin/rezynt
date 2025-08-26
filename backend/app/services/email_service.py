@@ -157,3 +157,52 @@ class EmailService:
         result = self.send_email(to_email, subject, html_content)
         logger.info(f"Confirmation email send result: {result}")
         return result
+
+    def send_password_reset_email(self, to_email: str, reset_token: str) -> bool:
+        """
+        Отправляет email для сброса пароля
+        
+        Args:
+            to_email: Email пользователя
+            reset_token: Токен для сброса пароля
+            
+        Returns:
+            bool: True если письмо отправлено успешно
+        """
+        logger.info(f"Sending password reset email to {to_email}")
+        
+        subject = "Сброс пароля - Rezynt"
+        
+        # HTML шаблон письма
+        html_template = """<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Сброс пароля</title>
+</head>
+<body style="font-family:Arial,sans-serif;margin:0;padding:20px;background-color:#f4f4f4">
+<div style="max-width:600px;margin:0 auto;background-color:white;padding:20px">
+<h1 style="color:#2196F3;text-align:center;margin-bottom:30px">Сброс пароля</h1>
+<h2 style="color:#333">Запрос на сброс пароля</h2>
+<p>Вы получили это письмо, потому что был отправлен запрос на сброс пароля для вашей учетной записи Rezynt.</p>
+<p style="text-align:center;margin:30px 0">
+<a href="{{ frontend_url }}/auth/reset-password?token={{ token }}" style="display:inline-block;padding:12px 24px;background-color:#2196F3;color:white;text-decoration:none;border-radius:4px;font-weight:bold">Сбросить пароль</a>
+</p>
+<p>Если кнопка не работает, скопируйте и вставьте следующую ссылку в браузер:</p>
+<p style="word-break:break-all;background-color:#f0f0f0;padding:10px;border-radius:4px;margin:20px 0">{{ frontend_url }}/auth/reset-password?token={{ token }}</p>
+<p><strong>Внимание:</strong> Эта ссылка действительна только 1 час. Если вы не запрашивали сброс пароля, просто проигнорируйте это письмо.</p>
+<p style="text-align:center;color:#666;font-size:12px;margin-top:30px">&copy; 2025 Rezynt. Все права защищены.</p>
+</div>
+</body>
+</html>"""
+        
+        # Рендерим HTML шаблон
+        html_content = Template(html_template).render(
+            frontend_url=settings.FRONTEND_BASE_URL,
+            token=reset_token
+        )
+        
+        logger.info(f"Password reset email HTML content generated, length: {len(html_content)}")
+        result = self.send_email(to_email, subject, html_content)
+        logger.info(f"Password reset email send result: {result}")
+        return result

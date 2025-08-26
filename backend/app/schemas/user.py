@@ -54,3 +54,13 @@ class UserRoleUpdate(BaseModel):
 
 class UserPremiumUpdate(BaseModel):
     is_premium: bool
+
+
+# Password reset schemas
+class PasswordResetRequest(BaseModel):
+    email: EmailStr
+
+
+class PasswordResetConfirm(BaseModel):
+    token: str
+    new_password: str

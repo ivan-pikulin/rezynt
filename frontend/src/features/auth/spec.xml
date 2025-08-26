@@ -9,15 +9,19 @@
     <folder_structure>
         /features/auth
         ├── components/
-        │   ├── LoginForm.tsx           # Login form component
-        │   ├── SignupForm.tsx          # Signup form component
-        │   ├── EmailConfirmation.tsx   # Email confirmation success/error page
-        │   └── AuthLayout.tsx          # Common layout for auth pages
-        ├── AuthPage.tsx                # Main auth page with form switching
-        ├── authApi.ts                  # API for authentication operations
+        │   ├── LoginForm.tsx                    # Login form component
+        │   ├── SignupForm.tsx                   # Signup form component
+        │   ├── EmailConfirmation.tsx            # Email confirmation success/error page
+        │   ├── AuthLayout.tsx                   # Common layout for auth pages
+        │   ├── RequestPasswordResetForm.tsx     # Password reset request form
+        │   └── ResetPasswordForm.tsx            # New password setup form
+        ├── AuthPage.tsx                         # Main auth page with form switching
+        ├── RequestPasswordResetPage.tsx         # Password reset request page
+        ├── ResetPasswordPage.tsx                # New password setup page
+        ├── authApi.ts                           # API for authentication operations
         ├── types/
-        │   └── auth.ts                 # Auth-related types
-        └── spec.xml                    # This file
+        │   └── auth.ts                          # Auth-related types
+        └── spec.xml                             # This file
     </folder_structure>
 
     <components>
@@ -35,6 +39,7 @@
             <props>
                 <prop name="onSuccess" desc="Callback when login is successful" />
                 <prop name="onSwitchToSignup" desc="Callback to switch to signup form" />
+                <prop name="onSwitchToPasswordReset" desc="Callback to navigate to password reset" />
             </props>
             <validation>
                 <rule name="email_required" desc="Email field is required" />
@@ -54,6 +59,26 @@
                 <rule name="email_format" desc="Email must be valid format" />
                 <rule name="password_min_length" desc="Password must be at least 8 characters" />
                 <rule name="passwords_match" desc="Password and confirm password must match" />
+            </validation>
+        </component>
+        <component name="RequestPasswordResetForm" desc="Form to request password reset via email">
+            <props>
+                <prop name="onBackToLogin" desc="Callback to return to login form" />
+            </props>
+            <validation>
+                <rule name="email_required" desc="Email field is required" />
+                <rule name="email_format" desc="Email must be valid format" />
+            </validation>
+        </component>
+        <component name="ResetPasswordForm" desc="Form to set new password using reset token">
+            <props>
+                <prop name="token" desc="Password reset token from email" />
+            </props>
+            <validation>
+                <rule name="new_password_required" desc="New password field is required" />
+                <rule name="confirm_password_required" desc="Confirm password field is required" />
+                <rule name="password_min_length" desc="Password must be at least 8 characters" />
+                <rule name="passwords_match" desc="New password and confirm password must match" />
             </validation>
         </component>
         <component name="EmailConfirmation" desc="Email confirmation success/error page">
@@ -86,6 +111,16 @@
             <request>Query parameter 'token'</request>
             <response>Redirect to frontend with success/error status</response>
         </endpoint>
+        <endpoint name="requestPasswordReset" method="POST" path="/auth/request-password-reset">
+            <desc>Request password reset via email</desc>
+            <request>PasswordResetRequest with email</request>
+            <response>Message confirming email sent (if account exists)</response>
+        </endpoint>
+        <endpoint name="resetPassword" method="POST" path="/auth/reset-password">
+            <desc>Reset password using token from email</desc>
+            <request>PasswordResetConfirm with token and new_password</request>
+            <response>Message confirming password reset success</response>
+        </endpoint>
         <endpoint name="refreshToken" method="POST" path="/auth/refresh">
             <desc>Refresh access token using refresh token</desc>
             <request>RefreshRequest with refresh_token</request>
@@ -97,6 +132,9 @@
         <flow name="login_success" desc="Redirect to /start after successful login" />
         <flow name="signup_success" desc="Show email confirmation message" />
         <flow name="email_confirmation" desc="Handle email confirmation redirect" />
+        <flow name="password_reset_request" desc="Navigate to password reset request page" />
+        <flow name="password_reset_confirm" desc="Handle password reset via email token" />
+        <flow name="password_reset_success" desc="Redirect to login with success message" />
         <flow name="auth_error" desc="Show error message and stay on auth page" />
     </navigation>
 
