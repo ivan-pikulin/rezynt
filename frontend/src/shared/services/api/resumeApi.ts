@@ -41,6 +41,29 @@ export class ResumeApi extends BaseApi {
   }
 
   /**
+   * Upload a resume file
+   */
+  async uploadResume(file: File): Promise<{ task_id: string; message: string }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.post<{ task_id: string; message: string }>('/resume/upload', formData);
+  }
+
+  /**
+   * Get upload status
+   */
+  async getUploadStatus(taskId: string): Promise<any> {
+    return this.get<any>(`/resume/upload/status/${taskId}`);
+  }
+
+  /**
+   * Get upload result
+   */
+  async getUploadResult(taskId: string): Promise<any> {
+    return this.get<any>(`/resume/upload/result/${taskId}`);
+  }
+
+  /**
    * Get a specific resume by ID (returns UnifiedResume structure)
    */
   async getResume(resumeId: number): Promise<Resume> {

@@ -170,9 +170,12 @@ async def _create_resume_with_data(user_id: int, filename: str, parsed_data):
                 raise ValueError("Free plan users can only create one resume. Please upgrade to premium to create additional resumes.")
             
             logger.info(f"Creating resume record for user {user_id}")
+            # Extract name from filename without extension
+            name_without_extension = os.path.splitext(filename)[0]
+            
             # Create resume with parsed data
             resume = Resume(
-                title=f"Resume from {filename}",
+                title=name_without_extension,
                 template_id=1,  # Default template
                 professional_summary=parsed_data.professional_summary or "",
                 user_id=user_id
