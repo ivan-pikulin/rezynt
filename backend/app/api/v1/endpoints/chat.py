@@ -67,8 +67,9 @@ async def send_message(
     
     # Обновляем conversation_id в резюме, если он изменился
     if response.conversation_id and response.conversation_id != resume_obj.conversation_id:
-        resume_obj.conversation_id = response.conversation_id
-        await resume_crud.update(db, db_obj=resume_obj, obj_in={"conversation_id": response.conversation_id})
+        from app.schemas.resume import ResumeUpdate
+        update_data = ResumeUpdate(conversation_id=response.conversation_id)
+        await resume_crud.update(db, db_obj=resume_obj, obj_in=update_data)
     
     return {
         "message": "Message sent successfully",
