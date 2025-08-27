@@ -7,9 +7,9 @@ from app.database.crud.crud_resume import resume_manager
 from app.database.crud.crud_template import template_crud
 from app.database.crud.crud_user import user_crud
 from app.schemas.resume import (PDFExportRequest, ResumeCreate,
-                                ResumeUpdate, ResumePartialUpdate)
-from app.services.pdf_service import pdf_service
+                                ResumePartialUpdate, ResumeUpdate)
 from app.services.parse_service import ParseService
+from app.services.pdf_service import pdf_service
 from fastapi import APIRouter, File, HTTPException, UploadFile, status
 
 router = APIRouter()

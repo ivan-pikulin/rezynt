@@ -1,12 +1,10 @@
-from sqlalchemy import Column, String, ForeignKey, TIMESTAMP, Text, Boolean, Date, Integer, Enum
+from sqlalchemy import (TIMESTAMP, Column, Date, ForeignKey, Integer, String,
+                        Text)
 from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
-import enum
+from sqlalchemy.sql import func
+
 from .base import Base
-
-
-
 
 
 class Resume(Base):

@@ -1,13 +1,13 @@
 from typing import Any, Dict
-from datetime import datetime
 
 from app.api.deps import APIKeyVerified, AsyncDB
 from app.database.crud.crud_resume import resume_manager
-from app.schemas.resume import (AIResumeUpdate, ResumeUpdate, ResumePartialUpdate, 
-                               ResumeExperienceCreate, ResumeEducationCreate, UnifiedResumeExperience,
-                               ResumeExperienceUpdate, ResumeEducationUpdate,
-                               ResumePatchRequest, ExperienceCreateRequest, ExperienceUpdateRequest,
-                               EducationCreateRequest, EducationUpdateRequest)
+from app.schemas.resume import (EducationCreateRequest, EducationUpdateRequest,
+                                ExperienceCreateRequest,
+                                ExperienceUpdateRequest, ResumeEducationCreate,
+                                ResumeEducationUpdate, ResumeExperienceCreate,
+                                ResumeExperienceUpdate, ResumePartialUpdate,
+                                ResumePatchRequest, ResumeUpdate)
 from fastapi import APIRouter, HTTPException, status
 
 router = APIRouter()
