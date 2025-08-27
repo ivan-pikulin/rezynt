@@ -146,6 +146,9 @@ export class BaseApi {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,
+        // Оптимизация для стриминга
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
       },
       body: data ? JSON.stringify(data) : undefined,
     });

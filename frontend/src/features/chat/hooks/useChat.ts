@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect, useLayoutEffect } from 'react';
+import { flushSync } from 'react-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { chatApi } from '../../../shared/services/api';
 import { SendMessageRequest, Message } from '../../../shared/services/api/types';
@@ -223,13 +224,15 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void) =>
         request,
         // onChunk callback - добавляем чанк к сообщению ассистента
         (chunk: string) => {
-          setMessages(prev => 
-            prev.map(msg => 
-              msg.id === assistantMessageId 
-                ? { ...msg, content: msg.content + chunk }
-                : msg
-            )
-          );
+          flushSync(() => {
+            setMessages(prev => 
+              prev.map(msg => 
+                msg.id === assistantMessageId 
+                  ? { ...msg, content: msg.content + chunk }
+                  : msg
+              )
+            );
+          });
         },
         // onEnd callback - завершение стрима
         () => {
