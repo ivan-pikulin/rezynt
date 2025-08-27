@@ -130,15 +130,22 @@ async def update_experience(
             detail="Resume not found"
         )
     
-    # Convert to ResumeExperienceUpdate
-    experience_update = ResumeExperienceUpdate(
-        job_title=experience_data.job_title,
-        company=experience_data.company,
-        location=experience_data.location,
-        start_date=experience_data.start_date,
-        end_date=experience_data.end_date,
-        responsibilities=experience_data.responsibilities
-    )
+    # Convert to ResumeExperienceUpdate - only include non-None fields
+    experience_update_data = {}
+    if experience_data.job_title is not None:
+        experience_update_data['job_title'] = experience_data.job_title
+    if experience_data.company is not None:
+        experience_update_data['company'] = experience_data.company
+    if experience_data.location is not None:
+        experience_update_data['location'] = experience_data.location
+    if experience_data.start_date is not None:
+        experience_update_data['start_date'] = experience_data.start_date
+    if experience_data.end_date is not None:
+        experience_update_data['end_date'] = experience_data.end_date
+    if experience_data.responsibilities is not None:
+        experience_update_data['responsibilities'] = experience_data.responsibilities
+    
+    experience_update = ResumeExperienceUpdate(**experience_update_data)
     
     # Update experience
     updated_experience = await resume_manager.update_experience(db, resume_id=resume_id, experience_id=experience_id, experience_data=experience_update)
@@ -215,13 +222,18 @@ async def update_education(
             detail="Resume not found"
         )
     
-    # Convert to ResumeEducationUpdate
-    education_update = ResumeEducationUpdate(
-        degree=education_data.degree,
-        institution=education_data.institution,
-        location=education_data.location,
-        graduation_date=education_data.graduation_date
-    )
+    # Convert to ResumeEducationUpdate - only include non-None fields
+    education_update_data = {}
+    if education_data.degree is not None:
+        education_update_data['degree'] = education_data.degree
+    if education_data.institution is not None:
+        education_update_data['institution'] = education_data.institution
+    if education_data.location is not None:
+        education_update_data['location'] = education_data.location
+    if education_data.graduation_date is not None:
+        education_update_data['graduation_date'] = education_data.graduation_date
+    
+    education_update = ResumeEducationUpdate(**education_update_data)
     
     # Update education
     updated_education = await resume_manager.update_education(db, resume_id=resume_id, education_id=education_id, education_data=education_update)
