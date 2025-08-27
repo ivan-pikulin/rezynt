@@ -3,7 +3,7 @@ import json
 from typing import AsyncGenerator, List, Optional, Dict, Any
 
 import httpx
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 logger = logging.getLogger(__name__)
 
@@ -29,6 +29,22 @@ class PlatformAgentThought(BaseModel):
     tool_input: str
     created_at: int
     message_files: List[str] = []
+
+    @field_validator('message_files', mode='before')
+    @classmethod
+    def validate_message_files(cls, v):
+        if isinstance(v, list):
+            # Convert objects to strings if needed
+            result = []
+            for item in v:
+                if isinstance(item, str):
+                    result.append(item)
+                elif isinstance(item, dict) and 'id' in item:
+                    result.append(item['id'])
+                else:
+                    result.append(str(item))
+            return result
+        return v
 
 
 class PlatformRetrieverResource(BaseModel):
