@@ -7,7 +7,9 @@ from app.core.config import settings
 from app.database.crud.crud_resume import resume_crud, message_crud
 from app.schemas.resume import Message, MessageList
 from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
+import json
 
 router = APIRouter()
 
@@ -76,6 +78,84 @@ async def send_message(
         "response": response.text,
         "conversation_id": response.conversation_id
     }
+
+
+@router.post("/send-message-stream")
+async def send_message_stream(
+    request: SendMessageRequest,
+    user: VerifiedUser,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Send message to chat with streaming response.
+    """
+    # Получаем резюме
+    resume_obj = await resume_crud.get(db, id=request.resume_id)
+    if not resume_obj:
+        raise HTTPException(status_code=404, detail="Resume not found")
+    
+    # Проверяем, что резюме принадлежит пользователю
+    if resume_obj.user_id != user.id:
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    # Сохраняем сообщение пользователя
+    user_message = await message_crud.create_message(
+        db, 
+        resume_id=request.resume_id, 
+        role="user", 
+        content=request.message
+    )
+    
+    # Создаем агента платформы
+    platform_chatflow = PlatformChatflow(
+        app_key=settings.PLATFORM_APP_KEY,
+        app_url=settings.PLATFORM_APP_URL,
+        timeout=settings.PLATFORM_TIMEOUT
+    )
+    
+    async def generate_stream():
+        full_response = ""
+        conversation_id = None
+        
+        try:
+            async for chunk in platform_chatflow.chat_stream(
+                user_id=str(user.id),
+                text=request.message,
+                conversation_id=resume_obj.conversation_id,
+                resume_id=str(request.resume_id)
+            ):
+                full_response += chunk
+                # Send chunk as SSE
+                yield f"data: {json.dumps({'chunk': chunk})}\n\n"
+            
+            # Save the complete response
+            bot_message = await message_crud.create_message(
+                db, 
+                resume_id=request.resume_id, 
+                role="assistant", 
+                content=full_response
+            )
+            
+            # Update conversation_id if it changed (we'll need to get it from the platform response)
+            # For now, we'll keep the existing conversation_id
+            
+            # Send end signal
+            yield f"data: {json.dumps({'end': True})}\n\n"
+            
+        except Exception as e:
+            # Send error signal
+            yield f"data: {json.dumps({'error': str(e)})}\n\n"
+    
+    return StreamingResponse(
+        generate_stream(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers": "*",
+        }
+    )
 
 
 @router.get("/messages/{resume_id}", response_model=MessageList)

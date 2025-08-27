@@ -114,33 +114,53 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void) =>
     setIsLoading(true);
     
     try {
-      // Отправляем запрос на API
+      // Отправляем запрос на API с streaming
       const request: SendMessageRequest = {
         message: content,
         resume_id: resumeId
       };
       
-      const response = await chatApi.sendMessage(request);
-      
-      // Обновляем сообщение ассистента с реальным ответом
-      setMessages(prev => 
-        prev.map(msg => 
-          msg.id === assistantMessageId 
-            ? { ...msg, content: response.response }
-            : msg
-        )
+      await chatApi.sendMessageStream(
+        request,
+        // onChunk callback - добавляем чанк к сообщению ассистента
+        (chunk: string) => {
+          setMessages(prev => 
+            prev.map(msg => 
+              msg.id === assistantMessageId 
+                ? { ...msg, content: msg.content + chunk }
+                : msg
+            )
+          );
+        },
+        // onEnd callback - завершение стрима
+        () => {
+          setIsLoading(false);
+          
+          // Обновляем кеш резюме после ответа AI
+          if (resumeId) {
+            // Инвалидируем кеш резюме, чтобы получить свежие данные
+            queryClient.invalidateQueries({ queryKey: ['resume', resumeId] });
+          }
+          
+          // Вызываем callback для обновления UI
+          if (onResumeUpdate) {
+            onResumeUpdate();
+          }
+        },
+        // onError callback - обработка ошибок
+        (error: string) => {
+          console.error('Chat streaming error:', error);
+          setMessages(prev => 
+            prev.map(msg => 
+              msg.id === assistantMessageId 
+                ? { ...msg, content: 'Sorry, I encountered an error. Please try again.' }
+                : msg
+            )
+          );
+          setIsLoading(false);
+        }
       );
       
-      // Обновляем кеш резюме после ответа AI
-      if (resumeId) {
-        // Инвалидируем кеш резюме, чтобы получить свежие данные
-        queryClient.invalidateQueries({ queryKey: ['resume', resumeId] });
-      }
-      
-      // Вызываем callback для обновления UI
-      if (onResumeUpdate) {
-        onResumeUpdate();
-      }
     } catch (error) {
       console.error('Chat API error:', error);
       // В случае ошибки показываем сообщение об ошибке
@@ -151,7 +171,6 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void) =>
             : msg
         )
       );
-    } finally {
       setIsLoading(false);
     }
   }, [resumeId, onResumeUpdate, queryClient]);

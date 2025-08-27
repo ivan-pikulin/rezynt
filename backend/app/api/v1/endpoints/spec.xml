@@ -81,16 +81,40 @@
         </module>
         
         <module name="chat">
-            <description>Chat functionality for AI interactions with message storage</description>
+            <description>Chat functionality for AI interactions with message storage and streaming support</description>
             <endpoints>
-                <endpoint path="/chat/send-message" method="POST" description="Send chat message and store in database"/>
+                <endpoint path="/chat/send-message" method="POST" description="Send chat message and store in database (blocking mode)"/>
+                <endpoint path="/chat/send-message-stream" method="POST" description="Send chat message with streaming response (SSE)"/>
                 <endpoint path="/chat/messages/{resume_id}" method="GET" description="Get messages with cursor-based pagination (latest/older)"/>
             </endpoints>
             <features>
                 <feature name="Message Storage" description="All chat messages are stored in database with proper relationships"/>
                 <feature name="Cursor-based Pagination" description="Efficient pagination using message IDs as cursors"/>
                 <feature name="Real-time Updates" description="Messages are saved immediately when sent"/>
+                <feature name="Streaming Responses" description="Support for Server-Sent Events (SSE) streaming responses">
+                    <implementation>
+                        - Uses response_mode: streaming for platform API calls
+                        - Processes agent_message events for LLM response chunks
+                        - Handles message_end and error events
+                        - Saves complete response to database after streaming
+                    </implementation>
+                </feature>
             </features>
+            <streaming>
+                <mode>Server-Sent Events (SSE)</mode>
+                <content_type>text/event-stream</content_type>
+                <events>
+                    <event name="chunk" description="Text chunk from LLM response"/>
+                    <event name="end" description="Stream completion signal"/>
+                    <event name="error" description="Error during streaming"/>
+                </events>
+                <headers>
+                    <header name="Cache-Control" value="no-cache"/>
+                    <header name="Connection" value="keep-alive"/>
+                    <header name="Access-Control-Allow-Origin" value="*"/>
+                    <header name="Access-Control-Allow-Headers" value="*"/>
+                </headers>
+            </streaming>
             <pagination>
                 <type>Cursor-based</type>
                 <parameters>

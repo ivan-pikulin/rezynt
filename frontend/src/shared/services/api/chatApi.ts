@@ -15,6 +15,27 @@ export class ChatApi extends BaseApi {
   }
 
   /**
+   * Send message to chat with streaming response
+   */
+  async sendMessageStream(
+    data: SendMessageRequest,
+    onChunk: (chunk: string) => void,
+    onEnd: () => void,
+    onError: (error: string) => void
+  ): Promise<void> {
+    await this.stream(
+      '/chat/send-message-stream',
+      {
+        message: data.message,
+        resume_id: data.resume_id
+      },
+      onChunk,
+      onEnd,
+      onError
+    );
+  }
+
+  /**
    * Get messages for a specific resume with cursor-based pagination
    */
   async getMessages(

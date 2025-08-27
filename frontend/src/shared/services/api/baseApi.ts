@@ -132,6 +132,70 @@ export class BaseApi {
     const response = await this.api.delete<T>(url, config);
     return response.data;
   }
+
+  protected async stream(
+    url: string, 
+    data?: any, 
+    onChunk?: (chunk: string) => void,
+    onEnd?: () => void,
+    onError?: (error: string) => void
+  ): Promise<void> {
+    const token = tokenService.getAccessToken();
+    const fullUrl = `${apiUrl}/api/v1${url}`;
+    
+    const response = await fetch(fullUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: data ? JSON.stringify(data) : undefined,
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const reader = response.body?.getReader();
+    if (!reader) {
+      throw new Error('No response body');
+    }
+
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const parsedData = JSON.parse(line.slice(6));
+              if (parsedData.chunk && onChunk) {
+                onChunk(parsedData.chunk);
+              } else if (parsedData.end && onEnd) {
+                onEnd();
+                return;
+              } else if (parsedData.error && onError) {
+                onError(parsedData.error);
+                return;
+              }
+            } catch (e) {
+              console.warn('Failed to parse SSE data:', line);
+            }
+          }
+        }
+      }
+    } finally {
+      reader.releaseLock();
+    }
+  }
 }
 
 export default baseApi; 

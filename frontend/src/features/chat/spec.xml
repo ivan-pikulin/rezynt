@@ -108,28 +108,47 @@
                 8. Panel slides out to the right
             </flow>
         </feature>
-        <feature name="message_sending" desc="Send user messages and receive AI responses">
+        <feature name="message_sending" desc="Send user messages and receive AI responses with streaming support">
             <flow>
                 1. User types message in ChatInput
                 2. Message appears immediately in chat
                 3. Placeholder assistant message shows with loading animation
-                4. API call is made to chatApi with resume_id
-                5. Assistant response replaces placeholder message
+                4. Streaming API call is made to chatApi with resume_id
+                5. Assistant response streams in real-time, updating the message as chunks arrive
+                6. Complete response is saved to database after streaming ends
             </flow>
+            <streaming>
+                <mode>Server-Sent Events (SSE)</mode>
+                <implementation>
+                    - Uses sendMessageStream method from chatApi
+                    - Processes chunks in real-time via onChunk callback
+                    - Updates message content progressively as chunks arrive
+                    - Handles stream completion via onEnd callback
+                    - Error handling via onError callback
+                </implementation>
+                <user_experience>
+                    - Shows "Thinking..." before first chunk arrives
+                    - Text appears progressively as AI generates response
+                    - Smooth typewriter-like effect for better UX
+                    - Maintains scroll position during streaming
+                </user_experience>
+            </streaming>
         </feature>
         <feature name="loading_states" desc="Visual feedback during message processing">
             <states>
                 - Loading spinner in assistant messages
                 - Disabled input during processing
                 - "Thinking..." text during API call
+                - Progressive text updates during streaming
             </states>
         </feature>
-        <feature name="real_api" desc="Real backend API integration">
+        <feature name="real_api" desc="Real backend API integration with streaming support">
             <implementation>
-                - POST request to /chat/send-message
+                - POST request to /chat/send-message-stream for streaming responses
+                - POST request to /chat/send-message for blocking responses (fallback)
                 - Includes message and resume_id in request
                 - Proper error handling for failed requests
-                - Response from AI assistant via platform service
+                - Response from AI assistant via platform service with SSE streaming
             </implementation>
         </feature>
     </functionality>
