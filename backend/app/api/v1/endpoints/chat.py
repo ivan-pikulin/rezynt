@@ -4,8 +4,8 @@ from pydantic import BaseModel
 from app.api.deps import VerifiedUser, get_db
 from app.services import PlatformChatflow
 from app.core.config import settings
-from app.database.crud.crud_resume import resume_manager, message_crud
-from app.schemas.resume import Message, MessageList
+from app.database.crud.crud_resume import resume_manager
+from app.schemas.resume import ChatMessage, ChatMessageList
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -26,7 +26,7 @@ async def send_message(
     db: AsyncSession = Depends(get_db)
 ) -> Dict[str, Any]:
     """
-    Send message to chat.
+    Send message to chat via platform.
     """
     # Получаем резюме
     resume_obj = await resume_manager.get_resume_by_id(db, resume_id=request.resume_id)
@@ -36,14 +36,6 @@ async def send_message(
     # Проверяем, что резюме принадлежит пользователю
     if resume_obj.user_id != user.id:
         raise HTTPException(status_code=403, detail="Access denied")
-    
-    # Сохраняем сообщение пользователя
-    user_message = await message_crud.create_message(
-        db, 
-        resume_id=request.resume_id, 
-        role="user", 
-        content=request.message
-    )
     
     # Создаем агента платформы
     platform_chatflow = PlatformChatflow(
@@ -57,14 +49,6 @@ async def send_message(
         text=request.message,
         conversation_id=resume_obj.conversation_id,
         resume_id=str(request.resume_id)
-    )
-    
-    # Сохраняем ответ бота
-    bot_message = await message_crud.create_message(
-        db, 
-        resume_id=request.resume_id, 
-        role="assistant", 
-        content=response.text
     )
     
     # Обновляем conversation_id в резюме, если он изменился
@@ -85,7 +69,7 @@ async def send_message_stream(
     db: AsyncSession = Depends(get_db)
 ):
     """
-    Send message to chat with streaming response.
+    Send message to chat with streaming response via platform.
     """
     # Получаем резюме
     resume_obj = await resume_manager.get_resume_by_id(db, resume_id=request.resume_id)
@@ -96,14 +80,6 @@ async def send_message_stream(
     if resume_obj.user_id != user.id:
         raise HTTPException(status_code=403, detail="Access denied")
     
-    # Сохраняем сообщение пользователя
-    user_message = await message_crud.create_message(
-        db, 
-        resume_id=request.resume_id, 
-        role="user", 
-        content=request.message
-    )
-    
     # Создаем агента платформы
     platform_chatflow = PlatformChatflow(
         app_key=settings.PLATFORM_APP_KEY,
@@ -112,7 +88,6 @@ async def send_message_stream(
     )
     
     async def generate_stream():
-        full_response = ""
         new_conversation_id = None
         async for chunk, conversation_id in platform_chatflow.chat_stream(
             user_id=str(user.id),
@@ -120,18 +95,9 @@ async def send_message_stream(
             conversation_id=resume_obj.conversation_id,
             resume_id=str(request.resume_id)
         ):
-            full_response += chunk
             new_conversation_id = conversation_id
             # Send chunk as SSE
             yield f"data: {json.dumps({'chunk': chunk})}\n\n"
-        
-        # Save the complete response
-        await message_crud.create_message(
-            db, 
-            resume_id=request.resume_id, 
-            role="assistant", 
-            content=full_response
-        )
         
         # Update conversation_id if it changed
         if new_conversation_id and new_conversation_id != resume_obj.conversation_id:
@@ -152,21 +118,19 @@ async def send_message_stream(
     )
 
 
-@router.get("/messages/{resume_id}", response_model=MessageList)
+@router.get("/messages/{resume_id}", response_model=ChatMessageList)
 async def get_messages(
     resume_id: int,
     user: VerifiedUser,
     db: AsyncSession = Depends(get_db),
-    limit: int = Query(10, ge=1, le=50),
-    cursor: Optional[int] = Query(None, description="Message ID to start from (for pagination)"),
-    direction: str = Query("backward", description="Direction: 'backward' for older messages, 'forward' for newer")
-) -> MessageList:
+    limit: int = Query(20, ge=1, le=50),
+    first_id: Optional[str] = Query(None, description="Message ID to start from (for pagination)")
+) -> ChatMessageList:
     """
-    Get messages for a specific resume with cursor-based pagination.
+    Get messages for a specific resume from platform.
     
-    - Use cursor=null for latest messages (initial load)
-    - Use cursor=message_id&direction=backward for older messages
-    - Use cursor=message_id&direction=forward for newer messages (if needed)
+    - Use first_id=null for latest messages (initial load)
+    - Use first_id=message_id for older messages (pagination)
     """
     # Получаем резюме
     resume_obj = await resume_manager.get_resume_by_id(db, resume_id=resume_id)
@@ -177,34 +141,47 @@ async def get_messages(
     if resume_obj.user_id != user.id:
         raise HTTPException(status_code=403, detail="Access denied")
     
-    # Получаем сообщения в зависимости от параметров
-    if cursor is None:
-        # Initial load - get latest messages
-        messages = await message_crud.get_latest_messages_by_resume_id(
-            db, 
-            resume_id=resume_id, 
-            limit=limit
-        )
-    elif direction == "backward":
-        # Get older messages before cursor
-        messages = await message_crud.get_older_messages_by_resume_id(
-            db, 
-            resume_id=resume_id, 
-            before_message_id=cursor,
-            limit=limit
-        )
-    else:
-        # Forward pagination (if needed in future)
-        raise HTTPException(status_code=400, detail="Forward pagination not implemented yet")
+    # Создаем агента платформы
+    platform_chatflow = PlatformChatflow(
+        app_key=settings.PLATFORM_APP_KEY,
+        app_url=settings.PLATFORM_APP_URL,
+        timeout=settings.PLATFORM_TIMEOUT
+    )
     
-    # Получаем общее количество сообщений
-    total = await message_crud.get_messages_count_by_resume_id(db, resume_id=resume_id)
+    # Получаем сообщения с платформы
+    platform_response = await platform_chatflow.get_messages(
+        user_id=str(user.id),
+        conversation_id=resume_obj.conversation_id,
+        first_id=first_id,
+        limit=limit
+    )
     
-    # Определяем, есть ли еще сообщения
-    has_more = len(messages) == limit
+    # Преобразуем сообщения платформы в наш формат
+    messages = []
+    for platform_msg in platform_response.data:
+        # Добавляем сообщение пользователя
+        messages.append(ChatMessage(
+            id=f"{platform_msg.id}_user",
+            role="user",
+            content=platform_msg.query,
+            created_at=platform_msg.created_at,
+            conversation_id=platform_msg.conversation_id
+        ))
+        
+        # Добавляем ответ ассистента
+        messages.append(ChatMessage(
+            id=f"{platform_msg.id}_assistant",
+            role="assistant",
+            content=platform_msg.answer,
+            created_at=platform_msg.created_at,
+            conversation_id=platform_msg.conversation_id
+        ))
     
-    return MessageList(
+    # Сортируем по времени создания (новые сверху)
+    messages.sort(key=lambda x: x.created_at, reverse=True)
+    
+    return ChatMessageList(
         messages=messages,
-        total=total,
-        has_more=has_more
+        has_more=platform_response.has_more,
+        limit=platform_response.limit
     )

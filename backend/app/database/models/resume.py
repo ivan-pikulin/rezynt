@@ -6,10 +6,7 @@ import enum
 from .base import Base
 
 
-class MessageRole(str, enum.Enum):
-    USER = "user"
-    ASSISTANT = "assistant"
-    SYSTEM = "system"
+
 
 
 class Resume(Base):
@@ -33,7 +30,7 @@ class Resume(Base):
     experience = relationship("ResumeExperience", back_populates="resume", cascade="all, delete-orphan", order_by="ResumeExperience.id", lazy="select")
     education = relationship("ResumeEducation", back_populates="resume", cascade="all, delete-orphan", order_by="ResumeEducation.id", lazy="select")
     exports = relationship("ResumeExport", back_populates="resume", cascade="all, delete-orphan", lazy="select")
-    messages = relationship("Message", back_populates="resume", cascade="all, delete-orphan", order_by="Message.created_at", lazy="select")
+
 
 
 class ResumePersonalInfo(Base):
@@ -115,14 +112,4 @@ class ResumeExport(Base):
     resume = relationship("Resume", back_populates="exports", lazy="select")
 
 
-class Message(Base):
-    __tablename__ = 'messages'
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    resume_id = Column(Integer, ForeignKey('resumes.id', ondelete='CASCADE'), nullable=False)
-    role = Column(String(20), nullable=False)
-    content = Column(Text, nullable=False)
-    created_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), nullable=False)
-
-    # Relationships
-    resume = relationship("Resume", back_populates="messages", lazy="select") 
+ 

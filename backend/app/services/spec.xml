@@ -74,7 +74,7 @@
         <component>
             <name>PlatformChatflow</name>
             <description>
-                Сервис для взаимодействия с внешней платформой чат-бота. Отправляет сообщения и получает ответы в блокирующем и потоковом режимах.
+                Сервис для взаимодействия с внешней платформой чат-бота. Отправляет сообщения, получает ответы в блокирующем и потоковом режимах, а также получает историю сообщений.
             </description>
             <methods>
                 <method>
@@ -97,8 +97,20 @@
                         <param name="conversation_id" type="str">ID беседы (опционально)</param>
                         <param name="resume_id" type="str">ID резюме для передачи в inputs (опционально)</param>
                     </params>
-                    <returns type="AsyncGenerator[str, None]">Поток чанков ответа от платформы</returns>
+                    <returns type="AsyncGenerator[tuple[str, str], None]">Поток чанков ответа от платформы с conversation_id</returns>
                     <async>True - использует асинхронные HTTP запросы с потоковым ответом</async>
+                </method>
+                <method>
+                    <name>get_messages</name>
+                    <description>Получает историю сообщений из платформы с пагинацией</description>
+                    <params>
+                        <param name="user_id" type="str">ID пользователя</param>
+                        <param name="conversation_id" type="str">ID беседы (опционально)</param>
+                        <param name="first_id" type="str">ID сообщения для пагинации (опционально)</param>
+                        <param name="limit" type="int">Количество сообщений (по умолчанию 20)</param>
+                    </params>
+                    <returns type="PlatformMessagesResponse">Ответ с историей сообщений от платформы</returns>
+                    <async>True - использует асинхронные HTTP запросы</async>
                 </method>
             </methods>
             <configuration>
@@ -114,6 +126,14 @@
                     <event name="error">Ошибки в потоке</event>
                 </events>
             </streaming>
+            <schemas>
+                <schema name="PlatformMessage">Базовая модель сообщения от платформы</schema>
+                <schema name="PlatformMessageResponse">Модель сообщения с полными данными от платформы</schema>
+                <schema name="PlatformMessagesResponse">Модель ответа с историей сообщений</schema>
+                <schema name="PlatformMessageFile">Модель файла сообщения</schema>
+                <schema name="PlatformAgentThought">Модель мысли агента</schema>
+                <schema name="PlatformRetrieverResource">Модель ресурса поиска</schema>
+            </schemas>
         </component>
         
         <component>

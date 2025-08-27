@@ -4,7 +4,7 @@ from datetime import datetime
 from app.database.crud.base import CRUDBase
 from app.database.models import (Resume, ResumeContact, ResumeEducation,
                                  ResumeExperience, ResumeExport,
-                                 ResumePersonalInfo, ResumeSkill, Message)
+                                 ResumePersonalInfo, ResumeSkill)
 from app.schemas.resume import (ResumeContactCreate, ResumeContactUpdate,
                                 ResumeCreate, ResumeEducationCreate,
                                 ResumeEducationUpdate, ResumeExperienceCreate,
@@ -13,7 +13,7 @@ from app.schemas.resume import (ResumeContactCreate, ResumeContactUpdate,
                                 ResumePersonalInfoUpdate, ResumeSkillCreate,
                                 ResumeSkillUpdate, ResumeUpdate, ResumePartialUpdate, UnifiedResume,
                                 UnifiedResumeEducation,
-                                UnifiedResumeExperience, MessageCreate, MessageUpdate)
+                                UnifiedResumeExperience)
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -768,79 +768,5 @@ class ResumeManager:
         return await self.resume_crud.update_conversation_id(db, resume_id=resume_id, conversation_id=conversation_id)
 
 
-# Message CRUD operations
-class CRUDMessage(CRUDBase[Message, MessageCreate, MessageUpdate]):
-    async def create_message(self, db: AsyncSession, *, resume_id: int, role: str, content: str) -> Message:
-        """Create a new message"""
-        message = Message(
-            resume_id=resume_id,
-            role=role,
-            content=content
-        )
-        db.add(message)
-        await db.commit()
-        await db.refresh(message)
-        return message
-
-    async def get_messages_by_resume_id(
-        self, 
-        db: AsyncSession, 
-        resume_id: int, 
-        limit: int = 10, 
-        offset: int = 0
-    ) -> List[Message]:
-        """Get messages for a specific resume with pagination"""
-        result = await db.execute(
-            select(Message)
-            .filter(Message.resume_id == resume_id)
-            .order_by(Message.created_at.desc())
-            .offset(offset)
-            .limit(limit)
-        )
-        return result.scalars().all()
-
-    async def get_messages_count_by_resume_id(self, db: AsyncSession, resume_id: int) -> int:
-        """Get total count of messages for a specific resume"""
-        result = await db.execute(
-            select(Message).filter(Message.resume_id == resume_id)
-        )
-        return len(result.scalars().all())
-
-    async def get_latest_messages_by_resume_id(
-        self, 
-        db: AsyncSession, 
-        resume_id: int, 
-        limit: int = 10
-    ) -> List[Message]:
-        """Get latest messages for a specific resume (for initial load)"""
-        result = await db.execute(
-            select(Message)
-            .filter(Message.resume_id == resume_id)
-            .order_by(Message.created_at.desc())
-            .limit(limit)
-        )
-        return result.scalars().all()
-
-    async def get_older_messages_by_resume_id(
-        self, 
-        db: AsyncSession, 
-        resume_id: int, 
-        before_message_id: int, 
-        limit: int = 10
-    ) -> List[Message]:
-        """Get older messages before a specific message ID"""
-        result = await db.execute(
-            select(Message)
-            .filter(
-                Message.resume_id == resume_id,
-                Message.id < before_message_id
-            )
-            .order_by(Message.created_at.desc())
-            .limit(limit)
-        )
-        return result.scalars().all()
-
-
 # Create instances
 resume_manager = ResumeManager()
-message_crud = CRUDMessage(Message)

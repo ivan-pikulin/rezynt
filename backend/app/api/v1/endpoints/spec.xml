@@ -81,22 +81,22 @@
         </module>
         
         <module name="chat">
-            <description>Chat functionality for AI interactions with message storage and streaming support</description>
+            <description>Chat functionality for AI interactions with platform integration and streaming support</description>
             <endpoints>
-                <endpoint path="/chat/send-message" method="POST" description="Send chat message and store in database (blocking mode)"/>
-                <endpoint path="/chat/send-message-stream" method="POST" description="Send chat message with streaming response (SSE)"/>
-                <endpoint path="/chat/messages/{resume_id}" method="GET" description="Get messages with cursor-based pagination (latest/older)"/>
+                <endpoint path="/chat/send-message" method="POST" description="Send chat message via platform (blocking mode)"/>
+                <endpoint path="/chat/send-message-stream" method="POST" description="Send chat message with streaming response via platform (SSE)"/>
+                <endpoint path="/chat/messages/{resume_id}" method="GET" description="Get messages from platform with pagination"/>
             </endpoints>
             <features>
-                <feature name="Message Storage" description="All chat messages are stored in database with proper relationships"/>
-                <feature name="Cursor-based Pagination" description="Efficient pagination using message IDs as cursors"/>
-                <feature name="Real-time Updates" description="Messages are saved immediately when sent"/>
+                <feature name="Platform Integration" description="All chat messages are handled via external platform API"/>
+                <feature name="No Local Storage" description="Messages are not stored locally, retrieved from platform on demand"/>
+                <feature name="Conversation Management" description="Conversation IDs are managed and updated in resume records"/>
                 <feature name="Streaming Responses" description="Support for Server-Sent Events (SSE) streaming responses">
                     <implementation>
                         - Uses response_mode: streaming for platform API calls
                         - Processes agent_message events for LLM response chunks
                         - Handles message_end and error events
-                        - Saves complete response to database after streaming
+                        - Updates conversation_id in resume after streaming
                     </implementation>
                 </feature>
             </features>
@@ -116,15 +116,14 @@
                 </headers>
             </streaming>
             <pagination>
-                <type>Cursor-based</type>
+                <type>Platform-based</type>
                 <parameters>
-                    <parameter name="limit" type="int" default="10" description="Number of messages to return"/>
-                    <parameter name="cursor" type="int" optional="true" description="Message ID to start from (null for latest)"/>
-                    <parameter name="direction" type="string" default="backward" description="Direction: backward for older messages"/>
+                    <parameter name="limit" type="int" default="20" description="Number of messages to return"/>
+                    <parameter name="first_id" type="string" optional="true" description="Message ID to start from (null for latest)"/>
                 </parameters>
                 <usage>
-                    <example>GET /chat/messages/123 - Get latest 10 messages</example>
-                    <example>GET /chat/messages/123?cursor=456&direction=backward - Get 10 messages before ID 456</example>
+                    <example>GET /chat/messages/123 - Get latest 20 messages from platform</example>
+                    <example>GET /chat/messages/123?first_id=456 - Get 20 messages before ID 456 from platform</example>
                 </usage>
             </pagination>
         </module>

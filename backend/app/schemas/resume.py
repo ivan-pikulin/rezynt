@@ -509,31 +509,21 @@ class EducationUpdateRequest(BaseModel):
         return parse_date(v)
 
 
-# Message schemas
-class MessageBase(BaseModel):
-    role: str
+# Chat schemas for platform integration
+class ChatMessage(BaseModel):
+    """Schema for chat message from platform"""
+    id: str
+    role: str  # "user" or "assistant"
     content: str
+    created_at: int  # timestamp
+    conversation_id: Optional[str] = None
 
 
-class MessageCreate(BaseModel):
-    resume_id: int
-    role: str
-    content: str
-
-
-class MessageUpdate(BaseModel):
-    content: Optional[str] = None
-
-
-class Message(MessageBase):
-    id: int
-    resume_id: int
-    created_at: datetime
-
-    model_config = {"from_attributes": True}
-
-
-class MessageList(BaseModel):
-    messages: List[Message]
-    total: int
+class ChatMessageList(BaseModel):
+    """Schema for chat message list response"""
+    messages: List[ChatMessage]
     has_more: bool
+    limit: int
+
+
+
