@@ -264,18 +264,6 @@ async def _create_resume_with_data(user_id: int, filename: str, parsed_data):
                     db.add(education)
                     logger.info(f"Education entry {i+1} added to database")
             
-            # Create welcome message for uploaded resume
-            # TODO: Add different logic for uploaded resumes later
-            from app.database.models.resume import Message
-            welcome_message = "Welcome aboard! I'm your AI Resume Builder, here to save you time and boost your chances. Let's get personal: what's your name?"
-            message = Message(
-                resume_id=resume.id,
-                role="assistant",
-                content=welcome_message
-            )
-            db.add(message)
-            logger.info(f"Welcome message created for resume {resume.id}")
-            
             await db.commit()
             logger.info(f"Resume {resume.id} created successfully with all data for user {user_id}")
             logger.info(f"Final commit completed for resume {resume.id}")
