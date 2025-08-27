@@ -70,6 +70,7 @@ async def send_message(
     # Обновляем conversation_id в резюме, если он изменился
     if response.conversation_id and response.conversation_id != resume_obj.conversation_id:
         from app.schemas.resume import ResumeUpdate
+        await db.refresh(resume_obj)
         update_data = ResumeUpdate(conversation_id=response.conversation_id)
         await resume_crud.update(db, db_obj=resume_obj, obj_in=update_data)
     
@@ -140,6 +141,7 @@ async def send_message_stream(
             # Update conversation_id if it changed
             if new_conversation_id and new_conversation_id != resume_obj.conversation_id:
                 from app.schemas.resume import ResumeUpdate
+                await db.refresh(resume_obj)
                 update_data = ResumeUpdate(conversation_id=new_conversation_id)
                 await resume_crud.update(db, db_obj=resume_obj, obj_in=update_data)
             
