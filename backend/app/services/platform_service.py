@@ -21,23 +21,29 @@ class PlatformMessageFile(BaseModel):
 
 class PlatformAgentThought(BaseModel):
     id: str
+    chain_id: Optional[str] = None
     message_id: str
     position: int
     thought: str
     observation: str
     tool: str
+    tool_labels: Optional[Dict[str, Any]] = {}
     tool_input: str
     created_at: int
-    message_files: List[str] = []
+    message_files: Optional[List[str]] = []
 
     @field_validator('message_files', mode='before')
     @classmethod
     def validate_message_files(cls, v):
+        if v is None:
+            return []
         if isinstance(v, list):
-            # Convert objects to strings if needed
+            # Convert objects to strings if needed, filter out None values
             result = []
             for item in v:
-                if isinstance(item, str):
+                if item is None:
+                    continue
+                elif isinstance(item, str):
                     result.append(item)
                 elif isinstance(item, dict) and 'id' in item:
                     result.append(item['id'])
@@ -58,16 +64,43 @@ class PlatformRetrieverResource(BaseModel):
     content: str
 
 
+class PlatformToolCall(BaseModel):
+    id: str
+    type: str
+    function: Dict[str, Any]
+
+
+class PlatformMessageItem(BaseModel):
+    role: str
+    text: str
+    files: List[Any] = []
+    tool_calls: Optional[List[PlatformToolCall]] = None
+
+
 class PlatformMessageResponse(BaseModel):
     id: str
     conversation_id: str
     inputs: Dict[str, Any] = {}
     query: str
+    message: List[PlatformMessageItem] = []
+    message_tokens: Optional[int] = None
     answer: str
+    answer_tokens: Optional[int] = None
+    provider_response_latency: Optional[float] = None
+    from_source: Optional[str] = None
+    from_end_user_id: Optional[str] = None
+    from_account_id: Optional[str] = None
     message_files: List[PlatformMessageFile] = []
-    feedback: Optional[Dict[str, Any]] = None
+    feedbacks: List[Any] = []
+    workflow_run_id: Optional[str] = None
+    annotation: Optional[Any] = None
+    annotation_hit_history: Optional[Any] = None
     retriever_resources: List[PlatformRetrieverResource] = []
     agent_thoughts: List[PlatformAgentThought] = []
+    metadata: Dict[str, Any] = {}
+    status: Optional[str] = None
+    error: Optional[str] = None
+    parent_message_id: Optional[str] = None
     created_at: int
 
 
