@@ -1,88 +1,26 @@
-import logging
 import json
-from typing import AsyncGenerator, List, Optional, Dict, Any
+import logging
+from typing import Any, AsyncGenerator, Dict, List, Optional
 
 import httpx
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, ConfigDict
 
 logger = logging.getLogger(__name__)
 
 class PlatformMessage(BaseModel):
+    model_config = ConfigDict(extra='allow')
+    
     text: str
     conversation_id: str = None
 
-
-class PlatformMessageFile(BaseModel):
-    id: str
-    type: str
-    url: str
-    belongs_to: str
-
-
-class PlatformAgentThought(BaseModel):
-    id: str
-    chain_id: Optional[str] = None
-    message_id: str
-    position: int
-    thought: str
-    observation: str
-    tool: str
-    tool_labels: Optional[Dict[str, Any]] = {}
-    tool_input: str
-    created_at: int
-    message_files: Optional[List[str]] = []
-
-    @field_validator('message_files', mode='before')
-    @classmethod
-    def validate_message_files(cls, v):
-        if v is None:
-            return []
-        if isinstance(v, list):
-            # Convert objects to strings if needed, filter out None values
-            result = []
-            for item in v:
-                if item is None:
-                    continue
-                elif isinstance(item, str):
-                    result.append(item)
-                elif isinstance(item, dict) and 'id' in item:
-                    result.append(item['id'])
-                else:
-                    result.append(str(item))
-            return result
-        return v
-
-
-class PlatformRetrieverResource(BaseModel):
-    position: int
-    dataset_id: str
-    dataset_name: str
-    document_id: str
-    document_name: str
-    segment_id: str
-    score: float
-    content: str
-
-
-class PlatformToolCall(BaseModel):
-    id: str
-    type: str
-    function: Dict[str, Any]
-
-
-class PlatformMessageItem(BaseModel):
-    role: str
-    text: str
-    files: List[Any] = []
-    tool_calls: Optional[List[PlatformToolCall]] = None
-
-
 class PlatformMessageResponse(BaseModel):
+    model_config = ConfigDict(extra='allow')
+    
     id: str
     conversation_id: str
     inputs: Dict[str, Any] = {}
     query: str
-    message: List[PlatformMessageItem] = []
+    message: Optional[List[Dict[str, Any]]] = []
     message_tokens: Optional[int] = None
     answer: str
     answer_tokens: Optional[int] = None
@@ -90,13 +28,13 @@ class PlatformMessageResponse(BaseModel):
     from_source: Optional[str] = None
     from_end_user_id: Optional[str] = None
     from_account_id: Optional[str] = None
-    message_files: List[PlatformMessageFile] = []
+    message_files: List[Dict[str, Any]] = []
     feedbacks: List[Any] = []
     workflow_run_id: Optional[str] = None
     annotation: Optional[Any] = None
     annotation_hit_history: Optional[Any] = None
-    retriever_resources: List[PlatformRetrieverResource] = []
-    agent_thoughts: List[PlatformAgentThought] = []
+    retriever_resources: List[Dict[str, Any]] = []
+    agent_thoughts: List[Dict[str, Any]] = []
     metadata: Dict[str, Any] = {}
     status: Optional[str] = None
     error: Optional[str] = None
