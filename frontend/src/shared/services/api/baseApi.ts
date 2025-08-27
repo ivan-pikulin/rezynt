@@ -17,10 +17,8 @@ const baseApi = axios.create({
 baseApi.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const token = tokenService.getAccessToken();
-    console.log('Request interceptor - token exists:', !!token);
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
-      console.log('Authorization header set:', `Bearer ${token.substring(0, 20)}...`);
     }
     // Ensure HTTPS
     if (config.url && config.url.startsWith('http:')) {

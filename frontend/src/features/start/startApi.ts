@@ -38,21 +38,16 @@ export const startApi = {
    * Начать создание резюме с нуля
    */
   startFromScratch: async (): Promise<Resume> => {
-    console.log('startFromScratch called');
-    
     // Сначала получаем ID шаблона по slug
-    console.log('Fetching template...');
     const template = await templateApi.getTemplateBySlug('tero');
-    console.log('Template ID:', template.id);
     
     // Создаем резюме с полученным ID шаблона
-    console.log('Creating resume...');
     const resume = await resumeApi.createResume({
       title: 'New Resume',
       template_id: template.id,
       professional_summary: ''
     });
-    console.log('Resume created:', resume);
+
     return resume;
   }
 }; 

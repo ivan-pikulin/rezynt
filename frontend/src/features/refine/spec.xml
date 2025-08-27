@@ -20,7 +20,6 @@
         ├── utils/
         │   └── resumeDataConverter.ts  # Data conversion utilities
         ├── RefinePage.tsx              # Main refine page component
-        ├── refineApi.ts                # API integration for refine operations
         └── spec.xml                    # This file
     </folder_structure>
 

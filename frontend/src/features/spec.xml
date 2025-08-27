@@ -29,7 +29,6 @@
         ├── refine/ # Refine feature - template selection and preview
         │   ├── components/ # Refine-specific components
         │   ├── RefinePage.tsx # Main refine page
-        │   ├── refineApi.ts # API for suggestions and updates
         │   └── spec.xml # Refine feature specification
         ├── resumes/ # Resumes feature - display all user resumes
         │   ├── hooks/ # Custom hooks for resume operations

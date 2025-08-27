@@ -51,11 +51,8 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, onSwitchToSignup, onSw
       setError('');
       
       try {
-        console.log('Attempting login with:', values.username);
         const tokens = await authApi.login(values);
-        console.log('Login successful, tokens received');
         login(tokens);
-        console.log('Tokens stored, calling onSuccess');
         onSuccess();
       } catch (err: any) {
         console.error('Login error:', err);

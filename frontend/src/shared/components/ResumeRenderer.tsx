@@ -10,7 +10,6 @@ interface ResumeRendererProps {
   onExport?: () => void;
   scale?: number; // Добавляем поддержку масштабирования
   fitToContainer?: boolean; // Новый проп для адаптивного масштабирования
-  debug?: boolean; // Отладочный режим
 }
 
 const ResumeRenderer: React.FC<ResumeRendererProps> = ({ 
@@ -20,7 +19,6 @@ const ResumeRenderer: React.FC<ResumeRendererProps> = ({
   onExport,
   scale = 1,
   fitToContainer = true,
-  debug = false
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [calculatedScale, setCalculatedScale] = useState(scale);
@@ -45,21 +43,6 @@ const ResumeRenderer: React.FC<ResumeRendererProps> = ({
     const optimalScale = Math.min(scaleByWidth, scaleByHeight, 1);
     
     const finalScale = Math.max(optimalScale, 0.1); // Минимальный масштаб 0.1
-    
-    if (debug) {
-      console.log('ResumeRenderer Debug:', {
-        containerWidth,
-        containerHeight,
-        a4Width,
-        a4Height,
-        scaleByWidth,
-        scaleByHeight,
-        optimalScale,
-        finalScale,
-        fitToContainer
-      });
-    }
-    
     return finalScale;
   };
 

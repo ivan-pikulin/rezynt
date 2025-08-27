@@ -81,11 +81,9 @@ const StartOptions: React.FC = () => {
   const handleStartFromScratch = async () => {
     if (isCreating) return;
     
-    console.log('handleStartFromScratch called');
     setIsCreating(true);
     try {
       const result = await startApi.startFromScratch();
-      console.log('startFromScratch result:', result);
       navigate(`/chat?resume_id=${result.id}`);
     } catch (error) {
       console.error('Failed to start from scratch:', error);
