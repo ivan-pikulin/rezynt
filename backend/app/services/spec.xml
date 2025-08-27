@@ -20,6 +20,9 @@
                     </params>
                     <returns type="ParsedResumeData">Структурированные данные резюме</returns>
                     <async>True - использует асинхронные HTTP запросы к OpenAI API</async>
+                    <validation>Проверяет размер файла (максимум 10MB) перед обработкой</validation>
+                    <memory_management>Использует garbage collection для освобождения памяти</memory_management>
+                    <text_limiting>Ограничивает длину текста до 50000 символов для предотвращения превышения лимитов токенов</text_limiting>
                 </method>
                 <method>
                     <name>_parse_with_openai_structured</name>
@@ -29,6 +32,8 @@
                     </params>
                     <returns type="ParsedResumeData">Структурированные данные</returns>
                     <async>True - использует асинхронные HTTP запросы к OpenAI API</async>
+                    <token_limiting>Ограничивает ответ до 4000 токенов для предотвращения превышения лимитов</token_limiting>
+                    <memory_management>Использует garbage collection для освобождения памяти после обработки</memory_management>
                 </method>
                 <method>
                     <name>_convert_structured_to_parsed</name>
@@ -63,6 +68,9 @@
                 <openai_proxy_url>OPENAI_PROXY_URL - URL прокси для OpenAI</openai_proxy_url>
                 <model>gpt-4o-mini - Модель OpenAI для парсинга</model>
                 <structured_output>Использует OpenAI Structured Outputs с Pydantic моделями для гарантированного формата</structured_output>
+                <max_file_size>10MB - Максимальный размер файла для обработки</max_file_size>
+                <max_text_length>50000 символов - Максимальная длина текста для обработки</max_text_length>
+                <max_tokens>4000 токенов - Максимальное количество токенов в ответе OpenAI</max_tokens>
             </configuration>
             <schemas>
                 <schema name="OpenAIStructuredResume">Pydantic модель для OpenAI Structured Output</schema>
@@ -230,5 +238,7 @@
         <dependency>jinja2</dependency>
         <dependency>openai</dependency>
         <dependency>markitdown</dependency>
+        <dependency>gc</dependency>
+        <dependency>os</dependency>
     </dependencies>
 </specification>

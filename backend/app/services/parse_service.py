@@ -1,4 +1,6 @@
 import logging
+import os
+import gc
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 from weakref import proxy
@@ -28,6 +30,9 @@ class ParsedResumeData(BaseModel):
 class ParseService:
     """Сервис для парсинга резюме с использованием OpenAI structured output"""
     
+    # Maximum file size in bytes (10MB)
+    MAX_FILE_SIZE = 10 * 1024 * 1024
+    
     def __init__(self):
         self.client = OpenAI(
             api_key=settings.openai.OPENAI_API_KEY,
@@ -46,24 +51,46 @@ class ParseService:
             ParsedResumeData: Структурированные данные резюме
         """
         try:
+            # Validate file size before processing
+            file_size = os.path.getsize(file_path)
+            logger.info(f"Processing file: {file_path}, size: {file_size} bytes")
+            
+            if file_size > self.MAX_FILE_SIZE:
+                raise ValueError(f"File size ({file_size} bytes) exceeds maximum allowed size ({self.MAX_FILE_SIZE} bytes)")
+            
             # Читаем файл через markitdown
-            logger.info(f"Processing file: {file_path}")
             result = self.md.convert(file_path)
             text_content = result.text_content
-            logger.info(f"Text content: {text_content}")
+            
+            # Clean up markitdown result immediately
+            del result
+            gc.collect()
+            
+            logger.info(f"Text content extracted, length: {len(text_content) if text_content else 0} characters")
             
             if not text_content:
                 logger.warning("No text content extracted from file")
                 return ParsedResumeData()
             
+            # Limit text content length to prevent OpenAI token limits
+            if len(text_content) > 50000:  # Roughly 12-15k tokens
+                logger.warning(f"Text content too long ({len(text_content)} chars), truncating to 50000 chars")
+                text_content = text_content[:50000] + "..."
+            
             # Парсим через OpenAI с structured output
             parsed_data = await self._parse_with_openai_structured(text_content)
+            
+            # Clean up text content
+            del text_content
+            gc.collect()
             
             logger.info("Resume parsing completed successfully")
             return parsed_data
             
         except Exception as e:
             logger.error(f"Error parsing resume file: {e}", exc_info=True)
+            # Force garbage collection on error
+            gc.collect()
             raise
     
     async def _parse_with_openai_structured(self, text_content: str) -> ParsedResumeData:
@@ -101,20 +128,33 @@ class ParseService:
                     }
                 ],
                 response_format=OpenAIStructuredResume,
-                temperature=0.1
+                temperature=0.1,
+                max_tokens=4000  # Limit response size
             )
             
             # Получаем структурированные данные
             structured_data = response.choices[0].message.parsed
-            logger.info(f"Structured data: {structured_data}")
+            
+            # Clean up response object immediately
+            del response
+            gc.collect()
+            
+            logger.info(f"Structured data received, processing...")
             
             # Преобразуем в ParsedResumeData
             parsed_data = self._convert_structured_to_parsed(structured_data)
-            logger.info(f"Parsed data: {parsed_data}")
+            
+            # Clean up structured data
+            del structured_data
+            gc.collect()
+            
+            logger.info(f"Parsed data conversion completed")
             return parsed_data
             
         except Exception as e:
             logger.error(f"Error in OpenAI structured parsing: {e}", exc_info=True)
+            # Force garbage collection on error
+            gc.collect()
             # Возвращаем пустые данные в случае ошибки
             return ParsedResumeData()
     

@@ -26,6 +26,20 @@
                         <logging>Подробное логирование всех этапов отправки email</logging>
                     </implementation>
                 </task>
+                <task>
+                    <name>send_password_reset_email_task</name>
+                    <description>Отправляет email с токеном для сброса пароля через EmailService</description>
+                    <params>
+                        <param name="email" type="str">Email пользователя</param>
+                        <param name="token" type="str">Токен сброса пароля</param>
+                    </params>
+                    <returns type="Dict">Результат отправки с статусом и деталями</returns>
+                    <implementation>
+                        <async_wrapper>Использует async_to_sync для обертывания асинхронной функции</async_wrapper>
+                        <error_handling>Логирует ошибки и возвращает статус error при неудаче</error_handling>
+                        <logging>Подробное логирование всех этапов отправки email</logging>
+                    </implementation>
+                </task>
             </tasks>
         </component>
         
@@ -45,11 +59,13 @@
                     </params>
                     <returns type="Dict">Результат обработки с статусом и ID созданного резюме</returns>
                     <implementation>
+                        <file_validation>Проверяет размер файла перед обработкой (максимум 10MB)</file_validation>
                         <file_handling>Сохраняет файл во временную директорию с уникальным именем</file_handling>
+                        <memory_management>Использует garbage collection для освобождения памяти после каждого этапа</memory_management>
                         <parsing>Использует ParseService для извлечения структурированных данных</parsing>
                         <database>Создает резюме и все связанные записи (личная информация, контакты, навыки, опыт, образование)</database>
-                        <cleanup>Автоматически удаляет временные файлы после обработки</cleanup>
-                        <error_handling>Обрабатывает ошибки парсинга и создания записей в БД</error_handling>
+                        <cleanup>Автоматически удаляет временные файлы и освобождает память после обработки</cleanup>
+                        <error_handling>Обрабатывает ошибки парсинга и создания записей в БД с полной очисткой ресурсов</error_handling>
                         <logging>Подробное логирование всех этапов обработки</logging>
                     </implementation>
                 </task>
@@ -92,6 +108,7 @@
         <dependency>asgiref.sync</dependency>
         <dependency>tempfile</dependency>
         <dependency>os</dependency>
+        <dependency>gc</dependency>
     </dependencies>
     
     <error_handling>

@@ -1,6 +1,7 @@
 import logging
 import os
 import tempfile
+import gc
 
 from app.core.celery_app import celery_app
 from app.database.models.resume import Resume
@@ -80,8 +81,16 @@ async def _process_resume_upload_task(file_content: bytes, filename: str, user_i
     logger.info(f"Starting resume processing task for user {user_id}, filename: {filename}")
     
     temp_file_path = None
+    parse_service = None
     
     try:
+        # Validate file size before processing
+        file_size = len(file_content)
+        logger.info(f"File size: {file_size} bytes")
+        
+        if file_size > ParseService.MAX_FILE_SIZE:
+            raise ValueError(f"File size ({file_size} bytes) exceeds maximum allowed size ({ParseService.MAX_FILE_SIZE} bytes)")
+        
         # Save uploaded file to temporary location
         temp_dir = tempfile.gettempdir()
         temp_file_path = os.path.join(temp_dir, f"resume_{user_id}_{filename}")
@@ -90,6 +99,10 @@ async def _process_resume_upload_task(file_content: bytes, filename: str, user_i
         with open(temp_file_path, 'wb') as temp_file:
             temp_file.write(file_content)
         logger.info(f"File content written to temporary file, size: {len(file_content)} bytes")
+        
+        # Clear file content from memory
+        del file_content
+        gc.collect()
         
         # Initialize ParseService and parse the resume file
         logger.info("Initializing ParseService")
@@ -100,10 +113,18 @@ async def _process_resume_upload_task(file_content: bytes, filename: str, user_i
         parsed_data = await parse_service.parse_resume_file(temp_file_path)
         logger.info(f"Resume parsing completed. Parsed data summary: first_name={parsed_data.first_name}, last_name={parsed_data.last_name}, experience_count={len(parsed_data.experience)}, education_count={len(parsed_data.education)}")
         
+        # Clean up ParseService
+        del parse_service
+        gc.collect()
+        
         # Create resume with all parsed data
         logger.info("Starting database operations to create resume")
         resume = await _create_resume_with_data(user_id, filename, parsed_data)
         logger.info(f"Database operations completed successfully, resume ID: {resume.id}")
+        
+        # Clean up parsed data
+        del parsed_data
+        gc.collect()
         
         # Clean up temporary file
         try:
@@ -124,6 +145,15 @@ async def _process_resume_upload_task(file_content: bytes, filename: str, user_i
         
     except Exception as e:
         logger.error(f"Exception in process_resume_upload task: {e}", exc_info=True)
+        
+        # Clean up objects on error
+        if 'file_content' in locals():
+            del file_content
+        if parse_service:
+            del parse_service
+        if 'parsed_data' in locals():
+            del parsed_data
+        gc.collect()
         
         # Clean up temporary file on error
         if temp_file_path and os.path.exists(temp_file_path):
@@ -268,6 +298,10 @@ async def _create_resume_with_data(user_id: int, filename: str, parsed_data):
             await db.commit()
             logger.info(f"Resume {resume.id} created successfully with all data for user {user_id}")
             logger.info(f"Final commit completed for resume {resume.id}")
+            
+            # Force garbage collection after database operations
+            gc.collect()
+            
             return resume
             
         except Exception as e:
