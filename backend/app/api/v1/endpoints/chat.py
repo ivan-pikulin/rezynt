@@ -115,29 +115,33 @@ async def send_message_stream(
     
     async def generate_stream():
         full_response = ""
-        conversation_id = None
+        new_conversation_id = None
         
         try:
-            async for chunk in platform_chatflow.chat_stream(
+            async for chunk, conversation_id in platform_chatflow.chat_stream(
                 user_id=str(user.id),
                 text=request.message,
                 conversation_id=resume_obj.conversation_id,
                 resume_id=str(request.resume_id)
             ):
                 full_response += chunk
+                new_conversation_id = conversation_id
                 # Send chunk as SSE
                 yield f"data: {json.dumps({'chunk': chunk})}\n\n"
             
             # Save the complete response
-            bot_message = await message_crud.create_message(
+            await message_crud.create_message(
                 db, 
                 resume_id=request.resume_id, 
                 role="assistant", 
                 content=full_response
             )
             
-            # Update conversation_id if it changed (we'll need to get it from the platform response)
-            # For now, we'll keep the existing conversation_id
+            # Update conversation_id if it changed
+            if new_conversation_id and new_conversation_id != resume_obj.conversation_id:
+                from app.schemas.resume import ResumeUpdate
+                update_data = ResumeUpdate(conversation_id=new_conversation_id)
+                await resume_crud.update(db, db_obj=resume_obj, obj_in=update_data)
             
             # Send end signal
             yield f"data: {json.dumps({'end': True})}\n\n"

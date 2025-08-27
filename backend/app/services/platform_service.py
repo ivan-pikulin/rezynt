@@ -52,7 +52,11 @@ class PlatformChatflow:
 
             return PlatformMessage(text=answer, conversation_id=conversation_id)
 
-    async def chat_stream(self, user_id: str, text: str, conversation_id: str = None, resume_id: str = None) -> AsyncGenerator[str, None]:
+    async def chat_stream(self, user_id: str, text: str, conversation_id: str = None, resume_id: str = None) -> AsyncGenerator[tuple[str, str], None]:
+        """
+        Stream chat response and yield (chunk, conversation_id) tuples.
+        Returns the conversation_id from the first message event.
+        """
         request_data = {
             "query": text,
             "user": user_id,
@@ -78,6 +82,8 @@ class PlatformChatflow:
                     logger.error(f"HTTP {response.status_code}: {error_text}")
                     raise Exception(f"HTTP {response.status_code}: {error_text}")
                 
+                current_conversation_id = conversation_id
+                
                 async for line in response.aiter_lines():
                     if line.startswith("data: "):
                         data_str = line[6:]  # Remove "data: " prefix
@@ -90,9 +96,14 @@ class PlatformChatflow:
                             
                             if event == "agent_message":
                                 answer = data.get("answer", "")
+                                # Capture conversation_id from the first message
+                                if not current_conversation_id:
+                                    current_conversation_id = data.get("conversation_id")
                                 if answer:
-                                    yield answer
+                                    yield (answer, current_conversation_id or "")
                             elif event == "message_end":
+                                # Update conversation_id from message_end event
+                                current_conversation_id = data.get("conversation_id", current_conversation_id)
                                 break
                             elif event == "error":
                                 error_msg = data.get("message", "Unknown error")
