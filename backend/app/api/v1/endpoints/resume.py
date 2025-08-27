@@ -311,9 +311,12 @@ async def export_resume_pdf(
             filename = f"{full_name}_resume.pdf"
         
         # Generate PDF from HTML content
+        # Apply watermark only for non-premium users
+        use_watermark = not current_user.is_premium
         pdf_bytes, final_filename = pdf_service.generate_pdf_from_html(
             html_content=export_request.html_content,
-            filename=filename
+            filename=filename,
+            use_watermark=use_watermark
         )
         
         # Return PDF as file response

@@ -226,6 +226,67 @@
                 <dkim_key_path>Настраивается через EMAIL_DKIM_PRIVATE_KEY_PATH в config</dkim_key_path>
             </configuration>
         </component>
+        
+        <component>
+            <name>PDFService</name>
+            <description>
+                Сервис для генерации PDF файлов из HTML контента с поддержкой водяных знаков. Использует WeasyPrint для конвертации HTML в PDF с настраиваемыми стилями и фоновыми изображениями.
+            </description>
+            <methods>
+                <method>
+                    <name>generate_pdf_from_html</name>
+                    <description>Генерирует PDF из HTML контента с условным применением водяных знаков</description>
+                    <params>
+                        <param name="html_content" type="str">HTML контент для конвертации</param>
+                        <param name="filename" type="Optional[str]">Имя файла PDF (опционально)</param>
+                        <param name="use_watermark" type="bool">Применять ли водяные знаки (по умолчанию True)</param>
+                    </params>
+                    <returns type="tuple[bytes, str]">Кортеж из байтов PDF и имени файла</returns>
+                    <watermark_support>Условно применяет водяные знаки в зависимости от параметра use_watermark</watermark_support>
+                    <premium_logic>Водяные знаки применяются только для не-премиум пользователей</premium_logic>
+                    <page_format>A4 размер с отступами 0.75 дюйма</page_format>
+                </method>
+                <method>
+                    <name>_get_watermark_css</name>
+                    <description>Генерирует CSS для водяных знаков из SVG файла</description>
+                    <returns type="str">CSS строка с настройками водяных знаков</returns>
+                    <file_check>Проверяет существование файла водяных знаков</file_check>
+                    <path_conversion>Конвертирует относительный путь в абсолютный для WeasyPrint</path_conversion>
+                </method>
+                <method>
+                    <name>save_pdf_temp</name>
+                    <description>Сохраняет PDF во временный файл</description>
+                    <params>
+                        <param name="pdf_bytes" type="bytes">Байты PDF</param>
+                        <param name="filename" type="str">Имя файла</param>
+                    </params>
+                    <returns type="str">Путь к временному файлу</returns>
+                </method>
+                <method>
+                    <name>create_file_response</name>
+                    <description>Создает FastAPI FileResponse для скачивания PDF</description>
+                    <params>
+                        <param name="pdf_bytes" type="bytes">Байты PDF</param>
+                        <param name="filename" type="str">Имя файла</param>
+                    </params>
+                    <returns type="FileResponse">FastAPI файловый ответ</returns>
+                </method>
+            </methods>
+            <configuration>
+                <watermark_path>PDF_WATERMARK_PATH - путь к SVG файлу водяных знаков</watermark_path>
+                <default_watermark>app/static/watermarks/watermark.svg - путь по умолчанию</default_watermark>
+                <page_size>A4 - размер страницы</page_size>
+                <margins>0.75in - отступы страницы</margins>
+                <font_config>FontConfiguration для поддержки шрифтов</font_config>
+            </configuration>
+            <watermark_features>
+                <background_image>Поддержка фонового изображения из SVG</background_image>
+                <background_size>contain - размер фона</background_size>
+                <background_position>center - позиция фона</background_position>
+                <background_repeat>no-repeat - без повторения</background_repeat>
+                <background_attachment>fixed - фиксированное положение</background_attachment>
+            </watermark_features>
+        </component>
     </components>
     
     <dependencies>
@@ -240,5 +301,7 @@
         <dependency>markitdown</dependency>
         <dependency>gc</dependency>
         <dependency>os</dependency>
+        <dependency>weasyprint</dependency>
+        <dependency>pathlib</dependency>
     </dependencies>
 </specification>

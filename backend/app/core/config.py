@@ -76,6 +76,9 @@ class Settings(BaseSettings):
     
     # API Key for AI endpoints
     APP_API_KEY: str
+    
+    # PDF settings
+    PDF_WATERMARK_PATH: str = "app/static/watermarks/watermark.svg"
 
     @property
     def sync_database_url(self) -> str:

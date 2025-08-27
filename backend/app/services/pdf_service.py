@@ -7,6 +7,7 @@ from weasyprint import HTML, CSS
 from weasyprint.text.fonts import FontConfiguration
 from fastapi import HTTPException, status
 from fastapi.responses import FileResponse
+from app.core.config import settings
 
 
 class PDFService:
@@ -15,10 +16,45 @@ class PDFService:
     def __init__(self):
         self.font_config = FontConfiguration()
         
+    def _get_watermark_css(self) -> str:
+        """
+        Generate CSS for watermark background
+        
+        Returns:
+            str: CSS string with watermark styling
+        """
+        watermark_path = Path(settings.PDF_WATERMARK_PATH)
+        
+        # Check if watermark file exists
+        if not watermark_path.exists():
+            return ""
+        
+        # Convert to absolute path for WeasyPrint
+        absolute_watermark_path = watermark_path.resolve()
+        
+        return f"""
+            @page {{
+                size: A4;
+                margin: 0.75in;
+                @top-center {{
+                    content: "";
+                }}
+                @bottom-center {{
+                    content: "";
+                }}
+                background-image: url('file://{absolute_watermark_path}');
+                background-size: contain;
+                background-repeat: no-repeat;
+                background-position: center;
+                background-attachment: fixed;
+            }}
+        """
+        
     def generate_pdf_from_html(
         self, 
         html_content: str, 
-        filename: Optional[str] = None
+        filename: Optional[str] = None,
+        use_watermark: bool = True
     ) -> tuple[bytes, str]:
         """
         Generate PDF from HTML content using WeasyPrint
@@ -26,6 +62,7 @@ class PDFService:
         Args:
             html_content: HTML string to convert
             filename: Optional filename for the PDF
+            use_watermark: Whether to apply watermark (default: True)
             
         Returns:
             tuple: (pdf_bytes, filename)
@@ -34,26 +71,20 @@ class PDFService:
             # Create HTML object
             html = HTML(string=html_content)
             
+            # Get watermark CSS only if requested
+            watermark_css = self._get_watermark_css() if use_watermark else ""
+            
             # Define CSS for better PDF formatting
-            css_string = """
-                @page {
-                    size: A4;
-                    margin: 0.75in;
-                    @top-center {
-                        content: "";
-                    }
-                    @bottom-center {
-                        content: "";
-                    }
-                }
-                body {
+            css_string = f"""
+                {watermark_css}
+                body {{
                     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
                     line-height: 1.6;
                     color: #333;
-                }
-                * {
+                }}
+                * {{
                     box-sizing: border-box;
-                }
+                }}
             """
             
             css = CSS(string=css_string, font_config=self.font_config)
