@@ -12,7 +12,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled })
   
   const handleSend = () => {
     if (message.trim() && !disabled) {
-      onSendMessage(message.trim());
+      onSendMessage(message); // Убираем .trim() чтобы сохранить переносы строк
       setMessage('');
     }
   };
@@ -36,7 +36,8 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled })
       <TextField
         fullWidth
         multiline
-        maxRows={4}
+        minRows={1}
+        maxRows={6}
         size="small"
         value={message}
         onChange={(e) => setMessage(e.target.value)}
@@ -48,8 +49,13 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled })
             borderRadius: '20px', // Более округлые углы
             bgcolor: '#f8f9fa', // Светло-серый фон
             fontSize: '0.95rem',
-            height: '55px', // Минимальная высота для удобства
-            paddingRight: '60px', // Место для кнопки
+            minHeight: '40px', // Минимальная высота
+            maxHeight: '150px', // Максимальная высота (примерно 6 строк)
+            paddingRight: '0px', // Убираем paddingRight у контейнера
+            overflow: 'hidden', // Убираем прокрутку у контейнера
+            display: 'flex', // Flexbox для правильного размещения
+            alignItems: 'stretch', // Растягиваем по высоте
+            flexDirection: 'column', // Вертикальное направление
             '& fieldset': {
               borderColor: 'transparent', // Убираем границу
               borderWidth: '1px'
@@ -67,8 +73,17 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled })
             },
             '& textarea': {
               fontSize: '0.95rem',
-              padding: '12px 16px',
-              lineHeight: '1.4'
+              padding: '12px 76px 12px 16px', // Отступы: top right bottom left (76px справа для кнопки)
+              margin: 0, // Убираем margin
+              lineHeight: '1.4',
+              resize: 'none', // Отключаем ручное изменение размера
+              overflow: 'auto', // Прокрутка только внутри textarea
+              maxHeight: '126px', // Максимальная высота textarea (150px - 24px отступы)
+              border: 'none', // Убираем границу у textarea
+              outline: 'none', // Убираем outline у textarea
+              width: '100%', // Занимаем всю ширину
+              boxSizing: 'border-box', // Включаем padding в расчет ширины
+              position: 'relative' // Для правильного позиционирования
             }
           },
           '& .MuiInputBase-input': {

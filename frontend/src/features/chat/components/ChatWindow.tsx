@@ -126,7 +126,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ resumeId, onResumeUpdate }) => 
           gap: 2,
           p: 3,
           minHeight: 0,
-          maxHeight: 'calc(100% - 60px - 56px)', // Обновил с учетом новой высоты области ввода (60px)
+          maxHeight: 'calc(100% - 60px - 56px)', // Минимальная высота области ввода + шапка
           background: COLORS.gradients.white,
           position: 'relative'
         }}
@@ -174,10 +174,12 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ resumeId, onResumeUpdate }) => 
       <Box sx={{
         flexShrink: 0,
         height: 'auto',
-        minHeight: '60px', // Уменьшил с 72px до 60px
+        minHeight: '60px', // Минимальная высота
+        maxHeight: '170px', // Максимальная высота (150px + отступы)
         display: 'flex',
-        alignItems: 'center',
-        position: 'relative'
+        alignItems: 'flex-end', // Выравниваем по нижнему краю
+        position: 'relative',
+        overflow: 'hidden' // Предотвращаем выход за границы
       }}>
         <ChatInput onSendMessage={sendUserMessage} disabled={isLoading} />
       </Box>

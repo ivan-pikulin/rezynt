@@ -84,9 +84,16 @@ export const ChatMessage: React.FC<ChatMessageProps> = memo(({ message, isLoadin
             <AnimatedDots />
           </Box>
         ) : (
-          <Typography variant="body2" sx={{ fontSize: '1rem' }}> {/* Увеличиваем с 0.875rem до 1rem */}
+          <Box 
+            component="div"
+            sx={{ 
+              fontSize: '1rem',
+              whiteSpace: 'pre-wrap', // Сохраняем переносы строк
+              wordBreak: 'break-word' // Переносим длинные слова
+            }}
+          >
             {message.content}
-          </Typography>
+          </Box>
         )}
       </Box>
       
