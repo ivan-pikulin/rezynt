@@ -152,7 +152,7 @@ class PlatformChatflow:
     async def get_messages(
         self, 
         user_id: str, 
-        conversation_id: str = None, 
+        conversation_id: str, 
         first_id: str = None, 
         limit: int = 20
     ) -> PlatformMessagesResponse:
@@ -164,15 +164,13 @@ class PlatformChatflow:
         
         params = {
             "user": user_id,
-            "limit": limit
+            "limit": limit,
+            "conversation_id": conversation_id
         }
-        
-        if conversation_id:
-            params["conversation_id"] = conversation_id
         
         if first_id:
             params["first_id"] = first_id
-
+        
         async with httpx.AsyncClient(timeout=httpx.Timeout(self.timeout)) as client:
             logger.info(f"Get platform messages: {messages_url} with params: {params}")
             response = await client.get(

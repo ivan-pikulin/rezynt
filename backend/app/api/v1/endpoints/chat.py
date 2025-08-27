@@ -151,6 +151,14 @@ async def get_messages(
         timeout=settings.PLATFORM_TIMEOUT
     )
     
+    # Если у резюме нет conversation_id, возвращаем пустой список
+    if not resume_obj.conversation_id:
+        return ChatMessageList(
+            messages=[],
+            has_more=False,
+            limit=limit
+        )
+    
     # Получаем сообщения с платформы
     platform_response = await platform_chatflow.get_messages(
         user_id=str(user.id),
