@@ -180,9 +180,6 @@ async def get_messages(
             conversation_id=platform_msg.conversation_id
         ))
     
-    # Сортируем по времени создания (новые сверху)
-    messages.sort(key=lambda x: x.created_at, reverse=True)
-    
     return ChatMessageList(
         messages=messages,
         has_more=platform_response.has_more,
