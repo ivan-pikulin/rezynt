@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from app.api.deps import VerifiedUser, get_db
 from app.services import PlatformChatflow
 from app.core.config import settings
-from app.database.crud.crud_resume import resume_crud, message_crud
+from app.database.crud.crud_resume import resume_manager, message_crud
 from app.schemas.resume import Message, MessageList
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import StreamingResponse
@@ -29,7 +29,7 @@ async def send_message(
     Send message to chat.
     """
     # Получаем резюме
-    resume_obj = await resume_crud.get(db, id=request.resume_id)
+    resume_obj = await resume_manager.get_resume_by_id(db, resume_id=request.resume_id)
     if not resume_obj:
         raise HTTPException(status_code=404, detail="Resume not found")
     
@@ -69,10 +69,7 @@ async def send_message(
     
     # Обновляем conversation_id в резюме, если он изменился
     if response.conversation_id and response.conversation_id != resume_obj.conversation_id:
-        from app.schemas.resume import ResumeUpdate
-        await db.refresh(resume_obj)
-        update_data = ResumeUpdate(conversation_id=response.conversation_id)
-        await resume_crud.update(db, db_obj=resume_obj, obj_in=update_data)
+        await resume_manager.update_conversation_id(db, resume_id=request.resume_id, conversation_id=response.conversation_id)
     
     return {
         "message": "Message sent successfully",
@@ -91,7 +88,7 @@ async def send_message_stream(
     Send message to chat with streaming response.
     """
     # Получаем резюме
-    resume_obj = await resume_crud.get(db, id=request.resume_id)
+    resume_obj = await resume_manager.get_resume_by_id(db, resume_id=request.resume_id)
     if not resume_obj:
         raise HTTPException(status_code=404, detail="Resume not found")
     
@@ -138,10 +135,7 @@ async def send_message_stream(
         
         # Update conversation_id if it changed
         if new_conversation_id and new_conversation_id != resume_obj.conversation_id:
-            from app.schemas.resume import ResumeUpdate
-            await db.refresh(resume_obj)
-            update_data = ResumeUpdate(conversation_id=new_conversation_id)
-            await resume_crud.update(db, db_obj=resume_obj, obj_in=update_data)
+            await resume_manager.update_conversation_id(db, resume_id=request.resume_id, conversation_id=new_conversation_id)
         
         # Send end signal
         yield f"data: {json.dumps({'end': True})}\n\n"
@@ -175,7 +169,7 @@ async def get_messages(
     - Use cursor=message_id&direction=forward for newer messages (if needed)
     """
     # Получаем резюме
-    resume_obj = await resume_crud.get(db, id=resume_id)
+    resume_obj = await resume_manager.get_resume_by_id(db, resume_id=resume_id)
     if not resume_obj:
         raise HTTPException(status_code=404, detail="Resume not found")
     

@@ -134,6 +134,17 @@ class CRUDResume(CRUDBase[Resume, ResumeCreate, ResumeUpdate]):
         )
         return result.scalar_one_or_none()
 
+    async def update_conversation_id(self, db: AsyncSession, *, resume_id: int, conversation_id: str) -> bool:
+        """Update conversation_id for a specific resume using direct SQL update"""
+        from sqlalchemy import update
+        
+        stmt = update(Resume).where(Resume.id == resume_id).values(conversation_id=conversation_id)
+        result = await db.execute(stmt)
+        await db.commit()
+        
+        # Return True if any rows were affected
+        return result.rowcount > 0
+
     async def create(self, db: AsyncSession, *, obj_in: ResumeCreate, user_id: int) -> UnifiedResume:
         """Create a new resume with user_id and return as unified object"""
         from sqlalchemy.orm import selectinload
@@ -752,6 +763,10 @@ class ResumeManager:
     async def get_export_history(self, db: AsyncSession, *, resume_id: int) -> List[ResumeExport]:
         return await self.export_crud.get_by_resume_id(db, resume_id=resume_id)
 
+    async def update_conversation_id(self, db: AsyncSession, *, resume_id: int, conversation_id: str) -> bool:
+        """Update conversation_id for a specific resume"""
+        return await self.resume_crud.update_conversation_id(db, resume_id=resume_id, conversation_id=conversation_id)
+
 
 # Message CRUD operations
 class CRUDMessage(CRUDBase[Message, MessageCreate, MessageUpdate]):
@@ -827,6 +842,5 @@ class CRUDMessage(CRUDBase[Message, MessageCreate, MessageUpdate]):
 
 
 # Create instances
-resume_crud = CRUDResume(Resume)
 resume_manager = ResumeManager()
 message_crud = CRUDMessage(Message)
