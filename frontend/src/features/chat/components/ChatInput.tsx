@@ -17,7 +17,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled })
     }
   };
   
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey && !disabled) {
       e.preventDefault();
       handleSend();
@@ -40,9 +40,9 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled })
         size="small"
         value={message}
         onChange={(e) => setMessage(e.target.value)}
-        onKeyPress={handleKeyPress}
+        onKeyDown={handleKeyDown}
         placeholder="Type your message..."
-        autoFocus // Автоматический фокус
+        autoFocus
         sx={{
           '& .MuiOutlinedInput-root': {
             borderRadius: '20px', // Более округлые углы

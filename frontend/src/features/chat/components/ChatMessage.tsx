@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { Box, Avatar, Typography } from '@mui/material';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
 import { ChatMessage as ChatMessageType } from '../hooks/useChat';
@@ -38,27 +38,19 @@ const AnimatedDots: React.FC = () => (
   </Box>
 );
 
-export const ChatMessage: React.FC<ChatMessageProps> = ({ message, isLoading = false }) => {
+export const ChatMessage: React.FC<ChatMessageProps> = memo(({ message, isLoading = false }) => {
   const isUser = message.sender === 'user';
   const showLoading = isLoading && !isUser && !message.content;
   
-  // Добавляем логи для отладки
-  console.log('ChatMessage debug:', {
-    messageId: message.id,
-    sender: message.sender,
-    role: (message as any).role, // Проверяем, есть ли поле role
-    content: message.content,
-    isUser: isUser,
-    messageKeys: Object.keys(message)
-  });
-  
   return (
-    <Box sx={{ 
-      display: 'flex', 
-      gap: 1, 
-      alignItems: 'flex-start',
-      justifyContent: isUser ? 'flex-end' : 'flex-start'
-    }}>
+    <Box 
+      data-message-id={message.id}
+      sx={{ 
+        display: 'flex', 
+        gap: 1, 
+        alignItems: 'flex-start',
+        justifyContent: isUser ? 'flex-end' : 'flex-start'
+      }}>
       {!isUser && (
         <Avatar sx={{ 
           width: 36, // Увеличиваем с 32 до 36
@@ -108,4 +100,4 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, isLoading = f
       )}
     </Box>
   );
-}; 
+}); 

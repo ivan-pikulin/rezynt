@@ -19,7 +19,8 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ resumeId, onResumeUpdate }) => 
     hasMoreMessages,
     sendUserMessage, 
     loadOlderMessages,
-    messagesEndRef 
+    messagesEndRef,
+    chatContainerRef
   } = useChat(resumeId, onResumeUpdate);
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
@@ -114,19 +115,21 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ resumeId, onResumeUpdate }) => 
       </Box>
 
       {/* Область чата с современным дизайном */}
-      <Box sx={{ 
-        flex: 1, 
-        overflowY: 'auto',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 2,
-        p: 3,
-        minHeight: 0,
-        maxHeight: 'calc(100% - 60px - 56px)', // Обновил с учетом новой высоты области ввода (60px)
-        background: COLORS.gradients.white,
-        position: 'relative'
-      }}
-      onScroll={handleScroll}
+      <Box 
+        ref={chatContainerRef}
+        sx={{ 
+          flex: 1, 
+          overflowY: 'auto',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 2,
+          p: 3,
+          minHeight: 0,
+          maxHeight: 'calc(100% - 60px - 56px)', // Обновил с учетом новой высоты области ввода (60px)
+          background: COLORS.gradients.white,
+          position: 'relative'
+        }}
+        onScroll={handleScroll}
       >
         {/* Декоративная сетка на фоне */}
         <Box sx={{
