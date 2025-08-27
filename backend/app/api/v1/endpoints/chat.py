@@ -117,41 +117,35 @@ async def send_message_stream(
     async def generate_stream():
         full_response = ""
         new_conversation_id = None
+        async for chunk, conversation_id in platform_chatflow.chat_stream(
+            user_id=str(user.id),
+            text=request.message,
+            conversation_id=resume_obj.conversation_id,
+            resume_id=str(request.resume_id)
+        ):
+            full_response += chunk
+            new_conversation_id = conversation_id
+            # Send chunk as SSE
+            yield f"data: {json.dumps({'chunk': chunk})}\n\n"
         
-        try:
-            async for chunk, conversation_id in platform_chatflow.chat_stream(
-                user_id=str(user.id),
-                text=request.message,
-                conversation_id=resume_obj.conversation_id,
-                resume_id=str(request.resume_id)
-            ):
-                full_response += chunk
-                new_conversation_id = conversation_id
-                # Send chunk as SSE
-                yield f"data: {json.dumps({'chunk': chunk})}\n\n"
-            
-            # Save the complete response
-            await message_crud.create_message(
-                db, 
-                resume_id=request.resume_id, 
-                role="assistant", 
-                content=full_response
-            )
-            
-            # Update conversation_id if it changed
-            if new_conversation_id and new_conversation_id != resume_obj.conversation_id:
-                from app.schemas.resume import ResumeUpdate
-                await db.refresh(resume_obj)
-                update_data = ResumeUpdate(conversation_id=new_conversation_id)
-                await resume_crud.update(db, db_obj=resume_obj, obj_in=update_data)
-            
-            # Send end signal
-            yield f"data: {json.dumps({'end': True})}\n\n"
-            
-        except Exception as e:
-            # Send error signal
-            yield f"data: {json.dumps({'error': str(e)})}\n\n"
-    
+        # Save the complete response
+        await message_crud.create_message(
+            db, 
+            resume_id=request.resume_id, 
+            role="assistant", 
+            content=full_response
+        )
+        
+        # Update conversation_id if it changed
+        if new_conversation_id and new_conversation_id != resume_obj.conversation_id:
+            from app.schemas.resume import ResumeUpdate
+            await db.refresh(resume_obj)
+            update_data = ResumeUpdate(conversation_id=new_conversation_id)
+            await resume_crud.update(db, db_obj=resume_obj, obj_in=update_data)
+        
+        # Send end signal
+        yield f"data: {json.dumps({'end': True})}\n\n"
+
     return StreamingResponse(
         generate_stream(),
         media_type="text/event-stream",
