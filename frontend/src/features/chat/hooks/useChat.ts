@@ -25,6 +25,34 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void) =>
   const [hasMoreMessages, setHasMoreMessages] = useState(true);
   const [lastLoadType, setLastLoadType] = useState<MessageLoadType>('none');
   const [pendingScrollRestore, setPendingScrollRestore] = useState<any>(null);
+  const [currentThinkingPhrase, setCurrentThinkingPhrase] = useState<string>('Thinking');
+  const [shuffledPhrases, setShuffledPhrases] = useState<string[]>([]);
+  const [currentPhraseIndex, setCurrentPhraseIndex] = useState<number>(0);
+
+  // Список фраз для показа во время ожидания
+  const thinkingPhrases = [
+    'Thinking',
+    'Analyzing your resume',
+    'Processing your request',
+    'Generating response',
+    'Working on it',
+    'Almost ready',
+    'Preparing answer',
+    'Weighing every word',
+    'Putting thoughts in order',
+    'Polishing the phrasing',
+    'Structuring the information'
+  ];
+
+  // Функция для перемешивания массива (алгоритм Fisher-Yates)
+  const shuffleArray = (array: string[]): string[] => {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  };
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -213,6 +241,21 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void) =>
     setMessages(prev => [...prev, assistantMessage]);
     setIsLoading(true);
     
+    // Перемешиваем фразы и сбрасываем индекс
+    const newShuffledPhrases = shuffleArray(thinkingPhrases);
+    setShuffledPhrases(newShuffledPhrases);
+    setCurrentPhraseIndex(0);
+    setCurrentThinkingPhrase(newShuffledPhrases[0] || 'Thinking');
+    
+    // Таймер для смены фраз каждые 4 секунды
+    const phraseTimer = setInterval(() => {
+      setCurrentPhraseIndex(prevIndex => {
+        const nextIndex = (prevIndex + 1) % newShuffledPhrases.length;
+        setCurrentThinkingPhrase(newShuffledPhrases[nextIndex]);
+        return nextIndex;
+      });
+    }, 4000);
+    
     try {
       // Отправляем запрос на API с streaming
       const request: SendMessageRequest = {
@@ -224,6 +267,9 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void) =>
         request,
         // onChunk callback - добавляем чанк к сообщению ассистента
         (chunk: string) => {
+          // Очищаем таймер смены фраз при получении первого чанка
+          clearInterval(phraseTimer);
+          
           flushSync(() => {
             setMessages(prev => 
               prev.map(msg => 
@@ -236,6 +282,7 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void) =>
         },
         // onEnd callback - завершение стрима
         () => {
+          clearInterval(phraseTimer);
           setIsLoading(false);
           
           // Обновляем кеш резюме после ответа AI
@@ -251,6 +298,7 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void) =>
         },
         // onError callback - обработка ошибок
         (error: string) => {
+          clearInterval(phraseTimer);
           console.error('Chat streaming error:', error);
           setMessages(prev => 
             prev.map(msg => 
@@ -264,6 +312,7 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void) =>
       );
       
     } catch (error) {
+      clearInterval(phraseTimer);
       console.error('Chat API error:', error);
       // В случае ошибки показываем сообщение об ошибке
       setMessages(prev => 
@@ -285,6 +334,7 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void) =>
     sendUserMessage,
     loadOlderMessages,
     messagesEndRef,
-    chatContainerRef
+    chatContainerRef,
+    currentThinkingPhrase
   };
 }; 

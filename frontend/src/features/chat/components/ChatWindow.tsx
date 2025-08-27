@@ -20,7 +20,8 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ resumeId, onResumeUpdate }) => 
     sendUserMessage, 
     loadOlderMessages,
     messagesEndRef,
-    chatContainerRef
+    chatContainerRef,
+    currentThinkingPhrase
   } = useChat(resumeId, onResumeUpdate);
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
@@ -162,6 +163,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ resumeId, onResumeUpdate }) => 
             key={message.id} 
             message={message} 
             isLoading={isLoading}
+            currentThinkingPhrase={currentThinkingPhrase}
           />
         ))}
         {/* Invisible div for scrolling to bottom */}

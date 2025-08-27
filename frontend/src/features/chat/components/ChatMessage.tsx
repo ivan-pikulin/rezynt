@@ -7,6 +7,7 @@ import { COLORS } from '../../../shared/theme/theme';
 interface ChatMessageProps {
   message: ChatMessageType;
   isLoading?: boolean;
+  currentThinkingPhrase?: string;
 }
 
 // Компонент для анимированных точек
@@ -38,8 +39,9 @@ const AnimatedDots: React.FC = () => (
   </Box>
 );
 
-export const ChatMessage: React.FC<ChatMessageProps> = memo(({ message, isLoading = false }) => {
+export const ChatMessage: React.FC<ChatMessageProps> = memo(({ message, isLoading = false, currentThinkingPhrase = 'Thinking...' }) => {
   const isUser = message.sender === 'user';
+  // Показываем фразу ожидания только если нет контента
   const showLoading = isLoading && !isUser && !message.content;
   
   return (
@@ -77,7 +79,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = memo(({ message, isLoadin
         {showLoading ? (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <Typography variant="body2" sx={{ fontSize: '1rem' }}> {/* Увеличиваем с 0.875rem до 1rem */}
-              Thinking
+              {currentThinkingPhrase}
             </Typography>
             <AnimatedDots />
           </Box>
