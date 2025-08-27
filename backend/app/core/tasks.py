@@ -176,9 +176,10 @@ async def _create_resume_with_data(user_id: int, filename: str, parsed_data):
             # Create resume with parsed data
             resume = Resume(
                 title=name_without_extension,
-                template_id=1,  # Default template
+                template_id=1,
                 professional_summary=parsed_data.professional_summary or "",
-                user_id=user_id
+                user_id=user_id,
+                from_upload=True
             )
             
             db.add(resume)
