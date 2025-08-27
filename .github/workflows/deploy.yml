@@ -39,7 +39,11 @@ jobs:
             echo "Pulling latest changes from git..."
             git pull origin main
             
-            # Build new images in the background (does not stop running containers)
+            # Stop all containers before building
+            echo "Stopping all containers..."
+            docker compose down
+            
+            # Build new images
             echo "Building Docker images..."
             docker compose -f docker-compose.yml build
             
