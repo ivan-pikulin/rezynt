@@ -17,7 +17,7 @@ const ChatPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const resumeId = searchParams.get('resume_id');
   const { resume: resumeData, refreshResume } = useResumeQuery(resumeId);
-  const { selectedTemplate } = useTemplate(resumeId);
+  const { selectedTemplate } = useTemplate(resumeId, resumeData?.template_id);
   const [showPreview, setShowPreview] = useState(false);
 
   const handleNext = () => {
