@@ -376,6 +376,7 @@ class UnifiedResume(BaseModel):
     user_id: int
     title: str
     template_id: Optional[int] = None
+    template_slug: Optional[str] = None
     professional_summary: Optional[str] = None
     conversation_id: Optional[str] = None
     from_upload: bool = False
@@ -402,6 +403,7 @@ class UnifiedResume(BaseModel):
             "user_id": self.user_id,
             "title": self.title,
             "template_id": self.template_id,
+            "template_slug": self.template_slug,
             "professional_summary": self.professional_summary,
             "conversation_id": self.conversation_id,
             "from_upload": self.from_upload,

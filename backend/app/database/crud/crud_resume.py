@@ -30,7 +30,8 @@ class CRUDResume(CRUDBase[Resume, ResumeCreate, ResumeUpdate]):
                 selectinload(Resume.contacts),
                 selectinload(Resume.skills),
                 selectinload(Resume.experience),
-                selectinload(Resume.education)
+                selectinload(Resume.education),
+                selectinload(Resume.template)
             )
             .where(Resume.user_id == user_id)
         )
@@ -70,7 +71,8 @@ class CRUDResume(CRUDBase[Resume, ResumeCreate, ResumeUpdate]):
                 selectinload(Resume.contacts),
                 selectinload(Resume.skills),
                 selectinload(Resume.experience),
-                selectinload(Resume.education)
+                selectinload(Resume.education),
+                selectinload(Resume.template)
             )
             .where(Resume.user_id == user_id, Resume.id == resume_id)
         )
@@ -90,7 +92,8 @@ class CRUDResume(CRUDBase[Resume, ResumeCreate, ResumeUpdate]):
                 selectinload(Resume.contacts),
                 selectinload(Resume.skills),
                 selectinload(Resume.experience),
-                selectinload(Resume.education)
+                selectinload(Resume.education),
+                selectinload(Resume.template)
             )
             .where(Resume.template_id == template_id)
         )
@@ -108,7 +111,8 @@ class CRUDResume(CRUDBase[Resume, ResumeCreate, ResumeUpdate]):
                 selectinload(Resume.contacts),
                 selectinload(Resume.skills),
                 selectinload(Resume.experience),
-                selectinload(Resume.education)
+                selectinload(Resume.education),
+                selectinload(Resume.template)
             )
             .where(Resume.id == resume_id)
         )
@@ -128,7 +132,8 @@ class CRUDResume(CRUDBase[Resume, ResumeCreate, ResumeUpdate]):
                 selectinload(Resume.contacts),
                 selectinload(Resume.skills),
                 selectinload(Resume.experience),
-                selectinload(Resume.education)
+                selectinload(Resume.education),
+                selectinload(Resume.template)
             )
             .where(Resume.id == resume_id)
         )
@@ -358,11 +363,17 @@ class CRUDResume(CRUDBase[Resume, ResumeCreate, ResumeUpdate]):
                     graduation_date=edu.graduation_date
                 ))
 
+        # Extract template_slug
+        template_slug = None
+        if hasattr(resume, 'template') and resume.template:
+            template_slug = resume.template.slug
+
         return UnifiedResume(
             id=getattr(resume, 'id', None),
             user_id=getattr(resume, 'user_id', None),
             title=getattr(resume, 'title', None),
             template_id=getattr(resume, 'template_id', None),
+            template_slug=template_slug,
             professional_summary=getattr(resume, 'professional_summary', None),
             conversation_id=getattr(resume, 'conversation_id', None),
             created_at=getattr(resume, 'created_at', None),

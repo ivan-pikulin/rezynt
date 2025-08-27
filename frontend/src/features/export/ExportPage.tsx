@@ -21,7 +21,7 @@ const ExportPage: React.FC = () => {
   const resumeId = searchParams.get('resume_id');
   const templateContainerRef = useRef<HTMLDivElement>(null);
   const { resume, isLoading: loading, error: queryError, refreshResume } = useResumeQuery(resumeId);
-  const { selectedTemplate } = useTemplate(resumeId);
+  const { selectedTemplate } = useTemplate(resumeId, resume?.template_slug);
   const [isExporting, setIsExporting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 

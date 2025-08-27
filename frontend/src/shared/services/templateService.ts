@@ -9,6 +9,10 @@ export class TemplateService {
    * Получить все доступные шаблоны
    */
   static getTemplates(): TemplateConfig[] {
+    console.log('🎨 [TemplateService] getTemplates called:', {
+      totalTemplates: TEMPLATE_CONFIGS.length,
+      templates: TEMPLATE_CONFIGS.map(t => ({ id: t.id, name: t.name }))
+    });
     return TEMPLATE_CONFIGS;
   }
 
@@ -16,14 +20,41 @@ export class TemplateService {
    * Получить шаблон по ID
    */
   static getTemplateById(id: string): TemplateConfig | undefined {
-    return TEMPLATE_CONFIGS.find(template => template.id === id);
+    console.log('🎨 [TemplateService] getTemplateById called:', {
+      requestedId: id,
+      availableIds: TEMPLATE_CONFIGS.map(t => t.id)
+    });
+    
+    const template = TEMPLATE_CONFIGS.find(template => template.id === id);
+    
+    console.log('🎨 [TemplateService] getTemplateById result:', {
+      requestedId: id,
+      found: !!template,
+      templateName: template?.name,
+      templateCategory: template?.category
+    });
+    
+    return template;
   }
 
   /**
    * Получить шаблоны по категории
    */
   static getTemplatesByCategory(category: string): TemplateConfig[] {
-    return TEMPLATE_CONFIGS.filter(template => template.category === category);
+    console.log('🎨 [TemplateService] getTemplatesByCategory called:', {
+      category,
+      availableCategories: [...new Set(TEMPLATE_CONFIGS.map(t => t.category))]
+    });
+    
+    const templates = TEMPLATE_CONFIGS.filter(template => template.category === category);
+    
+    console.log('🎨 [TemplateService] getTemplatesByCategory result:', {
+      category,
+      found: templates.length,
+      templates: templates.map(t => ({ id: t.id, name: t.name }))
+    });
+    
+    return templates;
   }
 
   /**

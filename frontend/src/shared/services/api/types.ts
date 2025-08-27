@@ -68,6 +68,7 @@ export interface UnifiedResume {
   user_id: number;
   title: string;
   template_id?: number;
+  template_slug?: string;
   professional_summary?: string;
   conversation_id?: string;
   from_upload?: boolean;

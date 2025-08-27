@@ -30,9 +30,9 @@ const RefinePage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const resumeId = searchParams.get('resume_id');
   
-  const { selectedTemplate, updateTemplate } = useTemplate(resumeId);
-  const [showPreview, setShowPreview] = useState(false);
   const { resume, isLoading: loading, error: queryError, updateResumeInCache } = useResumeQuery(resumeId);
+  const { selectedTemplate, updateTemplate } = useTemplate(resumeId, resume?.template_slug);
+  const [showPreview, setShowPreview] = useState(false);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [titleValue, setTitleValue] = useState('');
 
