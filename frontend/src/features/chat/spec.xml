@@ -151,5 +151,14 @@
                 - Response from AI assistant via platform service with SSE streaming
             </implementation>
         </feature>
+        <feature name="welcome_messages" desc="Dynamic welcome messages based on resume source">
+            <implementation>
+                - Different welcome messages for scratch vs upload resumes
+                - Scratch: "Welcome aboard! I'm your AI Writer, here to save you time and boost your chances. Let's get personal: what's your name?"
+                - Upload: "Welcome aboard! I'm your AI Writer, here to save you time and boost your chances. Let's start?"
+                - Welcome message shown when no chat history exists
+                - Based on resume.from_upload field from backend
+            </implementation>
+        </feature>
     </functionality>
 </chat_feature> 

@@ -29,6 +29,7 @@ export interface ResumeData {
   template_id?: number;
   professional_summary?: string;
   conversation_id?: string;
+  from_upload?: boolean;
   created_at?: string;
   updated_at?: string;
   

@@ -124,7 +124,11 @@ const ChatPage: React.FC = () => {
             display: 'flex', 
             flexDirection: 'column' 
           }}>
-            <ChatWindow resumeId={resumeId} onResumeUpdate={refreshResume} />
+            <ChatWindow 
+              resumeId={resumeId} 
+              onResumeUpdate={refreshResume} 
+              fromUpload={resumeData?.from_upload || false}
+            />
           </Box>
           
           {/* Правая часть: превью (скрыто на мобильных по умолчанию) */}

@@ -15,7 +15,7 @@ export interface ChatMessage {
 // Типы загрузки сообщений для управления скроллом
 type MessageLoadType = 'initial' | 'older' | 'new' | 'none';
 
-export const useChat = (resumeId: string | null, onResumeUpdate?: () => void) => {
+export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fromUpload: boolean = false) => {
   const queryClient = useQueryClient();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -142,14 +142,29 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void) =>
       }));
       
       // Reverse messages to show in chronological order
-      setMessages(chatMessages.reverse());
+      let finalMessages = chatMessages.reverse();
+      
+      // Add welcome message if no messages exist
+      if (finalMessages.length === 0) {
+        const welcomeMessage = {
+          id: 'welcome',
+          content: fromUpload 
+            ? "Welcome aboard! I'm your AI Writer, here to save you time and boost your chances. Let's start?"
+            : "Welcome aboard! I'm your AI Writer, here to save you time and boost your chances. Let's get personal: what's your name?",
+          sender: 'assistant' as const,
+          timestamp: new Date()
+        };
+        finalMessages = [welcomeMessage];
+      }
+      
+      setMessages(finalMessages);
       setHasMoreMessages(response.has_more);
     } catch (error) {
       console.error('Error loading messages:', error);
     } finally {
       setIsLoadingMessages(false);
     }
-  }, [resumeId]);
+  }, [resumeId, fromUpload]);
 
   // Управление скроллом в зависимости от типа загрузки сообщений
   useEffect(() => {

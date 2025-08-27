@@ -49,6 +49,7 @@
                 <field name="template_id" type="Integer" foreign_key="templates.id" nullable="false"/>
                 <field name="professional_summary" type="Text" nullable="true"/>
                 <field name="conversation_id" type="String(255)" nullable="true"/>
+                <field name="from_upload" type="Boolean" nullable="false" default="false"/>
                 <field name="created_at" type="TIMESTAMP" server_default="func.now()" nullable="false"/>
                 <field name="updated_at" type="TIMESTAMP" server_default="func.now()" onupdate="func.now()" nullable="false"/>
             </fields>
@@ -169,6 +170,16 @@
                 - conversation_id field in Resume model
                 - Updated when new conversations are created
                 - Used for platform API calls
+            </implementation>
+        </feature>
+        
+        <feature name="Resume Source Tracking">
+            <description>Track whether resume was created from scratch or uploaded from file</description>
+            <implementation>
+                - from_upload field in Resume model (Boolean, default false)
+                - Used to determine which platform AI agent to use
+                - Affects welcome messages and chat behavior
+                - Different platform keys for scratch vs upload workflows
             </implementation>
         </feature>
     </features>

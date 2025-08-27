@@ -378,6 +378,7 @@ class UnifiedResume(BaseModel):
     template_id: Optional[int] = None
     professional_summary: Optional[str] = None
     conversation_id: Optional[str] = None
+    from_upload: bool = False
     created_at: datetime
     updated_at: datetime
     
@@ -403,6 +404,7 @@ class UnifiedResume(BaseModel):
             "template_id": self.template_id,
             "professional_summary": self.professional_summary,
             "conversation_id": self.conversation_id,
+            "from_upload": self.from_upload,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
             "first_name": self.first_name,

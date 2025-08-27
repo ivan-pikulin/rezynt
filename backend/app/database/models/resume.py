@@ -1,4 +1,4 @@
-from sqlalchemy import (TIMESTAMP, Column, Date, ForeignKey, Integer, String,
+from sqlalchemy import (TIMESTAMP, Boolean, Column, Date, ForeignKey, Integer, String,
                         Text)
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
@@ -16,6 +16,7 @@ class Resume(Base):
     template_id = Column(Integer, ForeignKey('templates.id'), nullable=False)
     professional_summary = Column(Text, nullable=True)
     conversation_id = Column(String(255), nullable=True)
+    from_upload = Column(Boolean, nullable=False, default=False)
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 

@@ -91,6 +91,14 @@
                 <feature name="Platform Integration" description="All chat messages are handled via external platform API"/>
                 <feature name="No Local Storage" description="Messages are not stored locally, retrieved from platform on demand"/>
                 <feature name="Conversation Management" description="Conversation IDs are managed and updated in resume records"/>
+                <feature name="Dual Platform Keys" description="Different platform keys used based on resume source">
+                    <implementation>
+                        - PLATFORM_SCRATCH_APP_KEY: Used for resumes created from scratch
+                        - PLATFORM_UPLOAD_APP_KEY: Used for resumes created from uploaded files
+                        - Key selection based on resume.from_upload field
+                        - Different AI agents provide different welcome messages and behavior
+                    </implementation>
+                </feature>
                 <feature name="Streaming Responses" description="Support for Server-Sent Events (SSE) streaming responses">
                     <implementation>
                         - Uses response_mode: streaming for platform API calls

@@ -69,7 +69,8 @@ class Settings(BaseSettings):
     openai: OpenAISettings = OpenAISettings()
 
     # Platform settings
-    PLATFORM_APP_KEY: str
+    PLATFORM_SCRATCH_APP_KEY: str
+    PLATFORM_UPLOAD_APP_KEY: str
     PLATFORM_APP_URL: str
     PLATFORM_TIMEOUT: int = 60
     

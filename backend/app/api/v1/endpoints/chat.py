@@ -37,9 +37,10 @@ async def send_message(
     if resume_obj.user_id != user.id:
         raise HTTPException(status_code=403, detail="Access denied")
     
-    # Создаем агента платформы
+    # Создаем агента платформы с соответствующим ключом
+    app_key = settings.PLATFORM_UPLOAD_APP_KEY if resume_obj.from_upload else settings.PLATFORM_SCRATCH_APP_KEY
     platform_chatflow = PlatformChatflow(
-        app_key=settings.PLATFORM_APP_KEY,
+        app_key=app_key,
         app_url=settings.PLATFORM_APP_URL,
         timeout=settings.PLATFORM_TIMEOUT
     )
@@ -80,9 +81,10 @@ async def send_message_stream(
     if resume_obj.user_id != user.id:
         raise HTTPException(status_code=403, detail="Access denied")
     
-    # Создаем агента платформы
+    # Создаем агента платформы с соответствующим ключом
+    app_key = settings.PLATFORM_UPLOAD_APP_KEY if resume_obj.from_upload else settings.PLATFORM_SCRATCH_APP_KEY
     platform_chatflow = PlatformChatflow(
-        app_key=settings.PLATFORM_APP_KEY,
+        app_key=app_key,
         app_url=settings.PLATFORM_APP_URL,
         timeout=settings.PLATFORM_TIMEOUT
     )
@@ -141,9 +143,10 @@ async def get_messages(
     if resume_obj.user_id != user.id:
         raise HTTPException(status_code=403, detail="Access denied")
     
-    # Создаем агента платформы
+    # Создаем агента платформы с соответствующим ключом
+    app_key = settings.PLATFORM_UPLOAD_APP_KEY if resume_obj.from_upload else settings.PLATFORM_SCRATCH_APP_KEY
     platform_chatflow = PlatformChatflow(
-        app_key=settings.PLATFORM_APP_KEY,
+        app_key=app_key,
         app_url=settings.PLATFORM_APP_URL,
         timeout=settings.PLATFORM_TIMEOUT
     )

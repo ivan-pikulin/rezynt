@@ -9,9 +9,10 @@ import { COLORS } from '../../../shared/theme/theme';
 interface ChatWindowProps {
   resumeId: string | null;
   onResumeUpdate?: () => void;
+  fromUpload?: boolean;
 }
 
-const ChatWindow: React.FC<ChatWindowProps> = ({ resumeId, onResumeUpdate }) => {
+const ChatWindow: React.FC<ChatWindowProps> = ({ resumeId, onResumeUpdate, fromUpload = false }) => {
   const { 
     messages, 
     isLoading, 
@@ -22,7 +23,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ resumeId, onResumeUpdate }) => 
     messagesEndRef,
     chatContainerRef,
     currentThinkingPhrase
-  } = useChat(resumeId, onResumeUpdate);
+  } = useChat(resumeId, onResumeUpdate, fromUpload);
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const { scrollTop } = e.currentTarget;
