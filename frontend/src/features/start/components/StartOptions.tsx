@@ -17,7 +17,6 @@ const StartOptions: React.FC = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [uploadMessage, setUploadMessage] = useState('');
-  const [messageOpacity, setMessageOpacity] = useState(1);
   
   // Список сообщений для отображения во время загрузки
   const uploadMessages = [
@@ -34,49 +33,32 @@ const StartOptions: React.FC = () => {
     "Extracting contact information...",
     "Organizing your work history...",
     "Highlighting your achievements...",
-        "Preparing for AI-powered enhancement...",
+    "Preparing for AI-powered enhancement...",
     "Setting up your personalized resume..."
   ];
   
-
-  
-  // Эффект для ротации сообщений во время загрузки
+  // Простой эффект для смены сообщений
   useEffect(() => {
     if (!isUploading) {
       setUploadMessage('');
-      setMessageOpacity(1);
       return;
     }
     
-    // Перемешиваем сообщения в случайном порядке
-    const shuffledMessages = [...uploadMessages].sort(() => Math.random() - 0.5);
     let messageIndex = 0;
     
     // Показываем первое сообщение сразу
-    setUploadMessage(shuffledMessages[0]);
-    messageIndex = 1;
+    setUploadMessage(uploadMessages[0]);
     
-    const updateMessage = () => {
-      // Плавно скрываем текущее сообщение
-      setMessageOpacity(0);
-      
-      // Через 300ms показываем новое сообщение
-      setTimeout(() => {
-        setUploadMessage(shuffledMessages[messageIndex]);
-        setMessageOpacity(1);
-        messageIndex = (messageIndex + 1) % shuffledMessages.length;
-      }, 300);
-    };
-    
-    // Интервал для смены сообщений (3-4.5 секунд)
+    // Меняем сообщение каждые 4 секунды
     const interval = setInterval(() => {
-      updateMessage();
-    }, Math.random() * 1500 + 3000); // 3000-4500ms
+      messageIndex = (messageIndex + 1) % uploadMessages.length;
+      setUploadMessage(uploadMessages[messageIndex]);
+    }, 4000);
     
     return () => {
       clearInterval(interval);
     };
-  }, [isUploading, uploadMessages]);
+  }, [isUploading]);
   
   const handleStartFromScratch = async () => {
     if (isCreating) return;
@@ -275,9 +257,7 @@ const StartOptions: React.FC = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              textAlign: 'center',
-              opacity: isUploading ? messageOpacity : 1,
-              transition: 'opacity 0.3s ease-in-out'
+              textAlign: 'center'
             }}
           >
             {isUploading ? uploadMessage : 'Upload your existing resume and let AI enhance it'}
