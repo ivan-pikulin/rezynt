@@ -1,15 +1,15 @@
-from typing import Any, Dict, List, Optional
-from pydantic import BaseModel
+import json
+from typing import Any, Dict, Optional
 
 from app.api.deps import VerifiedUser, get_db
-from app.services import PlatformChatflow
 from app.core.config import settings
 from app.database.crud.crud_resume import resume_manager
 from app.schemas.resume import ChatMessage, ChatMessageList
+from app.services import PlatformChatflow
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import StreamingResponse
+from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
-import json
 
 router = APIRouter()
 

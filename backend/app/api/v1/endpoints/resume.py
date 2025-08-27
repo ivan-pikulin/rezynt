@@ -3,7 +3,7 @@ from typing import Any, Dict, List
 from app.api.deps import AsyncDB, VerifiedUser
 from app.core.celery_app import celery_app
 from app.core.tasks import process_resume_upload_task
-from app.database.crud.crud_resume import resume_manager, message_crud
+from app.database.crud.crud_resume import resume_manager
 from app.database.crud.crud_template import template_crud
 from app.database.crud.crud_user import user_crud
 from app.schemas.resume import (PDFExportRequest, ResumeCreate,
@@ -67,15 +67,6 @@ async def create_resume(
             )
     
     resume = await resume_manager.create_resume(db, obj_in=resume_in, user_id=current_user.id)
-    
-    # Create welcome message for new resume
-    welcome_message = "Welcome aboard! I'm your AI Resume Builder, here to save you time and boost your chances. Let's get personal: what's your name?"
-    await message_crud.create_message(
-        db, 
-        resume_id=resume.id, 
-        role="assistant", 
-        content=welcome_message
-    )
     
     return resume.to_json()
 
