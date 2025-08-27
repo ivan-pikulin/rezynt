@@ -179,6 +179,8 @@ async def get_messages(
             created_at=platform_msg.created_at,
             conversation_id=platform_msg.conversation_id
         ))
+
+    messages = messages[::-1]
     
     return ChatMessageList(
         messages=messages,
