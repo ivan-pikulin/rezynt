@@ -50,7 +50,7 @@ class ResumeChatService:
             
             # Log the prompt for debugging
             logger.info(f"System prompt length: {len(system_prompt)} characters")
-            logger.debug(f"System prompt: {system_prompt}")
+            logger.info(f"System prompt: {system_prompt}")
             logger.info(f"User message: {user_message}")
             
             # Send request to OpenAI
@@ -76,10 +76,10 @@ class ResumeChatService:
             
             # Log the response for debugging
             logger.info(f"Chat response received: message length={len(chat_response.message)}")
-            logger.debug(f"AI message: {chat_response.message}")
+            logger.info(f"AI message: {chat_response.message}")
             if chat_response.resume_updates:
                 logger.info(f"Resume updates provided: {list(chat_response.resume_updates.__dict__.keys())}")
-                logger.debug(f"Resume updates: {chat_response.resume_updates}")
+                logger.info(f"Resume updates: {chat_response.resume_updates}")
             else:
                 logger.info("No resume updates provided")
             
