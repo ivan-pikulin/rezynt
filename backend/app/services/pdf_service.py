@@ -103,7 +103,7 @@ class PDFService:
             # Get watermark CSS only if requested
             watermark_css = self._get_watermark_css() if use_watermark else ""
             
-            # Define CSS for better PDF formatting
+            # Define CSS for PDF formatting
             # All users get PDF without margins, exactly one page
             css_string = f"""
                 {watermark_css}
@@ -113,23 +113,11 @@ class PDFService:
                     padding: 0;
                     border: none;
                 }}
-                body {{
-                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-                    line-height: 1.6;
-                    color: #333;
-                    margin: 0;
-                    padding: 0;
-                    width: 100%;
-                    height: 100vh;
-                    overflow: hidden;
-                }}
                 * {{
                     box-sizing: border-box;
                     page-break-inside: avoid;
                     page-break-after: avoid;
                     page-break-before: avoid;
-                    margin: 0;
-                    padding: 0;
                 }}
             """
             
