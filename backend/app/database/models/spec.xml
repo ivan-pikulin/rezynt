@@ -62,7 +62,6 @@
                 <relationship name="experience" type="one-to-many" target="ResumeExperience" back_populates="resume" cascade="all, delete-orphan"/>
                 <relationship name="education" type="one-to-many" target="ResumeEducation" back_populates="resume" cascade="all, delete-orphan"/>
                 <relationship name="exports" type="one-to-many" target="ResumeExport" back_populates="resume" cascade="all, delete-orphan"/>
-                <relationship name="chat_messages" type="one-to-many" target="ChatMessage" back_populates="resume" cascade="all, delete-orphan"/>
             </relationships>
         </model>
         
@@ -152,48 +151,25 @@
                 <relationship name="resume" type="many-to-one" target="Resume" back_populates="exports"/>
             </relationships>
         </model>
-        
-        <model name="ChatMessage">
-            <description>Chat messages for resume editing conversations</description>
-            <fields>
-                <field name="id" type="Integer" primary_key="true" autoincrement="true"/>
-                <field name="resume_id" type="Integer" foreign_key="resumes.id" nullable="false" index="true"/>
-                <field name="role" type="Enum(MessageRole)" nullable="false"/>
-                <field name="content" type="Text" nullable="false"/>
-                <field name="created_at" type="DateTime(timezone=True)" server_default="func.now()" nullable="false"/>
-            </fields>
-            <relationships>
-                <relationship name="resume" type="many-to-one" target="Resume" back_populates="chat_messages"/>
-            </relationships>
-        </model>
-        
-        <enum name="MessageRole">
-            <description>Enum for chat message roles</description>
-            <values>
-                <value name="USER" value="user"/>
-                <value name="AI" value="ai"/>
-            </values>
-        </enum>
     </models>
     
     <features>
-        <feature name="Local Chat Storage">
-            <description>Chat messages are stored locally in the database for resume editing conversations</description>
+        <feature name="Platform Integration">
+            <description>Chat messages are handled via external platform API, not stored locally</description>
             <implementation>
-                - ChatMessage model stores user and AI messages
-                - Messages are linked to specific resumes via foreign key
-                - MessageRole enum distinguishes between user and AI messages
-                - Messages are ordered by creation time for conversation history
-                - Cascade delete ensures messages are removed when resume is deleted
+                - Messages are retrieved from platform on demand
+                - Conversation IDs are stored in resume records
+                - No local message storage or relationships
+                - Platform handles message history and pagination
             </implementation>
         </feature>
         
         <feature name="Conversation Management">
-            <description>Conversation IDs are managed in resume records for OpenAI chat integration</description>
+            <description>Conversation IDs are managed in resume records for platform integration</description>
             <implementation>
                 - conversation_id field in Resume model
                 - Updated when new conversations are created
-                - Used for OpenAI chat context
+                - Used for platform API calls
             </implementation>
         </feature>
         
@@ -201,8 +177,9 @@
             <description>Track whether resume was created from scratch or uploaded from file</description>
             <implementation>
                 - from_upload field in Resume model (Boolean, default false)
-                - Used to determine chat behavior and context
+                - Used to determine which platform AI agent to use
                 - Affects welcome messages and chat behavior
+                - Different platform keys for scratch vs upload workflows
             </implementation>
         </feature>
     </features>

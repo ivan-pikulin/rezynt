@@ -79,9 +79,6 @@ class Settings(BaseSettings):
     
     # PDF settings
     PDF_WATERMARK_PATH: str = "app/static/watermarks/watermark.svg"
-    
-    # Chat settings
-    CHAT_HISTORY_MESSAGES_LIMIT: int = 5
 
     @property
     def sync_database_url(self) -> str:
