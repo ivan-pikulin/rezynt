@@ -42,11 +42,26 @@ class PDFService:
                 @bottom-center {{
                     content: "";
                 }}
+            }}
+            
+            body {{
+                position: relative;
+            }}
+            
+            body::before {{
+                content: "";
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
                 background-image: url('file://{absolute_watermark_path}');
                 background-size: contain;
                 background-repeat: no-repeat;
                 background-position: center;
-                background-attachment: fixed;
+                pointer-events: none;
+                z-index: 1000;
+                opacity: 0.3;
             }}
         """
         

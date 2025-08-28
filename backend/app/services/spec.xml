@@ -280,11 +280,13 @@
                 <font_config>FontConfiguration для поддержки шрифтов</font_config>
             </configuration>
             <watermark_features>
-                <background_image>Поддержка фонового изображения из SVG</background_image>
-                <background_size>contain - размер фона</background_size>
-                <background_position>center - позиция фона</background_position>
+                <overlay_approach>Водяные знаки накладываются поверх контента резюме</overlay_approach>
+                <positioning>position: fixed с z-index: 1000 для наложения поверх текста</positioning>
+                <opacity>opacity: 0.3 для полупрозрачности</opacity>
+                <pointer_events>pointer-events: none для предотвращения блокировки контента</pointer_events>
+                <background_size>contain - размер водяного знака</background_size>
+                <background_position>center - позиция водяного знака</background_position>
                 <background_repeat>no-repeat - без повторения</background_repeat>
-                <background_attachment>fixed - фиксированное положение</background_attachment>
             </watermark_features>
         </component>
     </components>
