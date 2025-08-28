@@ -81,57 +81,57 @@
         </module>
         
         <module name="chat">
-            <description>Chat functionality for AI interactions with platform integration and streaming support</description>
+            <description>Chat functionality for AI-powered resume editing with OpenAI structured output</description>
             <endpoints>
-                <endpoint path="/chat/send-message" method="POST" description="Send chat message via platform (blocking mode)"/>
-                <endpoint path="/chat/send-message-stream" method="POST" description="Send chat message with streaming response via platform (SSE)"/>
-                <endpoint path="/chat/messages/{resume_id}" method="GET" description="Get messages from platform with pagination"/>
+                <endpoint path="/chat/send-message" method="POST" description="Send chat message to AI for resume editing with structured response"/>
+                <endpoint path="/chat/messages/{resume_id}" method="GET" description="Get chat message history for resume with pagination"/>
             </endpoints>
             <features>
-                <feature name="Platform Integration" description="All chat messages are handled via external platform API"/>
-                <feature name="No Local Storage" description="Messages are not stored locally, retrieved from platform on demand"/>
-                <feature name="Conversation Management" description="Conversation IDs are managed and updated in resume records"/>
-                <feature name="Dual Platform Keys" description="Different platform keys used based on resume source">
+                <feature name="OpenAI Integration" description="All chat messages are processed via OpenAI API with structured output"/>
+                <feature name="Local Storage" description="Messages are stored locally in database for conversation history"/>
+                <feature name="Structured Updates" description="AI responses include structured resume updates that are automatically applied">
                     <implementation>
-                        - PLATFORM_SCRATCH_APP_KEY: Used for resumes created from scratch
-                        - PLATFORM_UPLOAD_APP_KEY: Used for resumes created from uploaded files
-                        - Key selection based on resume.from_upload field
-                        - Different AI agents provide different welcome messages and behavior
+                        - ChatResumeResponse schema provides message and resume_updates
+                        - Updates are automatically applied to resume in database
+                        - Supports all resume fields: personal info, contacts, skills, experience, education
+                        - Changes are committed to database after successful AI response
                     </implementation>
                 </feature>
-                <feature name="Streaming Responses" description="Support for Server-Sent Events (SSE) streaming responses">
+                <feature name="Context Awareness" description="AI has full context of resume and conversation history">
                     <implementation>
-                        - Uses response_mode: streaming for platform API calls
-                        - Processes agent_message events for LLM response chunks
-                        - Handles message_end and error events
-                        - Updates conversation_id in resume after streaming
+                        - Full resume data is included in system prompt
+                        - Last N messages (configurable via CHAT_HISTORY_MESSAGES_LIMIT) are included
+                        - AI can reference previous conversation and current resume state
+                        - Structured prompts ensure consistent behavior
+                    </implementation>
+                </feature>
+                <feature name="Resume Editing" description="AI can edit all aspects of resume through natural language">
+                    <implementation>
+                        - Add, update, or remove personal information
+                        - Manage contacts and skills lists
+                        - Add, edit, or remove work experience entries
+                        - Add, edit, or remove education entries
+                        - Update professional summary
+                        - All changes are applied atomically
                     </implementation>
                 </feature>
             </features>
-            <streaming>
-                <mode>Server-Sent Events (SSE)</mode>
-                <content_type>text/event-stream</content_type>
-                <events>
-                    <event name="chunk" description="Text chunk from LLM response"/>
-                    <event name="end" description="Stream completion signal"/>
-                    <event name="error" description="Error during streaming"/>
-                </events>
-                <headers>
-                    <header name="Cache-Control" value="no-cache"/>
-                    <header name="Connection" value="keep-alive"/>
-                    <header name="Access-Control-Allow-Origin" value="*"/>
-                    <header name="Access-Control-Allow-Headers" value="*"/>
-                </headers>
-            </streaming>
+            <ai_configuration>
+                <model>gpt-4o-mini</model>
+                <temperature>0.3</temperature>
+                <max_tokens>2000</max_tokens>
+                <structured_output>ChatResumeResponse schema</structured_output>
+                <language>Russian responses</language>
+            </ai_configuration>
             <pagination>
-                <type>Platform-based</type>
+                <type>Database-based</type>
                 <parameters>
                     <parameter name="limit" type="int" default="20" description="Number of messages to return"/>
-                    <parameter name="first_id" type="string" optional="true" description="Message ID to start from (null for latest)"/>
+                    <parameter name="offset" type="int" default="0" description="Number of messages to skip"/>
                 </parameters>
                 <usage>
-                    <example>GET /chat/messages/123 - Get latest 20 messages from platform</example>
-                    <example>GET /chat/messages/123?first_id=456 - Get 20 messages before ID 456 from platform</example>
+                    <example>GET /chat/messages/123 - Get latest 20 messages</example>
+                    <example>GET /chat/messages/123?offset=20&limit=10 - Get next 10 messages</example>
                 </usage>
             </pagination>
         </module>

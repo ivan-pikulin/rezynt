@@ -15,39 +15,14 @@ export class ChatApi extends BaseApi {
   }
 
   /**
-   * Send message to chat with streaming response
-   */
-  async sendMessageStream(
-    data: SendMessageRequest,
-    onChunk: (chunk: string) => void,
-    onEnd: () => void,
-    onError: (error: string) => void
-  ): Promise<void> {
-    await this.stream(
-      '/chat/send-message-stream',
-      {
-        message: data.message,
-        resume_id: data.resume_id
-      },
-      onChunk,
-      onEnd,
-      onError
-    );
-  }
-
-  /**
-   * Get messages for a specific resume with cursor-based pagination
+   * Get messages for a specific resume with offset-based pagination
    */
   async getMessages(
     resumeId: number, 
-    limit: number = 10, 
-    cursor?: number,
-    direction: 'backward' | 'forward' = 'backward'
+    limit: number = 20, 
+    offset: number = 0
   ): Promise<MessageList> {
-    const params: any = { limit, direction };
-    if (cursor !== undefined) {
-      params.cursor = cursor;
-    }
+    const params = { limit, offset };
     
     const response = await this.get<MessageList>(`/chat/messages/${resumeId}`, {
       params
@@ -59,19 +34,19 @@ export class ChatApi extends BaseApi {
   /**
    * Get latest messages for a specific resume (for initial chat load)
    */
-  async getLatestMessages(resumeId: number, limit: number = 10): Promise<MessageList> {
-    return this.getMessages(resumeId, limit);
+  async getLatestMessages(resumeId: number, limit: number = 20): Promise<MessageList> {
+    return this.getMessages(resumeId, limit, 0);
   }
 
   /**
-   * Get older messages before a specific message ID (for pagination when scrolling up)
+   * Get older messages with offset pagination
    */
   async getOlderMessages(
     resumeId: number, 
-    beforeMessageId: number, 
-    limit: number = 10
+    limit: number = 20,
+    offset: number = 0
   ): Promise<MessageList> {
-    return this.getMessages(resumeId, limit, beforeMessageId, 'backward');
+    return this.getMessages(resumeId, limit, offset);
   }
 }
 

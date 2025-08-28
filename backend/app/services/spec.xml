@@ -80,67 +80,53 @@
         </component>
         
         <component>
-            <name>PlatformChatflow</name>
+            <name>ResumeChatService</name>
             <description>
-                Сервис для взаимодействия с внешней платформой чат-бота. Отправляет сообщения, получает ответы в блокирующем и потоковом режимах, а также получает историю сообщений.
+                Сервис для чата с резюме через OpenAI structured output. Позволяет пользователям редактировать резюме через естественный язык, получая структурированные ответы с обновлениями резюме.
             </description>
             <methods>
                 <method>
-                    <name>chat</name>
-                    <description>Отправляет сообщение в чат и получает ответ в блокирующем режиме</description>
+                    <name>chat_with_resume</name>
+                    <description>Отправляет сообщение пользователя в чат с резюме и получает ответ с обновлениями</description>
                     <params>
-                        <param name="user_id" type="str">ID пользователя</param>
-                        <param name="text" type="str">Текст сообщения</param>
-                        <param name="conversation_id" type="str">ID беседы (опционально)</param>
-                        <param name="resume_id" type="str">ID резюме для передачи в inputs (опционально)</param>
+                        <param name="user_message" type="str">Сообщение пользователя</param>
+                        <param name="resume" type="UnifiedResume">Текущее резюме</param>
+                        <param name="chat_history" type="List[Dict[str, str]]">История сообщений (последние N сообщений)</param>
                     </params>
-                    <returns type="PlatformMessage">Ответ от платформы</returns>
+                    <returns type="ChatResumeResponse">Ответ с сообщением и обновлениями резюме</returns>
+                    <async>True - использует асинхронные HTTP запросы к OpenAI API</async>
+                    <structured_output>Использует OpenAI Structured Outputs с ChatResumeResponse schema</structured_output>
                 </method>
                 <method>
-                    <name>chat_stream</name>
-                    <description>Отправляет сообщение в чат и получает ответ в потоковом режиме (SSE)</description>
+                    <name>_build_system_prompt</name>
+                    <description>Строит системный промпт с информацией о резюме и истории чата</description>
                     <params>
-                        <param name="user_id" type="str">ID пользователя</param>
-                        <param name="text" type="str">Текст сообщения</param>
-                        <param name="conversation_id" type="str">ID беседы (опционально)</param>
-                        <param name="resume_id" type="str">ID резюме для передачи в inputs (опционально)</param>
+                        <param name="resume" type="UnifiedResume">Текущее резюме</param>
+                        <param name="chat_history" type="List[Dict[str, str]]">История сообщений</param>
                     </params>
-                    <returns type="AsyncGenerator[tuple[str, str], None]">Поток чанков ответа от платформы с conversation_id</returns>
-                    <async>True - использует асинхронные HTTP запросы с потоковым ответом</async>
-                </method>
-                <method>
-                    <name>get_messages</name>
-                    <description>Получает историю сообщений из платформы с пагинацией</description>
-                    <params>
-                        <param name="user_id" type="str">ID пользователя</param>
-                        <param name="conversation_id" type="str">ID беседы (опционально)</param>
-                        <param name="first_id" type="str">ID сообщения для пагинации (опционально)</param>
-                        <param name="limit" type="int">Количество сообщений (по умолчанию 20)</param>
-                    </params>
-                    <returns type="PlatformMessagesResponse">Ответ с историей сообщений от платформы</returns>
-                    <async>True - использует асинхронные HTTP запросы</async>
+                    <returns type="str">Системный промпт для OpenAI</returns>
+                    <context_inclusion>Включает полную информацию о резюме и последние сообщения чата</context_inclusion>
+                    <rules>Содержит правила для AI-ассистента по редактированию резюме</rules>
                 </method>
             </methods>
             <configuration>
-                <app_key>Ключ приложения платформы</app_key>
-                <app_url>URL API платформы</app_url>
-                <timeout>Таймаут запроса в секундах</timeout>
+                <openai_api_key>OPENAI_API_KEY - API ключ OpenAI</openai_api_key>
+                <openai_proxy_url>OPENAI_PROXY_URL - URL прокси для OpenAI</openai_proxy_url>
+                <model>gpt-4o-mini - Модель OpenAI для чата</model>
+                <temperature>0.3 - Температура для более стабильных ответов</temperature>
+                <max_tokens>2000 - Максимальное количество токенов в ответе</max_tokens>
+                <structured_output>Использует OpenAI Structured Outputs с ChatResumeResponse schema</structured_output>
             </configuration>
-            <streaming>
-                <mode>response_mode: streaming - использует Server-Sent Events (SSE)</mode>
-                <events>
-                    <event name="agent_message">Чанки ответа от LLM</event>
-                    <event name="message_end">Сигнал завершения потока</event>
-                    <event name="error">Ошибки в потоке</event>
-                </events>
-            </streaming>
+            <features>
+                <resume_context>Включает полную информацию о резюме в промпт</resume_context>
+                <chat_history>Использует последние N сообщений для контекста</chat_history>
+                <structured_updates>Возвращает структурированные обновления резюме</structured_updates>
+                <error_handling>Обрабатывает ошибки и возвращает базовый ответ</error_handling>
+                <russian_language>Отвечает на русском языке</russian_language>
+            </features>
             <schemas>
-                <schema name="PlatformMessage">Базовая модель сообщения от платформы</schema>
-                <schema name="PlatformMessageResponse">Модель сообщения с полными данными от платформы</schema>
-                <schema name="PlatformMessagesResponse">Модель ответа с историей сообщений</schema>
-                <schema name="PlatformMessageFile">Модель файла сообщения</schema>
-                <schema name="PlatformAgentThought">Модель мысли агента</schema>
-                <schema name="PlatformRetrieverResource">Модель ресурса поиска</schema>
+                <schema name="ChatResumeResponse">Pydantic модель для structured output ответа OpenAI</schema>
+                <schema name="UnifiedResume">Модель резюме для передачи в промпт</schema>
             </schemas>
         </component>
         

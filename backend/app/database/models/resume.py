@@ -1,5 +1,5 @@
-from sqlalchemy import (TIMESTAMP, Boolean, Column, Date, ForeignKey, Integer, String,
-                        Text)
+from sqlalchemy import (TIMESTAMP, Boolean, Column, Date, ForeignKey, Integer,
+                        String, Text)
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -29,6 +29,7 @@ class Resume(Base):
     experience = relationship("ResumeExperience", back_populates="resume", cascade="all, delete-orphan", order_by="ResumeExperience.id", lazy="select")
     education = relationship("ResumeEducation", back_populates="resume", cascade="all, delete-orphan", order_by="ResumeEducation.id", lazy="select")
     exports = relationship("ResumeExport", back_populates="resume", cascade="all, delete-orphan", lazy="select")
+    chat_messages = relationship("ChatMessage", back_populates="resume", cascade="all, delete-orphan", order_by="ChatMessage.created_at", lazy="select")
 
 
 

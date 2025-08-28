@@ -57,7 +57,7 @@ class ResumePartialUpdate(BaseModel):
     template_id: Optional[int] = None
     professional_summary: Optional[str] = None
     conversation_id: Optional[str] = None
-    
+
     # UnifiedResume fields
     first_name: Optional[str] = None
     last_name: Optional[str] = None
@@ -382,20 +382,20 @@ class UnifiedResume(BaseModel):
     from_upload: bool = False
     created_at: datetime
     updated_at: datetime
-    
+
     # Персональная информация
     first_name: Optional[str] = None
     last_name: Optional[str] = None
     location: Optional[str] = None
-    
+
     # Контакты и навыки
     contacts: List[str] = []
     skills: List[str] = []
-    
+
     # Опыт и образование
     experience: List[UnifiedResumeExperience] = []
     education: List[UnifiedResumeEducation] = []
-    
+
     def to_json(self) -> Dict[str, Any]:
         """Преобразует объект в JSON для возврата в API"""
         return {
@@ -437,6 +437,8 @@ class UnifiedResume(BaseModel):
         }
 
 # API Endpoint Schemas
+
+
 class ResumePatchRequest(BaseModel):
     """Schema for PATCH /resume/{id} endpoint"""
     first_name: Optional[str] = None
@@ -530,4 +532,8 @@ class ChatMessageList(BaseModel):
     limit: int
 
 
-
+# OpenAI Chat Response Schema
+class ChatResumeResponse(BaseModel):
+    """Schema for OpenAI structured output response for resume chat"""
+    message: str  # Message for user
+    resume_updates: Optional[Dict[str, Any]] = None  # Resume updates

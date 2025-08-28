@@ -612,25 +612,26 @@ export interface ChatResponse {
 // Chat API types
 export interface SendMessageRequest {
   message: string;
-  resume_id: string;
+  resume_id: number;
 }
 
 export interface SendMessageResponse {
-  response: string;
-  conversation_id?: string;
+  message: string;
+  resume_updates?: any;
 }
 
 // Message types
 export interface Message {
   id: number;
-  resume_id: number;
-  role: 'user' | 'assistant' | 'system';
+  role: 'user' | 'ai';
   content: string;
   created_at: string;
 }
 
 export interface MessageList {
   messages: Message[];
-  total: number;
+  total_count: number;
   has_more: boolean;
+  limit: number;
+  offset: number;
 } 
