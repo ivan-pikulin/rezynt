@@ -1,5 +1,4 @@
 import { useState, useCallback, useRef, useEffect, useLayoutEffect } from 'react';
-import { flushSync } from 'react-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { chatApi } from '../../../shared/services/api';
 import { SendMessageRequest, Message } from '../../../shared/services/api/types';
@@ -196,12 +195,13 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fr
   const loadOlderMessages = useCallback(async () => {
     if (!resumeId || messages.length === 0 || !hasMoreMessages) return;
 
-    const oldestMessageId = parseInt(messages[0].id);
     setIsLoadingMessages(true);
     setLastLoadType('older');
     
     try {
-      const response = await chatApi.getOlderMessages(parseInt(resumeId), oldestMessageId, 10);
+      // Используем offset-based пагинацию
+      const currentOffset = messages.length;
+      const response = await chatApi.getOlderMessages(parseInt(resumeId), 10, currentOffset);
       const chatMessages = response.messages.map((msg: Message) => ({
         id: msg.id.toString(),
         content: msg.content,
@@ -272,59 +272,38 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fr
     }, 4000);
     
     try {
-      // Отправляем запрос на API с streaming
+      // Отправляем запрос на API без streaming
       const request: SendMessageRequest = {
         message: content,
-        resume_id: resumeId
+        resume_id: parseInt(resumeId)
       };
       
-      await chatApi.sendMessageStream(
-        request,
-        // onChunk callback - добавляем чанк к сообщению ассистента
-        (chunk: string) => {
-          // Очищаем таймер смены фраз при получении первого чанка
-          clearInterval(phraseTimer);
-          
-          flushSync(() => {
-            setMessages(prev => 
-              prev.map(msg => 
-                msg.id === assistantMessageId 
-                  ? { ...msg, content: msg.content + chunk }
-                  : msg
-              )
-            );
-          });
-        },
-        // onEnd callback - завершение стрима
-        () => {
-          clearInterval(phraseTimer);
-          setIsLoading(false);
-          
-          // Обновляем кеш резюме после ответа AI
-          if (resumeId) {
-            // Инвалидируем кеш резюме, чтобы получить свежие данные
-            queryClient.invalidateQueries({ queryKey: ['resume', resumeId] });
-          }
-          
-          // Вызываем callback для обновления UI
-          if (onResumeUpdate) {
-            onResumeUpdate();
-          }
-        },
-        // onError callback - обработка ошибок
-        (error: string) => {
-          clearInterval(phraseTimer);
-          console.error('Chat streaming error:', error);
-          setMessages(prev => 
-            prev.map(msg => 
-              msg.id === assistantMessageId 
-                ? { ...msg, content: 'Sorry, I encountered an error. Please try again.' }
-                : msg
-            )
-          );
-          setIsLoading(false);
-        }
+      const response = await chatApi.sendMessage(request);
+      
+      // Очищаем таймер смены фраз при получении ответа
+      clearInterval(phraseTimer);
+      
+      // Обновляем сообщение ассистента с полученным ответом
+      setMessages(prev => 
+        prev.map(msg => 
+          msg.id === assistantMessageId 
+            ? { ...msg, content: response.message }
+            : msg
+        )
       );
+      
+      setIsLoading(false);
+      
+      // Обновляем кеш резюме после ответа AI
+      if (resumeId) {
+        // Инвалидируем кеш резюме, чтобы получить свежие данные
+        queryClient.invalidateQueries({ queryKey: ['resume', resumeId] });
+      }
+      
+      // Вызываем callback для обновления UI
+      if (onResumeUpdate) {
+        onResumeUpdate();
+      }
       
     } catch (error) {
       clearInterval(phraseTimer);
