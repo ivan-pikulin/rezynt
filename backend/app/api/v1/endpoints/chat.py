@@ -1,3 +1,4 @@
+import logging
 from typing import Any, Dict, List, Optional
 
 from app.api.deps import VerifiedUser, get_db
@@ -11,6 +12,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
+logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
@@ -52,6 +54,11 @@ async def send_message(
     unified_resume = await resume_manager.get_resume_by_id(db, resume_id=request.resume_id)
     if not unified_resume:
         raise HTTPException(status_code=404, detail="Resume not found")
+    
+    # Log resume data for debugging
+    logger.info(f"Retrieved resume: ID={unified_resume.id}, Title='{unified_resume.title}'")
+    logger.info(f"Resume has {len(unified_resume.experience)} experience, {len(unified_resume.education)} education")
+    logger.info(f"Resume has {len(unified_resume.skills)} skills, {len(unified_resume.contacts)} contacts")
     
     # Check that resume belongs to user
     if unified_resume.user_id != user.id:

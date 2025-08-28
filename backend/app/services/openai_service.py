@@ -38,8 +38,20 @@ class ResumeChatService:
             ChatResumeResponse: Response with message and resume updates
         """
         try:
+            # Log input parameters
+            logger.info(f"Starting chat with resume ID: {resume.id}, user message length: {len(user_message)}")
+            logger.info(f"Chat history messages count: {len(chat_history)}")
+            logger.info(f"Resume data - Title: {resume.title}, First Name: {resume.first_name}, Last Name: {resume.last_name}")
+            logger.info(f"Resume has {len(resume.experience)} experience entries, {len(resume.education)} education entries")
+            logger.info(f"Resume has {len(resume.skills)} skills, {len(resume.contacts)} contacts")
+            
             # Build prompt with resume and history
             system_prompt = self._build_system_prompt(resume, chat_history)
+            
+            # Log the prompt for debugging
+            logger.info(f"System prompt length: {len(system_prompt)} characters")
+            logger.debug(f"System prompt: {system_prompt}")
+            logger.info(f"User message: {user_message}")
             
             # Send request to OpenAI
             response = self.client.beta.chat.completions.parse(
@@ -62,7 +74,15 @@ class ResumeChatService:
             # Get structured response
             chat_response = response.choices[0].message.parsed
             
+            # Log the response for debugging
             logger.info(f"Chat response received: message length={len(chat_response.message)}")
+            logger.debug(f"AI message: {chat_response.message}")
+            if chat_response.resume_updates:
+                logger.info(f"Resume updates provided: {list(chat_response.resume_updates.__dict__.keys())}")
+                logger.debug(f"Resume updates: {chat_response.resume_updates}")
+            else:
+                logger.info("No resume updates provided")
+            
             return chat_response
             
         except Exception as e:
