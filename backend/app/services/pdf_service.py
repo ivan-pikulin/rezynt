@@ -35,7 +35,9 @@ class PDFService:
         return f"""
             @page {{
                 size: A4;
-                margin: 0.75in;
+                margin: 0;
+                padding: 0;
+                border: none;
                 @top-center {{
                     content: "";
                 }}
@@ -46,6 +48,12 @@ class PDFService:
             
             body {{
                 position: relative;
+                margin: 0;
+                padding: 0;
+                width: 100%;
+                height: 100vh;
+                overflow: hidden;
+                page-break-inside: avoid;
             }}
             
             body::before {{
@@ -62,6 +70,12 @@ class PDFService:
                 pointer-events: none;
                 z-index: 1000;
                 opacity: 0.3;
+            }}
+            
+            * {{
+                page-break-inside: avoid;
+                page-break-after: avoid;
+                page-break-before: avoid;
             }}
         """
         
@@ -96,9 +110,17 @@ class PDFService:
                     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
                     line-height: 1.6;
                     color: #333;
+                    margin: 0;
+                    padding: 0;
+                    width: 100%;
+                    height: 100vh;
+                    overflow: hidden;
                 }}
                 * {{
                     box-sizing: border-box;
+                    page-break-inside: avoid;
+                    page-break-after: avoid;
+                    page-break-before: avoid;
                 }}
             """
             

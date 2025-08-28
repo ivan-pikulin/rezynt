@@ -276,7 +276,8 @@
                 <watermark_path>PDF_WATERMARK_PATH - путь к SVG файлу водяных знаков</watermark_path>
                 <default_watermark>app/static/watermarks/watermark.svg - путь по умолчанию</default_watermark>
                 <page_size>A4 - размер страницы</page_size>
-                <margins>0.75in - отступы страницы</margins>
+                <margins>0 - без отступов и полей</margins>
+                <single_page>Ограничение контента одной страницей с обрезкой</single_page>
                 <font_config>FontConfiguration для поддержки шрифтов</font_config>
             </configuration>
             <watermark_features>
