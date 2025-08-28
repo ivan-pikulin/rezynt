@@ -31,7 +31,7 @@ const ResumeRenderer: React.FC<ResumeRendererProps> = ({
     const containerWidth = container.clientWidth;
     const containerHeight = container.clientHeight;
     
-    // A4 размеры в пикселях при 96 DPI (для расчета масштаба)
+    // A4 размеры в пикселях при 96 DPI
     const a4Width = 794; // ~210mm
     const a4Height = 1123; // ~297mm
     
@@ -106,8 +106,8 @@ const ResumeRenderer: React.FC<ResumeRendererProps> = ({
             maxWidth: '794px',
             maxHeight: '1123px'
           } : {
-            width: '210mm', // Фиксированная ширина A4 в миллиметрах
-            height: '297mm' // Фиксированная высота A4 в миллиметрах
+            width: '794px', // Фиксированная ширина A4
+            height: '1123px' // Фиксированная высота A4
           }),
           display: 'flex',
           justifyContent: 'center',

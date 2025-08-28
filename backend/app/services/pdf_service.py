@@ -34,7 +34,7 @@ class PDFService:
         
         return f"""
             @page {{
-                size: 210mm 297mm; /* Точные размеры A4 */
+                size: A4;
                 margin: 0;
                 padding: 0;
                 border: none;
@@ -107,12 +107,12 @@ class PDFService:
             # All users get PDF without margins, exactly one page
             css_string = f"""
                 {watermark_css}
-                            @page {{
-                size: 210mm 297mm; /* Точные размеры A4 */
-                margin: 0;
-                padding: 0;
-                border: none;
-            }}
+                @page {{
+                    size: A4;
+                    margin: 0;
+                    padding: 0;
+                    border: none;
+                }}
                 * {{
                     box-sizing: border-box;
                     page-break-inside: avoid;
