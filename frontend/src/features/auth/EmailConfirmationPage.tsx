@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import AuthLayout from './components/AuthLayout';
 import EmailConfirmation from './components/EmailConfirmation';
 import { EmailConfirmationParams } from './types/auth';
 
 const EmailConfirmationPage: React.FC = () => {
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const [confirmationData, setConfirmationData] = useState<EmailConfirmationParams | null>(null);
 
@@ -29,14 +31,14 @@ const EmailConfirmationPage: React.FC = () => {
 
   if (!confirmationData) {
     return (
-      <AuthLayout title="Подтверждение email">
+      <AuthLayout title={t('auth.emailConfirmation.title')}>
         <div>Загрузка...</div>
       </AuthLayout>
     );
   }
 
   return (
-    <AuthLayout title="Подтверждение email">
+    <AuthLayout title={t('auth.emailConfirmation.title')}>
       <EmailConfirmation 
         status={confirmationData.status}
         message={confirmationData.message}

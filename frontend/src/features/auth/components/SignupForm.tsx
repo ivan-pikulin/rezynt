@@ -8,6 +8,7 @@ import Alert from '@mui/material/Alert';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
+import { useTranslation } from 'react-i18next';
 import { authApi } from '../../../shared/services/api';
 import { SignupCredentials } from '../types/auth';
 
@@ -16,24 +17,25 @@ interface SignupFormProps {
   onSwitchToLogin: () => void;
 }
 
-const validationSchema = yup.object({
-  email: yup
-    .string()
-    .email('Введите корректный email')
-    .required('Email обязателен'),
-  password: yup
-    .string()
-    .min(8, 'Пароль должен содержать минимум 8 символов')
-    .required('Пароль обязателен'),
-  confirmPassword: yup
-    .string()
-    .oneOf([yup.ref('password')], 'Пароли должны совпадать')
-    .required('Подтвердите пароль'),
-});
-
 const SignupForm: React.FC<SignupFormProps> = ({ onSuccess, onSwitchToLogin }) => {
+  const { t } = useTranslation();
   const [error, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
+
+  const validationSchema = yup.object({
+    email: yup
+      .string()
+      .email(t('auth.signup.invalidEmail'))
+      .required(t('auth.signup.emailRequired')),
+    password: yup
+      .string()
+      .min(8, t('auth.signup.passwordMinLength'))
+      .required(t('auth.signup.passwordRequired')),
+    confirmPassword: yup
+      .string()
+      .oneOf([yup.ref('password')], t('auth.signup.passwordsMatch'))
+      .required(t('auth.signup.confirmPasswordRequired')),
+  });
 
   const formik = useFormik({
     initialValues: {
@@ -53,7 +55,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSuccess, onSwitchToLogin }) =
         });
         onSuccess();
       } catch (err: any) {
-        setError(err.response?.data?.detail || 'Ошибка регистрации. Попробуйте еще раз.');
+        setError(err.response?.data?.detail || t('auth.signup.signupError'));
       } finally {
         setIsLoading(false);
       }
@@ -73,7 +75,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSuccess, onSwitchToLogin }) =
         fullWidth
         id="email"
         name="email"
-        label="Email"
+        label={t('auth.signup.email')}
         autoComplete="email"
         autoFocus
         value={formik.values.email}
@@ -88,7 +90,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSuccess, onSwitchToLogin }) =
         margin="normal"
         fullWidth
         name="password"
-        label="Пароль"
+        label={t('auth.signup.password')}
         type="password"
         id="password"
         autoComplete="new-password"
@@ -104,7 +106,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSuccess, onSwitchToLogin }) =
         margin="normal"
         fullWidth
         name="confirmPassword"
-        label="Подтвердите пароль"
+        label={t('auth.signup.confirmPassword')}
         type="password"
         id="confirmPassword"
         autoComplete="new-password"
@@ -123,19 +125,19 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSuccess, onSwitchToLogin }) =
         sx={{ mt: 3, mb: 2, py: 1.5 }}
         disabled={isLoading}
       >
-        {isLoading ? <CircularProgress size={24} /> : 'Зарегистрироваться'}
+        {isLoading ? <CircularProgress size={24} /> : t('auth.signup.submit')}
       </Button>
       
       <Box sx={{ textAlign: 'center' }}>
         <Typography variant="body2" color="text.secondary">
-          Уже есть аккаунт?{' '}
+          {t('auth.signup.hasAccount')}{' '}
           <Link
             component="button"
             variant="body2"
             onClick={onSwitchToLogin}
             sx={{ cursor: 'pointer' }}
           >
-            Войти
+            {t('auth.signup.login')}
           </Link>
         </Typography>
       </Box>

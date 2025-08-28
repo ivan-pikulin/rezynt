@@ -142,6 +142,16 @@
         <dep name="Material-UI" purpose="UI components, form validation, and responsive design" />
         <dep name="React Router" purpose="Navigation and URL handling" />
         <dep name="Shared API" purpose="Authentication API calls" />
-        <dep name="Shared i18n" purpose="Internationalization" />
+        <dep name="Shared i18n" purpose="Internationalization and translations" />
+        <dep name="Shared Theme" purpose="Color scheme and styling consistency" />
     </deps>
+
+    <features>
+        <feature name="internationalization" desc="All text content uses i18n translations from en.json" />
+        <feature name="theme_integration" desc="Uses COLORS from shared theme for consistent styling" />
+        <feature name="responsive_design" desc="Mobile-optimized layout with adaptive spacing" />
+        <feature name="form_validation" desc="Client-side validation with user-friendly error messages" />
+        <feature name="loading_states" desc="Loading indicators during API calls" />
+        <feature name="error_handling" desc="Comprehensive error handling with user feedback" />
+    </features>
 </feature>

@@ -210,6 +210,17 @@
                         <param name="confirmation_token" type="str">Токен для подтверждения</param>
                     </params>
                     <returns type="bool">True если письмо отправлено успешно</returns>
+                    <template>HTML шаблон с английским текстом и зеленым цветом (#4caf50)</template>
+                </method>
+                <method>
+                    <name>send_password_reset_email</name>
+                    <description>Отправляет HTML email для сброса пароля с использованием Jinja2 шаблона</description>
+                    <params>
+                        <param name="to_email" type="str">Email пользователя</param>
+                        <param name="reset_token" type="str">Токен для сброса пароля</param>
+                    </params>
+                    <returns type="bool">True если письмо отправлено успешно</returns>
+                    <template>HTML шаблон с английским текстом и зеленым цветом (#4caf50)</template>
                 </method>
                 <method>
                     <name>_load_dkim_key</name>

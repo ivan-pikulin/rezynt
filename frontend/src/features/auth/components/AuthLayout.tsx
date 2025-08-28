@@ -3,6 +3,7 @@ import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
+import { COLORS } from '../../../shared/theme/theme';
 
 interface AuthLayoutProps {
   children: React.ReactNode;
@@ -16,7 +17,7 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ children, title }) => {
       display: 'flex', 
       alignItems: 'center', 
       justifyContent: 'center',
-      bgcolor: '#f5f6fa',
+      bgcolor: COLORS.auth.background,
       p: { xs: 2, sm: 3, md: 4 }
     }}>
       <Container maxWidth="sm">
@@ -25,7 +26,9 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ children, title }) => {
           sx={{ 
             p: { xs: 3, sm: 4, md: 5 },
             borderRadius: 2,
-            textAlign: 'center'
+            textAlign: 'center',
+            bgcolor: COLORS.auth.card.background,
+            border: `1px solid ${COLORS.auth.card.border}`
           }}
         >
           <Typography 
@@ -34,7 +37,7 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ children, title }) => {
             gutterBottom
             sx={{ 
               fontWeight: 600,
-              color: 'primary.main',
+              color: COLORS.primary.main,
               mb: 3
             }}
           >

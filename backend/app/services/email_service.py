@@ -60,7 +60,7 @@ class EmailService:
             
             # Создаем MIME сообщение как в test_email_send.py
             msg = MIMEText(body, 'html')
-            msg['From'] = self.sender_email
+            msg['From'] = f"Rezynt <{self.sender_email}>"
             msg['To'] = to_email
             msg['Subject'] = subject
             
@@ -122,27 +122,27 @@ class EmailService:
         """
         logger.info(f"Sending confirmation email to {to_email}")
         
-        subject = "Подтверждение регистрации - Rezynt"
+        subject = "Email Confirmation - Rezynt"
         
         # HTML шаблон письма
         html_template = """<!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8">
-<title>Подтверждение регистрации</title>
+<title>Email Confirmation</title>
 </head>
 <body style="font-family:Arial,sans-serif;margin:0;padding:20px;background-color:#f4f4f4">
 <div style="max-width:600px;margin:0 auto;background-color:white;padding:20px">
-<h1 style="color:#4CAF50;text-align:center;margin-bottom:30px">Добро пожаловать в Rezynt!</h1>
-<h2 style="color:#333">Подтвердите ваш email</h2>
-<p>Спасибо за регистрацию! Для завершения процесса регистрации, пожалуйста, подтвердите ваш email адрес.</p>
+<h1 style="color:#4caf50;text-align:center;margin-bottom:30px">Welcome to Rezynt!</h1>
+<h2 style="color:#333">Confirm your email</h2>
+<p>Thank you for signing up! To complete your registration, please confirm your email address.</p>
 <p style="text-align:center;margin:30px 0">
-<a href="{{ api_url }}/auth/confirm-email?token={{ token }}" style="display:inline-block;padding:12px 24px;background-color:#4CAF50;color:white;text-decoration:none;border-radius:4px;font-weight:bold">Подтвердить email</a>
+<a href="{{ api_url }}/auth/confirm-email?token={{ token }}" style="display:inline-block;padding:12px 24px;background-color:#4caf50;color:white;text-decoration:none;border-radius:4px;font-weight:bold">Confirm Email</a>
 </p>
-<p>Если кнопка не работает, скопируйте и вставьте следующую ссылку в браузер:</p>
+<p>If the button doesn't work, copy and paste the following link into your browser:</p>
 <p style="word-break:break-all;background-color:#f0f0f0;padding:10px;border-radius:4px;margin:20px 0">{{ api_url }}/auth/confirm-email?token={{ token }}</p>
-<p>Если вы не регистрировались на нашем сайте, просто проигнорируйте это письмо.</p>
-<p style="text-align:center;color:#666;font-size:12px;margin-top:30px">&copy; 2025 Rezynt. Все права защищены.</p>
+<p>If you didn't sign up for our service, please ignore this email.</p>
+<p style="text-align:center;color:#666;font-size:12px;margin-top:30px">&copy; 2025 Rezynt. All rights reserved.</p>
 </div>
 </body>
 </html>"""
@@ -171,27 +171,27 @@ class EmailService:
         """
         logger.info(f"Sending password reset email to {to_email}")
         
-        subject = "Сброс пароля - Rezynt"
+        subject = "Password Reset - Rezynt"
         
         # HTML шаблон письма
         html_template = """<!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8">
-<title>Сброс пароля</title>
+<title>Password Reset</title>
 </head>
 <body style="font-family:Arial,sans-serif;margin:0;padding:20px;background-color:#f4f4f4">
 <div style="max-width:600px;margin:0 auto;background-color:white;padding:20px">
-<h1 style="color:#2196F3;text-align:center;margin-bottom:30px">Сброс пароля</h1>
-<h2 style="color:#333">Запрос на сброс пароля</h2>
-<p>Вы получили это письмо, потому что был отправлен запрос на сброс пароля для вашей учетной записи Rezynt.</p>
+<h1 style="color:#4caf50;text-align:center;margin-bottom:30px">Password Reset</h1>
+<h2 style="color:#333">Password Reset Request</h2>
+<p>You received this email because a password reset was requested for your Rezynt account.</p>
 <p style="text-align:center;margin:30px 0">
-<a href="{{ frontend_url }}/auth/reset-password?token={{ token }}" style="display:inline-block;padding:12px 24px;background-color:#2196F3;color:white;text-decoration:none;border-radius:4px;font-weight:bold">Сбросить пароль</a>
+<a href="{{ frontend_url }}/auth/reset-password?token={{ token }}" style="display:inline-block;padding:12px 24px;background-color:#4caf50;color:white;text-decoration:none;border-radius:4px;font-weight:bold">Reset Password</a>
 </p>
-<p>Если кнопка не работает, скопируйте и вставьте следующую ссылку в браузер:</p>
+<p>If the button doesn't work, copy and paste the following link into your browser:</p>
 <p style="word-break:break-all;background-color:#f0f0f0;padding:10px;border-radius:4px;margin:20px 0">{{ frontend_url }}/auth/reset-password?token={{ token }}</p>
-<p><strong>Внимание:</strong> Эта ссылка действительна только 1 час. Если вы не запрашивали сброс пароля, просто проигнорируйте это письмо.</p>
-<p style="text-align:center;color:#666;font-size:12px;margin-top:30px">&copy; 2025 Rezynt. Все права защищены.</p>
+<p><strong>Important:</strong> This link is valid for 1 hour only. If you didn't request a password reset, please ignore this email.</p>
+<p style="text-align:center;color:#666;font-size:12px;margin-top:30px">&copy; 2025 Rezynt. All rights reserved.</p>
 </div>
 </body>
 </html>"""

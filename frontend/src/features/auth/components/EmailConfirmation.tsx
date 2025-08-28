@@ -6,6 +6,7 @@ import Alert from '@mui/material/Alert';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ErrorIcon from '@mui/icons-material/Error';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { EmailConfirmationParams } from '../types/auth';
 
 interface EmailConfirmationProps {
@@ -19,6 +20,7 @@ const EmailConfirmation: React.FC<EmailConfirmationProps> = ({
   message, 
   error 
 }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const handleGoToLogin = () => {
@@ -41,10 +43,10 @@ const EmailConfirmation: React.FC<EmailConfirmationProps> = ({
             }} 
           />
           <Typography variant="h5" component="h2" gutterBottom>
-            Email подтвержден!
+            {t('auth.emailConfirmation.success.title')}
           </Typography>
           <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-            {message || 'Ваш email успешно подтвержден. Теперь вы можете войти в систему.'}
+            {message || t('auth.emailConfirmation.success.message')}
           </Typography>
           <Button
             variant="contained"
@@ -52,7 +54,7 @@ const EmailConfirmation: React.FC<EmailConfirmationProps> = ({
             onClick={handleGoToLogin}
             sx={{ mr: 2 }}
           >
-            Войти
+            {t('auth.emailConfirmation.success.loginButton')}
           </Button>
         </>
       ) : (
@@ -65,10 +67,10 @@ const EmailConfirmation: React.FC<EmailConfirmationProps> = ({
             }} 
           />
           <Typography variant="h5" component="h2" gutterBottom>
-            Ошибка подтверждения
+            {t('auth.emailConfirmation.error.title')}
           </Typography>
           <Alert severity="error" sx={{ mb: 3 }}>
-            {error || message || 'Произошла ошибка при подтверждении email. Попробуйте еще раз.'}
+            {error || message || t('auth.emailConfirmation.error.message')}
           </Alert>
           <Button
             variant="contained"
@@ -76,14 +78,14 @@ const EmailConfirmation: React.FC<EmailConfirmationProps> = ({
             onClick={handleGoToStart}
             sx={{ mr: 2 }}
           >
-            На главную
+            {t('auth.emailConfirmation.error.homeButton')}
           </Button>
           <Button
             variant="outlined"
             size="large"
             onClick={handleGoToLogin}
           >
-            Войти
+            {t('auth.emailConfirmation.error.loginButton')}
           </Button>
         </>
       )}
