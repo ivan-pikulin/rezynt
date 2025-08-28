@@ -35,9 +35,10 @@ const ResumeRenderer: React.FC<ResumeRendererProps> = ({
     const a4Width = 794; // ~210mm
     const a4Height = 1123; // ~297mm
     
-    // Вычисляем масштаб по ширине и высоте
-    const scaleByWidth = (containerWidth - 40) / a4Width; // 40px для отступов
-    const scaleByHeight = (containerHeight - 40) / a4Height; // 40px для отступов
+    // Вычисляем масштаб по ширине и высоте с учетом отступов
+    const padding = 20; // Отступы для скруглений и теней
+    const scaleByWidth = (containerWidth - padding) / a4Width;
+    const scaleByHeight = (containerHeight - padding) / a4Height;
     
     // Берем минимальный масштаб, чтобы резюме поместилось полностью
     const optimalScale = Math.min(scaleByWidth, scaleByHeight, 1);
@@ -98,15 +99,24 @@ const ResumeRenderer: React.FC<ResumeRendererProps> = ({
     >
       <Box
         sx={{
-          width: '100%',
-          height: '100%',
+          // Для превью используем aspectRatio, для экспорта - фиксированные размеры
+          ...(isPreview ? {
+            width: '100%',
+            aspectRatio: '210 / 297', // A4 соотношение
+            maxWidth: '794px',
+            maxHeight: '1123px'
+          } : {
+            width: '794px', // Фиксированная ширина A4
+            height: '1123px' // Фиксированная высота A4
+          }),
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
           borderRadius: isPreview ? '12px' : '0',
           boxShadow: isPreview ? '0 8px 32px rgba(0, 0, 0, 0.12)' : 'none',
           overflow: 'hidden',
-          backgroundColor: 'white'
+          backgroundColor: 'white',
+          position: 'relative'
         }}
       >
         {templateElement}

@@ -139,16 +139,16 @@ const ExportPage: React.FC = () => {
                 line-height: 1.4;
               }
               h1, h2, h3, h4, h5, h6 {
-                margin: 0.3em 0;
+                margin: 0.5em 0;
                 line-height: 1.2;
               }
               p, li {
-                margin: 0.2em 0;
+                margin: 0.3em 0;
                 line-height: 1.3;
               }
               ul, ol {
-                margin: 0.2em 0;
-                padding-left: 1em;
+                margin: 0.3em 0;
+                padding-left: 1.2em;
               }
               .section {
                 margin-bottom: 0.5em;

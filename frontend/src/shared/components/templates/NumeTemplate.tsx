@@ -17,7 +17,7 @@ export class NumeTemplate extends BaseTemplate {
           overflow: 'hidden',
           fontSize: '12px',
           lineHeight: 1.4,
-          padding: '0.5em'
+          padding: '15px'
         }
       }}>
         {/* Header */}

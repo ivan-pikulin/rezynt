@@ -128,66 +128,51 @@ export abstract class BaseTemplate extends React.Component<BaseTemplateProps, {}
   abstract renderTemplate(): React.ReactElement;
 
   render() {
-    // A4 размеры в пикселях при 96 DPI
+    // Для экспорта просто возвращаем содержимое без дополнительных контейнеров
+    // ResumeRenderer уже управляет размерами и стилями
+    if (!this.props.isPreview) {
+      return this.renderTemplate();
+    }
+    
+    // Для превью - масштабируемый контейнер (если нужен)
     const a4Width = 794; // ~210mm
     const a4Height = 1123; // ~297mm
-    
-    // Получаем масштаб из пропсов или используем значение по умолчанию
     const scale = this.props.scale ?? 0.4;
     
-    if (this.props.isPreview) {
-      // Для превью - масштабируемый контейнер
-      return (
-        <Box
-          sx={{
-            width: '100%',
-            height: '100%',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            overflow: 'hidden',
-            m: 0,
-            p: 0
-          }}
-        >
-          <Box
-            ref={this.containerRef}
-            sx={{
-              width: a4Width,
-              height: a4Height,
-              backgroundColor: 'white',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-              borderRadius: '8px',
-              overflow: 'hidden',
-              transform: `scale(${scale})`,
-              transformOrigin: 'center center',
-              flexShrink: 0,
-              border: '2px solid #e0e0e0',
-              transition: 'transform 0.3s ease-in-out',
-              m: 0,
-              p: 0
-            }}
-          >
-            {this.renderTemplate()}
-          </Box>
-        </Box>
-      );
-    } else {
-      // Для экспорта - полный размер A4
-      return (
+    return (
+      <Box
+        sx={{
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          overflow: 'hidden',
+          m: 0,
+          p: 0
+        }}
+      >
         <Box
           ref={this.containerRef}
           sx={{
             width: a4Width,
             height: a4Height,
             backgroundColor: 'white',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+            borderRadius: '8px',
             overflow: 'hidden',
-            border: '1px solid #ccc'
+            transform: `scale(${scale})`,
+            transformOrigin: 'center center',
+            flexShrink: 0,
+            border: '2px solid #e0e0e0',
+            transition: 'transform 0.3s ease-in-out',
+            m: 0,
+            p: 0
           }}
         >
           {this.renderTemplate()}
         </Box>
-      );
-    }
+      </Box>
+    );
   }
 } 
