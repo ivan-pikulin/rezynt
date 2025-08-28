@@ -28,7 +28,7 @@ export const useResumeData = (resumeId: string | null) => {
     setError(null);
 
     try {
-      const data = await resumeApi.getResume(resumeId);
+      const data = await resumeApi.getResume(Number(resumeId));
       
       // Store in cache
       resumeCacheService.set(resumeId, data);
