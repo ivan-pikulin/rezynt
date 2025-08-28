@@ -1,30 +1,25 @@
-import React, { useState, useEffect } from 'react';
 import {
-  Drawer,
-  Box,
-  Typography,
-  Button,
-  Avatar,
-  Divider,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  Chip,
-  IconButton,
-  Tooltip
-} from '@mui/material';
-import {
-  Logout as LogoutIcon,
-  Person as PersonIcon,
-  Description as DescriptionIcon,
   Close as CloseIcon,
-  Star as StarIcon,
-  Lock as LockIcon
+  Description as DescriptionIcon,
+  Lock as LockIcon,
+  Logout as LogoutIcon,
+  Star as StarIcon
 } from '@mui/icons-material';
+import {
+  Avatar,
+  Badge,
+  Box,
+  Button,
+  Chip,
+  Divider,
+  Drawer,
+  IconButton,
+  Typography
+} from '@mui/material';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { userApi } from '../../services/api';
+import { resumeApi, userApi } from '../../services/api';
 import { User } from '../../services/api/types';
 import { COLORS } from '../../theme/theme';
 
@@ -43,6 +38,7 @@ const UserSidebar: React.FC<UserSidebarProps> = ({
   const { logout, user, updateUser } = useAuthContext();
   const [userData, setUserData] = useState<User | null>(null);
   const [loading, setLoading] = useState(false);
+  const [resumeCount, setResumeCount] = useState<number>(0);
 
   useEffect(() => {
     if (open && !userData && user) {
@@ -61,6 +57,16 @@ const UserSidebar: React.FC<UserSidebarProps> = ({
       const data = await userApi.getCurrentUser();
       setUserData(data);
       updateUser(data); // Обновляем пользователя в контексте
+      
+      // Загружаем количество резюме для premium пользователей
+      if (data.is_premium) {
+        try {
+          const resumes = await resumeApi.getUserResumes();
+          setResumeCount(resumes.length);
+        } catch (error) {
+          console.error('Error fetching resume count:', error);
+        }
+      }
     } catch (error) {
       console.error('Error fetching user data:', error);
     } finally {
@@ -89,10 +95,6 @@ const UserSidebar: React.FC<UserSidebarProps> = ({
 
   const getPlanName = (isPremium: boolean) => {
     return isPremium ? 'Premium' : 'Free';
-  };
-
-  const getPlanColor = (isPremium: boolean) => {
-    return isPremium ? 'primary' : 'default';
   };
 
   return (
@@ -158,12 +160,34 @@ const UserSidebar: React.FC<UserSidebarProps> = ({
           <Chip
             icon={(userData?.is_premium ?? user?.is_premium) ? <StarIcon /> : undefined}
             label={getPlanName(userData?.is_premium ?? user?.is_premium ?? false)}
-            color={getPlanColor(userData?.is_premium ?? user?.is_premium ?? false)}
             variant={(userData?.is_premium ?? user?.is_premium) ? 'filled' : 'outlined'}
             sx={{ 
               fontWeight: 600,
-              '& .MuiChip-icon': {
-                color: 'inherit'
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              ...(userData?.is_premium ?? user?.is_premium) && {
+                background: `linear-gradient(135deg, ${COLORS.credits.star} 0%, #ffb74d 100%)`,
+                color: 'white',
+                boxShadow: '0 4px 12px rgba(255, 200, 87, 0.4), 0 2px 4px rgba(255, 200, 87, 0.2)',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                '& .MuiChip-icon': {
+                  color: 'white',
+                  filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2))'
+                },
+                '&:hover': {
+                  transform: 'translateY(-2px) scale(1.05)',
+                  boxShadow: '0 8px 20px rgba(255, 200, 87, 0.5), 0 4px 8px rgba(255, 200, 87, 0.3)',
+                  background: `linear-gradient(135deg, #ffb74d 0%, ${COLORS.credits.star} 100%)`
+                }
+              },
+              ...!(userData?.is_premium ?? user?.is_premium) && {
+                '& .MuiChip-icon': {
+                  color: 'inherit'
+                },
+                '&:hover': {
+                  transform: 'translateY(-1px)',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+                }
               }
             }}
           />
@@ -210,6 +234,28 @@ const UserSidebar: React.FC<UserSidebarProps> = ({
             }}
           >
             My Resumes
+            {/* Счетчик резюме для premium пользователей */}
+            {(userData?.is_premium ?? user?.is_premium) && resumeCount > 0 && (
+              <Badge
+                badgeContent={resumeCount}
+                sx={{
+                  position: 'absolute',
+                  top: 8,
+                  right: 8,
+                  '& .MuiBadge-badge': {
+                    backgroundColor: COLORS.credits.star,
+                    color: 'white',
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                    minWidth: '20px',
+                    height: '20px',
+                    borderRadius: '10px',
+                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
+                    border: '2px solid white'
+                  }
+                }}
+              />
+            )}
           </Button>
         </Box>
 
@@ -230,8 +276,12 @@ const UserSidebar: React.FC<UserSidebarProps> = ({
               fontWeight: 400,
               textTransform: 'none',
               color: '#666',
+              borderRadius: '8px',
+              transition: 'all 0.2s ease-in-out',
               '&:hover': {
-                bgcolor: 'rgba(0, 0, 0, 0.04)'
+                bgcolor: 'rgba(0, 0, 0, 0.04)',
+                transform: 'translateX(4px)',
+                color: '#333'
               }
             }}
           >
@@ -251,9 +301,12 @@ const UserSidebar: React.FC<UserSidebarProps> = ({
               textTransform: 'none',
               borderColor: '#d32f2f',
               color: '#d32f2f',
+              transition: 'all 0.2s ease-in-out',
               '&:hover': {
                 borderColor: '#b71c1c',
-                bgcolor: '#ffebee'
+                bgcolor: '#ffebee',
+                transform: 'translateY(-1px)',
+                boxShadow: '0 4px 8px rgba(211, 47, 47, 0.2)'
               }
             }}
           >
