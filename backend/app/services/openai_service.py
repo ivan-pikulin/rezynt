@@ -68,7 +68,7 @@ class ResumeChatService:
                 ],
                 response_format=ChatResumeResponse,
                 temperature=0.3,
-                max_tokens=2000
+                max_tokens=10000
             )
             
             # Get structured response
