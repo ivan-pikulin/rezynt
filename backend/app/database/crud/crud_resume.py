@@ -376,6 +376,7 @@ class CRUDResume(CRUDBase[Resume, ResumeCreate, ResumeUpdate]):
             template_slug=template_slug,
             professional_summary=getattr(resume, 'professional_summary', None),
             conversation_id=getattr(resume, 'conversation_id', None),
+            from_upload=getattr(resume, 'from_upload', False),
             created_at=getattr(resume, 'created_at', None),
             updated_at=getattr(resume, 'updated_at', None),
             first_name=first_name,
