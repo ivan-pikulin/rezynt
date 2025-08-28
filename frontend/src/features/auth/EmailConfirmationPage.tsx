@@ -32,7 +32,7 @@ const EmailConfirmationPage: React.FC = () => {
   if (!confirmationData) {
     return (
       <AuthLayout title={t('auth.emailConfirmation.title')}>
-        <div>Загрузка...</div>
+        <div>Loading...</div>
       </AuthLayout>
     );
   }

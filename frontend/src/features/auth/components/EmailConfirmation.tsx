@@ -1,13 +1,13 @@
-import React from 'react';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
-import Alert from '@mui/material/Alert';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ErrorIcon from '@mui/icons-material/Error';
-import { useNavigate } from 'react-router-dom';
+import Alert from '@mui/material/Alert';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { EmailConfirmationParams } from '../types/auth';
+import { useNavigate } from 'react-router-dom';
+import { COLORS } from '../../../shared/theme/theme';
 
 interface EmailConfirmationProps {
   status: 'success' | 'error';
@@ -38,7 +38,7 @@ const EmailConfirmation: React.FC<EmailConfirmationProps> = ({
           <CheckCircleIcon 
             sx={{ 
               fontSize: 64, 
-              color: 'success.main', 
+              color: COLORS.success.main, 
               mb: 2 
             }} 
           />
@@ -52,7 +52,13 @@ const EmailConfirmation: React.FC<EmailConfirmationProps> = ({
             variant="contained"
             size="large"
             onClick={handleGoToLogin}
-            sx={{ mr: 2 }}
+            sx={{ 
+              mr: 2,
+              bgcolor: COLORS.primary.main,
+              '&:hover': {
+                bgcolor: COLORS.primary.dark
+              }
+            }}
           >
             {t('auth.emailConfirmation.success.loginButton')}
           </Button>
@@ -62,7 +68,7 @@ const EmailConfirmation: React.FC<EmailConfirmationProps> = ({
           <ErrorIcon 
             sx={{ 
               fontSize: 64, 
-              color: 'error.main', 
+              color: COLORS.error.main, 
               mb: 2 
             }} 
           />
@@ -76,7 +82,13 @@ const EmailConfirmation: React.FC<EmailConfirmationProps> = ({
             variant="contained"
             size="large"
             onClick={handleGoToStart}
-            sx={{ mr: 2 }}
+            sx={{ 
+              mr: 2,
+              bgcolor: COLORS.primary.main,
+              '&:hover': {
+                bgcolor: COLORS.primary.dark
+              }
+            }}
           >
             {t('auth.emailConfirmation.error.homeButton')}
           </Button>
@@ -84,6 +96,15 @@ const EmailConfirmation: React.FC<EmailConfirmationProps> = ({
             variant="outlined"
             size="large"
             onClick={handleGoToLogin}
+            sx={{
+              borderColor: COLORS.primary.main,
+              color: COLORS.primary.main,
+              '&:hover': {
+                borderColor: COLORS.primary.dark,
+                color: COLORS.primary.dark,
+                bgcolor: COLORS.primary.light
+              }
+            }}
           >
             {t('auth.emailConfirmation.error.loginButton')}
           </Button>
