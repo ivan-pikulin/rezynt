@@ -1,17 +1,17 @@
-import React, { useRef, useState } from 'react';
 import Box from '@mui/material/Box';
+import React, { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Header from '../../shared/components/Header/Header';
+import ResumeRenderer from '../../shared/components/ResumeRenderer';
+import { useAuthContext } from '../../shared/contexts/AuthContext';
+import { useResumeQuery } from '../../shared/hooks/useResumeQuery';
+import { useTemplate } from '../../shared/hooks/useTemplate';
+import ErrorMessage from '../refine/components/ErrorMessage';
+import LoadingSpinner from '../refine/components/LoadingSpinner';
+import { convertApiResumeToDisplayData } from '../refine/utils/resumeDataConverter';
 import DownloadOptions from './components/DownloadOptions';
 import SuccessPage from './components/SuccessPage';
-import ResumeRenderer from '../../shared/components/ResumeRenderer';
-import { Resume } from '../../shared/services/api/types';
-import { useTemplate } from '../../shared/hooks/useTemplate';
-import { useResumeQuery } from '../../shared/hooks/useResumeQuery';
-import { convertApiResumeToDisplayData } from '../refine/utils/resumeDataConverter';
-import LoadingSpinner from '../refine/components/LoadingSpinner';
-import ErrorMessage from '../refine/components/ErrorMessage';
-import { useTranslation } from 'react-i18next';
 import { exportApi } from './exportApi';
 
 const ExportPage: React.FC = () => {
@@ -24,6 +24,7 @@ const ExportPage: React.FC = () => {
   const { selectedTemplate } = useTemplate(resumeId, resume?.template_slug);
   const [isExporting, setIsExporting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const { user } = useAuthContext();
 
   const handleBack = () => {
     navigate(`/refine?resume_id=${resumeId}`);
@@ -218,7 +219,11 @@ const ExportPage: React.FC = () => {
         p: { xs: 2, sm: 3, md: 4 }, // Адаптивные отступы
         py: { xs: 3, sm: 4, md: 6 } // Дополнительные вертикальные отступы
       }}>
-        <DownloadOptions onExportPDF={handleExportPDF} isExporting={isExporting} />
+        <DownloadOptions 
+          onExportPDF={handleExportPDF} 
+          isExporting={isExporting} 
+          isPremium={user?.is_premium || false}
+        />
       </Box>
 
       {/* Скрытый template для экспорта */}

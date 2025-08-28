@@ -5,7 +5,6 @@ import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import DownloadIcon from '@mui/icons-material/Download';
-import LockIcon from '@mui/icons-material/Lock';
 import CircularProgress from '@mui/material/CircularProgress';
 import PaywallModal from '../../../shared/components/PaywallModal';
 import { COLORS } from '../../../shared/theme/theme';
@@ -13,9 +12,10 @@ import { COLORS } from '../../../shared/theme/theme';
 interface DownloadOptionsProps {
   onExportPDF?: () => Promise<void>;
   isExporting?: boolean;
+  isPremium?: boolean;
 }
 
-const DownloadOptions: React.FC<DownloadOptionsProps> = ({ onExportPDF, isExporting = false }) => {
+const DownloadOptions: React.FC<DownloadOptionsProps> = ({ onExportPDF, isExporting = false, isPremium = false }) => {
   const [isPaywallModalOpen, setIsPaywallModalOpen] = useState(false);
 
   const handleWatermarkedDownload = async () => {
@@ -28,8 +28,20 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({ onExportPDF, isExport
     }
   };
 
-  const handleCleanDownload = () => {
-    setIsPaywallModalOpen(true);
+  const handleCleanDownload = async () => {
+    if (isPremium) {
+      // Для premium пользователей напрямую экспортируем
+      try {
+        if (onExportPDF) {
+          await onExportPDF();
+        }
+      } catch (error) {
+        console.error('Error downloading PDF:', error);
+      }
+    } else {
+      // Для обычных пользователей показываем paywall
+      setIsPaywallModalOpen(true);
+    }
   };
 
   const handleClosePaywallModal = () => {
@@ -45,13 +57,16 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({ onExportPDF, isExport
     <>
       <Box sx={{ 
         display: 'flex', 
-        flexDirection: { xs: 'column', md: 'row' }, // Вертикально на мобильных, горизонтально на десктопе
+        flexDirection: { xs: 'column', md: isPremium ? 'column' : 'row' }, // Для premium показываем только одну карточку
         gap: { xs: 2, sm: 3, md: 4 }, // Адаптивные отступы между карточками
-        maxWidth: { xs: '100%', sm: 700, md: 800 }, // Уменьшаем максимальную ширину на мобильных
-        width: '100%'
+        maxWidth: { xs: '100%', sm: isPremium ? 500 : 700, md: isPremium ? 600 : 800 }, // Уменьшаем ширину для premium
+        width: '100%',
+        justifyContent: 'center',
+        alignItems: 'center'
       }}>
-        {/* Watermarked Download */}
-        <Card 
+        {/* Watermarked Download - показываем только для не-premium пользователей */}
+        {!isPremium && (
+          <Card 
           sx={{ 
             flex: 1,
             cursor: isExporting ? 'not-allowed' : 'pointer',
@@ -144,6 +159,7 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({ onExportPDF, isExport
             </Button>
           </CardContent>
         </Card>
+        )}
 
         {/* Clean Download */}
         <Card 
@@ -173,11 +189,21 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({ onExportPDF, isExport
             justifyContent: 'center',
             alignItems: 'center'
           }}>
-            <LockIcon sx={{ 
-              fontSize: { xs: 48, sm: 56, md: 64 }, // Адаптивный размер иконки
-              color: COLORS.primary.main,
-              mb: { xs: 1.5, sm: 2 }
-            }} />
+            {isExporting ? (
+              <CircularProgress 
+                size={48} 
+                sx={{ 
+                  color: COLORS.primary.main,
+                  mb: { xs: 1.5, sm: 2 }
+                }} 
+              />
+            ) : (
+              <DownloadIcon sx={{ 
+                fontSize: { xs: 48, sm: 56, md: 64 }, // Адаптивный размер иконки
+                color: COLORS.primary.main,
+                mb: { xs: 1.5, sm: 2 }
+              }} />
+            )}
             <Typography 
               variant="h5" 
               component="h2" 
@@ -188,7 +214,7 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({ onExportPDF, isExport
                 fontSize: { xs: '1.1rem', sm: '1.25rem', md: '1.5rem' } // Адаптивный размер шрифта
               }}
             >
-              Clean Download
+              {isExporting ? 'Generating PDF...' : 'Clean Download'}
             </Typography>
             <Typography 
               variant="body1" 
@@ -198,11 +224,14 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({ onExportPDF, isExport
                 fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' } // Адаптивный размер шрифта
               }}
             >
-              Download without watermarks (Pro feature)
+              {isExporting ? 'Please wait while we prepare your resume' : 
+               isPremium ? 'Download your resume without watermarks' : 
+               'Download without watermarks (Pro feature)'}
             </Typography>
             <Button 
               variant="contained" 
               size="large"
+              disabled={isExporting}
               sx={{
                 borderRadius: '8px',
                 px: { xs: 2.5, sm: 3, md: 4 }, // Адаптивные горизонтальные отступы
@@ -214,10 +243,14 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({ onExportPDF, isExport
                 minHeight: { xs: 40, sm: 44, md: 48 }, // Минимальная высота для touch
                 '&:hover': {
                   bgcolor: COLORS.primary.dark
+                },
+                '&:disabled': {
+                  bgcolor: COLORS.grey[400],
+                  color: 'white'
                 }
               }}
             >
-              Upgrade to Pro
+              {isExporting ? 'Processing...' : (isPremium ? 'Download' : 'Upgrade to Pro')}
             </Button>
           </CardContent>
         </Card>

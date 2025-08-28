@@ -1,13 +1,13 @@
-import os
 import tempfile
 import uuid
 from pathlib import Path
 from typing import Optional
-from weasyprint import HTML, CSS
-from weasyprint.text.fonts import FontConfiguration
+
+from app.core.config import settings
 from fastapi import HTTPException, status
 from fastapi.responses import FileResponse
-from app.core.config import settings
+from weasyprint import CSS, HTML
+from weasyprint.text.fonts import FontConfiguration
 
 
 class PDFService:
@@ -104,8 +104,15 @@ class PDFService:
             watermark_css = self._get_watermark_css() if use_watermark else ""
             
             # Define CSS for better PDF formatting
+            # All users get PDF without margins, exactly one page
             css_string = f"""
                 {watermark_css}
+                @page {{
+                    size: A4;
+                    margin: 0;
+                    padding: 0;
+                    border: none;
+                }}
                 body {{
                     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
                     line-height: 1.6;
@@ -121,6 +128,8 @@ class PDFService:
                     page-break-inside: avoid;
                     page-break-after: avoid;
                     page-break-before: avoid;
+                    margin: 0;
+                    padding: 0;
                 }}
             """
             
