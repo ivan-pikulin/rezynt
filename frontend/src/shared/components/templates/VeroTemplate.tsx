@@ -12,7 +12,14 @@ export class VeroTemplate extends BaseTemplate {
         fontFamily: 'Arial, sans-serif',
         lineHeight: 1.6,
         color: '#333',
-        backgroundColor: 'white'
+        backgroundColor: 'white',
+        '@media print': {
+          height: '100vh',
+          overflow: 'hidden',
+          fontSize: '12px',
+          lineHeight: 1.4,
+          padding: '0.5em'
+        }
       }}>
         {/* Header - Centered Name and Contact */}
         <Box sx={{ 

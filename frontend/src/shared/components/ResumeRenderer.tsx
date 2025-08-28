@@ -96,7 +96,21 @@ const ResumeRenderer: React.FC<ResumeRendererProps> = ({
         m: 0
       }}
     >
-      {templateElement}
+      <Box
+        sx={{
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          borderRadius: isPreview ? '12px' : '0',
+          boxShadow: isPreview ? '0 8px 32px rgba(0, 0, 0, 0.12)' : 'none',
+          overflow: 'hidden',
+          backgroundColor: 'white'
+        }}
+      >
+        {templateElement}
+      </Box>
     </Box>
   );
 };

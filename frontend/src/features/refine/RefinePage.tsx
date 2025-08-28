@@ -51,18 +51,22 @@ const RefinePage: React.FC = () => {
 
   // Обработчик изменения шаблона
   const handleTemplateChange = async (template: TemplateConfig) => {
+    // Сначала мгновенно обновляем локальное состояние для превью
     updateTemplate(template);
     
-    // Сохраняем новый шаблон на сервере
+    // Обновляем кеш резюме для мгновенного отображения
+    if (resume) {
+      const updatedResume = { ...resume, template_slug: template.id };
+      updateResumeInCache(updatedResume);
+    }
+    
+    // Затем асинхронно сохраняем на сервере
     if (resumeId) {
       try {
         await resumeApi.assignTemplateBySlug(parseInt(resumeId), template.id);
-        // Обновляем кеш резюме
-        if (resume) {
-          updateResumeInCache({ ...resume, template_id: parseInt(template.id) });
-        }
       } catch (err) {
-        console.error('Error updating template:', err);
+        console.error('Error updating template on server:', err);
+        // В случае ошибки можно показать уведомление пользователю
       }
     }
   };
@@ -385,6 +389,7 @@ const RefinePage: React.FC = () => {
               data={displayData} 
               scale={0.8} 
               templateId={selectedTemplate?.id}
+              isPreview={true}
             />
           </Box>
 
@@ -485,6 +490,7 @@ const RefinePage: React.FC = () => {
               data={displayData} 
               scale={0.6} 
               templateId={selectedTemplate?.id}
+              isPreview={true}
             />
           </Box>
         </Box>

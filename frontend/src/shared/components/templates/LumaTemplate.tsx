@@ -12,7 +12,13 @@ export class LumaTemplate extends BaseTemplate {
         height: '100%',
         fontFamily: 'Georgia, serif',
         lineHeight: 1.6,
-        color: '#333'
+        color: '#333',
+        '@media print': {
+          height: '100vh',
+          overflow: 'hidden',
+          fontSize: '12px',
+          lineHeight: 1.4
+        }
       }}>
         {/* Left Column - Dark Sidebar */}
         <Box sx={{ 
@@ -21,7 +27,12 @@ export class LumaTemplate extends BaseTemplate {
           color: 'white',
           padding: '40px 30px',
           display: 'flex',
-          flexDirection: 'column'
+          flexDirection: 'column',
+          '@media print': {
+            width: '200px',
+            padding: '0.5em',
+            overflow: 'hidden'
+          }
         }}>
           {/* Contact Information */}
           <Box sx={{ marginBottom: '40px' }}>
@@ -83,7 +94,11 @@ export class LumaTemplate extends BaseTemplate {
           backgroundColor: 'white',
           padding: '40px',
           display: 'flex',
-          flexDirection: 'column'
+          flexDirection: 'column',
+          '@media print': {
+            padding: '0.5em',
+            overflow: 'hidden'
+          }
         }}>
           {/* Name */}
           <Typography 

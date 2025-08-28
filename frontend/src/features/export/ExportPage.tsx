@@ -119,6 +119,7 @@ const ExportPage: React.FC = () => {
           <title>Resume</title>
           <style>
             ${styles}
+            
             /* Дополнительные стили для PDF */
             body {
               margin: 0;
@@ -127,6 +128,31 @@ const ExportPage: React.FC = () => {
             }
             * {
               box-sizing: border-box;
+            }
+            
+            /* Принудительно применяем стили для PDF */
+            @media print {
+              body {
+                height: 100vh;
+                overflow: hidden;
+                font-size: 12px;
+                line-height: 1.4;
+              }
+              h1, h2, h3, h4, h5, h6 {
+                margin: 0.3em 0;
+                line-height: 1.2;
+              }
+              p, li {
+                margin: 0.2em 0;
+                line-height: 1.3;
+              }
+              ul, ol {
+                margin: 0.2em 0;
+                padding-left: 1em;
+              }
+              .section {
+                margin-bottom: 0.5em;
+              }
             }
           </style>
         </head>
@@ -234,6 +260,7 @@ const ExportPage: React.FC = () => {
             scale={1}
             templateId={selectedTemplate?.id}
             fitToContainer={false}
+            isPreview={false}
           />
         </div>
       </Box>

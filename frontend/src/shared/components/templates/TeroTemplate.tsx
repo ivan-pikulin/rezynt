@@ -12,7 +12,13 @@ export class TeroTemplate extends BaseTemplate {
         height: '100%',
         fontFamily: 'Arial, sans-serif',
         lineHeight: 1.6,
-        color: '#333'
+        color: '#333',
+        '@media print': {
+          height: '100vh',
+          overflow: 'hidden',
+          fontSize: '12px',
+          lineHeight: 1.4
+        }
       }}>
         {/* Left Column - Main Content */}
         <Box sx={{ 
@@ -20,7 +26,11 @@ export class TeroTemplate extends BaseTemplate {
           backgroundColor: 'white',
           padding: '40px',
           display: 'flex',
-          flexDirection: 'column'
+          flexDirection: 'column',
+          '@media print': {
+            padding: '0.5em',
+            overflow: 'hidden'
+          }
         }}>
           {/* Header with Logo and Name */}
           <Box sx={{ 
@@ -289,7 +299,12 @@ export class TeroTemplate extends BaseTemplate {
           color: 'white',
           padding: '40px 25px',
           display: 'flex',
-          flexDirection: 'column'
+          flexDirection: 'column',
+          '@media print': {
+            width: '200px',
+            padding: '0.5em',
+            overflow: 'hidden'
+          }
         }}>
           {/* Contact Information */}
           <Box sx={{ marginBottom: '40px' }}>
