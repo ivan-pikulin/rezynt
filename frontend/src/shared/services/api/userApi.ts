@@ -6,7 +6,7 @@ export class UserApi extends BaseApi {
    * Get current user profile
    */
   async getCurrentUser(): Promise<User> {
-    return this.get<User>('/users/me');
+    return this.get<User>('/user/me');
   }
 
   /**

@@ -45,10 +45,13 @@ const UserSidebar: React.FC<UserSidebarProps> = ({
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (open && user && !userData) {
+    if (open && !userData && user) {
       fetchUserData();
+    } else if (!open) {
+      // Сбрасываем данные при закрытии сайдбара
+      setUserData(null);
     }
-  }, [open, user, userData]);
+  }, [open, userData, user]);
 
   const fetchUserData = async () => {
     if (!user) return;
@@ -153,10 +156,10 @@ const UserSidebar: React.FC<UserSidebarProps> = ({
           </Typography>
           
           <Chip
-            icon={(userData?.is_premium || user?.is_premium) ? <StarIcon /> : undefined}
-            label={getPlanName(userData?.is_premium || user?.is_premium || false)}
-            color={getPlanColor(userData?.is_premium || user?.is_premium || false)}
-            variant={(userData?.is_premium || user?.is_premium) ? 'filled' : 'outlined'}
+            icon={(userData?.is_premium ?? user?.is_premium) ? <StarIcon /> : undefined}
+            label={getPlanName(userData?.is_premium ?? user?.is_premium ?? false)}
+            color={getPlanColor(userData?.is_premium ?? user?.is_premium ?? false)}
+            variant={(userData?.is_premium ?? user?.is_premium) ? 'filled' : 'outlined'}
             sx={{ 
               fontWeight: 600,
               '& .MuiChip-icon': {
