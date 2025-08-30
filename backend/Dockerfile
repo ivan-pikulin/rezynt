@@ -27,6 +27,9 @@ RUN apt-get update && apt-get install -y \
     libxrender1 \
     libglib2.0-0 \
     ca-certificates \
+    fonts-liberation \
+    fonts-dejavu \
+    fonts-noto \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
