@@ -126,6 +126,17 @@ const ExportPage: React.FC = () => {
               box-sizing: border-box;
             }
             
+            /* Ensure proper box-sizing for PDF export */
+            .MuiBox-root {
+              box-sizing: border-box;
+            }
+            
+            /* Remove any extra margins/padding that might affect PDF layout */
+            body, html {
+              margin: 0;
+              padding: 0;
+            }
+            
             /* Force apply styles for PDF */
             @media print {
               body {
