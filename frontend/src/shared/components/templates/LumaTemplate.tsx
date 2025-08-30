@@ -10,7 +10,7 @@ export class LumaTemplate extends BaseTemplate {
       <Box sx={{ 
         display: 'flex',
         height: '100%',
-        fontFamily: 'Georgia, serif',
+        fontFamily: '"Source Sans Pro", Liberation Sans, Arial, sans-serif',
         lineHeight: 1.6,
         color: '#333',
         '@media print': {
@@ -43,7 +43,8 @@ export class LumaTemplate extends BaseTemplate {
                 sx={{ 
                   fontSize: '14px',
                   marginBottom: '8px',
-                  fontWeight: '500'
+                  fontWeight: '500',
+                  fontFamily: '"Source Sans Pro", Liberation Sans, Arial, sans-serif'
                 }}
               >
                 {contact}
@@ -60,7 +61,8 @@ export class LumaTemplate extends BaseTemplate {
                 fontWeight: 'bold',
                 marginBottom: '20px',
                 textTransform: 'uppercase',
-                letterSpacing: '1px'
+                letterSpacing: '1px',
+                fontFamily: '"Source Sans Pro", Liberation Sans, Arial, sans-serif'
               }}
             >
               Skills
@@ -78,7 +80,8 @@ export class LumaTemplate extends BaseTemplate {
                   sx={{ 
                     fontSize: '14px',
                     marginBottom: '8px',
-                    lineHeight: 1.4
+                    lineHeight: 1.4,
+                    fontFamily: '"Source Sans Pro", Liberation Sans, Arial, sans-serif'
                   }}
                 >
                   {skill}
@@ -107,7 +110,8 @@ export class LumaTemplate extends BaseTemplate {
               fontSize: '32px',
               fontWeight: 'bold',
               color: '#2c3e50',
-              marginBottom: '20px'
+              marginBottom: '20px',
+                                    fontFamily: '"Source Sans Pro", Liberation Sans, Arial, sans-serif'
             }}
           >
             {this.getFullName()}
@@ -123,7 +127,8 @@ export class LumaTemplate extends BaseTemplate {
                 marginBottom: '12px',
                 color: '#2c3e50',
                 textTransform: 'uppercase',
-                letterSpacing: '0.5px'
+                letterSpacing: '0.5px',
+                fontFamily: '"Source Sans Pro", Liberation Sans, Arial, sans-serif'
               }}
             >
               Professional Summary
@@ -133,7 +138,8 @@ export class LumaTemplate extends BaseTemplate {
               sx={{ 
                 fontSize: '14px',
                 lineHeight: 1.7,
-                textAlign: 'justify'
+                textAlign: 'justify',
+                fontFamily: '"Source Sans Pro", Liberation Sans, Arial, sans-serif'
               }}
             >
               {data.professional_summary || 'Professional summary not provided'}
@@ -150,7 +156,8 @@ export class LumaTemplate extends BaseTemplate {
                 marginBottom: '12px',
                 color: '#2c3e50',
                 textTransform: 'uppercase',
-                letterSpacing: '0.5px'
+                letterSpacing: '0.5px',
+                fontFamily: '"Source Sans Pro", Liberation Sans, Arial, sans-serif'
               }}
             >
               Experience
@@ -168,7 +175,8 @@ export class LumaTemplate extends BaseTemplate {
                     sx={{ 
                       fontSize: '15px',
                       fontWeight: 'bold',
-                      color: '#2c3e50'
+                      color: '#2c3e50',
+                      fontFamily: '"Source Sans Pro", Liberation Sans, Arial, sans-serif'
                     }}
                   >
                     {exp.job_title}
@@ -178,6 +186,7 @@ export class LumaTemplate extends BaseTemplate {
                     sx={{ 
                       fontSize: '13px',
                       color: '#7f8c8d',
+                      fontFamily: '"Source Sans Pro", Liberation Sans Italic, Liberation Sans, Arial, sans-serif',
                       fontStyle: 'italic'
                     }}
                   >
@@ -190,7 +199,8 @@ export class LumaTemplate extends BaseTemplate {
                     fontSize: '14px',
                     color: '#34495e',
                     marginBottom: '8px',
-                    fontWeight: '500'
+                    fontWeight: '500',
+                    fontFamily: '"Source Sans Pro", Liberation Sans, Arial, sans-serif'
                   }}
                 >
                   {exp.company} {exp.location ? `| ${exp.location}` : ''}
@@ -209,7 +219,8 @@ export class LumaTemplate extends BaseTemplate {
                         fontSize: '13px',
                         color: '#555',
                         marginBottom: '2px',
-                        lineHeight: 1.5
+                        lineHeight: 1.5,
+                        fontFamily: '"Source Sans Pro", Liberation Sans, Arial, sans-serif'
                       }}
                     >
                       {responsibility}
@@ -230,7 +241,8 @@ export class LumaTemplate extends BaseTemplate {
                 marginBottom: '12px',
                 color: '#2c3e50',
                 textTransform: 'uppercase',
-                letterSpacing: '0.5px'
+                letterSpacing: '0.5px',
+                fontFamily: '"Source Sans Pro", Liberation Sans, Arial, sans-serif'
               }}
             >
               Education
@@ -248,7 +260,8 @@ export class LumaTemplate extends BaseTemplate {
                     sx={{ 
                       fontSize: '15px',
                       fontWeight: 'bold',
-                      color: '#2c3e50'
+                      color: '#2c3e50',
+                      fontFamily: '"Source Sans Pro", Liberation Sans, Arial, sans-serif'
                     }}
                   >
                     {edu.degree}
@@ -258,6 +271,7 @@ export class LumaTemplate extends BaseTemplate {
                     sx={{ 
                       fontSize: '13px',
                       color: '#7f8c8d',
+                      fontFamily: '"Source Sans Pro", Liberation Sans Italic, Liberation Sans, Arial, sans-serif',
                       fontStyle: 'italic'
                     }}
                   >
@@ -269,7 +283,8 @@ export class LumaTemplate extends BaseTemplate {
                   sx={{ 
                     fontSize: '14px',
                     color: '#34495e',
-                    fontWeight: '500'
+                    fontWeight: '500',
+                    fontFamily: '"Source Sans Pro", Liberation Sans, Arial, sans-serif'
                   }}
                 >
                   {edu.institution} {edu.location ? `, ${edu.location}` : ''}
