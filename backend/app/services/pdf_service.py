@@ -8,7 +8,6 @@ from fastapi import HTTPException, status
 from fastapi.responses import FileResponse
 from weasyprint import CSS, HTML
 from weasyprint.text.fonts import FontConfiguration
-import os
 
 
 class PDFService:
@@ -16,46 +15,6 @@ class PDFService:
     
     def __init__(self):
         self.font_config = FontConfiguration()
-        self._configure_fonts()
-        
-    def _configure_fonts(self):
-        """
-        Configure fonts for WeasyPrint to support italic styles
-        """
-        try:
-            # Add CSS rules to ensure italic fonts work properly
-            # This helps WeasyPrint understand font variations
-            self.font_config.add_font_face(
-                '@font-face {'
-                'font-family: "Georgia";'
-                'font-style: normal;'
-                'font-weight: normal;'
-                '}'
-            )
-            self.font_config.add_font_face(
-                '@font-face {'
-                'font-family: "Georgia";'
-                'font-style: italic;'
-                'font-weight: normal;'
-                '}'
-            )
-            self.font_config.add_font_face(
-                '@font-face {'
-                'font-family: "Arial";'
-                'font-style: normal;'
-                'font-weight: normal;'
-                '}'
-            )
-            self.font_config.add_font_face(
-                '@font-face {'
-                'font-family: "Arial";'
-                'font-style: italic;'
-                'font-weight: normal;'
-                '}'
-            )
-        except Exception as e:
-            # If font configuration fails, continue without it
-            print(f"Warning: Font configuration failed: {e}")
         
     def _get_watermark_css(self) -> str:
         """
@@ -159,20 +118,6 @@ class PDFService:
                     page-break-inside: avoid;
                     page-break-after: avoid;
                     page-break-before: avoid;
-                }}
-                
-                /* Ensure italic styles are preserved in PDF */
-                *[style*="font-style: italic"], 
-                *[style*="fontStyle: italic"],
-                .italic,
-                em,
-                i {{
-                    font-style: italic !important;
-                }}
-                
-                /* Force italic for specific elements that should be italic */
-                *[style*="fontStyle: 'italic'"] {{
-                    font-style: italic !important;
                 }}
             """
             

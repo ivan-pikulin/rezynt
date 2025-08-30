@@ -74,7 +74,7 @@
         <step name="load_resume" desc="Loads resume data from API using resumeId from URL parameters"/>
         <step name="select_template" desc="Automatically selects template based on resume.template_id"/>
         <step name="render_resume" desc="Renders resume using ResumeRenderer with real data and selected template"/>
-        <step name="extract_html" desc="Extracts full HTML with CSS styles from rendered resume (uses template-defined padding for exact preview match)"/>
+        <step name="extract_html" desc="Extracts full HTML with CSS styles from rendered resume"/>
         <step name="send_to_backend" desc="Sends HTML content to backend API for PDF generation"/>
         <step name="generate_pdf" desc="Backend generates PDF using WeasyPrint"/>
         <step name="download_pdf" desc="Downloads generated PDF file"/>
@@ -95,7 +95,7 @@
         <feature name="full_css_support" desc="Includes all CSS styles in PDF generation for exact preview match"/>
         <feature name="proper_filename" desc="Generates filename based on user's actual name"/>
         <feature name="multi_page" desc="Supports multi-page resumes with automatic page breaks"/>
-        <feature name="a4_format" desc="Generates PDF in A4 format with proper margins matching template padding for exact preview correspondence"/>
+        <feature name="a4_format" desc="Generates PDF in A4 format with proper margins"/>
     </export_features>
 
     <error_handling>

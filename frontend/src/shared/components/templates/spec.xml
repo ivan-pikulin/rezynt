@@ -13,12 +13,15 @@
       <description>
         Шаблон с темной боковой панелью (коричневый цвет) и светлой основной областью.
         Использует шрифт Georgia serif для элегантного вида.
+        Содержит специальный CSS класс .luma-italic для прямого контроля курсива в PDF.
       </description>
       <features>
         <feature name="two_column_layout" desc="Двухколоночная компоновка с боковой панелью 35% и основной областью 65%"/>
         <feature name="dark_sidebar" desc="Темная боковая панель (#8B4513) с белым текстом"/>
         <feature name="serif_font" desc="Использует шрифт Georgia serif для элегантного вида"/>
         <feature name="italic_dates" desc="Даты работы и образования отображаются курсивом с поддержкой PDF экспорта"/>
+        <feature name="css_class_italic" desc="Использует специальный CSS класс .luma-italic для прямого контроля курсива"/>
+        <feature name="inline_css" desc="Содержит встроенные CSS стили для @media print"/>
       </features>
     </template>
     
@@ -110,15 +113,21 @@
       <name>Цвета дат</name>
       <value>#7f8c8d (серый) для дат работы и образования</value>
     </detail>
+    
+    <detail>
+      <name>LumaTemplate CSS класс</name>
+      <value>.luma-italic с прямыми CSS правилами для курсива в PDF</value>
+    </detail>
   </technical_details>
   
   <recent_fixes>
-         <fix>
-       <date>2024</date>
-       <issue>Курсив для дат терялся при экспорте в PDF</issue>
-       <solution>Добавлены @media print стили с fontStyle: 'italic !important' и fontFamily с italic для всех дат во всех шаблонах. Обновлен PDFService для поддержки курсива в WeasyPrint</solution>
-       <affected_templates>LumaTemplate, TeroTemplate, NumeTemplate, AltoTemplate, VeroTemplate</affected_templates>
-       <backend_changes>PDFService: добавлена конфигурация шрифтов и CSS правила для поддержки курсива</backend_changes>
-     </fix>
+    <fix>
+      <date>2024</date>
+      <issue>Курсив для дат терялся при экспорте в PDF</issue>
+      <solution>Добавлены @media print стили с fontStyle: 'italic !important' и fontFamily с italic для всех дат во всех шаблонах. Обновлен PDFService для поддержки курсива в WeasyPrint. В LumaTemplate добавлен специальный CSS класс .luma-italic с прямыми правилами для курсива</solution>
+      <affected_templates>LumaTemplate (с CSS классом), TeroTemplate, NumeTemplate, AltoTemplate, VeroTemplate</affected_templates>
+      <backend_changes>PDFService: добавлена конфигурация шрифтов и CSS правила для поддержки курсива, включая поддержку .luma-italic класса</backend_changes>
+      <frontend_changes>LumaTemplate: добавлен встроенный CSS стиль и класс .luma-italic для прямого контроля курсива в PDF</frontend_changes>
+    </fix>
   </recent_fixes>
 </specification>

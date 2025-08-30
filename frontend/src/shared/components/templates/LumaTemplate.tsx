@@ -7,19 +7,35 @@ export class LumaTemplate extends BaseTemplate {
     const { data } = this.props;
     
     return (
-      <Box sx={{ 
-        display: 'flex',
-        height: '100%',
-        fontFamily: 'Georgia, serif',
-        lineHeight: 1.6,
-        color: '#333',
-        '@media print': {
-          height: '100vh',
-          overflow: 'hidden',
-          fontSize: '12px',
-          lineHeight: 1.4
-        }
-      }}>
+      <>
+        <style>
+          {`
+            @media print {
+              .luma-italic {
+                font-style: italic !important;
+                font-family: Georgia, serif !important;
+                font-weight: normal !important;
+                text-decoration: none !important;
+                border: none !important;
+                outline: none !important;
+              }
+            }
+          `}
+        </style>
+        <Box sx={{ 
+          display: 'flex',
+          height: '100%',
+          fontFamily: 'Georgia, serif',
+          lineHeight: 1.6,
+          color: '#333',
+          '@media print': {
+            height: '100vh',
+            overflow: 'hidden',
+            fontSize: '12px',
+            lineHeight: 1.4,
+            fontFamily: 'Georgia, serif !important'
+          }
+        }}>
         {/* Left Column - Dark Sidebar */}
         <Box sx={{ 
           width: '35%',
@@ -175,13 +191,21 @@ export class LumaTemplate extends BaseTemplate {
                   </Typography>
                   <Typography 
                     variant="body2" 
+                    className="luma-italic"
                     sx={{ 
                       fontSize: '13px',
                       color: '#7f8c8d',
                       fontStyle: 'italic',
+                      fontFamily: 'Georgia, serif',
                       '@media print': {
+                        fontSize: '11px !important',
+                        color: '#7f8c8d !important',
                         fontStyle: 'italic !important',
-                        fontFamily: 'Georgia, serif, italic !important'
+                        fontFamily: 'Georgia, serif !important',
+                        fontWeight: 'normal !important',
+                        textDecoration: 'none !important',
+                        border: 'none !important',
+                        outline: 'none !important'
                       }
                     }}
                   >
@@ -259,13 +283,21 @@ export class LumaTemplate extends BaseTemplate {
                   </Typography>
                   <Typography 
                     variant="body2" 
+                    className="luma-italic"
                     sx={{ 
                       fontSize: '13px',
                       color: '#7f8c8d',
                       fontStyle: 'italic',
+                      fontFamily: 'Georgia, serif',
                       '@media print': {
+                        fontSize: '11px !important',
+                        color: '#7f8c8d !important',
                         fontStyle: 'italic !important',
-                        fontFamily: 'Georgia, serif, italic !important'
+                        fontFamily: 'Georgia, serif !important',
+                        fontWeight: 'normal !important',
+                        textDecoration: 'none !important',
+                        border: 'none !important',
+                        outline: 'none !important'
                       }
                     }}
                   >
@@ -287,6 +319,7 @@ export class LumaTemplate extends BaseTemplate {
           </Box>
         </Box>
       </Box>
+      </>
     );
   }
 } 
