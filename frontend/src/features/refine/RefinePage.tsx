@@ -237,6 +237,7 @@ const RefinePage: React.FC = () => {
               onTemplateChange={handleTemplateChange}
               horizontalLayout={false}
               selectedTemplate={selectedTemplate}
+              resumeData={displayData}
             />
           </Box>
         </Box>
@@ -340,6 +341,7 @@ const RefinePage: React.FC = () => {
                 onTemplateChange={handleTemplateChange}
                 horizontalLayout={true}
                 selectedTemplate={selectedTemplate}
+                resumeData={displayData}
               />
             </Box>
           </Box>

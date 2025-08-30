@@ -9,17 +9,25 @@ interface TemplateSelectorProps {
   onTemplateChange?: (template: TemplateConfig) => void;
   horizontalLayout?: boolean;
   selectedTemplate?: TemplateConfig | null;
+  resumeData?: any; // Реальные данные резюме для превью
 }
 
-const TemplateSelector: React.FC<TemplateSelectorProps> = ({ onTemplateChange, horizontalLayout = false, selectedTemplate: externalSelectedTemplate }) => {
+const TemplateSelector: React.FC<TemplateSelectorProps> = ({ onTemplateChange, horizontalLayout = false, selectedTemplate: externalSelectedTemplate, resumeData }) => {
   const templates = TemplateService.getTemplates();
-  const demoData = TemplateService.createDemoData();
   const [internalSelectedTemplate, setInternalSelectedTemplate] = useState<TemplateConfig | null>(
     externalSelectedTemplate || templates[0]
   );
 
+  // Используем только реальные данные резюме
+  const previewData = resumeData;
+
   // Используем внешний selectedTemplate если он передан, иначе внутренний
   const selectedTemplate = externalSelectedTemplate || internalSelectedTemplate;
+
+  // Если нет данных резюме, не рендерим шаблоны
+  if (!previewData) {
+    return null;
+  }
 
   // Синхронизируем с внешним selectedTemplate
   useEffect(() => {
@@ -52,7 +60,7 @@ const TemplateSelector: React.FC<TemplateSelectorProps> = ({ onTemplateChange, h
           <Box key={template.id} sx={{ flexShrink: 0 }}>
             <TemplateThumbnail
               template={template}
-              resumeData={demoData}
+              resumeData={previewData}
               isSelected={selectedTemplate?.id === template.id}
               onSelect={() => handleTemplateSelect(template)}
               horizontal={true}
@@ -79,7 +87,7 @@ const TemplateSelector: React.FC<TemplateSelectorProps> = ({ onTemplateChange, h
           <TemplateThumbnail
             key={template.id}
             template={template}
-            resumeData={demoData}
+            resumeData={previewData}
             isSelected={selectedTemplate?.id === template.id}
             onSelect={() => handleTemplateSelect(template)}
           />
