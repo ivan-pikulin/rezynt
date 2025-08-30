@@ -2,12 +2,13 @@ import CloseIcon from '@mui/icons-material/Close';
 import DownloadIcon from '@mui/icons-material/Download';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
+import CircularProgress from '@mui/material/CircularProgress';
+import Tooltip from '@mui/material/Tooltip';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Header from '../../shared/components/Header/Header';
@@ -24,6 +25,7 @@ import TemplateSelector from './components/TemplateSelector';
 import { convertApiResumeToDisplayData } from './utils/resumeDataConverter';
 import { TemplateConfig } from '../../shared/types/resume';
 import { COLORS } from '../../shared/theme/theme';
+import { exportApi } from '../export/exportApi';
 
 const RefinePage: React.FC = () => {
   const { t } = useTranslation();
@@ -37,6 +39,8 @@ const RefinePage: React.FC = () => {
   const [showPreview, setShowPreview] = useState(false);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [titleValue, setTitleValue] = useState('');
+  const [isDownloading, setIsDownloading] = useState(false);
+  const templateContainerRef = useRef<HTMLDivElement>(null);
 
   // Устанавливаем заголовок при загрузке резюме
   useEffect(() => {
@@ -143,7 +147,135 @@ const RefinePage: React.FC = () => {
   };
 
   const handleDownload = () => {
-    navigate(`/export?resume_id=${resumeId}`);
+    if (user?.is_premium) {
+      // For pro users, download directly
+      handleDirectDownload();
+    } else {
+      // For regular users, navigate to export page
+      navigate(`/export?resume_id=${resumeId}`);
+    }
+  };
+
+  const handleDirectDownload = async () => {
+    if (!templateContainerRef.current || !resume) return;
+    
+    setIsDownloading(true);
+    try {
+      // Get full HTML with CSS styles
+      const fullHtml = getFullHTMLWithStyles(templateContainerRef.current);
+      
+      // Use real data for filename
+      const displayData = convertApiResumeToDisplayData(resume);
+      const fullName = `${displayData.first_name || ''} ${displayData.last_name || ''}`.trim();
+      const filename = `${fullName.replace(/\s+/g, '_')}_resume.pdf`;
+      
+      // Send request to backend for PDF generation
+      const pdfBlob = await exportApi.exportToPDF(resumeId!, {
+        html_content: fullHtml,
+        filename: filename,
+        template_slug: selectedTemplate?.id
+      });
+      
+      // Create download link
+      const url = window.URL.createObjectURL(pdfBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading resume:', error);
+      // Fallback to export page if direct download fails
+      navigate(`/export?resume_id=${resumeId}`);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  // Function to get full HTML with CSS styles (copied from ExportPage)
+  const getFullHTMLWithStyles = (element: HTMLElement): string => {
+    // Get all CSS styles from document
+    const styles = Array.from(document.styleSheets)
+      .map(styleSheet => {
+        try {
+          return Array.from(styleSheet.cssRules)
+            .map(rule => rule.cssText)
+            .join('\n');
+        } catch (e) {
+          // Ignore CORS errors for external styles
+          return '';
+        }
+      })
+      .filter(style => style.length > 0)
+      .join('\n');
+
+    // Create full HTML document
+    const fullHtml = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Resume</title>
+          <style>
+            ${styles}
+            
+            /* Additional styles for PDF */
+            body {
+              margin: 0;
+              padding: 0;
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            }
+            * {
+              box-sizing: border-box;
+            }
+            
+            /* Ensure proper box-sizing for PDF export */
+            .MuiBox-root {
+              box-sizing: border-box;
+            }
+            
+            /* Remove any extra margins/padding that might affect PDF layout */
+            body, html {
+              margin: 0;
+              padding: 0;
+            }
+            
+            /* Force apply styles for PDF */
+            @media print {
+              body {
+                height: 100vh;
+                overflow: hidden;
+                font-size: 12px;
+                line-height: 1.4;
+              }
+              h1, h2, h3, h4, h5, h6 {
+                margin: 0.5em 0;
+                line-height: 1.2;
+              }
+              p, li {
+                margin: 0.3em 0;
+                line-height: 1.3;
+              }
+              ul, ol {
+                margin: 0.3em 0;
+                padding-left: 1.2em;
+              }
+              .section {
+                margin-bottom: 0.5em;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          ${element.outerHTML}
+        </body>
+      </html>
+    `;
+    
+    return fullHtml;
   };
 
   // Если нет resumeId, показываем ошибку
@@ -406,7 +538,8 @@ const RefinePage: React.FC = () => {
             justifyContent: 'center',
             alignItems: 'flex-start',
             overflow: 'auto',
-            p: 2
+            p: 2,
+            position: 'relative'
           }}>
             <ResumeRenderer 
               data={displayData} 
@@ -414,38 +547,51 @@ const RefinePage: React.FC = () => {
               templateId={selectedTemplate?.id}
               isPreview={true}
             />
+            
+            {/* Circular download button in top-right corner */}
+            <Tooltip 
+              title={isDownloading 
+                ? 'Generating PDF...' 
+                : (user?.is_premium ? 'Download PDF' : 'Download Resume')
+              }
+              placement="left"
+            >
+              <IconButton
+                onClick={handleDownload}
+                disabled={isDownloading}
+                sx={{
+                  position: 'absolute',
+                  top: 16,
+                  right: 16,
+                  bgcolor: 'rgba(255, 255, 255, 0.9)',
+                  backdropFilter: 'blur(4px)',
+                  border: '1px solid rgba(0, 0, 0, 0.1)',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+                  zIndex: 10,
+                  width: 40,
+                  height: 40,
+                  '&:hover': {
+                    bgcolor: 'rgba(255, 255, 255, 1)',
+                    transform: 'scale(1.05)',
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)'
+                  },
+                  '&:disabled': {
+                    bgcolor: 'rgba(255, 255, 255, 0.6)',
+                    transform: 'none'
+                  },
+                  transition: 'all 0.2s ease-in-out'
+                }}
+              >
+                {isDownloading ? (
+                  <CircularProgress size={20} color="primary" />
+                ) : (
+                  <DownloadIcon sx={{ fontSize: 20 }} />
+                )}
+              </IconButton>
+            </Tooltip>
           </Box>
 
-          {/* Кнопка Download внизу */}
-          <Box sx={{ 
-            p: 2,
-            display: 'flex',
-            justifyContent: 'center',
-            bgcolor: 'white'
-          }}>
-            <Button
-              variant="contained"
-              startIcon={<DownloadIcon />}
-              onClick={handleDownload}
-              sx={{
-                px: 4,
-                py: 1.5,
-                fontSize: '1rem',
-                fontWeight: 600,
-                borderRadius: 2,
-                bgcolor: COLORS.primary.main,
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-                '&:hover': {
-                  bgcolor: COLORS.primary.dark,
-                  boxShadow: '0 6px 16px rgba(0, 0, 0, 0.2)',
-                  transform: 'translateY(-1px)'
-                },
-                transition: 'all 0.2s ease-in-out'
-              }}
-            >
-              Download Resume
-            </Button>
-          </Box>
+
         </Box>
       </Box>
 
@@ -515,9 +661,66 @@ const RefinePage: React.FC = () => {
               templateId={selectedTemplate?.id}
               isPreview={true}
             />
+            
+            {/* Circular download button for mobile */}
+            <Tooltip 
+              title={isDownloading 
+                ? 'Generating PDF...' 
+                : (user?.is_premium ? 'Download PDF' : 'Download Resume')
+              }
+              placement="left"
+            >
+              <IconButton
+                onClick={handleDownload}
+                disabled={isDownloading}
+                sx={{
+                  position: 'absolute',
+                  top: 8,
+                  right: 8,
+                  bgcolor: 'rgba(255, 255, 255, 0.9)',
+                  backdropFilter: 'blur(4px)',
+                  border: '1px solid rgba(0, 0, 0, 0.1)',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+                  zIndex: 10,
+                  width: 36,
+                  height: 36,
+                  '&:hover': {
+                    bgcolor: 'rgba(255, 255, 255, 1)',
+                    transform: 'scale(1.05)',
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)'
+                  },
+                  '&:disabled': {
+                    bgcolor: 'rgba(255, 255, 255, 0.6)',
+                    transform: 'none'
+                  },
+                  transition: 'all 0.2s ease-in-out'
+                }}
+              >
+                {isDownloading ? (
+                  <CircularProgress size={16} color="primary" />
+                ) : (
+                  <DownloadIcon sx={{ fontSize: 18 }} />
+                )}
+              </IconButton>
+            </Tooltip>
           </Box>
         </Box>
       </Box>
+
+      {/* Hidden template for PDF export (only for pro users) */}
+      {user?.is_premium && (
+        <Box sx={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
+          <div ref={templateContainerRef} style={{ width: '794px', height: '1123px' }}>
+            <ResumeRenderer 
+              data={displayData} 
+              scale={1}
+              templateId={selectedTemplate?.id}
+              fitToContainer={false}
+              isPreview={false}
+            />
+          </div>
+        </Box>
+      )}
     </Box>
   );
 };
