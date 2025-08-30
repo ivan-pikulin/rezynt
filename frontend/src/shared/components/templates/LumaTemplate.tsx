@@ -178,7 +178,11 @@ export class LumaTemplate extends BaseTemplate {
                     sx={{ 
                       fontSize: '13px',
                       color: '#7f8c8d',
-                      fontStyle: 'italic'
+                      fontStyle: 'italic',
+                      '@media print': {
+                        fontStyle: 'italic !important',
+                        fontFamily: 'Georgia, serif, italic !important'
+                      }
                     }}
                   >
                     {this.getWorkPeriod(exp.start_date || '', exp.end_date, this.isCurrentJob(exp.end_date))}
@@ -258,7 +262,11 @@ export class LumaTemplate extends BaseTemplate {
                     sx={{ 
                       fontSize: '13px',
                       color: '#7f8c8d',
-                      fontStyle: 'italic'
+                      fontStyle: 'italic',
+                      '@media print': {
+                        fontStyle: 'italic !important',
+                        fontFamily: 'Georgia, serif, italic !important'
+                      }
                     }}
                   >
                     {this.formatDate(edu.graduation_date || '')}
