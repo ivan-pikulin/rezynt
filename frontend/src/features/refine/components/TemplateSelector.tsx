@@ -8,14 +8,25 @@ import { TemplateConfig } from '../../../shared/types/resume';
 interface TemplateSelectorProps {
   onTemplateChange?: (template: TemplateConfig) => void;
   horizontalLayout?: boolean;
+  selectedTemplate?: TemplateConfig | null;
 }
 
-const TemplateSelector: React.FC<TemplateSelectorProps> = ({ onTemplateChange, horizontalLayout = false }) => {
+const TemplateSelector: React.FC<TemplateSelectorProps> = ({ onTemplateChange, horizontalLayout = false, selectedTemplate: externalSelectedTemplate }) => {
   const templates = TemplateService.getTemplates();
   const demoData = TemplateService.createDemoData();
-  const [selectedTemplate, setSelectedTemplate] = useState<TemplateConfig | null>(
-    templates[0]
+  const [internalSelectedTemplate, setInternalSelectedTemplate] = useState<TemplateConfig | null>(
+    externalSelectedTemplate || templates[0]
   );
+
+  // Используем внешний selectedTemplate если он передан, иначе внутренний
+  const selectedTemplate = externalSelectedTemplate || internalSelectedTemplate;
+
+  // Синхронизируем с внешним selectedTemplate
+  useEffect(() => {
+    if (externalSelectedTemplate && externalSelectedTemplate.id !== internalSelectedTemplate?.id) {
+      setInternalSelectedTemplate(externalSelectedTemplate);
+    }
+  }, [externalSelectedTemplate, internalSelectedTemplate?.id]);
 
   // Вызываем onTemplateChange при инициализации с выбранным шаблоном
   useEffect(() => {
@@ -25,7 +36,7 @@ const TemplateSelector: React.FC<TemplateSelectorProps> = ({ onTemplateChange, h
   }, []); // Пустой массив зависимостей - выполняется только при монтировании
 
   const handleTemplateSelect = (template: TemplateConfig) => {
-    setSelectedTemplate(template);
+    setInternalSelectedTemplate(template);
     onTemplateChange?.(template);
   };
 
