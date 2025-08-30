@@ -366,6 +366,7 @@ class PDFExportRequest(BaseModel):
     """Schema for PDF export request"""
     html_content: str
     filename: Optional[str] = None
+    template_slug: Optional[str] = None
 
 
 # Unified Resume Schema - единый объект резюме
