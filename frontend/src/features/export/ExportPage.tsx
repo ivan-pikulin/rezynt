@@ -22,7 +22,7 @@ const ExportPage: React.FC = () => {
   const templateContainerRef = useRef<HTMLDivElement>(null);
   const { resume, isLoading: loading, error: queryError, refreshResume } = useResumeQuery(resumeId);
   const { selectedTemplate } = useTemplate(resumeId, resume?.template_slug);
-  const [isExporting, setIsExporting] = useState(false);
+
   const [showSuccess, setShowSuccess] = useState(false);
   const { user } = useAuthContext();
 
@@ -50,8 +50,6 @@ const ExportPage: React.FC = () => {
 
   const handleExportPDF = async () => {
     if (!templateContainerRef.current || !resume) return;
-    
-    setIsExporting(true);
     
     try {
       // Request fresh data before export
@@ -87,8 +85,6 @@ const ExportPage: React.FC = () => {
     } catch (error) {
       console.error('Error exporting to PDF:', error);
       throw error;
-    } finally {
-      setIsExporting(false);
     }
   };
 
@@ -247,7 +243,6 @@ const ExportPage: React.FC = () => {
       }}>
         <DownloadOptions 
           onExportPDF={handleExportPDF} 
-          isExporting={isExporting} 
           isPremium={user?.is_premium || false}
         />
       </Box>

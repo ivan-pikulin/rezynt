@@ -25,7 +25,7 @@ const ChatPage: React.FC = () => {
   };
 
   const handleBack = () => {
-    navigate('/');
+    navigate('/resumes');
   };
 
   const handleStepClick = (stepIndex: number) => {
@@ -65,9 +65,9 @@ const ChatPage: React.FC = () => {
         onNext={handleNext}
         onBack={handleBack}
         nextButtonText="Refine"
-        previousButtonText="Start"
+        previousButtonText="Resumes"
         showLogo={true} // Показываем лого на десктопе
-        showBackButton={false} // Скрываем кнопку "Назад" на странице чата
+        showBackButton={true} // Показываем кнопку "Назад" на странице чата
         onStepClick={handleStepClick}
       />
       
