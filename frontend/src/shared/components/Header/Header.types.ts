@@ -9,4 +9,9 @@ export interface HeaderProps {
   showNextButton?: boolean;
   showLogo?: boolean;
   showSteps?: boolean; // Показывать ли шаги (по умолчанию true)
+  
+  // Props for pro users with tabs
+  isProUser?: boolean;
+  currentTab?: string;
+  onTabChange?: (tab: 'resumes' | 'ai-writer' | 'editor') => void;
 } 

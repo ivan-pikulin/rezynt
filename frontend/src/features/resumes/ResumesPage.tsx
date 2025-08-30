@@ -47,6 +47,30 @@ const ResumesPage: React.FC = () => {
     navigate('/start');
   };
 
+  const handleTabChange = (tab: 'resumes' | 'ai-writer' | 'editor') => {
+    switch (tab) {
+      case 'resumes':
+        // Already on resumes page
+        break;
+      case 'ai-writer':
+        // Navigate to chat with first resume if available
+        if (Array.isArray(resumes) && resumes.length > 0) {
+          navigate(`/chat?resume_id=${resumes[0].id}`);
+        } else {
+          navigate('/start');
+        }
+        break;
+      case 'editor':
+        // Navigate to editor with first resume if available
+        if (Array.isArray(resumes) && resumes.length > 0) {
+          navigate(`/refine?resume_id=${resumes[0].id}`);
+        } else {
+          navigate('/start');
+        }
+        break;
+    }
+  };
+
   const convertResumeToDemoData = (resume: any): ResumeData => {
     return {
       id: resume.id,
@@ -77,7 +101,13 @@ const ResumesPage: React.FC = () => {
         justifyContent: 'center',
         alignItems: 'center'
       }}>
-        <Header showLogo={true} showSteps={false} />
+        <Header 
+          showLogo={true} 
+          showSteps={false} 
+          isProUser={user?.is_premium}
+          currentTab="resumes"
+          onTabChange={handleTabChange}
+        />
         <Typography variant="h6" color="text.secondary">
           Loading resumes...
         </Typography>
@@ -95,7 +125,13 @@ const ResumesPage: React.FC = () => {
         justifyContent: 'center',
         alignItems: 'center'
       }}>
-        <Header showLogo={true} showSteps={false} />
+        <Header 
+          showLogo={true} 
+          showSteps={false} 
+          isProUser={user?.is_premium}
+          currentTab="resumes"
+          onTabChange={handleTabChange}
+        />
         <Typography variant="h6" color="error">
           Error loading resumes: {error}
         </Typography>
@@ -111,7 +147,13 @@ const ResumesPage: React.FC = () => {
       bgcolor: COLORS.resume.section.background
     }}>
       {/* Шапка только с логотипом */}
-      <Header showLogo={true} showSteps={false} />
+      <Header 
+        showLogo={true} 
+        showSteps={false} 
+        isProUser={user?.is_premium}
+        currentTab="resumes"
+        onTabChange={handleTabChange}
+      />
       
       {/* Основная область */}
       <Box sx={{ 

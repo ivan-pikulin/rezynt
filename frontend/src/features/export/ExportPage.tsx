@@ -48,6 +48,20 @@ const ExportPage: React.FC = () => {
     }
   };
 
+  const handleTabChange = (tab: 'resumes' | 'ai-writer' | 'editor') => {
+    switch (tab) {
+      case 'resumes':
+        navigate('/resumes');
+        break;
+      case 'ai-writer':
+        navigate(`/chat?resume_id=${resumeId}`);
+        break;
+      case 'editor':
+        navigate(`/refine?resume_id=${resumeId}`);
+        break;
+    }
+  };
+
   const handleExportPDF = async () => {
     if (!templateContainerRef.current || !resume) return;
     
@@ -244,6 +258,9 @@ const ExportPage: React.FC = () => {
         previousButtonText="Refine"
         showLogo={true} // Show logo on desktop
         onStepClick={handleStepClick}
+        isProUser={user?.is_premium}
+        currentTab="editor"
+        onTabChange={handleTabChange}
       />
       
       {/* Main area */}

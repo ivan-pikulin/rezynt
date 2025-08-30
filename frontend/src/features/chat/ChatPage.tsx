@@ -9,6 +9,7 @@ import ChatWindow from './components/ChatWindow';
 import ResumeRenderer from '../../shared/components/ResumeRenderer';
 import { useResumeQuery } from '../../shared/hooks/useResumeQuery';
 import { useTemplate } from '../../shared/hooks/useTemplate';
+import { useUser } from '../../shared/hooks';
 import { convertApiResumeToResumeData } from '../../shared/utils/resumeDataConverter';
 import { COLORS } from '../../shared/theme/theme';
 
@@ -18,6 +19,7 @@ const ChatPage: React.FC = () => {
   const resumeId = searchParams.get('resume_id');
   const { resume: resumeData, refreshResume } = useResumeQuery(resumeId);
   const { selectedTemplate } = useTemplate(resumeId, resumeData?.template_slug);
+  const { user } = useUser();
   const [showPreview, setShowPreview] = useState(false);
 
   const handleNext = () => {
@@ -46,6 +48,20 @@ const ChatPage: React.FC = () => {
     }
   };
 
+  const handleTabChange = (tab: 'resumes' | 'ai-writer' | 'editor') => {
+    switch (tab) {
+      case 'resumes':
+        navigate('/resumes');
+        break;
+      case 'ai-writer':
+        // Already on AI Writer page
+        break;
+      case 'editor':
+        navigate(`/refine?resume_id=${resumeId}`);
+        break;
+    }
+  };
+
   const togglePreview = () => {
     setShowPreview(!showPreview);
   };
@@ -69,6 +85,9 @@ const ChatPage: React.FC = () => {
         showLogo={true} // Показываем лого на десктопе
         showBackButton={true} // Показываем кнопку "Назад" на странице чата
         onStepClick={handleStepClick}
+        isProUser={user?.is_premium}
+        currentTab="ai-writer"
+        onTabChange={handleTabChange}
       />
       
       {/* Основная область */}

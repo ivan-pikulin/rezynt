@@ -3,10 +3,12 @@ import Box from '@mui/material/Box';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../shared/components/Header/Header';
 import StartOptions from './components/StartOptions';
+import { useUser } from '../../shared/hooks';
 import { COLORS } from '../../shared/theme/theme';
 
 const StartPage: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useUser();
 
   const handleStepClick = (stepIndex: number) => {
     switch (stepIndex) {
@@ -26,6 +28,20 @@ const StartPage: React.FC = () => {
     }
   };
 
+  const handleTabChange = (tab: 'resumes' | 'ai-writer' | 'editor') => {
+    switch (tab) {
+      case 'resumes':
+        navigate('/resumes');
+        break;
+      case 'ai-writer':
+        navigate('/chat');
+        break;
+      case 'editor':
+        navigate('/refine');
+        break;
+    }
+  };
+
   return (
     <Box sx={{ 
       minHeight: '100vh', 
@@ -40,6 +56,9 @@ const StartPage: React.FC = () => {
         showNextButton={false}
         showLogo={true} // Показываем лого на десктопе
         onStepClick={undefined} // Отключаем кликабельность шагов
+        isProUser={user?.is_premium}
+        currentTab="resumes"
+        onTabChange={handleTabChange}
       />
       
       {/* Основная область */}

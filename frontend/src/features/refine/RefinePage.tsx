@@ -16,6 +16,7 @@ import { resumeApi } from '../../shared/services/api';
 import { Resume } from '../../shared/services/api/types';
 import { useTemplate } from '../../shared/hooks/useTemplate';
 import { useResumeQuery } from '../../shared/hooks/useResumeQuery';
+import { useUser } from '../../shared/hooks';
 import ErrorMessage from './components/ErrorMessage';
 import LoadingSpinner from './components/LoadingSpinner';
 import ResumeEditor from './components/ResumeEditor';
@@ -32,6 +33,7 @@ const RefinePage: React.FC = () => {
   
   const { resume, isLoading: loading, error: queryError, updateResumeInCache } = useResumeQuery(resumeId);
   const { selectedTemplate, updateTemplate } = useTemplate(resumeId, resume?.template_slug);
+  const { user } = useUser();
   const [showPreview, setShowPreview] = useState(false);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [titleValue, setTitleValue] = useState('');
@@ -122,6 +124,20 @@ const RefinePage: React.FC = () => {
     }
   };
 
+  const handleTabChange = (tab: 'resumes' | 'ai-writer' | 'editor') => {
+    switch (tab) {
+      case 'resumes':
+        navigate('/resumes');
+        break;
+      case 'ai-writer':
+        navigate(`/chat?resume_id=${resumeId}`);
+        break;
+      case 'editor':
+        // Already on editor page
+        break;
+    }
+  };
+
   const togglePreview = () => {
     setShowPreview(!showPreview);
   };
@@ -193,6 +209,9 @@ const RefinePage: React.FC = () => {
         previousButtonText="Generate"
         showLogo={true}
         onStepClick={handleStepClick}
+        isProUser={user?.is_premium}
+        currentTab="editor"
+        onTabChange={handleTabChange}
       />
       
       {/* Основная область */}
