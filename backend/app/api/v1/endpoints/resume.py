@@ -2,9 +2,10 @@ from typing import Any, Dict, List
 
 from app.api.deps import AsyncDB, VerifiedUser
 from app.core.celery_app import celery_app
+from app.core.config import settings
 from app.core.tasks import process_resume_upload_task
 from app.database.crud.crud_resume import resume_manager
-from app.database.crud.crud_template import template_crud
+
 from app.database.crud.crud_user import user_crud
 from app.schemas.resume import (PDFExportRequest, ResumeCreate,
                                 ResumePartialUpdate, ResumeUpdate)
@@ -57,13 +58,12 @@ async def create_resume(
             detail="Free plan users can only create one resume. Please upgrade to premium to create additional resumes."
         )
     
-    # Check if template exists
-    if resume_in.template_id:
-        template = await template_crud.get(db, id=resume_in.template_id)
-        if not template:
+    # Validate template_slug if provided
+    if resume_in.template_slug:
+        if resume_in.template_slug not in settings.VALID_TEMPLATE_SLUGS:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Template not found"
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Invalid template_slug. Must be one of: {', '.join(settings.VALID_TEMPLATE_SLUGS)}"
             )
     
     resume = await resume_manager.create_resume(db, obj_in=resume_in, user_id=current_user.id)
@@ -251,12 +251,11 @@ async def assign_template(
     Assign a specific template to a resume by slug.
     Only available for users with verified email.
     """
-    # Check if template exists by slug
-    template = await template_crud.get_by_slug(db, slug=slug)
-    if not template:
+    # Validate template_slug
+    if slug not in settings.VALID_TEMPLATE_SLUGS:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Template not found"
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid template_slug. Must be one of: {', '.join(settings.VALID_TEMPLATE_SLUGS)}"
         )
     
     # Check if resume exists and belongs to user
@@ -268,7 +267,7 @@ async def assign_template(
         )
     
     # Update resume with new template
-    resume_update = ResumeUpdate(template_id=template.id)
+    resume_update = ResumeUpdate(template_slug=slug)
     await resume_manager.update_resume(db, resume_id=resume_id, resume_update=resume_update)
     
     return {

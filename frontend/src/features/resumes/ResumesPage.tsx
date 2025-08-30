@@ -52,7 +52,7 @@ const ResumesPage: React.FC = () => {
       id: resume.id,
       user_id: resume.user_id,
       title: resume.title,
-      template_id: resume.template_id,
+      template_slug: resume.template_slug,
       professional_summary: resume.professional_summary,
       conversation_id: resume.conversation_id,
       created_at: resume.created_at,

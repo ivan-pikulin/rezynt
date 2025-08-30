@@ -3,14 +3,14 @@ import { BaseTemplate } from './BaseTemplate';
 import { BaseTemplateProps } from './types';
 import { NumeTemplate } from './NumeTemplate';
 import { LumaTemplate } from './LumaTemplate';
-import { TeroTemplate } from './TeroTemplate';
+
 import { AltoTemplate } from './AltoTemplate';
 import { VeroTemplate } from './VeroTemplate';
 import { TemplateConfig } from '../../types/resume';
 
 export { BaseTemplate };
 export type { BaseTemplateProps };
-export { NumeTemplate, LumaTemplate, TeroTemplate, AltoTemplate, VeroTemplate };
+export { NumeTemplate, LumaTemplate, AltoTemplate, VeroTemplate };
 export type { TemplateConfig };
 
 // Конфигурации доступных шаблонов
@@ -27,12 +27,7 @@ export const TEMPLATE_CONFIGS: TemplateConfig[] = [
     description: 'Двухколоночный шаблон с темной боковой панелью для контактов и навыков',
     category: 'modern'
   },
-  {
-    id: 'tero',
-    name: 'Tero',
-    description: 'Современный шаблон с логотипом и узкой темной боковой панелью справа',
-    category: 'modern'
-  },
+
   {
     id: 'alto',
     name: 'Alto',
@@ -54,8 +49,7 @@ export const createTemplate = (templateId: string, props: any) => {
       return React.createElement(NumeTemplate, props);
     case 'luma':
       return React.createElement(LumaTemplate, props);
-    case 'tero':
-      return React.createElement(TeroTemplate, props);
+
     case 'alto':
       return React.createElement(AltoTemplate, props);
     case 'vero':

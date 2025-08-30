@@ -1,4 +1,4 @@
-import { resumeApi, templateApi } from '../../shared/services/api';
+import { resumeApi } from '../../shared/services/api';
 import { Resume } from '../../shared/services/api/types';
 
 export const startApi = {
@@ -38,13 +38,10 @@ export const startApi = {
    * Начать создание резюме с нуля
    */
   startFromScratch: async (): Promise<Resume> => {
-    // Сначала получаем ID шаблона по slug
-    const template = await templateApi.getTemplateBySlug('tero');
-    
-    // Создаем резюме с полученным ID шаблона
+    // Создаем резюме с template_slug (используем первый доступный темплейт)
     const resume = await resumeApi.createResume({
       title: 'New Resume',
-      template_id: template.id,
+      template_slug: 'nume', // Default template
       professional_summary: ''
     });
 

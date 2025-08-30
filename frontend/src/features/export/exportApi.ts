@@ -4,7 +4,7 @@ import { ExportResponse } from '../../shared/services/api/types';
 export interface PDFExportRequest {
   html_content: string;
   filename?: string;
-  template_id?: string;
+  template_slug?: string;
 }
 
 export const exportApi = {

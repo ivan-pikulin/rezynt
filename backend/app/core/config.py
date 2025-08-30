@@ -79,6 +79,9 @@ class Settings(BaseSettings):
     
     # PDF settings
     PDF_WATERMARK_PATH: str = "app/static/watermarks/watermark.svg"
+    
+    # Template settings
+    VALID_TEMPLATE_SLUGS: List[str] = ["nume", "luma", "alto", "vero"]
 
     @property
     def sync_database_url(self) -> str:

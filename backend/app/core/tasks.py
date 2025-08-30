@@ -4,6 +4,7 @@ import tempfile
 import gc
 
 from app.core.celery_app import celery_app
+from app.core.config import settings
 from app.database.models.resume import Resume
 from app.database.session import SessionLocal
 from app.services.email_service import EmailService
@@ -206,7 +207,7 @@ async def _create_resume_with_data(user_id: int, filename: str, parsed_data):
             # Create resume with parsed data
             resume = Resume(
                 title=name_without_extension,
-                template_id=1,
+                template_slug=settings.VALID_TEMPLATE_SLUGS[0],  # Use first template as default
                 professional_summary=parsed_data.professional_summary or "",
                 user_id=user_id,
                 from_upload=True

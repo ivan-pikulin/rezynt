@@ -31,7 +31,7 @@ class CRUDResume(CRUDBase[Resume, ResumeCreate, ResumeUpdate]):
                 selectinload(Resume.skills),
                 selectinload(Resume.experience),
                 selectinload(Resume.education),
-                selectinload(Resume.template)
+
             )
             .where(Resume.user_id == user_id)
         )
@@ -53,7 +53,7 @@ class CRUDResume(CRUDBase[Resume, ResumeCreate, ResumeUpdate]):
                 selectinload(Resume.skills),
                 selectinload(Resume.experience),
                 selectinload(Resume.education),
-                selectinload(Resume.template)
+
             )
             .where(Resume.user_id == user_id)
         )
@@ -72,7 +72,7 @@ class CRUDResume(CRUDBase[Resume, ResumeCreate, ResumeUpdate]):
                 selectinload(Resume.skills),
                 selectinload(Resume.experience),
                 selectinload(Resume.education),
-                selectinload(Resume.template)
+
             )
             .where(Resume.user_id == user_id, Resume.id == resume_id)
         )
@@ -81,8 +81,8 @@ class CRUDResume(CRUDBase[Resume, ResumeCreate, ResumeUpdate]):
             return await self._to_unified_resume(db, resume)
         return None
 
-    async def get_by_template_id(self, db: AsyncSession, *, template_id: int) -> List[UnifiedResume]:
-        """Get all resumes by template_id as unified objects"""
+    async def get_by_template_slug(self, db: AsyncSession, *, template_slug: str) -> List[UnifiedResume]:
+        """Get all resumes by template_slug as unified objects"""
         from sqlalchemy.orm import selectinload
         
         result = await db.execute(
@@ -92,10 +92,9 @@ class CRUDResume(CRUDBase[Resume, ResumeCreate, ResumeUpdate]):
                 selectinload(Resume.contacts),
                 selectinload(Resume.skills),
                 selectinload(Resume.experience),
-                selectinload(Resume.education),
-                selectinload(Resume.template)
+                selectinload(Resume.education)
             )
-            .where(Resume.template_id == template_id)
+            .where(Resume.template_slug == template_slug)
         )
         resumes = result.scalars().all()
         return [await self._to_unified_resume(db, resume) for resume in resumes]
@@ -112,7 +111,7 @@ class CRUDResume(CRUDBase[Resume, ResumeCreate, ResumeUpdate]):
                 selectinload(Resume.skills),
                 selectinload(Resume.experience),
                 selectinload(Resume.education),
-                selectinload(Resume.template)
+
             )
             .where(Resume.id == resume_id)
         )
@@ -133,7 +132,7 @@ class CRUDResume(CRUDBase[Resume, ResumeCreate, ResumeUpdate]):
                 selectinload(Resume.skills),
                 selectinload(Resume.experience),
                 selectinload(Resume.education),
-                selectinload(Resume.template)
+
             )
             .where(Resume.id == resume_id)
         )
@@ -169,7 +168,7 @@ class CRUDResume(CRUDBase[Resume, ResumeCreate, ResumeUpdate]):
                 selectinload(Resume.skills),
                 selectinload(Resume.experience),
                 selectinload(Resume.education),
-                selectinload(Resume.template)
+
             )
             .where(Resume.id == db_obj.id)
         )
@@ -198,7 +197,7 @@ class CRUDResume(CRUDBase[Resume, ResumeCreate, ResumeUpdate]):
                 selectinload(Resume.skills),
                 selectinload(Resume.experience),
                 selectinload(Resume.education),
-                selectinload(Resume.template)
+
             )
             .where(Resume.id == db_obj.id)
         )
@@ -218,7 +217,7 @@ class CRUDResume(CRUDBase[Resume, ResumeCreate, ResumeUpdate]):
         update_data = resume_update.model_dump(exclude_unset=True)
         
         # Handle basic resume fields
-        basic_fields = ['title', 'template_id', 'professional_summary', 'conversation_id']
+        basic_fields = ['title', 'template_slug', 'professional_summary', 'conversation_id']
         for field in basic_fields:
             if field in update_data:
                 setattr(resume, field, update_data[field])
@@ -260,7 +259,7 @@ class CRUDResume(CRUDBase[Resume, ResumeCreate, ResumeUpdate]):
                 selectinload(Resume.skills),
                 selectinload(Resume.experience),
                 selectinload(Resume.education),
-                selectinload(Resume.template)
+
             )
             .where(Resume.id == resume_id)
         )
@@ -283,7 +282,7 @@ class CRUDResume(CRUDBase[Resume, ResumeCreate, ResumeUpdate]):
                 selectinload(Resume.skills),
                 selectinload(Resume.experience),
                 selectinload(Resume.education),
-                selectinload(Resume.template)
+
             )
             .where(Resume.user_id == user_id, Resume.id == resume_id)
         )
@@ -307,7 +306,7 @@ class CRUDResume(CRUDBase[Resume, ResumeCreate, ResumeUpdate]):
                 selectinload(Resume.skills),
                 selectinload(Resume.experience),
                 selectinload(Resume.education),
-                selectinload(Resume.template),
+,
                 selectinload(Resume.exports)
             )
             .where(Resume.user_id == user_id, Resume.id == resume_id)
@@ -372,8 +371,7 @@ class CRUDResume(CRUDBase[Resume, ResumeCreate, ResumeUpdate]):
             id=getattr(resume, 'id', None),
             user_id=getattr(resume, 'user_id', None),
             title=getattr(resume, 'title', None),
-            template_id=getattr(resume, 'template_id', None),
-            template_slug=template_slug,
+            template_slug=getattr(resume, 'template_slug', None),
             professional_summary=getattr(resume, 'professional_summary', None),
             conversation_id=getattr(resume, 'conversation_id', None),
             from_upload=getattr(resume, 'from_upload', False),
@@ -484,8 +482,8 @@ class ResumeManager:
         basic_update_data = {}
         if resume_update.title is not None:
             basic_update_data['title'] = resume_update.title
-        if resume_update.template_id is not None:
-            basic_update_data['template_id'] = resume_update.template_id
+        if resume_update.template_slug is not None:
+            basic_update_data['template_slug'] = resume_update.template_slug
         if resume_update.professional_summary is not None:
             basic_update_data['professional_summary'] = resume_update.professional_summary
         if resume_update.conversation_id is not None:

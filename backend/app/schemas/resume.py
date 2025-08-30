@@ -2,7 +2,7 @@ from datetime import datetime, date
 from typing import Any, Dict, Optional, List, Union
 
 from pydantic import BaseModel, field_validator
-from app.schemas.template import Template
+
 
 
 def parse_date(value: Union[str, date, None]) -> Optional[date]:
@@ -54,7 +54,7 @@ class UnifiedResumeEducation(BaseModel):
 # Partial update for flexible field updates
 class ResumePartialUpdate(BaseModel):
     title: Optional[str] = None
-    template_id: Optional[int] = None
+    template_slug: Optional[str] = None
     professional_summary: Optional[str] = None
     conversation_id: Optional[str] = None
     
@@ -71,20 +71,20 @@ class ResumePartialUpdate(BaseModel):
 # Main Resume Schemas
 class ResumeBase(BaseModel):
     title: str
-    template_id: Optional[int] = None
+    template_slug: Optional[str] = None
     professional_summary: Optional[str] = None
     conversation_id: Optional[str] = None
 
 
 class ResumeCreate(BaseModel):
     title: str
-    template_id: Optional[int] = None
+    template_slug: Optional[str] = None
     professional_summary: Optional[str] = None
 
 
 class ResumeUpdate(BaseModel):
     title: Optional[str] = None
-    template_id: Optional[int] = None
+    template_slug: Optional[str] = None
     professional_summary: Optional[str] = None
     conversation_id: Optional[str] = None
 
@@ -121,7 +121,6 @@ class ResumeInDB(ResumeInDBBase):
 
 
 class ResumeWithTemplate(ResumeInDBBase):
-    template: Optional[Template] = None
     first_name: Optional[str] = None
     last_name: Optional[str] = None
     location: Optional[str] = None
@@ -338,7 +337,7 @@ class ResumeExport(ResumeExportBase):
 class AIResumeUpdate(BaseModel):
     id: Optional[int] = None
     title: Optional[str] = None
-    template_id: Optional[int] = None
+    template_slug: Optional[str] = None
     professional_summary: Optional[str] = None
     first_name: Optional[str] = None
     last_name: Optional[str] = None
@@ -375,7 +374,6 @@ class UnifiedResume(BaseModel):
     id: int
     user_id: int
     title: str
-    template_id: Optional[int] = None
     template_slug: Optional[str] = None
     professional_summary: Optional[str] = None
     conversation_id: Optional[str] = None
@@ -402,7 +400,6 @@ class UnifiedResume(BaseModel):
             "id": self.id,
             "user_id": self.user_id,
             "title": self.title,
-            "template_id": self.template_id,
             "template_slug": self.template_slug,
             "professional_summary": self.professional_summary,
             "conversation_id": self.conversation_id,

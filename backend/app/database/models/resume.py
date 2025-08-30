@@ -13,7 +13,7 @@ class Resume(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
     title = Column(String(100), nullable=False)
-    template_id = Column(Integer, ForeignKey('templates.id'), nullable=False)
+    template_slug = Column(String(50), nullable=False)
     professional_summary = Column(Text, nullable=True)
     conversation_id = Column(String(255), nullable=True)
     from_upload = Column(Boolean, nullable=False, default=False)
@@ -22,7 +22,6 @@ class Resume(Base):
 
     # Relationships
     user = relationship("User", back_populates="resumes", lazy="select")
-    template = relationship("Template", back_populates="resumes", lazy="select")
     personal_info = relationship("ResumePersonalInfo", back_populates="resume", uselist=False, cascade="all, delete-orphan", lazy="select")
     contacts = relationship("ResumeContact", back_populates="resume", cascade="all, delete-orphan", order_by="ResumeContact.id", lazy="select")
     skills = relationship("ResumeSkill", back_populates="resume", cascade="all, delete-orphan", order_by="ResumeSkill.id", lazy="select")

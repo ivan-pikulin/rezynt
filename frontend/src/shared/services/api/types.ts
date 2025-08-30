@@ -68,7 +68,6 @@ export interface UnifiedResume {
   id: number;
   user_id: number;
   title: string;
-  template_id?: number;
   template_slug?: string;
   professional_summary?: string;
   conversation_id?: string;
@@ -112,7 +111,7 @@ export interface Resume extends UnifiedResume {}
 export interface ResumeList {
   id: number;
   title: string;
-  template_id?: number;
+  template_slug?: string;
   user_id: number;
   created_at: string;
   updated_at: string;
@@ -120,20 +119,20 @@ export interface ResumeList {
 
 export interface ResumeCreate {
   title: string;
-  template_id?: number;
+  template_slug?: string;
   professional_summary?: string;
 }
 
 export interface ResumeUpdate {
   title?: string;
-  template_id?: number;
+  template_slug?: string;
   professional_summary?: string;
   conversation_id?: string;
 }
 
 export interface ResumePartialUpdate {
   title?: string;
-  template_id?: number;
+  template_slug?: string;
   professional_summary?: string;
   conversation_id?: string;
   
@@ -562,33 +561,7 @@ export interface ResumeExportUpdate {
   file_path?: string;
 }
 
-// Template types
-export interface Template {
-  id: number;
-  name: string;
-  slug: string;
-  description?: string;
-  thumbnail_url?: string;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
-}
 
-export interface TemplateCreate {
-  name: string;
-  slug: string;
-  description?: string;
-  thumbnail_url?: string;
-  is_active?: boolean;
-}
-
-export interface TemplateUpdate {
-  name?: string;
-  slug?: string;
-  description?: string;
-  thumbnail_url?: string;
-  is_active?: boolean;
-}
 
 // Chat types
 export interface ChatMessage {

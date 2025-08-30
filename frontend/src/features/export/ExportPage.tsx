@@ -70,7 +70,7 @@ const ExportPage: React.FC = () => {
       const pdfBlob = await exportApi.exportToPDF(resumeId!, {
         html_content: fullHtml,
         filename: filename,
-        template_id: selectedTemplate?.id
+        template_slug: selectedTemplate?.id
       });
       
       // Create download link

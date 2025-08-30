@@ -9,7 +9,7 @@ export function convertApiResumeToDisplayData(apiResume: Resume): ResumeData {
     id: apiResume.id,
     user_id: apiResume.user_id,
     title: apiResume.title,
-    template_id: apiResume.template_id,
+    template_slug: apiResume.template_slug,
     professional_summary: apiResume.professional_summary,
     conversation_id: apiResume.conversation_id,
     created_at: apiResume.created_at,
