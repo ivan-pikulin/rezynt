@@ -72,15 +72,17 @@ const TemplateSelector: React.FC<TemplateSelectorProps> = ({ onTemplateChange, h
 
   return (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      {/* Сетка шаблонов - 1 столбец */}
+      {/* Сетка шаблонов - 2x2 */}
       <Box sx={{ 
         flex: 1,
-        display: 'flex',
-        flexDirection: 'column',
+        display: 'grid',
+        gridTemplateColumns: 'repeat(2, 1fr)',
+        gridTemplateRows: 'repeat(2, minmax(100px, 1fr))',
         gap: 1.5,
         overflowY: 'auto',
         p: 1,
-        alignContent: 'start'
+        alignContent: 'start',
+        maxHeight: 'calc(100vh - 200px)' // Ensure 2 rows fit
       }}>
         {templates.map((template) => (
           <TemplateThumbnail

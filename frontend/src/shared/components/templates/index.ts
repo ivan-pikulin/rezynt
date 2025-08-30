@@ -17,28 +17,27 @@ export type { TemplateConfig };
 export const TEMPLATE_CONFIGS: TemplateConfig[] = [
   {
     id: 'nume',
-    name: 'Nume',
+    name: 'Clarity',
     description: 'Классический профессиональный шаблон с четкой структурой',
     category: 'classic'
   },
   {
+    id: 'vero',
+    name: 'Frame',
+    description: 'Центрированный шаблон с горизонтальными разделителями',
+    category: 'classic'
+  },
+  {
     id: 'luma',
-    name: 'Luma',
+    name: 'Sidebar',
     description: 'Двухколоночный шаблон с темной боковой панелью для контактов и навыков',
     category: 'modern'
   },
-
   {
     id: 'alto',
-    name: 'Alto',
+    name: 'Professional',
     description: 'Шаблон с квадратным логотипом и контактной информацией в заголовке',
     category: 'modern'
-  },
-  {
-    id: 'vero',
-    name: 'Vero',
-    description: 'Центрированный шаблон с горизонтальными разделителями',
-    category: 'classic'
   }
 ];
 

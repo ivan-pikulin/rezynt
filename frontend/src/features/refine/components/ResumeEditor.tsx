@@ -521,3 +521,6 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
 };
 
 export default ResumeEditor;
+
+
+

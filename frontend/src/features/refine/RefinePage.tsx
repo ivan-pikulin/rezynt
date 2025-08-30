@@ -1,7 +1,8 @@
 import CloseIcon from '@mui/icons-material/Close';
 import DownloadIcon from '@mui/icons-material/Download';
 import EditIcon from '@mui/icons-material/Edit';
-import SaveIcon from '@mui/icons-material/Save';
+import ViewModuleIcon from '@mui/icons-material/ViewModule';
+import PersonIcon from '@mui/icons-material/Person';
 import CircularProgress from '@mui/material/CircularProgress';
 import Tooltip from '@mui/material/Tooltip';
 import Box from '@mui/material/Box';
@@ -40,6 +41,7 @@ const RefinePage: React.FC = () => {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [titleValue, setTitleValue] = useState('');
   const [isDownloading, setIsDownloading] = useState(false);
+  const [activeLeftPanel, setActiveLeftPanel] = useState<'editor' | 'templates'>('editor');
   const templateContainerRef = useRef<HTMLDivElement>(null);
 
   // Устанавливаем заголовок при загрузке резюме
@@ -86,13 +88,16 @@ const RefinePage: React.FC = () => {
   const handleTitleSave = async () => {
     if (!resume || !resumeId) return;
     
+    // Сразу закрываем редактирование
+    setIsEditingTitle(false);
+    
     try {
       const updatedResume = await resumeApi.updateResumePartial(parseInt(resumeId), { title: titleValue });
       updateResumeInCache(updatedResume);
-      setIsEditingTitle(false);
     } catch (err) {
       console.error('Error saving title:', err);
-      setTitleValue(resume.title); // Возвращаем оригинальное значение
+      // В случае ошибки возвращаем оригинальное значение
+      setTitleValue(resume.title);
     }
   };
 
@@ -144,6 +149,10 @@ const RefinePage: React.FC = () => {
 
   const togglePreview = () => {
     setShowPreview(!showPreview);
+  };
+
+  const toggleLeftPanel = (panel: 'editor' | 'templates') => {
+    setActiveLeftPanel(panel);
   };
 
   const handleDownload = () => {
@@ -354,48 +363,11 @@ const RefinePage: React.FC = () => {
         gap: 0,
         overflow: 'hidden'
       }}>
-        {/* Вертикальная панель шаблонов слева */}
-        <Box sx={{ 
-          display: { xs: 'none', md: 'flex' },
-          width: '180px',
-          height: '100%',
-          flexDirection: 'column',
-          bgcolor: COLORS.resume.header.background,
-          borderRight: `1px solid ${COLORS.resume.section.border}`,
-          overflow: 'hidden',
-          flexShrink: 0
-        }}>
-          <Box sx={{ 
-            p: 2,
-            overflow: 'auto',
-            height: '100%',
-            '&::-webkit-scrollbar': {
-              width: 6,
-            },
-            '&::-webkit-scrollbar-track': {
-              bgcolor: COLORS.grey[100],
-              borderRadius: 3,
-            },
-            '&::-webkit-scrollbar-thumb': {
-              bgcolor: COLORS.grey[400],
-              borderRadius: 3,
-              '&:hover': {
-                bgcolor: COLORS.grey[500],
-              },
-            },
-          }}>
-            <TemplateSelector 
-              onTemplateChange={handleTemplateChange}
-              horizontalLayout={false}
-              selectedTemplate={selectedTemplate}
-              resumeData={displayData}
-            />
-          </Box>
-        </Box>
 
-        {/* Левая панель: редактор */}
+
+        {/* Левая панель: редактор или шаблоны */}
         <Box sx={{ 
-          width: { xs: '100%', md: 'calc(50% - 180px)' },
+          width: { xs: '100%', md: '50%' },
           height: '100%',
           display: 'flex',
           flexDirection: 'column',
@@ -414,90 +386,129 @@ const RefinePage: React.FC = () => {
             flexShrink: 0
           }}>
             {isEditingTitle ? (
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
-                <TextField
-                  value={titleValue}
-                  onChange={(e) => setTitleValue(e.target.value)}
-                  variant="outlined"
-                  size="small"
-                  sx={{ flex: 1 }}
-                  autoFocus
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      handleTitleSave();
-                    } else if (e.key === 'Escape') {
-                      handleTitleCancel();
-                    }
-                  }}
-                />
-                <IconButton size="small" onClick={handleTitleSave} color="primary">
-                  <SaveIcon />
-                </IconButton>
-                <IconButton size="small" onClick={handleTitleCancel} color="error">
-                  <CloseIcon />
-                </IconButton>
-              </Box>
+              <TextField
+                value={titleValue}
+                onChange={(e) => setTitleValue(e.target.value)}
+                variant="outlined"
+                size="small"
+                sx={{ flex: 1 }}
+                autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleTitleSave();
+                  } else if (e.key === 'Escape') {
+                    handleTitleCancel();
+                  }
+                }}
+                onBlur={handleTitleSave}
+              />
             ) : (
               <>
-                <Typography variant="h6" sx={{ flex: 1, fontWeight: 600 }}>
-                  {titleValue}
-                </Typography>
                 <IconButton 
                   size="small" 
                   onClick={handleTitleEdit}
                   sx={{ 
                     opacity: 0.6, 
+                    p: 0.5,
+                    minWidth: 'auto',
+                    width: 24,
+                    height: 24,
                     '&:hover': { opacity: 1 },
                     transition: 'opacity 0.2s'
                   }}
                 >
-                  <EditIcon />
+                  <EditIcon sx={{ fontSize: 16 }} />
                 </IconButton>
+                <Typography variant="h6" sx={{ flex: 1, fontWeight: 600 }}>
+                  {titleValue}
+                </Typography>
+                
+                {/* Toggle buttons for left panel */}
+                <Box sx={{ display: 'flex', gap: 0.5, ml: 1 }}>
+                  <Tooltip title="Edit Resume Fields">
+                    <IconButton 
+                      size="small" 
+                      onClick={() => toggleLeftPanel('editor')}
+                      sx={{ 
+                        opacity: activeLeftPanel === 'editor' ? 1 : 0.6, 
+                        bgcolor: activeLeftPanel === 'editor' ? COLORS.primary.main : 'transparent',
+                        color: activeLeftPanel === 'editor' ? 'white' : 'inherit',
+                        '&:hover': { 
+                          opacity: 1,
+                          bgcolor: activeLeftPanel === 'editor' ? COLORS.primary.dark : 'rgba(0, 0, 0, 0.04)'
+                        },
+                        transition: 'all 0.2s'
+                      }}
+                    >
+                      <PersonIcon />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Choose Template">
+                    <IconButton 
+                      size="small" 
+                      onClick={() => toggleLeftPanel('templates')}
+                      sx={{ 
+                        opacity: activeLeftPanel === 'templates' ? 1 : 0.6, 
+                        bgcolor: activeLeftPanel === 'templates' ? COLORS.primary.main : 'transparent',
+                        color: activeLeftPanel === 'templates' ? 'white' : 'inherit',
+                        '&:hover': { 
+                          opacity: 1,
+                          bgcolor: activeLeftPanel === 'templates' ? COLORS.primary.dark : 'rgba(0, 0, 0, 0.04)'
+                        },
+                        transition: 'all 0.2s'
+                      }}
+                    >
+                      <ViewModuleIcon />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
               </>
             )}
           </Box>
           
           {/* Мобильная панель шаблонов (только на мобильных) */}
-          <Box sx={{ 
-            display: { xs: 'block', md: 'none' },
-            bgcolor: COLORS.resume.header.background,
-            p: 2,
-            overflow: 'hidden',
-            height: 160,
-            flexShrink: 0,
-            borderBottom: `1px solid ${COLORS.resume.section.border}`
-          }}>
+          {activeLeftPanel === 'templates' && (
             <Box sx={{ 
-              display: 'flex',
-              gap: 2,
-              overflowX: 'auto',
-              overflowY: 'hidden',
-              pb: 1,
-              '&::-webkit-scrollbar': {
-                height: 6,
-              },
-              '&::-webkit-scrollbar-track': {
-                bgcolor: COLORS.grey[100],
-                borderRadius: 3,
-              },
-              '&::-webkit-scrollbar-thumb': {
-                bgcolor: COLORS.grey[400],
-                borderRadius: 3,
-                '&:hover': {
-                  bgcolor: COLORS.grey[500],
-                },
-              },
+              display: { xs: 'block', md: 'none' },
+              bgcolor: COLORS.resume.header.background,
+              p: 2,
+              overflow: 'hidden',
+              height: 160,
+              flexShrink: 0,
+              borderBottom: `1px solid ${COLORS.resume.section.border}`
             }}>
-              <TemplateSelector 
-                onTemplateChange={handleTemplateChange}
-                horizontalLayout={true}
-                selectedTemplate={selectedTemplate}
-                resumeData={displayData}
-              />
+              <Box sx={{ 
+                display: 'flex',
+                gap: 2,
+                overflowX: 'auto',
+                overflowY: 'hidden',
+                pb: 1,
+                '&::-webkit-scrollbar': {
+                  height: 6,
+                },
+                '&::-webkit-scrollbar-track': {
+                  bgcolor: COLORS.grey[100],
+                  borderRadius: 3,
+                },
+                '&::-webkit-scrollbar-thumb': {
+                  bgcolor: COLORS.grey[400],
+                  borderRadius: 3,
+                  '&:hover': {
+                    bgcolor: COLORS.grey[500],
+                  },
+                },
+              }}>
+                <TemplateSelector 
+                  onTemplateChange={handleTemplateChange}
+                  horizontalLayout={true}
+                  selectedTemplate={selectedTemplate}
+                  resumeData={displayData}
+                />
+              </Box>
             </Box>
-          </Box>
+          )}
 
-          {/* Редактор резюме */}
+          {/* Контент: редактор или шаблоны */}
           <Box sx={{ 
             flex: 1,
             bgcolor: 'white',
@@ -506,10 +517,39 @@ const RefinePage: React.FC = () => {
             overflow: 'hidden',
             minHeight: 0
           }}>
-            <ResumeEditor 
-              resume={resume} 
-              onResumeUpdate={handleResumeUpdate}
-            />
+            {activeLeftPanel === 'editor' ? (
+              <ResumeEditor 
+                resume={resume} 
+                onResumeUpdate={handleResumeUpdate}
+              />
+            ) : (
+              <Box sx={{ 
+                flex: 1,
+                p: 2,
+                overflow: 'auto',
+                '&::-webkit-scrollbar': {
+                  width: 6,
+                },
+                '&::-webkit-scrollbar-track': {
+                  bgcolor: COLORS.grey[100],
+                  borderRadius: 3,
+                },
+                '&::-webkit-scrollbar-thumb': {
+                  bgcolor: COLORS.grey[400],
+                  borderRadius: 3,
+                  '&:hover': {
+                    bgcolor: COLORS.grey[500],
+                  },
+                },
+              }}>
+                <TemplateSelector 
+                  onTemplateChange={handleTemplateChange}
+                  horizontalLayout={false}
+                  selectedTemplate={selectedTemplate}
+                  resumeData={displayData}
+                />
+              </Box>
+            )}
           </Box>
         </Box>
 

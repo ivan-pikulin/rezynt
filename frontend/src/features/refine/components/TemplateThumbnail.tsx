@@ -91,11 +91,10 @@ const TemplateThumbnail: React.FC<TemplateThumbnailProps> = ({
           p: 0,
           m: 0,
           cursor: 'pointer',
-          aspectRatio: '1/1.414',
+          height: 'calc(100% - 20px)', // Leave space for text
           transition: 'all 0.2s ease',
           border: isSelected ? '2px solid #1976d2' : '2px solid transparent',
           bgcolor: isSelected ? 'rgba(25, 118, 210, 0.04)' : 'white',
-          flex: 1,
           display: 'flex',
           flexDirection: 'column',
           '&:hover': {
@@ -107,8 +106,7 @@ const TemplateThumbnail: React.FC<TemplateThumbnailProps> = ({
       >
         <Box sx={{ 
           width: '100%',
-          maxWidth: '140px',
-          aspectRatio: '1/1.414',
+          height: '100%',
           padding: '4px',
           display: 'flex',
           justifyContent: 'center',
@@ -129,9 +127,13 @@ const TemplateThumbnail: React.FC<TemplateThumbnailProps> = ({
           fontWeight: 500,
           color: '#2c3e50',
           textAlign: 'center',
-          mt: 1,
-          fontSize: '0.75rem',
-          lineHeight: 1.2
+          mt: 0.5,
+          fontSize: '0.65rem',
+          lineHeight: 1.2,
+          height: '18px',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap'
         }}
       >
         {template.name}
