@@ -2,7 +2,9 @@
   "common": {
     "save": "Save",
     "saving": "Saving...",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "loading": "Loading...",
+    "loadingResumes": "Loading your resumes..."
   },
   "auth": {
     "login": {

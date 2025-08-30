@@ -35,7 +35,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   if (!requireAuth && isAuthenticated) {
     // Если пользователь авторизован, но пытается зайти на страницу авторизации
-    return <Navigate to="/start" replace />;
+    return <Navigate to="/" replace />;
   }
 
   return <>{children}</>;

@@ -26,8 +26,8 @@ const AuthPage: React.FC = () => {
   }, [searchParams]);
 
   const handleLoginSuccess = () => {
-    // Redirect to the page user came from, or to /start
-    const from = (location.state as any)?.from?.pathname || '/start';
+    // Redirect to the page user came from, or to /
+    const from = (location.state as any)?.from?.pathname || '/';
     navigate(from, { replace: true });
   };
 

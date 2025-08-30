@@ -1,5 +1,5 @@
+import { Box } from '@mui/material';
 import React from 'react';
-import { Box, BoxProps } from '@mui/material';
 import { BaseTemplateProps, TemplateMethods } from './types';
 
 /**
@@ -155,22 +155,30 @@ export abstract class BaseTemplate extends React.Component<BaseTemplateProps, {}
         <Box
           ref={this.containerRef}
           sx={{
-            width: a4Width,
-            height: a4Height,
+            width: a4Width * scale,
+            height: a4Height * scale,
             backgroundColor: 'white',
             boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
             borderRadius: '8px',
             overflow: 'hidden',
-            transform: `scale(${scale})`,
-            transformOrigin: 'center center',
             flexShrink: 0,
             border: '2px solid #e0e0e0',
-            transition: 'transform 0.3s ease-in-out',
+            transition: 'all 0.3s ease-in-out',
             m: 0,
             p: 0
           }}
         >
-          {this.renderTemplate()}
+          <Box
+            sx={{
+              width: a4Width,
+              height: a4Height,
+              transform: `scale(${scale})`,
+              transformOrigin: 'top left',
+              overflow: 'hidden'
+            }}
+          >
+            {this.renderTemplate()}
+          </Box>
         </Box>
       </Box>
     );

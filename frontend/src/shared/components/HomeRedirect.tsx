@@ -1,5 +1,6 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import Typography from '@mui/material/Typography';
@@ -7,6 +8,7 @@ import { useResumes } from '../../features/resumes/hooks/useResumes';
 import { useAuthContext } from '../contexts/AuthContext';
 
 const HomeRedirect: React.FC = () => {
+  const { t } = useTranslation();
   const { isAuthenticated, isLoading: authLoading } = useAuthContext();
   const { resumes, isLoading: resumesLoading } = useResumes();
 
@@ -23,7 +25,7 @@ const HomeRedirect: React.FC = () => {
       }}>
         <CircularProgress size={40} />
         <Typography variant="h6" sx={{ mt: 2, color: 'text.secondary' }}>
-          Loading...
+          {t('common.loading')}
         </Typography>
       </Box>
     );
@@ -47,14 +49,14 @@ const HomeRedirect: React.FC = () => {
       }}>
         <CircularProgress size={40} />
         <Typography variant="h6" sx={{ mt: 2, color: 'text.secondary' }}>
-          Loading your resumes...
+          {t('common.loadingResumes')}
         </Typography>
       </Box>
     );
   }
 
   // Если у пользователя есть резюме, перенаправляем на страницу резюме
-  if (resumes && resumes.length > 0) {
+  if (resumes && Array.isArray(resumes) && resumes.length > 0) {
     return <Navigate to="/resumes" replace />;
   }
 

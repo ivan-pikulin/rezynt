@@ -129,7 +129,7 @@
     </api>
 
     <navigation>
-        <flow name="login_success" desc="Redirect to /start after successful login" />
+        <flow name="login_success" desc="Redirect to / after successful login" />
         <flow name="signup_success" desc="Show email confirmation message" />
         <flow name="email_confirmation" desc="Handle email confirmation redirect" />
         <flow name="password_reset_request" desc="Navigate to password reset request page" />

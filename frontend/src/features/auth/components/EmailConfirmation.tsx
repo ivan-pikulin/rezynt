@@ -27,8 +27,8 @@ const EmailConfirmation: React.FC<EmailConfirmationProps> = ({
     navigate('/auth?mode=login');
   };
 
-  const handleGoToStart = () => {
-    navigate('/start');
+  const handleGoToHome = () => {
+    navigate('/');
   };
 
   return (
@@ -81,7 +81,7 @@ const EmailConfirmation: React.FC<EmailConfirmationProps> = ({
           <Button
             variant="contained"
             size="large"
-            onClick={handleGoToStart}
+            onClick={handleGoToHome}
             sx={{ 
               mr: 2,
               bgcolor: COLORS.primary.main,

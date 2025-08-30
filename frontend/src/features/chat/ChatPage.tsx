@@ -117,12 +117,13 @@ const ChatPage: React.FC = () => {
 
           {/* Левая+центральная часть: чат */}
           <Box sx={{ 
-            flex: { xs: 1, sm: 2 }, // Занимаем всю ширину на мобильных
+            flex: 1, // Занимаем все доступное пространство
             minWidth: 0, 
             minHeight: 0, // Важно для правильной работы flex
             p: { xs: 1, sm: 2 }, // Уменьшаем отступы на мобильных
             display: 'flex', 
-            flexDirection: 'column' 
+            flexDirection: 'column',
+            overflow: 'hidden' // Предотвращаем переполнение
           }}>
             <ChatWindow 
               resumeId={resumeId} 
@@ -133,28 +134,30 @@ const ChatPage: React.FC = () => {
           
           {/* Правая часть: превью (скрыто на мобильных по умолчанию) */}
           <Box sx={{ 
-            width: { xs: 0, sm: '500px' }, // Увеличиваем ширину с 450px до 500px
-            minWidth: { xs: 0, sm: '500px' }, // Увеличиваем минимальную ширину
+            width: { xs: 0, sm: '400px' }, // Уменьшаем ширину для лучшего размещения
+            minWidth: { xs: 0, sm: '400px' }, // Уменьшаем минимальную ширину
+            maxWidth: { xs: 0, sm: '400px' }, // Добавляем максимальную ширину
             display: { xs: 'none', sm: 'flex' }, // Скрываем на мобильных
             flexDirection: 'column',
             justifyContent: 'center',
             alignItems: 'center',
-            p: 2
+            p: 2,
+            flexShrink: 0 // Предотвращаем сжатие
           }}>
             {/* Превью резюме */}
             <Box sx={{ 
-              height: '600px', // Увеличиваем высоту с 500px до 600px
+              width: '100%',
+              height: '600px',
               display: 'flex', 
               justifyContent: 'center', 
-              alignItems: 'flex-start',
+              alignItems: 'center',
               position: 'relative',
-              overflow: 'hidden',
-              '--resume-scale': '0.4' // Уменьшаем масштаб для лучшего размещения
+              overflow: 'hidden'
             }}>
               {resumeData && (
                 <ResumeRenderer 
                   data={convertApiResumeToResumeData(resumeData)} 
-                  scale={0.4}
+                  scale={0.35} // Уменьшаем масштаб для лучшего размещения
                   templateId={selectedTemplate?.id}
                 />
               )}

@@ -24,6 +24,12 @@
     <components>
         <feature name="chat" desc="Interactive chat with AI assistant">
             <component name="ChatPage" desc="Main page with responsive layout - chat only on mobile by default, chat + preview on desktop">
+                <desktop_features>
+                    <feature name="fixed_preview_width" desc="Preview panel has fixed width of 400px to prevent overlap with chat" />
+                    <feature name="flex_layout" desc="Chat takes remaining space with flex: 1, preview has flexShrink: 0" />
+                    <feature name="overflow_handling" desc="Chat container has overflow: hidden to prevent content overflow" />
+                    <feature name="preview_scale" desc="Resume preview uses scale 0.35 for optimal fit in 400px width" />
+                </desktop_features>
                 <mobile_features>
                     <feature name="chat_only_default" desc="Shows only chat interface on mobile devices by default" />
                     <feature name="hamburger_menu" desc="Three horizontal lines button in top-right corner" />
