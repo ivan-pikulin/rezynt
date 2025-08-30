@@ -1,6 +1,7 @@
 import Alert from '@mui/material/Alert';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import AuthLayout from './components/AuthLayout';
 import LoginForm from './components/LoginForm';
 import SignupForm from './components/SignupForm';
@@ -8,6 +9,7 @@ import { AuthMode } from './types/auth';
 import { useAuthContext } from '../../shared/contexts/AuthContext';
 
 const AuthPage: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
@@ -49,14 +51,14 @@ const AuthPage: React.FC = () => {
   };
 
   const getTitle = () => {
-    return mode === 'login' ? 'Вход в систему' : 'Регистрация';
+    return mode === 'login' ? t('auth.page.loginTitle') : t('auth.page.signupTitle');
   };
 
   return (
     <AuthLayout title={getTitle()}>
       {showSuccessMessage && (
         <Alert severity="success" sx={{ mb: 3 }}>
-          Регистрация успешна! Проверьте ваш email для подтверждения аккаунта.
+          {t('auth.page.signupSuccessMessage')}
         </Alert>
       )}
       

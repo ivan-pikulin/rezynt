@@ -48,7 +48,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token }) => {
           new_password: values.new_password,
         });
         
-        // Перенаправляем на страницу входа с сообщением об успехе
+        // Redirect to login page with success message
         navigate('/auth/login?message=password_reset_success');
       } catch (err: any) {
         console.error('Password reset error:', err);

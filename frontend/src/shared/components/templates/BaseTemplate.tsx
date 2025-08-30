@@ -3,15 +3,15 @@ import { Box, BoxProps } from '@mui/material';
 import { BaseTemplateProps, TemplateMethods } from './types';
 
 /**
- * Базовый класс для всех шаблонов резюме
- * Предоставляет общую структуру и методы для работы с данными резюме
+ * Base class for all resume templates
+ * Provides common structure and methods for working with resume data
  */
 export abstract class BaseTemplate extends React.Component<BaseTemplateProps, {}> implements TemplateMethods {
   
   protected containerRef = React.createRef<HTMLDivElement>();
 
   /**
-   * Получить полное имя из данных резюме
+   * Get full name from resume data
    */
   protected getFullName(): string {
     const { first_name, last_name } = this.props.data;
@@ -19,7 +19,7 @@ export abstract class BaseTemplate extends React.Component<BaseTemplateProps, {}
   }
 
   /**
-   * Получить контактную информацию
+   * Get contact information
    */
   protected getContactInfo(): string {
     const { contacts, location } = this.props.data;
@@ -28,7 +28,7 @@ export abstract class BaseTemplate extends React.Component<BaseTemplateProps, {}
   }
 
   /**
-   * Форматировать дату
+   * Format date
    */
   protected formatDate(dateString: string): string {
     if (!dateString) return '';
@@ -40,7 +40,7 @@ export abstract class BaseTemplate extends React.Component<BaseTemplateProps, {}
   }
 
   /**
-   * Получить период работы
+   * Get work period
    */
   protected getWorkPeriod(startDate: string, endDate?: string, isCurrent?: boolean): string {
     const start = this.formatDate(startDate);
@@ -51,14 +51,14 @@ export abstract class BaseTemplate extends React.Component<BaseTemplateProps, {}
   }
 
   /**
-   * Проверить, является ли работа текущей
+   * Check if work is current
    */
   protected isCurrentJob(endDate?: string): boolean {
     return !endDate || new Date(endDate) > new Date();
   }
 
   /**
-   * Экспорт в PDF
+   * Export to PDF
    */
   async exportToPDF(): Promise<void> {
     if (!this.containerRef.current) return;
@@ -101,7 +101,7 @@ export abstract class BaseTemplate extends React.Component<BaseTemplateProps, {}
   }
 
   /**
-   * Экспорт в PNG
+   * Export to PNG
    */
   async exportToPNG(): Promise<string> {
     if (!this.containerRef.current) return '';
@@ -122,19 +122,19 @@ export abstract class BaseTemplate extends React.Component<BaseTemplateProps, {}
   }
 
   /**
-   * Абстрактный метод для рендеринга шаблона
-   * Должен быть реализован в каждом конкретном шаблоне
+   * Abstract method for template rendering
+   * Must be implemented in each specific template
    */
   abstract renderTemplate(): React.ReactElement;
 
   render() {
-    // Для экспорта просто возвращаем содержимое без дополнительных контейнеров
-    // ResumeRenderer уже управляет размерами и стилями
+    // For export just return content without additional containers
+    // ResumeRenderer already manages sizes and styles
     if (!this.props.isPreview) {
       return this.renderTemplate();
     }
     
-    // Для превью - масштабируемый контейнер (если нужен)
+    // For preview - scalable container (if needed)
     const a4Width = 794; // ~210mm
     const a4Height = 1123; // ~297mm
     const scale = this.props.scale ?? 0.4;

@@ -8,8 +8,8 @@ interface ResumeRendererProps {
   templateId?: string;
   isPreview?: boolean;
   onExport?: () => void;
-  scale?: number; // Добавляем поддержку масштабирования
-  fitToContainer?: boolean; // Новый проп для адаптивного масштабирования
+  scale?: number; // Add scaling support
+  fitToContainer?: boolean; // New prop for adaptive scaling
 }
 
 const ResumeRenderer: React.FC<ResumeRendererProps> = ({ 
@@ -23,7 +23,7 @@ const ResumeRenderer: React.FC<ResumeRendererProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const [calculatedScale, setCalculatedScale] = useState(scale);
 
-  // Функция для расчета оптимального масштаба
+  // Function to calculate optimal scale
   const calculateOptimalScale = () => {
     if (!containerRef.current || !fitToContainer) return scale;
     
@@ -31,25 +31,25 @@ const ResumeRenderer: React.FC<ResumeRendererProps> = ({
     const containerWidth = container.clientWidth;
     const containerHeight = container.clientHeight;
     
-    // A4 размеры в пикселях при 96 DPI
+    // A4 dimensions in pixels at 96 DPI
     const a4Width = 794; // ~210mm
     const a4Height = 1123; // ~297mm
     
-    // Вычисляем масштаб по ширине и высоте с учетом отступов
-    const padding = 20; // Отступы для скруглений и теней
+    // Calculate scale by width and height with padding
+    const padding = 20; // Padding for rounded corners and shadows
     const scaleByWidth = (containerWidth - padding) / a4Width;
     const scaleByHeight = (containerHeight - padding) / a4Height;
     
-    // Берем минимальный масштаб, чтобы резюме поместилось полностью
+    // Take minimum scale so resume fits completely
     const optimalScale = Math.min(scaleByWidth, scaleByHeight, 1);
     
-    const finalScale = Math.max(optimalScale, 0.1); // Минимальный масштаб 0.1
+    const finalScale = Math.max(optimalScale, 0.1); // Minimum scale 0.1
     return finalScale;
   };
 
-  // Обновляем масштаб при изменении размера контейнера
+  // Update scale when container size changes
   useEffect(() => {
-    // Если fitToContainer отключен, используем переданный scale
+    // If fitToContainer is disabled, use passed scale
     if (!fitToContainer) {
       setCalculatedScale(scale);
       return;
@@ -61,7 +61,7 @@ const ResumeRenderer: React.FC<ResumeRendererProps> = ({
 
     updateScale();
     
-    // Добавляем слушатель изменения размера окна
+    // Add window resize listener
     const resizeObserver = new ResizeObserver(updateScale);
     if (containerRef.current) {
       resizeObserver.observe(containerRef.current);
@@ -99,15 +99,15 @@ const ResumeRenderer: React.FC<ResumeRendererProps> = ({
     >
       <Box
         sx={{
-          // Для превью используем aspectRatio, для экспорта - фиксированные размеры
+          // For preview use aspectRatio, for export - fixed dimensions
           ...(isPreview ? {
             width: '100%',
-            aspectRatio: '210 / 297', // A4 соотношение
+            aspectRatio: '210 / 297', // A4 ratio
             maxWidth: '794px',
             maxHeight: '1123px'
           } : {
-            width: '794px', // Фиксированная ширина A4
-            height: '1123px' // Фиксированная высота A4
+            width: '794px', // Fixed A4 width
+            height: '1123px' // Fixed A4 height
           }),
           display: 'flex',
           justifyContent: 'center',

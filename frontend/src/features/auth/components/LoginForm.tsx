@@ -27,7 +27,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, onSwitchToSignup, onSw
   const { login } = useAuthContext();
   const [searchParams] = useSearchParams();
 
-  // Проверяем, есть ли сообщение об успешном сбросе пароля
+  // Check if there's a password reset success message
   const passwordResetSuccess = searchParams.get('message') === 'password_reset_success';
 
   const validationSchema = yup.object({

@@ -11,7 +11,7 @@ const EmailConfirmationPage: React.FC = () => {
   const [confirmationData, setConfirmationData] = useState<EmailConfirmationParams | null>(null);
 
   useEffect(() => {
-    // Определяем статус из URL пути
+    // Determine status from URL path
     const pathname = window.location.pathname;
     let status: 'success' | 'error' = 'success';
     

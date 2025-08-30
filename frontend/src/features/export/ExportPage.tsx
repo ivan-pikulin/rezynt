@@ -41,7 +41,7 @@ const ExportPage: React.FC = () => {
       case 2: // Refine
         navigate(`/refine?resume_id=${resumeId}`);
         break;
-      case 3: // Export - уже на этой странице
+      case 3: // Export - already on this page
         break;
       default:
         break;
@@ -54,25 +54,25 @@ const ExportPage: React.FC = () => {
     setIsExporting(true);
     
     try {
-      // Запрашиваем свежие данные перед экспортом
+      // Request fresh data before export
       await refreshResume();
       
-      // Получаем полный HTML с CSS стилями
+      // Get full HTML with CSS styles
       const fullHtml = getFullHTMLWithStyles(templateContainerRef.current);
       
-      // Используем реальные данные для имени файла
+      // Use real data for filename
       const displayData = convertApiResumeToDisplayData(resume);
       const fullName = `${displayData.first_name || ''} ${displayData.last_name || ''}`.trim();
       const filename = `${fullName.replace(/\s+/g, '_')}_resume.pdf`;
       
-      // Отправляем запрос на бэкенд для генерации PDF
+      // Send request to backend for PDF generation
       const pdfBlob = await exportApi.exportToPDF(resumeId!, {
         html_content: fullHtml,
         filename: filename,
         template_id: selectedTemplate?.id
       });
       
-      // Создаем ссылку для скачивания
+      // Create download link
       const url = window.URL.createObjectURL(pdfBlob);
       const link = document.createElement('a');
       link.href = url;
@@ -82,7 +82,7 @@ const ExportPage: React.FC = () => {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
       
-      // Показываем страницу успеха после успешного скачивания
+      // Show success page after successful download
       setShowSuccess(true);
     } catch (error) {
       console.error('Error exporting to PDF:', error);
@@ -92,9 +92,9 @@ const ExportPage: React.FC = () => {
     }
   };
 
-  // Функция для получения полного HTML с CSS стилями
+  // Function to get full HTML with CSS styles
   const getFullHTMLWithStyles = (element: HTMLElement): string => {
-    // Получаем все CSS стили из document
+    // Get all CSS styles from document
     const styles = Array.from(document.styleSheets)
       .map(styleSheet => {
         try {
@@ -102,14 +102,14 @@ const ExportPage: React.FC = () => {
             .map(rule => rule.cssText)
             .join('\n');
         } catch (e) {
-          // Игнорируем CORS ошибки для внешних стилей
+          // Ignore CORS errors for external styles
           return '';
         }
       })
       .filter(style => style.length > 0)
       .join('\n');
 
-    // Создаем полный HTML документ
+    // Create full HTML document
     const fullHtml = `
       <!DOCTYPE html>
       <html>
@@ -120,7 +120,7 @@ const ExportPage: React.FC = () => {
           <style>
             ${styles}
             
-            /* Дополнительные стили для PDF */
+            /* Additional styles for PDF */
             body {
               margin: 0;
               padding: 0;
@@ -130,7 +130,7 @@ const ExportPage: React.FC = () => {
               box-sizing: border-box;
             }
             
-            /* Принудительно применяем стили для PDF */
+            /* Force apply styles for PDF */
             @media print {
               body {
                 height: 100vh;
@@ -169,7 +169,7 @@ const ExportPage: React.FC = () => {
     setShowSuccess(false);
   };
 
-  // Если нет resumeId, показываем ошибку
+  // If no resumeId, show error
   if (!resumeId) {
     return (
       <Box sx={{ 
@@ -184,7 +184,7 @@ const ExportPage: React.FC = () => {
     );
   }
 
-  // Если загрузка, показываем индикатор
+  // If loading, show indicator
   if (loading) {
     return (
       <Box sx={{ 
@@ -196,7 +196,7 @@ const ExportPage: React.FC = () => {
     );
   }
 
-  // Если ошибка, показываем сообщение
+  // If error, show message
   if (queryError || !resume) {
     return (
       <Box sx={{ 
@@ -211,12 +211,12 @@ const ExportPage: React.FC = () => {
     );
   }
 
-  // Если показываем страницу успеха, рендерим её
+  // If showing success page, render it
   if (showSuccess) {
     return <SuccessPage onBackToStart={handleBackToStart} />;
   }
 
-  // Преобразуем данные резюме для отображения
+  // Convert resume data for display
   const displayData = convertApiResumeToDisplayData(resume);
 
   return (
@@ -226,24 +226,24 @@ const ExportPage: React.FC = () => {
       flexDirection: 'column', 
       bgcolor: '#f5f6fa'
     }}>
-      {/* Общая шапка */}
+      {/* Common header */}
       <Header 
         activeStep={3} 
         onBack={handleBack}
         showNextButton={false}
         previousButtonText="Refine"
-        showLogo={true} // Показываем лого на десктопе
+        showLogo={true} // Show logo on desktop
         onStepClick={handleStepClick}
       />
       
-      {/* Основная область */}
+      {/* Main area */}
       <Box sx={{ 
         flex: 1, 
         display: 'flex', 
         justifyContent: 'center',
         alignItems: 'center',
-        p: { xs: 2, sm: 3, md: 4 }, // Адаптивные отступы
-        py: { xs: 3, sm: 4, md: 6 } // Дополнительные вертикальные отступы
+        p: { xs: 2, sm: 3, md: 4 }, // Responsive padding
+        py: { xs: 3, sm: 4, md: 6 } // Additional vertical padding
       }}>
         <DownloadOptions 
           onExportPDF={handleExportPDF} 
@@ -252,7 +252,7 @@ const ExportPage: React.FC = () => {
         />
       </Box>
 
-      {/* Скрытый template для экспорта */}
+      {/* Hidden template for export */}
       <Box sx={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
         <div ref={templateContainerRef} style={{ width: '794px', height: '1123px' }}>
           <ResumeRenderer 
