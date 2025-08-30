@@ -1,32 +1,32 @@
 import {
-  Add as AddIcon,
-  Delete as DeleteIcon,
-  Person as PersonIcon,
-  Save as SaveIcon,
-  School as SchoolIcon,
-  Psychology as SkillsIcon,
-  Work as WorkIcon
+    Add as AddIcon,
+    Delete as DeleteIcon,
+    Person as PersonIcon,
+    Save as SaveIcon,
+    School as SchoolIcon,
+    Psychology as SkillsIcon,
+    Work as WorkIcon
 } from '@mui/icons-material';
 import {
-  Alert,
-  Box,
-  Button,
-  Chip,
-  Divider,
-  Snackbar,
-  Tab,
-  Tabs,
-  TextField,
-  Typography
+    Alert,
+    Box,
+    Button,
+    Chip,
+    Divider,
+    Snackbar,
+    Tab,
+    Tabs,
+    TextField,
+    Typography
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { resumeApi } from '../../../shared/services/api';
 import { Resume } from '../../../shared/services/api/types';
+import { COLORS } from '../../../shared/theme/theme';
 import EducationEditor from './EducationEditor';
 import ExperienceEditor from './ExperienceEditor';
 import SkillsEditor from './SkillsEditor';
-import { COLORS } from '../../../shared/theme/theme';
 
 interface ResumeEditorProps {
   resume: Resume;
@@ -88,6 +88,21 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
     message: '',
     severity: 'success'
   });
+
+  // Функция для проверки наличия несохраненных изменений
+  const hasUnsavedChanges = () => {
+    const originalData = {
+      title: resume.title,
+      professional_summary: resume.professional_summary || '',
+      first_name: resume.first_name || '',
+      last_name: resume.last_name || '',
+      location: resume.location || ''
+    };
+
+    return Object.entries(formData).some(
+      ([key, value]) => value !== originalData[key as keyof typeof originalData]
+    );
+  };
 
   // Обновляем локальное состояние при изменении резюме
   useEffect(() => {
@@ -182,6 +197,7 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
           message: t('refine.editor.noChangesToSave'),
           severity: 'success'
         });
+        setIsSaving(false);
         return;
       }
 
@@ -485,19 +501,24 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
           variant="contained"
           startIcon={<SaveIcon />}
           onClick={saveAllChanges}
-          disabled={isSaving}
+          disabled={isSaving || !hasUnsavedChanges()}
           sx={{
             px: 4,
             py: 1.5,
             fontSize: '1rem',
             fontWeight: 600,
             borderRadius: 2,
-            bgcolor: COLORS.primary.main,
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+            bgcolor: hasUnsavedChanges() ? COLORS.primary.main : COLORS.grey[400],
+            boxShadow: hasUnsavedChanges() ? '0 4px 12px rgba(0, 0, 0, 0.15)' : 'none',
             '&:hover': {
-              bgcolor: COLORS.primary.dark,
-              boxShadow: '0 6px 16px rgba(0, 0, 0, 0.2)',
-              transform: 'translateY(-1px)'
+              bgcolor: hasUnsavedChanges() ? COLORS.primary.dark : COLORS.grey[400],
+              boxShadow: hasUnsavedChanges() ? '0 6px 16px rgba(0, 0, 0, 0.2)' : 'none',
+              transform: hasUnsavedChanges() ? 'translateY(-1px)' : 'none'
+            },
+            '&:disabled': {
+              bgcolor: COLORS.grey[400],
+              color: COLORS.grey[600],
+              cursor: 'not-allowed'
             },
             transition: 'all 0.2s ease-in-out'
           }}
