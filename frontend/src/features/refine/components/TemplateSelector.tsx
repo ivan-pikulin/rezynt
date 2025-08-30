@@ -14,7 +14,7 @@ const TemplateSelector: React.FC<TemplateSelectorProps> = ({ onTemplateChange, h
   const templates = TemplateService.getTemplates();
   const demoData = TemplateService.createDemoData();
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateConfig | null>(
-    TemplateService.getTemplateById('tero') || templates[0]
+    templates[0]
   );
 
   // Вызываем onTemplateChange при инициализации с выбранным шаблоном

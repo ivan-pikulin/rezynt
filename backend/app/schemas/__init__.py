@@ -13,8 +13,7 @@ from .resume import (AIResumeUpdate, OpenAIStructuredResume, PDFExportRequest,
                      ResumeSkillCreate, ResumeSkillUpdate, ResumeUpdate,
                      ResumeWithTemplate, UnifiedResume, UnifiedResumeEducation,
                      UnifiedResumeExperience)
-from .template import (Template, TemplateBase, TemplateCreate, TemplateInDB,
-                       TemplateInDBBase, TemplateUpdate)
+
 from .token import RefreshRequest, Token, TokenPayload
 from .user import (PasswordResetConfirm, PasswordResetRequest, User, UserBase,
                    UserCreate, UserInDB, UserInDBBase, UserPremiumUpdate,

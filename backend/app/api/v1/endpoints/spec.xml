@@ -72,13 +72,7 @@
             </endpoints>
         </module>
         
-        <module name="template">
-            <description>Resume template management</description>
-            <endpoints>
-                <endpoint path="/template/" method="GET" description="Get all templates"/>
-                <endpoint path="/template/{template_id}" method="GET" description="Get specific template"/>
-            </endpoints>
-        </module>
+
         
         <module name="chat">
             <description>Chat functionality for AI interactions with platform integration and streaming support</description>

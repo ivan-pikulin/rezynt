@@ -14,7 +14,7 @@ interface ResumeRendererProps {
 
 const ResumeRenderer: React.FC<ResumeRendererProps> = ({
   data,
-  templateId = 'tero',
+  templateId = 'nume',
   isPreview = true,
   onExport,
   scale = 1,

@@ -3,7 +3,7 @@
     <title>Database Models</title>
     <description>
         SQLAlchemy models for the Rezynt application database.
-        Includes models for users, resumes, templates, and chat messages.
+        Includes models for users, resumes, and chat messages.
     </description>
     
     <models>
@@ -23,22 +23,7 @@
             </relationships>
         </model>
         
-        <model name="Template">
-            <description>Resume template model for different design options</description>
-            <fields>
-                <field name="id" type="Integer" primary_key="true" autoincrement="true"/>
-                <field name="name" type="String" nullable="false"/>
-                <field name="slug" type="String" unique="true" nullable="false"/>
-                <field name="description" type="Text" nullable="true"/>
-                <field name="thumbnail_url" type="String" nullable="true"/>
-                <field name="is_active" type="Boolean" default="true"/>
-                <field name="created_at" type="TIMESTAMP" server_default="func.now()"/>
-                <field name="updated_at" type="TIMESTAMP" server_default="func.now()" onupdate="func.now()"/>
-            </fields>
-            <relationships>
-                <relationship name="resumes" type="one-to-many" target="Resume" back_populates="template"/>
-            </relationships>
-        </model>
+
         
         <model name="Resume">
             <description>Main resume model with all resume data and relationships</description>
@@ -46,7 +31,7 @@
                 <field name="id" type="Integer" primary_key="true" autoincrement="true"/>
                 <field name="user_id" type="Integer" foreign_key="users.id" nullable="false"/>
                 <field name="title" type="String(100)" nullable="false"/>
-                <field name="template_id" type="Integer" foreign_key="templates.id" nullable="false"/>
+                <field name="template_slug" type="String(50)" nullable="false"/>
                 <field name="professional_summary" type="Text" nullable="true"/>
                 <field name="conversation_id" type="String(255)" nullable="true"/>
                 <field name="from_upload" type="Boolean" nullable="false" default="false"/>
@@ -55,7 +40,7 @@
             </fields>
             <relationships>
                 <relationship name="user" type="many-to-one" target="User" back_populates="resumes"/>
-                <relationship name="template" type="many-to-one" target="Template" back_populates="resumes"/>
+
                 <relationship name="personal_info" type="one-to-one" target="ResumePersonalInfo" back_populates="resume" cascade="all, delete-orphan"/>
                 <relationship name="contacts" type="one-to-many" target="ResumeContact" back_populates="resume" cascade="all, delete-orphan"/>
                 <relationship name="skills" type="one-to-many" target="ResumeSkill" back_populates="resume" cascade="all, delete-orphan"/>

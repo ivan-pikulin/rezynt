@@ -193,7 +193,7 @@ const ResumesPage: React.FC = () => {
                     <ResumeRenderer 
                       data={convertResumeToDemoData(resume)} 
                       scale={0.19} 
-                      templateId={resume.template?.slug || 'tero'}
+                      templateId={resume.template_slug || 'nume'}
                       fitToContainer={false}
                     />
                   </Box>
