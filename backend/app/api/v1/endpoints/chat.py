@@ -4,6 +4,7 @@ from typing import Any, Dict, Optional
 from app.api.deps import VerifiedUser, get_db
 from app.core.config import settings
 from app.database.crud.crud_resume import resume_manager
+from app.database.crud.crud_user import user_crud
 from app.schemas.resume import ChatMessage, ChatMessageList
 from app.services import PlatformChatflow
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -28,6 +29,14 @@ async def send_message(
     """
     Send message to chat via platform.
     """
+    # Проверяем кредиты для free пользователей
+    if not user.is_premium:
+        if not await user_crud.has_credits(db, user_id=user.id):
+            raise HTTPException(
+                status_code=402, 
+                detail="No credits remaining. Please upgrade to continue."
+            )
+    
     # Получаем резюме
     resume_obj = await resume_manager.get_resume_by_id(db, resume_id=request.resume_id)
     if not resume_obj:
@@ -52,6 +61,10 @@ async def send_message(
         resume_id=str(request.resume_id)
     )
     
+    # Списываем кредит для free пользователей после успешной отправки
+    if not user.is_premium:
+        await user_crud.consume_credit(db, user_id=user.id)
+    
     # Обновляем conversation_id в резюме, если он изменился
     if response.conversation_id and response.conversation_id != resume_obj.conversation_id:
         await resume_manager.update_conversation_id(db, resume_id=request.resume_id, conversation_id=response.conversation_id)
@@ -72,6 +85,14 @@ async def send_message_stream(
     """
     Send message to chat with streaming response via platform.
     """
+    # Проверяем кредиты для free пользователей
+    if not user.is_premium:
+        if not await user_crud.has_credits(db, user_id=user.id):
+            raise HTTPException(
+                status_code=402, 
+                detail="No credits remaining. Please upgrade to continue."
+            )
+    
     # Получаем резюме
     resume_obj = await resume_manager.get_resume_by_id(db, resume_id=request.resume_id)
     if not resume_obj:
@@ -91,6 +112,8 @@ async def send_message_stream(
     
     async def generate_stream():
         new_conversation_id = None
+        credit_consumed = False
+        
         async for chunk, conversation_id in platform_chatflow.chat_stream(
             user_id=str(user.id),
             text=request.message,
@@ -100,6 +123,11 @@ async def send_message_stream(
             new_conversation_id = conversation_id
             # Send chunk as SSE
             yield f"data: {json.dumps({'chunk': chunk})}\n\n"
+        
+        # Списываем кредит для free пользователей после успешной отправки
+        if not user.is_premium and not credit_consumed:
+            await user_crud.consume_credit(db, user_id=user.id)
+            credit_consumed = True
         
         # Update conversation_id if it changed
         if new_conversation_id and new_conversation_id != resume_obj.conversation_id:

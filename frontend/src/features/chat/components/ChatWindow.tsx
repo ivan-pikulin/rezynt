@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Box, Typography, Chip, CircularProgress } from '@mui/material';
 import StarIcon from '@mui/icons-material/Star';
 import { ChatMessage } from './ChatMessage';
 import { ChatInput } from './ChatInput';
 import { useChat } from '../hooks/useChat';
+import { useUser } from '../../../shared/hooks/useUser';
 import { COLORS } from '../../../shared/theme/theme';
+import { useTranslation } from 'react-i18next';
+import PaywallModal from '../../../shared/components/PaywallModal';
 
 interface ChatWindowProps {
   resumeId: string | null;
@@ -13,6 +16,10 @@ interface ChatWindowProps {
 }
 
 const ChatWindow: React.FC<ChatWindowProps> = ({ resumeId, onResumeUpdate, fromUpload = false }) => {
+  const { t } = useTranslation();
+  const { user, refetch: refetchUser } = useUser();
+  const [showPaywallModal, setShowPaywallModal] = useState(false);
+  
   const { 
     messages, 
     isLoading, 
@@ -23,7 +30,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ resumeId, onResumeUpdate, fromU
     messagesEndRef,
     chatContainerRef,
     currentThinkingPhrase
-  } = useChat(resumeId, onResumeUpdate, fromUpload);
+  } = useChat(resumeId, onResumeUpdate, fromUpload, () => setShowPaywallModal(true));
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const { scrollTop } = e.currentTarget;
@@ -31,6 +38,21 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ resumeId, onResumeUpdate, fromU
     if (scrollTop === 0 && hasMoreMessages && !isLoadingMessages) {
       loadOlderMessages();
     }
+  };
+
+  const handleCreditsClick = () => {
+    if (!user?.is_premium) {
+      setShowPaywallModal(true);
+    }
+  };
+
+  const handlePaywallSuccess = () => {
+    setShowPaywallModal(false);
+    refetchUser();
+  };
+
+  const handlePaywallClose = () => {
+    setShowPaywallModal(false);
   };
   
   return (
@@ -91,29 +113,33 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ resumeId, onResumeUpdate, fromU
           AI Writer
         </Typography>
         
-        <Chip
-          icon={<StarIcon sx={{ fontSize: '1rem', color: COLORS.credits.star }} />}
-          label="21/100"
-          size="small"
-          sx={{
-            background: 'rgba(255, 255, 255, 0.15)',
-            backdropFilter: 'blur(10px)',
-            color: 'white',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
-            fontWeight: 600,
-            fontSize: '0.8rem', // Уменьшил с 0.875rem до 0.8rem
-            '& .MuiChip-icon': {
-              color: COLORS.credits.star
-            },
-            '&:hover': {
-              background: 'rgba(255, 255, 255, 0.25)',
-              transform: 'translateY(-1px)',
-              transition: 'all 0.2s ease'
-            },
-            position: 'relative',
-            zIndex: 1
-          }}
-        />
+        {!user?.is_premium && (
+          <Chip
+            icon={<StarIcon sx={{ fontSize: '1rem', color: COLORS.credits.star }} />}
+            label={`${user?.credits || 0}/100`}
+            size="small"
+            onClick={handleCreditsClick}
+            sx={{
+              background: user?.credits === 0 ? 'rgba(211, 47, 47, 0.2)' : 'rgba(255, 255, 255, 0.15)',
+              backdropFilter: 'blur(10px)',
+              color: user?.credits === 0 ? COLORS.error.main : 'white',
+              border: user?.credits === 0 ? `1px solid ${COLORS.error.main}` : '1px solid rgba(255, 255, 255, 0.2)',
+              fontWeight: 600,
+              fontSize: '0.8rem',
+              cursor: 'pointer',
+              '& .MuiChip-icon': {
+                color: user?.credits === 0 ? COLORS.error.main : COLORS.credits.star
+              },
+              '&:hover': {
+                background: user?.credits === 0 ? 'rgba(211, 47, 47, 0.3)' : 'rgba(255, 255, 255, 0.25)',
+                transform: 'translateY(-1px)',
+                transition: 'all 0.2s ease'
+              },
+              position: 'relative',
+              zIndex: 1
+            }}
+          />
+        )}
       </Box>
 
       {/* Область чата с современным дизайном */}
@@ -184,6 +210,13 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ resumeId, onResumeUpdate, fromU
       }}>
         <ChatInput onSendMessage={sendUserMessage} disabled={isLoading} />
       </Box>
+
+      {/* Paywall Modal */}
+      <PaywallModal
+        open={showPaywallModal}
+        onClose={handlePaywallClose}
+        onSuccess={handlePaywallSuccess}
+      />
     </Box>
   );
 };

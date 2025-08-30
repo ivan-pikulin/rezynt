@@ -3,6 +3,7 @@ import { flushSync } from 'react-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { chatApi } from '../../../shared/services/api';
 import { SendMessageRequest, Message } from '../../../shared/services/api/types';
+import { useUser } from '../../../shared/hooks/useUser';
 
 // Local chat message type for UI
 export interface ChatMessage {
@@ -15,8 +16,9 @@ export interface ChatMessage {
 // Типы загрузки сообщений для управления скроллом
 type MessageLoadType = 'initial' | 'older' | 'new' | 'none';
 
-export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fromUpload: boolean = false) => {
+export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fromUpload: boolean = false, onShowPaywall?: () => void) => {
   const queryClient = useQueryClient();
+  const { user } = useUser();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -231,6 +233,12 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fr
       return;
     }
 
+    // Проверяем кредиты для free пользователей
+    if (!user?.is_premium && user?.credits === 0) {
+      onShowPaywall?.();
+      return;
+    }
+
     // Устанавливаем тип загрузки для нового сообщения
     setLastLoadType('new');
 
@@ -315,13 +323,21 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fr
         (error: string) => {
           clearInterval(phraseTimer);
           console.error('Chat streaming error:', error);
-          setMessages(prev => 
-            prev.map(msg => 
-              msg.id === assistantMessageId 
-                ? { ...msg, content: 'Sorry, I encountered an error. Please try again.' }
-                : msg
-            )
-          );
+          
+          // Проверяем, является ли ошибка связанной с кредитами
+          if (error.includes('No credits remaining') || error.includes('402')) {
+            onShowPaywall?.();
+            // Удаляем сообщение пользователя и placeholder ассистента
+            setMessages(prev => prev.filter(msg => msg.id !== userMessage.id && msg.id !== assistantMessageId));
+          } else {
+            setMessages(prev => 
+              prev.map(msg => 
+                msg.id === assistantMessageId 
+                  ? { ...msg, content: 'Sorry, I encountered an error. Please try again.' }
+                  : msg
+              )
+            );
+          }
           setIsLoading(false);
         }
       );
@@ -329,17 +345,26 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fr
     } catch (error) {
       clearInterval(phraseTimer);
       console.error('Chat API error:', error);
-      // В случае ошибки показываем сообщение об ошибке
-      setMessages(prev => 
-        prev.map(msg => 
-          msg.id === assistantMessageId 
-            ? { ...msg, content: 'Sorry, I encountered an error. Please try again.' }
-            : msg
-        )
-      );
+      
+      // Проверяем, является ли ошибка связанной с кредитами
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      if (errorMessage.includes('No credits remaining') || errorMessage.includes('402')) {
+        onShowPaywall?.();
+        // Удаляем сообщение пользователя и placeholder ассистента
+        setMessages(prev => prev.filter(msg => msg.id !== userMessage.id && msg.id !== assistantMessageId));
+      } else {
+        // В случае ошибки показываем сообщение об ошибке
+        setMessages(prev => 
+          prev.map(msg => 
+            msg.id === assistantMessageId 
+              ? { ...msg, content: 'Sorry, I encountered an error. Please try again.' }
+              : msg
+          )
+        );
+      }
       setIsLoading(false);
     }
-  }, [resumeId, onResumeUpdate, queryClient]);
+  }, [resumeId, onResumeUpdate, queryClient, user, onShowPaywall]);
 
   return {
     messages,

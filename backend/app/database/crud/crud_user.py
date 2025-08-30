@@ -18,6 +18,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             email=obj_in.email,
             password_hash=get_password_hash(obj_in.password),
             is_verified=False,
+            credits=100,  # Устанавливаем 100 кредитов по умолчанию
         )
         db.add(db_obj)
         await db.commit()
@@ -75,6 +76,25 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             await db.commit()
             await db.refresh(user)
         return user
+
+    async def consume_credit(self, db: AsyncSession, *, user_id: int) -> Optional[User]:
+        """
+        Consume one credit from user. Returns user if successful, None if no credits left.
+        """
+        user = await self.get(db, id=user_id)
+        if user and user.credits > 0:
+            user.credits -= 1
+            await db.commit()
+            await db.refresh(user)
+            return user
+        return None
+
+    async def has_credits(self, db: AsyncSession, *, user_id: int) -> bool:
+        """
+        Check if user has credits available.
+        """
+        user = await self.get(db, id=user_id)
+        return user is not None and user.credits > 0
 
 
 user_crud = CRUDUser(User)

@@ -6,6 +6,12 @@
     "loading": "Loading...",
     "loadingResumes": "Loading your resumes..."
   },
+  "credits": {
+    "remaining": "credits remaining",
+    "noCredits": "No credits remaining",
+    "upgradeToContinue": "Please upgrade to continue",
+    "clickToUpgrade": "Click to upgrade"
+  },
   "auth": {
     "login": {
       "title": "Log In",

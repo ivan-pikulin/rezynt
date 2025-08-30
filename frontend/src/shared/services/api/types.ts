@@ -22,6 +22,7 @@ export interface User {
   email: string;
   is_verified: boolean;
   is_premium: boolean;
+  credits: number;
   created_at: string;
   updated_at: string;
 }

@@ -23,6 +23,7 @@ class UserInDBBase(UserBase):
     password_hash: str
     is_verified: bool
     is_premium: bool
+    credits: int
     created_at: datetime
     updated_at: datetime
 
@@ -34,6 +35,7 @@ class UserPublic(UserBase):
     id: int
     is_verified: bool
     is_premium: bool
+    credits: int
     created_at: datetime
     updated_at: datetime
 
