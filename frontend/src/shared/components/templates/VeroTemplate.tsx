@@ -13,18 +13,30 @@ export class VeroTemplate extends BaseTemplate {
         lineHeight: 1.6,
         color: '#333',
         backgroundColor: 'white',
+        maxWidth: '100%',
+        boxSizing: 'border-box',
         '@media print': {
           height: '100vh',
+          maxHeight: '100vh',
           overflow: 'hidden',
           fontSize: '12px',
           lineHeight: 1.4,
-          padding: '38px 30px'
+          padding: '20px 30px',
+          maxWidth: '100%',
+          width: '100%',
+          boxSizing: 'border-box'
         }
       }}>
         {/* Header - Centered Name and Contact */}
         <Box sx={{ 
           textAlign: 'center',
-          marginBottom: '40px'
+          marginBottom: '40px',
+          maxWidth: '100%',
+          boxSizing: 'border-box',
+          '@media print': {
+            overflow: 'hidden',
+            marginBottom: '20px'
+          }
         }}>
           <Typography 
             variant="h1" 
@@ -54,7 +66,15 @@ export class VeroTemplate extends BaseTemplate {
         </Box>
 
         {/* Professional Summary */}
-        <Box sx={{ marginBottom: '30px' }}>
+        <Box sx={{ 
+          marginBottom: '30px',
+          maxWidth: '100%',
+          boxSizing: 'border-box',
+          '@media print': {
+            overflow: 'hidden',
+            marginBottom: '15px'
+          }
+        }}>
           <Box sx={{ 
             display: 'flex', 
             alignItems: 'center',
@@ -93,7 +113,15 @@ export class VeroTemplate extends BaseTemplate {
         </Box>
 
         {/* Skills */}
-        <Box sx={{ marginBottom: '30px' }}>
+        <Box sx={{ 
+          marginBottom: '30px',
+          maxWidth: '100%',
+          boxSizing: 'border-box',
+          '@media print': {
+            overflow: 'hidden',
+            marginBottom: '15px'
+          }
+        }}>
           <Box sx={{ 
             display: 'flex', 
             alignItems: 'center',
@@ -122,7 +150,12 @@ export class VeroTemplate extends BaseTemplate {
           <Box sx={{ 
             display: 'grid', 
             gridTemplateColumns: '1fr 1fr',
-            gap: '8px'
+            gap: '8px',
+            maxWidth: '100%',
+            boxSizing: 'border-box',
+            '@media print': {
+              overflow: 'hidden'
+            }
           }}>
             {data.skills?.map((skill, index) => (
               <Typography 
@@ -145,7 +178,15 @@ export class VeroTemplate extends BaseTemplate {
         </Box>
 
         {/* Experience */}
-        <Box sx={{ marginBottom: '30px' }}>
+        <Box sx={{ 
+          marginBottom: '30px',
+          maxWidth: '100%',
+          boxSizing: 'border-box',
+          '@media print': {
+            overflow: 'hidden',
+            marginBottom: '15px'
+          }
+        }}>
           <Box sx={{ 
             display: 'flex', 
             alignItems: 'center',
@@ -237,7 +278,13 @@ export class VeroTemplate extends BaseTemplate {
         </Box>
 
         {/* Education */}
-        <Box>
+        <Box sx={{
+          maxWidth: '100%',
+          boxSizing: 'border-box',
+          '@media print': {
+            overflow: 'hidden'
+          }
+        }}>
           <Box sx={{ 
             display: 'flex', 
             alignItems: 'center',

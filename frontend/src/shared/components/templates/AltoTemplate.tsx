@@ -13,12 +13,18 @@ export class AltoTemplate extends BaseTemplate {
         lineHeight: 1.6,
         color: '#333',
         backgroundColor: 'white',
+        maxWidth: '100%',
+        boxSizing: 'border-box',
         '@media print': {
           height: '100vh',
+          maxHeight: '100vh',
           overflow: 'hidden',
           fontSize: '12px',
           lineHeight: 1.4,
-          padding: '38px 30px'
+          padding: '20px 30px',
+          maxWidth: '100%',
+          width: '100%',
+          boxSizing: 'border-box'
         }
       }}>
         {/* Header with Logo, Name and Contact */}
@@ -26,12 +32,26 @@ export class AltoTemplate extends BaseTemplate {
           display: 'flex', 
           justifyContent: 'space-between',
           alignItems: 'flex-start',
-          marginBottom: '40px'
+          marginBottom: '40px',
+          maxWidth: '100%',
+          boxSizing: 'border-box',
+          '@media print': {
+            maxWidth: '100%',
+            overflow: 'hidden',
+            marginBottom: '20px'
+          }
         }}>
           {/* Left side - Logo and Name */}
           <Box sx={{ 
             display: 'flex', 
-            alignItems: 'flex-start'
+            alignItems: 'flex-start',
+            flex: '1 1 auto',
+            minWidth: 0,
+            '@media print': {
+              flex: '1 1 auto',
+              minWidth: 0,
+              overflow: 'hidden'
+            }
           }}>
             {/* Square Logo */}
             <Box sx={{
@@ -77,7 +97,13 @@ export class AltoTemplate extends BaseTemplate {
             </Box>
             
             {/* Name */}
-            <Box>
+            <Box sx={{
+              flex: '1 1 auto',
+              minWidth: 0,
+              '@media print': {
+                overflow: 'hidden'
+              }
+            }}>
               <Typography 
                 variant="h1" 
                 sx={{ 
@@ -105,7 +131,15 @@ export class AltoTemplate extends BaseTemplate {
           </Box>
 
           {/* Right side - Contact Info */}
-          <Box sx={{ textAlign: 'right' }}>
+          <Box sx={{ 
+            textAlign: 'right',
+            flex: '0 0 auto',
+            maxWidth: '40%',
+            '@media print': {
+              maxWidth: '35%',
+              overflow: 'hidden'
+            }
+          }}>
             {data.contacts?.map((contact, index) => (
               <Typography 
                 key={index}
@@ -123,7 +157,12 @@ export class AltoTemplate extends BaseTemplate {
         </Box>
 
         {/* Professional Summary */}
-        <Box sx={{ marginBottom: '30px' }}>
+        <Box sx={{ 
+          marginBottom: '30px',
+          '@media print': {
+            marginBottom: '15px'
+          }
+        }}>
           <Typography 
             variant="h6" 
             sx={{ 
@@ -150,7 +189,15 @@ export class AltoTemplate extends BaseTemplate {
         </Box>
 
         {/* Skills */}
-        <Box sx={{ marginBottom: '30px' }}>
+        <Box sx={{ 
+          marginBottom: '30px',
+          maxWidth: '100%',
+          boxSizing: 'border-box',
+          '@media print': {
+            overflow: 'hidden',
+            marginBottom: '15px'
+          }
+        }}>
           <Typography 
             variant="h6" 
             sx={{ 
@@ -167,7 +214,12 @@ export class AltoTemplate extends BaseTemplate {
           <Box sx={{ 
             display: 'grid', 
             gridTemplateColumns: '1fr 1fr',
-            gap: '8px'
+            gap: '8px',
+            maxWidth: '100%',
+            boxSizing: 'border-box',
+            '@media print': {
+              overflow: 'hidden'
+            }
           }}>
             {data.skills?.map((skill, index) => (
               <Typography 
@@ -190,7 +242,15 @@ export class AltoTemplate extends BaseTemplate {
         </Box>
 
         {/* Experience */}
-        <Box sx={{ marginBottom: '30px' }}>
+        <Box sx={{ 
+          marginBottom: '30px',
+          maxWidth: '100%',
+          boxSizing: 'border-box',
+          '@media print': {
+            overflow: 'hidden',
+            marginBottom: '15px'
+          }
+        }}>
           <Typography 
             variant="h6" 
             sx={{ 
@@ -270,7 +330,13 @@ export class AltoTemplate extends BaseTemplate {
         </Box>
 
         {/* Education */}
-        <Box>
+        <Box sx={{
+          maxWidth: '100%',
+          boxSizing: 'border-box',
+          '@media print': {
+            overflow: 'hidden'
+          }
+        }}>
           <Typography 
             variant="h6" 
             sx={{ 

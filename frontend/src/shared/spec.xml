@@ -375,5 +375,78 @@
         </detail>
       </technical_details>
     </component>
+    
+    <component>
+      <name>Resume Templates</name>
+      <description>
+        Система шаблонов резюме с поддержкой различных дизайнов и стилей.
+        Все шаблоны наследуются от BaseTemplate и обеспечивают корректное отображение при экспорте в PDF.
+      </description>
+      
+      <features>
+        <feature>
+          <name>AltoTemplate</name>
+          <description>
+            Шаблон с логотипом-инициалами в квадратной рамке, расположенными слева от имени.
+            Контактная информация размещена справа. Использует коричневую цветовую схему (#8B4513).
+            Оптимизирован для печати с ограничением ширины и overflow: hidden.
+          </description>
+        </feature>
+        
+        <feature>
+          <name>VeroTemplate</name>
+          <description>
+            Центрированный шаблон с именем по центру и контактной информацией под ним.
+            Секции разделены горизонтальными линиями. Использует коричневую цветовую схему (#8B4513).
+            Оптимизирован для печати с ограничением ширины и overflow: hidden.
+          </description>
+        </feature>
+        
+        <feature>
+          <name>LumaTemplate</name>
+          <description>
+            Двухколоночный шаблон с темной боковой панелью (35%) и основным контентом (65%).
+            Контакты и навыки размещены в боковой панели. Использует фиксированную ширину колонок.
+            Оптимизирован для печати с overflow: hidden.
+          </description>
+        </feature>
+        
+                 <feature>
+           <name>PDF Export Optimization</name>
+           <description>
+             Все шаблоны оптимизированы для экспорта в PDF с правильным ограничением ширины и высоты.
+             Используют maxWidth: 100%, maxHeight: 100vh, boxSizing: border-box и overflow: hidden для предотвращения выхода за границы.
+             Специальные стили для @media print с уменьшенными отступами (20px 30px) и межсекционными отступами (15px).
+           </description>
+         </feature>
+      </features>
+      
+      <technical_details>
+        <detail>
+          <name>BaseTemplate</name>
+          <value>Базовый класс с общими методами форматирования дат и периодов работы</value>
+        </detail>
+        
+        <detail>
+          <name>Responsive Design</name>
+          <value>Адаптивная верстка с flexbox и grid для корректного отображения на разных экранах</value>
+        </detail>
+        
+                 <detail>
+           <name>Print Styles</name>
+           <value>Специальные стили для печати с уменьшенными шрифтами, отступами (20px 30px) и межсекционными отступами (15px)</value>
+         </detail>
+        
+        <detail>
+          <name>Color Scheme</name>
+          <value>Единая коричневая цветовая схема (#8B4513) для всех шаблонов</value>
+        </detail>
+        
+        <detail>
+          <name>Typography</name>
+          <value>Использование системных шрифтов Arial и Source Sans Pro для лучшей читаемости</value>
+        </detail>
+      </technical_details>
+    </component>
   </components>
 </specification> 
