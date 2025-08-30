@@ -7,7 +7,4 @@ export interface BaseTemplateProps {
   scale?: number; // Добавляем поддержку масштаба
 }
 
-export interface TemplateMethods {
-  exportToPDF: () => Promise<void>;
-  exportToPNG: () => Promise<string>;
-} 
+ 

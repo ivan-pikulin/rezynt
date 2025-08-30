@@ -1,6 +1,6 @@
 import React from 'react';
 import { BaseTemplate } from './BaseTemplate';
-import { BaseTemplateProps, TemplateMethods } from './types';
+import { BaseTemplateProps } from './types';
 import { NumeTemplate } from './NumeTemplate';
 import { LumaTemplate } from './LumaTemplate';
 import { TeroTemplate } from './TeroTemplate';
@@ -9,7 +9,7 @@ import { VeroTemplate } from './VeroTemplate';
 import { TemplateConfig } from '../../types/resume';
 
 export { BaseTemplate };
-export type { BaseTemplateProps, TemplateMethods };
+export type { BaseTemplateProps };
 export { NumeTemplate, LumaTemplate, TeroTemplate, AltoTemplate, VeroTemplate };
 export type { TemplateConfig };
 

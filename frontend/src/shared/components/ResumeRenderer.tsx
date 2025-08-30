@@ -1,5 +1,5 @@
-import React, { useRef, useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
+import React, { useEffect, useRef, useState } from 'react';
 import { ResumeData } from '../types/resume';
 import { createTemplate } from './templates';
 
@@ -12,9 +12,9 @@ interface ResumeRendererProps {
   fitToContainer?: boolean; // New prop for adaptive scaling
 }
 
-const ResumeRenderer: React.FC<ResumeRendererProps> = ({ 
-  data, 
-  templateId = 'tero', 
+const ResumeRenderer: React.FC<ResumeRendererProps> = ({
+  data,
+  templateId = 'tero',
   isPreview = true,
   onExport,
   scale = 1,
@@ -26,23 +26,23 @@ const ResumeRenderer: React.FC<ResumeRendererProps> = ({
   // Function to calculate optimal scale
   const calculateOptimalScale = () => {
     if (!containerRef.current || !fitToContainer) return scale;
-    
+
     const container = containerRef.current;
     const containerWidth = container.clientWidth;
     const containerHeight = container.clientHeight;
-    
+
     // A4 dimensions in pixels at 96 DPI
     const a4Width = 794; // ~210mm
     const a4Height = 1123; // ~297mm
-    
+
     // Calculate scale by width and height with padding
     const padding = 20; // Padding for rounded corners and shadows
     const scaleByWidth = (containerWidth - padding) / a4Width;
     const scaleByHeight = (containerHeight - padding) / a4Height;
-    
+
     // Take minimum scale so resume fits completely
     const optimalScale = Math.min(scaleByWidth, scaleByHeight, 1);
-    
+
     const finalScale = Math.max(optimalScale, 0.1); // Minimum scale 0.1
     return finalScale;
   };
@@ -60,7 +60,7 @@ const ResumeRenderer: React.FC<ResumeRendererProps> = ({
     };
 
     updateScale();
-    
+
     // Add window resize listener
     const resizeObserver = new ResizeObserver(updateScale);
     if (containerRef.current) {
@@ -79,12 +79,10 @@ const ResumeRenderer: React.FC<ResumeRendererProps> = ({
     scale: calculatedScale
   });
 
-
-
   return (
-    <Box 
+    <Box
       ref={containerRef}
-      sx={{ 
+      sx={{
         width: '100%',
         height: '100%',
         display: 'flex',

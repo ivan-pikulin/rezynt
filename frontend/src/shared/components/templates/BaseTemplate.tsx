@@ -1,15 +1,13 @@
 import { Box } from '@mui/material';
 import React from 'react';
-import { BaseTemplateProps, TemplateMethods } from './types';
+import { BaseTemplateProps } from './types';
 
 /**
  * Base class for all resume templates
  * Provides common structure and methods for working with resume data
  */
-export abstract class BaseTemplate extends React.Component<BaseTemplateProps, {}> implements TemplateMethods {
-  
+export abstract class BaseTemplate extends React.Component<BaseTemplateProps, {}> {
   protected containerRef = React.createRef<HTMLDivElement>();
-
   /**
    * Get full name from resume data
    */
@@ -33,9 +31,9 @@ export abstract class BaseTemplate extends React.Component<BaseTemplateProps, {}
   protected formatDate(dateString: string): string {
     if (!dateString) return '';
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'long' 
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long'
     });
   }
 
@@ -58,70 +56,6 @@ export abstract class BaseTemplate extends React.Component<BaseTemplateProps, {}
   }
 
   /**
-   * Export to PDF
-   */
-  async exportToPDF(): Promise<void> {
-    if (!this.containerRef.current) return;
-    
-    try {
-      const { jsPDF } = await import('jspdf');
-      const html2canvas = await import('html2canvas');
-      
-      const canvas = await html2canvas.default(this.containerRef.current, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true
-      });
-      
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      
-      const imgWidth = 210; // A4 width in mm
-      const pageHeight = 295; // A4 height in mm
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      let heightLeft = imgHeight;
-      let position = 0;
-      
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-      
-      while (heightLeft >= 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-      }
-      
-      const filename = `${this.getFullName().replace(/\s+/g, '_')}_resume.pdf`;
-      pdf.save(filename);
-    } catch (error) {
-      console.error('Error exporting to PDF:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Export to PNG
-   */
-  async exportToPNG(): Promise<string> {
-    if (!this.containerRef.current) return '';
-    
-    try {
-      const html2canvas = await import('html2canvas');
-      const canvas = await html2canvas.default(this.containerRef.current, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true
-      });
-      
-      return canvas.toDataURL('image/png');
-    } catch (error) {
-      console.error('Error exporting to PNG:', error);
-      throw error;
-    }
-  }
-
-  /**
    * Abstract method for template rendering
    * Must be implemented in each specific template
    */
@@ -133,12 +67,12 @@ export abstract class BaseTemplate extends React.Component<BaseTemplateProps, {}
     if (!this.props.isPreview) {
       return this.renderTemplate();
     }
-    
+
     // For preview - scalable container (if needed)
     const a4Width = 794; // ~210mm
     const a4Height = 1123; // ~297mm
     const scale = this.props.scale ?? 0.4;
-    
+
     return (
       <Box
         sx={{
