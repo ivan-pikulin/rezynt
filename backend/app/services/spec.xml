@@ -255,7 +255,7 @@
                     <returns type="tuple[bytes, str]">Кортеж из байтов PDF и имени файла</returns>
                     <watermark_support>Условно применяет водяные знаки в зависимости от параметра use_watermark</watermark_support>
                     <premium_logic>Водяные знаки применяются только для не-премиум пользователей</premium_logic>
-                    <page_format>A4 размер с отступами 0.75 дюйма</page_format>
+                    <page_format>A4 размер без отступов (margin: 0)</page_format>
                 </method>
                 <method>
                     <name>_get_watermark_css</name>

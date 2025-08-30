@@ -28,7 +28,7 @@ export class TeroTemplate extends BaseTemplate {
           display: 'flex',
           flexDirection: 'column',
           '@media print': {
-            padding: '15px',
+            padding: '38px 30px',
             overflow: 'hidden'
           }
         }}>

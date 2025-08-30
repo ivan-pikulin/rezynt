@@ -18,7 +18,7 @@ export class VeroTemplate extends BaseTemplate {
           overflow: 'hidden',
           fontSize: '12px',
           lineHeight: 1.4,
-          padding: '15px'
+          padding: '38px 30px'
         }
       }}>
         {/* Header - Centered Name and Contact */}

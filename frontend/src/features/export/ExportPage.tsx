@@ -58,6 +58,9 @@ const ExportPage: React.FC = () => {
       // Get full HTML with CSS styles
       const fullHtml = getFullHTMLWithStyles(templateContainerRef.current);
       
+      // Log the final HTML for debugging
+      console.log('Final HTML for export:', fullHtml);
+      
       // Use real data for filename
       const displayData = convertApiResumeToDisplayData(resume);
       const fullName = `${displayData.first_name || ''} ${displayData.last_name || ''}`.trim();

@@ -30,7 +30,7 @@ export class LumaTemplate extends BaseTemplate {
           flexDirection: 'column',
           '@media print': {
             width: '200px',
-            padding: '15px',
+            padding: '38px 30px',
             overflow: 'hidden'
           }
         }}>
@@ -99,7 +99,7 @@ export class LumaTemplate extends BaseTemplate {
           display: 'flex',
           flexDirection: 'column',
           '@media print': {
-            padding: '15px',
+            padding: '38px 30px',
             overflow: 'hidden'
           }
         }}>
