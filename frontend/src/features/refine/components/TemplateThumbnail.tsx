@@ -10,6 +10,8 @@ interface TemplateThumbnailProps {
   resumeData: any;
   isSelected?: boolean;
   onSelect?: () => void;
+  onHover?: (template: TemplateConfig) => void;
+  onHoverEnd?: () => void;
   horizontal?: boolean;
 }
 
@@ -18,6 +20,8 @@ const TemplateThumbnail: React.FC<TemplateThumbnailProps> = ({
   resumeData, 
   isSelected = false, 
   onSelect,
+  onHover,
+  onHoverEnd,
   horizontal = false
 }) => {
   if (horizontal) {
@@ -26,6 +30,8 @@ const TemplateThumbnail: React.FC<TemplateThumbnailProps> = ({
         {/* Карточка с шаблоном */}
         <Card 
           onClick={onSelect}
+          onMouseEnter={() => onHover?.(template)}
+          onMouseLeave={onHoverEnd}
           sx={{
             p: 0,
             m: 0,
@@ -87,6 +93,8 @@ const TemplateThumbnail: React.FC<TemplateThumbnailProps> = ({
       {/* Карточка с шаблоном */}
       <Card 
         onClick={onSelect}
+        onMouseEnter={() => onHover?.(template)}
+        onMouseLeave={onHoverEnd}
         sx={{
           p: 0,
           m: 0,

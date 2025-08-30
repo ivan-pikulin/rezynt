@@ -6,12 +6,21 @@ import TemplateThumbnail from './TemplateThumbnail';
 
 interface TemplateSelectorProps {
   onTemplateChange?: (template: TemplateConfig) => void;
+  onTemplateHover?: (template: TemplateConfig) => void;
+  onTemplateHoverEnd?: () => void;
   horizontalLayout?: boolean;
   selectedTemplate?: TemplateConfig | null;
   resumeData?: any; // Реальные данные резюме для превью
 }
 
-const TemplateSelector: React.FC<TemplateSelectorProps> = ({ onTemplateChange, horizontalLayout = false, selectedTemplate: externalSelectedTemplate, resumeData }) => {
+const TemplateSelector: React.FC<TemplateSelectorProps> = ({ 
+  onTemplateChange, 
+  onTemplateHover, 
+  onTemplateHoverEnd, 
+  horizontalLayout = false, 
+  selectedTemplate: externalSelectedTemplate, 
+  resumeData 
+}) => {
   const templates = TemplateService.getTemplates();
   const [internalSelectedTemplate, setInternalSelectedTemplate] = useState<TemplateConfig | null>(
     externalSelectedTemplate || templates[0]
@@ -62,6 +71,8 @@ const TemplateSelector: React.FC<TemplateSelectorProps> = ({ onTemplateChange, h
               resumeData={previewData}
               isSelected={selectedTemplate?.id === template.id}
               onSelect={() => handleTemplateSelect(template)}
+              onHover={onTemplateHover}
+              onHoverEnd={onTemplateHoverEnd}
               horizontal={true}
             />
           </Box>
@@ -91,6 +102,8 @@ const TemplateSelector: React.FC<TemplateSelectorProps> = ({ onTemplateChange, h
             resumeData={previewData}
             isSelected={selectedTemplate?.id === template.id}
             onSelect={() => handleTemplateSelect(template)}
+            onHover={onTemplateHover}
+            onHoverEnd={onTemplateHoverEnd}
           />
         ))}
       </Box>

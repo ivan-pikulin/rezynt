@@ -42,6 +42,7 @@ const RefinePage: React.FC = () => {
   const [titleValue, setTitleValue] = useState('');
   const [isDownloading, setIsDownloading] = useState(false);
   const [activeLeftPanel, setActiveLeftPanel] = useState<'editor' | 'templates'>('editor');
+  const [hoverTemplate, setHoverTemplate] = useState<TemplateConfig | null>(null);
   const templateContainerRef = useRef<HTMLDivElement>(null);
 
   // Устанавливаем заголовок при загрузке резюме
@@ -77,6 +78,15 @@ const RefinePage: React.FC = () => {
         // В случае ошибки можно показать уведомление пользователю
       }
     }
+  };
+
+  // Обработчики для hover-событий шаблонов
+  const handleTemplateHover = (template: TemplateConfig) => {
+    setHoverTemplate(template);
+  };
+
+  const handleTemplateHoverEnd = () => {
+    setHoverTemplate(null);
   };
 
   // Обработчик редактирования заголовка
@@ -500,6 +510,8 @@ const RefinePage: React.FC = () => {
               }}>
                 <TemplateSelector 
                   onTemplateChange={handleTemplateChange}
+                  onTemplateHover={handleTemplateHover}
+                  onTemplateHoverEnd={handleTemplateHoverEnd}
                   horizontalLayout={true}
                   selectedTemplate={selectedTemplate}
                   resumeData={displayData}
@@ -544,6 +556,8 @@ const RefinePage: React.FC = () => {
               }}>
                 <TemplateSelector 
                   onTemplateChange={handleTemplateChange}
+                  onTemplateHover={handleTemplateHover}
+                  onTemplateHoverEnd={handleTemplateHoverEnd}
                   horizontalLayout={false}
                   selectedTemplate={selectedTemplate}
                   resumeData={displayData}
@@ -584,7 +598,7 @@ const RefinePage: React.FC = () => {
             <ResumeRenderer 
               data={displayData} 
               scale={0.8} 
-              templateId={selectedTemplate?.id}
+              templateId={hoverTemplate?.id || selectedTemplate?.id}
               isPreview={true}
             />
             
@@ -698,7 +712,7 @@ const RefinePage: React.FC = () => {
             <ResumeRenderer 
               data={displayData} 
               scale={0.6} 
-              templateId={selectedTemplate?.id}
+              templateId={hoverTemplate?.id || selectedTemplate?.id}
               isPreview={true}
             />
             
