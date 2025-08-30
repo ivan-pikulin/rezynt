@@ -145,8 +145,8 @@ const ResumesPage: React.FC = () => {
             <Box key={resume.id}>
                               <Card 
                   sx={{ 
-                    width: '140px',
-                    height: '200px',
+                    width: '160px',
+                    height: '220px',
                     cursor: 'pointer',
                     transition: 'all 0.3s ease',
                     bgcolor: COLORS.auth.card.background,
@@ -188,11 +188,11 @@ const ResumesPage: React.FC = () => {
                     overflow: 'hidden',
                     borderRadius: '4px',
                     bgcolor: COLORS.auth.card.background,
-                    p: 1
+                    p: 0.5
                   }}>
                     <ResumeRenderer 
                       data={convertResumeToDemoData(resume)} 
-                      scale={0.19} 
+                      scale={0.13} 
                       templateId={resume.template_slug || 'nume'}
                       fitToContainer={false}
                     />
@@ -206,8 +206,8 @@ const ResumesPage: React.FC = () => {
           <Box>
             <Card 
               sx={{ 
-                width: '140px',
-                height: '200px',
+                                  width: '160px',
+                  height: '220px',
                 cursor: 'pointer',
                 transition: 'all 0.3s ease',
                 border: `2px dashed ${COLORS.common.border}`,

@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import TemplateThumbnail from './TemplateThumbnail';
+import React, { useEffect, useState } from 'react';
 import { TemplateService } from '../../../shared/services/templateService';
 import { TemplateConfig } from '../../../shared/types/resume';
+import TemplateThumbnail from './TemplateThumbnail';
 
 interface TemplateSelectorProps {
   onTemplateChange?: (template: TemplateConfig) => void;

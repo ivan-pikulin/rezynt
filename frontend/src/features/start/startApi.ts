@@ -40,7 +40,7 @@ export const startApi = {
   startFromScratch: async (): Promise<Resume> => {
     // Создаем резюме с template_slug (используем первый доступный темплейт)
     const resume = await resumeApi.createResume({
-      title: 'New Resume',
+      title: 'My Resume',
       template_slug: 'nume', // Default template
       professional_summary: ''
     });
