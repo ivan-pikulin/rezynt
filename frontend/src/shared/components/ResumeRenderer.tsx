@@ -97,7 +97,7 @@ const ResumeRenderer: React.FC<ResumeRendererProps> = ({
     >
       <Box
         sx={{
-          // For preview use aspectRatio, for export - fixed dimensions with padding
+          // For preview use aspectRatio, for export - fixed dimensions
           ...(isPreview ? {
             width: '100%',
             aspectRatio: '210 / 297', // A4 ratio
