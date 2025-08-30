@@ -111,7 +111,7 @@ const ResumeRenderer: React.FC<ResumeRendererProps> = ({
           justifyContent: 'center',
           alignItems: 'center',
           borderRadius: isPreview ? '12px' : '0',
-          boxShadow: isPreview ? '0 8px 32px rgba(0, 0, 0, 0.12)' : 'none',
+          boxShadow: 'none',
           overflow: 'hidden',
           backgroundColor: 'white',
           position: 'relative'

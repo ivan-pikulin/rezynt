@@ -96,7 +96,6 @@ export abstract class BaseTemplate extends React.Component<BaseTemplateProps, {}
             borderRadius: '8px',
             overflow: 'hidden',
             flexShrink: 0,
-            border: '2px solid #e0e0e0',
             transition: 'all 0.3s ease-in-out',
             m: 0,
             p: 0

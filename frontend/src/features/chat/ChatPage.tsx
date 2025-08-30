@@ -134,34 +134,19 @@ const ChatPage: React.FC = () => {
           
           {/* Правая часть: превью (скрыто на мобильных по умолчанию) */}
           <Box sx={{ 
-            width: { xs: 0, sm: '400px' }, // Уменьшаем ширину для лучшего размещения
-            minWidth: { xs: 0, sm: '400px' }, // Уменьшаем минимальную ширину
-            maxWidth: { xs: 0, sm: '400px' }, // Добавляем максимальную ширину
-            display: { xs: 'none', sm: 'flex' }, // Скрываем на мобильных
-            flexDirection: 'column',
+            width: { xs: 0, sm: '400px' },
+            display: { xs: 'none', sm: 'flex' },
             justifyContent: 'center',
             alignItems: 'center',
-            p: 2,
-            flexShrink: 0 // Предотвращаем сжатие
+            p: 2
           }}>
-            {/* Превью резюме */}
-            <Box sx={{ 
-              width: '100%',
-              height: '600px',
-              display: 'flex', 
-              justifyContent: 'center', 
-              alignItems: 'center',
-              position: 'relative',
-              overflow: 'hidden'
-            }}>
-              {resumeData && (
-                <ResumeRenderer 
-                  data={convertApiResumeToResumeData(resumeData)} 
-                  scale={0.35} // Уменьшаем масштаб для лучшего размещения
-                  templateId={selectedTemplate?.id}
-                />
-              )}
-            </Box>
+            {resumeData && (
+              <ResumeRenderer 
+                data={convertApiResumeToResumeData(resumeData)} 
+                scale={0.35}
+                templateId={selectedTemplate?.id}
+              />
+            )}
           </Box>
         </Box>
       </Box>
@@ -209,31 +194,18 @@ const ChatPage: React.FC = () => {
         <Box sx={{
           flex: 1,
           display: 'flex',
-          flexDirection: 'column',
           justifyContent: 'center',
           alignItems: 'center',
           p: 2,
           overflow: 'auto'
         }}>
-          {/* Превью резюме */}
-          <Box sx={{ 
-            width: '100%',
-            maxWidth: '600px', // Увеличиваем максимальную ширину с 500px до 600px
-            display: 'flex', 
-            justifyContent: 'center', 
-            alignItems: 'flex-start',
-            position: 'relative',
-            overflow: 'hidden',
-            '--resume-scale': '0.6' // Уменьшаем масштаб для лучшего размещения
-          }}>
-            {resumeData && (
-              <ResumeRenderer 
-                data={convertApiResumeToResumeData(resumeData)} 
-                scale={0.6}
-                templateId={selectedTemplate?.id}
-              />
-            )}
-          </Box>
+          {resumeData && (
+            <ResumeRenderer 
+              data={convertApiResumeToResumeData(resumeData)} 
+              scale={0.6}
+              templateId={selectedTemplate?.id}
+            />
+          )}
         </Box>
       </Box>
     </Box>
