@@ -4,6 +4,7 @@ import React from 'react';
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import { AuthProvider } from './shared/contexts/AuthContext';
 import ProtectedRoute from './shared/components/ProtectedRoute';
+import OnboardingGuard from './shared/components/OnboardingGuard';
 
 // Create a client
 const queryClient = new QueryClient();
@@ -43,32 +44,44 @@ function AppRoutes() {
         {/* Protected routes */}
         <Route path="/resumes" element={
           <ProtectedRoute requireAuth={true}>
-            <ResumesPage />
+            <OnboardingGuard>
+              <ResumesPage />
+            </OnboardingGuard>
           </ProtectedRoute>
         } />
         <Route path="/start" element={
           <ProtectedRoute requireAuth={true}>
-            <StartPage />
+            <OnboardingGuard>
+              <StartPage />
+            </OnboardingGuard>
           </ProtectedRoute>
         } />
         <Route path="/chat" element={
           <ProtectedRoute requireAuth={true}>
-            <ChatPage />
+            <OnboardingGuard>
+              <ChatPage />
+            </OnboardingGuard>
           </ProtectedRoute>
         } />
         <Route path="/refine" element={
           <ProtectedRoute requireAuth={true}>
-            <RefinePage />
+            <OnboardingGuard>
+              <RefinePage />
+            </OnboardingGuard>
           </ProtectedRoute>
         } />
         <Route path="/export" element={
           <ProtectedRoute requireAuth={true}>
-            <ExportPage />
+            <OnboardingGuard>
+              <ExportPage />
+            </OnboardingGuard>
           </ProtectedRoute>
         } />
         <Route path="/" element={
           <ProtectedRoute requireAuth={true}>
-            <HomeRedirect />
+            <OnboardingGuard>
+              <HomeRedirect />
+            </OnboardingGuard>
           </ProtectedRoute>
         } />
       </Routes>

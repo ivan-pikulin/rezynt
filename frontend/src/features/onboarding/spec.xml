@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature>
+  <name>User Onboarding</name>
+  <description>
+    Onboarding flow for new users to collect initial preferences and information.
+    Shows after user registration and email verification but before first login.
+  </description>
+  
+  <components>
+    <component name="OnboardingPage">
+      <description>Multi-step onboarding form with 4 questions about user experience and goals</description>
+      <props>
+        <prop name="None">Uses context and navigation hooks internally</prop>
+      </props>
+      <features>
+        <feature>Header integration with onboarding title display</feature>
+        <feature>Arrow navigation (left/right) instead of text buttons</feature>
+        <feature>Left arrow hidden on first step</feature>
+        <feature>Radio button selection for each question</feature>
+        <feature>Validation to ensure all questions are answered</feature>
+        <feature>API integration to save responses and mark onboarding complete</feature>
+        <feature>Error handling and loading states</feature>
+      </features>
+    </component>
+  </components>
+  
+  <questions>
+    <question id="experience">
+      <text>How many years of work experience do you have?</text>
+      <options>
+        <option>no experience</option>
+        <option>1-2 years</option>
+        <option>3-5 years</option>
+        <option>6-10 years</option>
+        <option>10+ years</option>
+      </options>
+    </question>
+    
+    <question id="job_search_status">
+      <text>Are you currently looking for a job?</text>
+      <options>
+        <option>Yes, actively</option>
+        <option>Soon, preparing</option>
+        <option>No, just exploring</option>
+      </options>
+    </question>
+    
+    <question id="background_field">
+      <text>Which field best describes your background?</text>
+      <options>
+        <option>Tech / Software / Engineering</option>
+        <option>Business / Marketing / Finance / Sales</option>
+        <option>Design / Content / Creative</option>
+        <option>Delivery / Security / Manual labor</option>
+        <option>Student</option>
+        <option>Other</option>
+      </options>
+    </question>
+    
+    <question id="resume_goal">
+      <text>What's your goal with this resume?</text>
+      <options>
+        <option>Get a better job</option>
+        <option>Change careers</option>
+        <option>Find part-time or first job</option>
+        <option>Just testing</option>
+      </options>
+    </question>
+  </questions>
+  
+  <api>
+    <endpoint method="POST" path="/user/onboarding/complete">
+      <description>Complete user onboarding by saving responses</description>
+      <request>
+        <field name="responses" type="OnboardingResponse" required="true">
+          <description>Object containing all onboarding question responses</description>
+        </field>
+      </request>
+      <response>
+        <field name="user" type="User">
+          <description>Updated user object with onboarding completed</description>
+        </field>
+      </response>
+    </endpoint>
+  </api>
+  
+  <integration>
+    <context>AuthContext</context>
+    <description>Updates user data in context after successful onboarding completion</description>
+    <navigation>Redirects to home page after completion</navigation>
+    <header>
+      <component>Header</component>
+      <mode>onboarding</mode>
+      <features>
+        <feature>Displays onboarding title instead of steps</feature>
+        <feature>Shows logo (non-clickable)</feature>
+        <feature>Hides user avatar</feature>
+        <feature>Hides navigation buttons</feature>
+      </features>
+    </header>
+  </integration>
+</feature>

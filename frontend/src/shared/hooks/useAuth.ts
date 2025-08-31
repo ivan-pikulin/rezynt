@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TokenResponse } from '../../features/auth/types/auth';
 import { tokenService } from '../services/api/tokenService';
@@ -20,25 +20,17 @@ export const useAuth = (): UseAuthReturn => {
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<User | null>(null);
   const navigate = useNavigate();
+  const hasInitialized = useRef(false);
 
-  // Функция для загрузки данных пользователя
-  const loadUserData = useCallback(async () => {
-    try {
-      const userData = await userApi.getCurrentUser();
-      setUser(userData);
-    } catch (error) {
-      console.error('Error loading user data:', error);
-      // Если не удалось загрузить данные пользователя, возможно токен недействителен
-      tokenService.clearTokens();
-      setIsAuthenticated(false);
-      setUser(null);
-    }
-  }, []);
+
 
   // Проверяем токены при загрузке
   useEffect(() => {
+    if (hasInitialized.current) return;
+    
     const checkAuth = async () => {
       try {
+        hasInitialized.current = true;
         const accessToken = tokenService.getAccessToken();
         const refreshToken = tokenService.getRefreshToken();
 
@@ -58,14 +50,19 @@ export const useAuth = (): UseAuthReturn => {
           if (!success) {
             tokenService.clearTokens();
             setIsAuthenticated(false);
-          } else {
-            // После успешного обновления токена загружаем данные пользователя
-            await loadUserData();
           }
         } else {
           setIsAuthenticated(true);
           // Токен валиден, загружаем данные пользователя
-          await loadUserData();
+          try {
+            const userData = await userApi.getCurrentUser();
+            setUser(userData);
+          } catch (error) {
+            console.error('Error loading user data:', error);
+            tokenService.clearTokens();
+            setIsAuthenticated(false);
+            setUser(null);
+          }
         }
       } catch (error) {
         console.error('Auth check error:', error);
@@ -77,7 +74,7 @@ export const useAuth = (): UseAuthReturn => {
     };
 
     checkAuth();
-  }, [loadUserData]);
+  }, []);
 
   const refreshTokens = useCallback(async (): Promise<boolean> => {
     try {
@@ -90,7 +87,16 @@ export const useAuth = (): UseAuthReturn => {
       tokenService.storeTokens(newTokens);
       setIsAuthenticated(true);
       // Загружаем данные пользователя после обновления токена
-      await loadUserData();
+      try {
+        const userData = await userApi.getCurrentUser();
+        setUser(userData);
+      } catch (error) {
+        console.error('Error loading user data after token refresh:', error);
+        tokenService.clearTokens();
+        setIsAuthenticated(false);
+        setUser(null);
+        return false;
+      }
       return true;
     } catch (error) {
       console.error('Token refresh error:', error);
@@ -99,14 +105,22 @@ export const useAuth = (): UseAuthReturn => {
       setUser(null);
       return false;
     }
-  }, [loadUserData]);
+  }, []);
 
   const login = useCallback(async (tokens: TokenResponse) => {
     tokenService.storeTokens(tokens);
     setIsAuthenticated(true);
     // Загружаем данные пользователя после логина
-    await loadUserData();
-  }, [loadUserData]);
+    try {
+      const userData = await userApi.getCurrentUser();
+      setUser(userData);
+    } catch (error) {
+      console.error('Error loading user data after login:', error);
+      tokenService.clearTokens();
+      setIsAuthenticated(false);
+      setUser(null);
+    }
+  }, []);
 
   const logout = useCallback(() => {
     tokenService.clearTokens();

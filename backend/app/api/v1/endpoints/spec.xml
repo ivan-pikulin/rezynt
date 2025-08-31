@@ -21,6 +21,7 @@
             <endpoints>
                 <endpoint path="/user/me" method="GET" description="Get current user profile"/>
                 <endpoint path="/user/me" method="PUT" description="Update current user profile"/>
+                <endpoint path="/user/onboarding/complete" method="POST" description="Complete user onboarding by saving responses"/>
             </endpoints>
         </module>
         

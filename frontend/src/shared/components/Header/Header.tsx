@@ -7,6 +7,7 @@ import Stepper from '@mui/material/Stepper';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -28,7 +29,9 @@ const Header: React.FC<HeaderProps> = ({
   showSteps = true,
   isProUser = false,
   currentTab = 'resumes',
-  onTabChange
+  onTabChange,
+  isOnboarding = false,
+  onboardingTitle = 'Welcome to Rezynt!'
 }) => {
   const { user } = useAuthContext();
   const navigate = useNavigate();
@@ -51,7 +54,9 @@ const Header: React.FC<HeaderProps> = ({
   };
 
   const handleLogoClick = () => {
-    navigate('/');
+    if (!isOnboarding) {
+      navigate('/');
+    }
   };
 
   const getPreviousStepName = (step: number) => {
@@ -101,9 +106,9 @@ const Header: React.FC<HeaderProps> = ({
           sx={{ 
             display: isMobile ? 'none' : 'flex', // Скрываем на мобильных
             alignItems: 'center',
-            cursor: 'pointer',
+            cursor: isOnboarding ? 'default' : 'pointer',
             '&:hover': {
-              opacity: 0.8
+              opacity: isOnboarding ? 1 : 0.8
             },
             transition: 'opacity 0.2s ease'
           }}
@@ -128,7 +133,37 @@ const Header: React.FC<HeaderProps> = ({
         justifyContent: 'center',
         gap: 0
       }}>
-        {isPro ? (
+        {isOnboarding ? (
+          /* Onboarding title and subtitle */
+          <Box sx={{ textAlign: 'center' }}>
+            <Typography 
+              variant="h5" 
+              component="h1"
+              sx={{
+                fontWeight: 600,
+                color: COLORS.primary.main,
+                fontSize: isMobile ? '1.25rem' : '1.5rem',
+                textAlign: 'center',
+                mb: 1
+              }}
+            >
+              {onboardingTitle}
+            </Typography>
+            <Typography 
+              variant="body2" 
+              component="p"
+              sx={{
+                fontWeight: 400,
+                color: 'text.secondary',
+                opacity: 0.7,
+                fontSize: isMobile ? '0.875rem' : '1rem',
+                textAlign: 'center'
+              }}
+            >
+              Let's get to know you better to personalize your experience
+            </Typography>
+          </Box>
+        ) : isPro ? (
           /* Tabs for pro users */
           <Box sx={{
             width: isMobile ? '300px' : '400px',
@@ -271,36 +306,38 @@ const Header: React.FC<HeaderProps> = ({
         )}
       </Box>
 
-      {/* Аватар пользователя справа */}
-      <Box sx={{ 
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'flex-end'
-      }}>
-        <Tooltip title="Profile">
-          <IconButton
-            onClick={handleAvatarClick}
-            sx={{
-              p: 0,
-              '&:hover': {
-                transform: 'scale(1.05)'
-              }
-            }}
-          >
-            <Avatar
+      {/* Аватар пользователя справа - скрываем в режиме онбординга */}
+      {!isOnboarding && (
+        <Box sx={{ 
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'flex-end'
+        }}>
+          <Tooltip title="Profile">
+            <IconButton
+              onClick={handleAvatarClick}
               sx={{
-                width: 40,
-                height: 40,
-                bgcolor: COLORS.primary.main,
-                fontSize: '1.2rem',
-                fontWeight: 600
+                p: 0,
+                '&:hover': {
+                  transform: 'scale(1.05)'
+                }
               }}
             >
-              {user ? getInitials(user.email) : 'U'}
-            </Avatar>
-          </IconButton>
-        </Tooltip>
-      </Box>
+              <Avatar
+                sx={{
+                  width: 40,
+                  height: 40,
+                  bgcolor: COLORS.primary.main,
+                  fontSize: '1.2rem',
+                  fontWeight: 600
+                }}
+              >
+                {user ? getInitials(user.email) : 'U'}
+              </Avatar>
+            </IconButton>
+          </Tooltip>
+        </Box>
+      )}
       
       {/* Боковая панель пользователя */}
       <UserSidebar 

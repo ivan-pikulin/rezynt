@@ -8,13 +8,16 @@
     
     <models>
         <model name="User">
-            <description>User account model with authentication and subscription data</description>
+            <description>User account model with authentication, subscription data, and onboarding information</description>
             <fields>
                 <field name="id" type="Integer" primary_key="true" autoincrement="true"/>
                 <field name="email" type="String" unique="true" nullable="false"/>
-                <field name="hashed_password" type="String" nullable="false"/>
+                <field name="password_hash" type="String" nullable="false"/>
                 <field name="is_verified" type="Boolean" default="false"/>
                 <field name="is_premium" type="Boolean" default="false"/>
+                <field name="has_completed_onboarding" type="Boolean" default="false"/>
+                <field name="onboarding_responses" type="JSON" nullable="true"/>
+                <field name="credits" type="Integer" default="100"/>
                 <field name="created_at" type="TIMESTAMP" server_default="func.now()"/>
                 <field name="updated_at" type="TIMESTAMP" server_default="func.now()" onupdate="func.now()"/>
             </fields>
@@ -165,6 +168,17 @@
                 - Used to determine which platform AI agent to use
                 - Affects welcome messages and chat behavior
                 - Different platform keys for scratch vs upload workflows
+            </implementation>
+        </feature>
+        
+        <feature name="User Onboarding">
+            <description>Track user onboarding completion and store onboarding responses</description>
+            <implementation>
+                - has_completed_onboarding field in User model (Boolean, default false)
+                - onboarding_responses field in User model (JSON, nullable)
+                - Used to show onboarding flow to new users after email verification
+                - Stores user preferences for personalization
+                - Prevents showing onboarding multiple times
             </implementation>
         </feature>
     </features>

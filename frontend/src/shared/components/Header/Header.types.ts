@@ -14,4 +14,8 @@ export interface HeaderProps {
   isProUser?: boolean;
   currentTab?: string;
   onTabChange?: (tab: 'resumes' | 'ai-writer' | 'editor') => void;
+  
+  // Props for onboarding mode
+  isOnboarding?: boolean;
+  onboardingTitle?: string;
 } 

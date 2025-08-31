@@ -3,7 +3,7 @@ from typing import Any, Dict, Optional, Union
 from app.core.security import get_password_hash, verify_password
 from app.database.crud.base import CRUDBase
 from app.database.models import User
-from app.schemas import UserCreate, UserUpdate
+from app.schemas import UserCreate, UserUpdate, OnboardingResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -95,6 +95,18 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         """
         user = await self.get(db, id=user_id)
         return user is not None and user.credits > 0
+
+    async def complete_onboarding(self, db: AsyncSession, *, user_id: int, responses: OnboardingResponse) -> Optional[User]:
+        """
+        Complete user onboarding by saving responses and marking onboarding as completed.
+        """
+        user = await self.get(db, id=user_id)
+        if user:
+            user.has_completed_onboarding = True
+            user.onboarding_responses = responses.model_dump()
+            await db.commit()
+            await db.refresh(user)
+        return user
 
 
 user_crud = CRUDUser(User)

@@ -22,6 +22,13 @@ export interface User {
   email: string;
   is_verified: boolean;
   is_premium: boolean;
+  has_completed_onboarding: boolean;
+  onboarding_responses?: {
+    experience: string;
+    job_search_status: string;
+    background_field: string;
+    resume_goal: string;
+  };
   credits: number;
   created_at: string;
   updated_at: string;

@@ -1,6 +1,17 @@
 import { BaseApi } from './baseApi';
 import { User } from './types';
 
+export interface OnboardingResponse {
+  experience: string;
+  job_search_status: string;
+  background_field: string;
+  resume_goal: string;
+}
+
+export interface OnboardingComplete {
+  responses: OnboardingResponse;
+}
+
 export class UserApi extends BaseApi {
   /**
    * Get current user profile
@@ -36,6 +47,13 @@ export class UserApi extends BaseApi {
         Authorization: `Bearer ${adminToken}`
       }
     });
+  }
+
+  /**
+   * Complete user onboarding
+   */
+  async completeOnboarding(data: OnboardingComplete): Promise<User> {
+    return this.post<User>('/user/onboarding/complete', data);
   }
 }
 

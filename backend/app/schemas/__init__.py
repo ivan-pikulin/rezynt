@@ -15,9 +15,10 @@ from .resume import (AIResumeUpdate, OpenAIStructuredResume, PDFExportRequest,
                      UnifiedResumeExperience)
 
 from .token import RefreshRequest, Token, TokenPayload
-from .user import (PasswordResetConfirm, PasswordResetRequest, User, UserBase,
-                   UserCreate, UserInDB, UserInDBBase, UserPremiumUpdate,
-                   UserPublic, UserRoleUpdate, UserUpdate)
+from .user import (OnboardingComplete, OnboardingResponse, PasswordResetConfirm, 
+                   PasswordResetRequest, User, UserBase, UserCreate, UserInDB, 
+                   UserInDBBase, UserPremiumUpdate, UserPublic, UserRoleUpdate, 
+                   UserUpdate)
 
 __all__ = [
     "User",
@@ -79,4 +80,6 @@ __all__ = [
     "RefreshRequest",
     "PasswordResetRequest",
     "PasswordResetConfirm",
+    "OnboardingResponse",
+    "OnboardingComplete",
 ] 

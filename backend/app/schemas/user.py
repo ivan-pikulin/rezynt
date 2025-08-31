@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Dict, Any
 
 from pydantic import BaseModel, EmailStr
 
@@ -23,6 +23,8 @@ class UserInDBBase(UserBase):
     password_hash: str
     is_verified: bool
     is_premium: bool
+    has_completed_onboarding: bool
+    onboarding_responses: Optional[Dict[str, Any]] = None
     credits: int
     created_at: datetime
     updated_at: datetime
@@ -35,6 +37,8 @@ class UserPublic(UserBase):
     id: int
     is_verified: bool
     is_premium: bool
+    has_completed_onboarding: bool
+    onboarding_responses: Optional[Dict[str, Any]] = None
     credits: int
     created_at: datetime
     updated_at: datetime
@@ -66,3 +70,15 @@ class PasswordResetRequest(BaseModel):
 class PasswordResetConfirm(BaseModel):
     token: str
     new_password: str
+
+
+# Onboarding schemas
+class OnboardingResponse(BaseModel):
+    experience: str
+    job_search_status: str
+    background_field: str
+    resume_goal: str
+
+
+class OnboardingComplete(BaseModel):
+    responses: OnboardingResponse

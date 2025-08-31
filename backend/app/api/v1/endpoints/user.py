@@ -51,3 +51,33 @@ async def disable_premium(
             detail="User not found"
         )
     return user
+
+
+@router.post("/onboarding/complete", response_model=user_schemas.UserPublic)
+async def complete_onboarding(
+    onboarding_data: user_schemas.OnboardingComplete,
+    db: AsyncDB,
+    current_user: CurrentUser,
+) -> user_schemas.UserPublic:
+    """
+    Complete user onboarding by saving responses.
+    """
+    if current_user.has_completed_onboarding:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Onboarding already completed"
+        )
+    
+    user = await user_crud.complete_onboarding(
+        db, 
+        user_id=current_user.id, 
+        responses=onboarding_data.responses
+    )
+    
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    
+    return user

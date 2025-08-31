@@ -4,7 +4,10 @@
     "saving": "Saving...",
     "cancel": "Cancel",
     "loading": "Loading...",
-    "loadingResumes": "Loading your resumes..."
+    "loadingResumes": "Loading your resumes...",
+    "next": "Next",
+    "back": "Back",
+    "complete": "Complete"
   },
   "credits": {
     "remaining": "credits remaining",
@@ -158,5 +161,44 @@
     "preview": {
       "title": "Resume Preview"
     }
+  },
+  "onboarding": {
+    "title": "Welcome to Rezynt!",
+    "subtitle": "Let's get to know you better to personalize your experience",
+    "questions": {
+      "experience": "How many years of work experience do you have?",
+      "jobSearch": "Are you currently looking for a job?",
+      "background": "Which field best describes your background?",
+      "goal": "What's your goal with this resume?"
+    },
+    "options": {
+      "experience": {
+        "noExperience": "no experience",
+        "oneToTwo": "1-2 years",
+        "threeToFive": "3-5 years",
+        "sixToTen": "6-10 years",
+        "tenPlus": "10+ years"
+      },
+      "jobSearch": {
+        "actively": "Yes, actively",
+        "preparing": "Soon, preparing",
+        "exploring": "No, just exploring"
+      },
+      "background": {
+        "tech": "Tech / Software / Engineering",
+        "business": "Business / Marketing / Finance / Sales",
+        "design": "Design / Content / Creative",
+        "manual": "Delivery / Security / Manual labor",
+        "student": "Student",
+        "other": "Other"
+      },
+      "goal": {
+        "betterJob": "Get a better job",
+        "changeCareer": "Change careers",
+        "firstJob": "Find part-time or first job",
+        "testing": "Just testing"
+      }
+    },
+    "error": "Failed to complete onboarding. Please try again."
   }
 }
