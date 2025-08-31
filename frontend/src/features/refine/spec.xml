@@ -40,6 +40,8 @@
                 <feature name="real_time_updates" desc="Updates resume data in real-time as user edits"/>
                 <feature name="error_handling" desc="Displays loading states and error messages"/>
                 <feature name="download_button" desc="Download button positioned below resume preview"/>
+                <feature name="mobile_preview_button" desc="Eye button for mobile preview - shows preview panel only when clicked"/>
+                <feature name="responsive_layout" desc="Mobile-first responsive design with custom 768px breakpoint"/>
                 <feature name="i18n_support" desc="Full internationalization support for English and Russian languages"/>
             </features>
         </component>
@@ -200,7 +202,9 @@
 
     <ui_features>
         <feature name="tabbed_interface" desc="Organized tabs for different resume sections"/>
-        <feature name="responsive_design" desc="Adaptive layout for different screen sizes"/>
+        <feature name="responsive_design" desc="Adaptive layout for different screen sizes with custom 768px breakpoint"/>
+        <feature name="mobile_preview_panel" desc="Full-screen preview panel for mobile devices with eye button toggle"/>
+        <feature name="desktop_split_view" desc="Split view with editor on left and preview on right for desktop"/>
         <feature name="loading_indicators" desc="Visual feedback during operations"/>
         <feature name="error_messages" desc="User-friendly error display"/>
         <feature name="success_notifications" desc="Confirmation of successful operations"/>

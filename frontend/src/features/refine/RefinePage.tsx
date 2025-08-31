@@ -3,6 +3,7 @@ import DownloadIcon from '@mui/icons-material/Download';
 import EditIcon from '@mui/icons-material/Edit';
 import ViewModuleIcon from '@mui/icons-material/ViewModule';
 import PersonIcon from '@mui/icons-material/Person';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import CircularProgress from '@mui/material/CircularProgress';
 import Tooltip from '@mui/material/Tooltip';
 import Box from '@mui/material/Box';
@@ -27,6 +28,7 @@ import { convertApiResumeToDisplayData } from './utils/resumeDataConverter';
 import { TemplateConfig } from '../../shared/types/resume';
 import { COLORS } from '../../shared/theme/theme';
 import { exportApi } from '../export/exportApi';
+import { useMediaQuery } from '@mui/material';
 
 const RefinePage: React.FC = () => {
   const { t } = useTranslation();
@@ -44,6 +46,9 @@ const RefinePage: React.FC = () => {
   const [activeLeftPanel, setActiveLeftPanel] = useState<'editor' | 'templates'>('editor');
   const [hoverTemplate, setHoverTemplate] = useState<TemplateConfig | null>(null);
   const templateContainerRef = useRef<HTMLDivElement>(null);
+  
+  // Определяем мобильный режим для экранов до 768px
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   // Устанавливаем заголовок при загрузке резюме
   useEffect(() => {
@@ -377,7 +382,7 @@ const RefinePage: React.FC = () => {
 
         {/* Левая панель: редактор или шаблоны */}
         <Box sx={{ 
-          width: { xs: '100%', md: '50%' },
+          width: isMobile ? '100%' : '50%',
           height: '100%',
           display: 'flex',
           flexDirection: 'column',
@@ -471,6 +476,27 @@ const RefinePage: React.FC = () => {
                       <ViewModuleIcon />
                     </IconButton>
                   </Tooltip>
+                  {/* Кнопка глаза для мобильных */}
+                  {isMobile && (
+                    <Tooltip title="Preview Resume">
+                      <IconButton 
+                        size="small" 
+                        onClick={togglePreview}
+                        sx={{ 
+                          opacity: showPreview ? 1 : 0.6, 
+                          bgcolor: showPreview ? COLORS.primary.main : 'transparent',
+                          color: showPreview ? 'white' : 'inherit',
+                          '&:hover': { 
+                            opacity: 1,
+                            bgcolor: showPreview ? COLORS.primary.dark : 'rgba(0, 0, 0, 0.04)'
+                          },
+                          transition: 'all 0.2s'
+                        }}
+                      >
+                        <VisibilityIcon />
+                      </IconButton>
+                    </Tooltip>
+                  )}
                 </Box>
               </>
             )}
@@ -479,7 +505,7 @@ const RefinePage: React.FC = () => {
           {/* Мобильная панель шаблонов (только на мобильных) */}
           {activeLeftPanel === 'templates' && (
             <Box sx={{ 
-              display: { xs: 'block', md: 'none' },
+              display: isMobile ? 'block' : 'none',
               bgcolor: COLORS.resume.header.background,
               p: 2,
               overflow: 'hidden',
@@ -569,7 +595,7 @@ const RefinePage: React.FC = () => {
 
         {/* Вертикальный разделитель */}
         <Box sx={{ 
-          display: { xs: 'none', md: 'block' },
+          display: isMobile ? 'none' : 'block',
           width: '1px',
           bgcolor: COLORS.resume.section.border,
           mx: 0
@@ -577,9 +603,9 @@ const RefinePage: React.FC = () => {
         
         {/* Правая панель: превью резюме */}
         <Box sx={{ 
-          width: { xs: '100%', md: '50%' },
-          height: { xs: '50%', md: 'auto' },
-          display: 'flex',
+          width: isMobile ? 0 : '50%',
+          height: isMobile ? 0 : 'auto',
+          display: isMobile ? 'none' : 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
           position: 'relative',
@@ -658,9 +684,9 @@ const RefinePage: React.FC = () => {
         bottom: 0,
         bgcolor: 'white',
         zIndex: 1000,
-        display: { xs: showPreview ? 'flex' : 'none', md: 'none' },
+        display: isMobile ? (showPreview ? 'flex' : 'none') : 'none',
         flexDirection: 'column',
-        transform: { xs: showPreview ? 'translateX(0)' : 'translateX(100%)', md: 'translateX(100%)' },
+        transform: isMobile ? (showPreview ? 'translateX(0)' : 'translateX(100%)') : 'translateX(100%)',
         transition: 'transform 0.3s ease-in-out',
         overflow: 'hidden'
       }}>
