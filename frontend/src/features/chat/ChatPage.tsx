@@ -12,6 +12,7 @@ import { useTemplate } from '../../shared/hooks/useTemplate';
 import { useUser } from '../../shared/hooks';
 import { convertApiResumeToResumeData } from '../../shared/utils/resumeDataConverter';
 import { COLORS } from '../../shared/theme/theme';
+import { useMediaQuery } from '@mui/material';
 
 const ChatPage: React.FC = () => {
   const navigate = useNavigate();
@@ -21,6 +22,9 @@ const ChatPage: React.FC = () => {
   const { selectedTemplate } = useTemplate(resumeId, resumeData?.template_slug);
   const { user } = useUser();
   const [showPreview, setShowPreview] = useState(false);
+  
+  // Определяем мобильный режим для экранов до 768px
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   const handleNext = () => {
     navigate(`/refine?resume_id=${resumeId}`);
@@ -95,18 +99,18 @@ const ChatPage: React.FC = () => {
         flex: 1, 
         minHeight: 0, // Важно для правильной работы flex
         display: 'flex', 
-        p: { xs: 1, sm: 2 }, // Уменьшаем отступы на мобильных
-        gap: { xs: 0, sm: 2 }, // Убираем отступы между элементами на мобильных
+        p: isMobile ? 1 : 2, // Уменьшаем отступы на мобильных
+        gap: isMobile ? 0 : 2, // Убираем отступы между элементами на мобильных
         alignItems: 'stretch',
         justifyContent: 'center'
       }}>
         {/* Основной контейнер со скруглением */}
         <Box sx={{
-          width: { xs: '100%', sm: '95%' }, // Полная ширина на мобильных
+          width: isMobile ? '100%' : '95%', // Полная ширина на мобильных
           height: '100%',
           bgcolor: 'white',
-          borderRadius: { xs: 0, sm: '8px' }, // Убираем скругление на мобильных
-          boxShadow: { xs: 'none', sm: '0 2px 8px rgba(0, 0, 0, 0.1)' }, // Убираем тень на мобильных
+          borderRadius: isMobile ? 0 : '8px', // Убираем скругление на мобильных
+          boxShadow: isMobile ? 'none' : '0 2px 8px rgba(0, 0, 0, 0.1)', // Убираем тень на мобильных
           display: 'flex',
           overflow: 'hidden',
           position: 'relative'
@@ -114,10 +118,10 @@ const ChatPage: React.FC = () => {
           {/* Кнопка с глазом для открытия превью */}
           <Box sx={{
             position: 'absolute',
-            top: { xs: 8, sm: 12 },
-            right: { xs: 8, sm: 12 },
+            top: isMobile ? 8 : 12,
+            right: isMobile ? 8 : 12,
             zIndex: 10,
-            display: { xs: 'block', sm: 'none' } // Показываем только на мобильных
+            display: isMobile ? 'block' : 'none' // Показываем только на мобильных
           }}>
             <IconButton
               onClick={togglePreview}
@@ -139,7 +143,7 @@ const ChatPage: React.FC = () => {
             flex: 1, // Занимаем все доступное пространство
             minWidth: 0, 
             minHeight: 0, // Важно для правильной работы flex
-            p: { xs: 1, sm: 2 }, // Уменьшаем отступы на мобильных
+            p: isMobile ? 1 : 2, // Уменьшаем отступы на мобильных
             display: 'flex', 
             flexDirection: 'column',
             overflow: 'hidden' // Предотвращаем переполнение
@@ -153,8 +157,8 @@ const ChatPage: React.FC = () => {
           
           {/* Правая часть: превью (скрыто на мобильных по умолчанию) */}
           <Box sx={{ 
-            width: { xs: 0, sm: '400px' },
-            display: { xs: 'none', sm: 'flex' },
+            width: isMobile ? 0 : '400px',
+            display: isMobile ? 'none' : 'flex',
             justifyContent: 'center',
             alignItems: 'center',
             p: 2
@@ -179,9 +183,9 @@ const ChatPage: React.FC = () => {
         bottom: 0,
         bgcolor: 'white',
         zIndex: 1000,
-        display: { xs: showPreview ? 'flex' : 'none', sm: 'none' }, // Показываем только на мобильных
+        display: isMobile ? (showPreview ? 'flex' : 'none') : 'none', // Показываем только на мобильных
         flexDirection: 'column',
-        transform: { xs: showPreview ? 'translateX(0)' : 'translateX(100%)', sm: 'translateX(100%)' },
+        transform: isMobile ? (showPreview ? 'translateX(0)' : 'translateX(100%)') : 'translateX(100%)',
         transition: 'transform 0.3s ease-in-out',
         overflow: 'hidden'
       }}>

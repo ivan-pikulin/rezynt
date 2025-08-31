@@ -1,5 +1,21 @@
 import { createTheme, Theme } from '@mui/material/styles';
 
+// Create custom theme with modified breakpoints
+const theme = createTheme({
+  breakpoints: {
+    values: {
+      xs: 0,
+      sm: 600,
+      md: 900,
+      lg: 1200,
+      xl: 1536,
+    },
+  },
+});
+
+// Export the theme for use in components
+export { theme };
+
 // Basic color constants
 const COLORS = {
   chat: {

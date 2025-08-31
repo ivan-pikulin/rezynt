@@ -62,11 +62,12 @@
         </element>
 
         <element name="breakpoints" desc="Responsive breakpoints">
-            <breakpoint name="xs" desc="Extra small devices"/>
-            <breakpoint name="sm" desc="Small devices"/>
-            <breakpoint name="md" desc="Medium devices"/>
-            <breakpoint name="lg" desc="Large devices"/>
-            <breakpoint name="xl" desc="Extra large devices"/>
+            <breakpoint name="xs" desc="Extra small devices (0px)"/>
+            <breakpoint name="sm" desc="Small devices (600px)"/>
+            <breakpoint name="md" desc="Medium devices (900px)"/>
+            <breakpoint name="lg" desc="Large devices (1200px)"/>
+            <breakpoint name="xl" desc="Extra large devices (1536px)"/>
+            <breakpoint name="custom" desc="Custom 768px breakpoint for better tablet support"/>
         </element>
     </theme_elements>
 

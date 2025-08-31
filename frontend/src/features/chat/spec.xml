@@ -69,8 +69,8 @@
         </feature>
     </components>
     <responsive_breakpoints>
-        <breakpoint name="xs" desc="Mobile phones (0px - 600px) - Chat with full-screen preview panel" />
-        <breakpoint name="sm" desc="Tablets and desktop (600px+) - Chat + preview always visible" />
+        <breakpoint name="mobile" desc="Mobile and small tablets (0px - 768px) - Chat with full-screen preview panel" />
+        <breakpoint name="desktop" desc="Large tablets and desktop (768px+) - Chat + preview always visible" />
     </responsive_breakpoints>
     <mobile_optimizations>
         <optimization name="layout" desc="Single column layout on mobile, two columns on desktop" />
@@ -83,6 +83,7 @@
         <optimization name="minimal_ui" desc="Removed decorative elements (shadows, borders) on mobile" />
         <optimization name="reduced_padding" desc="Minimal padding and spacing for mobile screens" />
         <optimization name="logo_hiding" desc="Logo hidden in header on mobile devices" />
+        <optimization name="custom_breakpoint" desc="Custom 768px breakpoint for better tablet support" />
     </mobile_optimizations>
     <functionality>
         <feature name="resume_id_support" desc="Support for resume_id in URL parameters">

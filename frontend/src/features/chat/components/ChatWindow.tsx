@@ -8,6 +8,7 @@ import { useUser } from '../../../shared/hooks/useUser';
 import { COLORS } from '../../../shared/theme/theme';
 import { useTranslation } from 'react-i18next';
 import PaywallModal from '../../../shared/components/PaywallModal';
+import { useMediaQuery } from '@mui/material';
 
 interface ChatWindowProps {
   resumeId: string | null;
@@ -19,6 +20,9 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ resumeId, onResumeUpdate, fromU
   const { t } = useTranslation();
   const { user, refetch: refetchUser } = useUser();
   const [showPaywallModal, setShowPaywallModal] = useState(false);
+  
+  // Определяем мобильный режим для экранов до 768px
+  const isMobile = useMediaQuery('(max-width: 768px)');
   
   const { 
     messages, 
@@ -62,7 +66,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ resumeId, onResumeUpdate, fromU
       display: 'flex', 
       flexDirection: 'column', 
       background: COLORS.gradients.secondary,
-      borderRadius: '16px',
+      borderRadius: isMobile ? '8px' : '16px',
       overflow: 'hidden',
       boxShadow: '0 20px 40px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.06)',
       border: '1px solid rgba(255, 255, 255, 0.2)',
@@ -75,7 +79,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ resumeId, onResumeUpdate, fromU
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        p: 2, // Уменьшил с 3 до 2
+        p: isMobile ? 1.5 : 2, // Уменьшил с 3 до 2, еще меньше на мобильных
         background: COLORS.gradients.primary, // Использую цвета приложения
         position: 'relative',
         overflow: 'hidden'
@@ -105,7 +109,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ resumeId, onResumeUpdate, fromU
         <Typography variant="h6" sx={{ 
           fontWeight: 700, 
           color: 'white',
-          fontSize: '1.1rem', // Уменьшил с 1.25rem до 1.1rem
+          fontSize: isMobile ? '1rem' : '1.1rem', // Уменьшил с 1.25rem до 1.1rem, еще меньше на мобильных
           textShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
           position: 'relative',
           zIndex: 1
@@ -150,8 +154,8 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ resumeId, onResumeUpdate, fromU
           overflowY: 'auto',
           display: 'flex',
           flexDirection: 'column',
-          gap: 2,
-          p: 3,
+          gap: isMobile ? 1.5 : 2,
+          p: isMobile ? 2 : 3,
           minHeight: 0,
           maxHeight: 'calc(100% - 60px - 56px)', // Минимальная высота области ввода + шапка
           background: COLORS.gradients.white,

@@ -13,6 +13,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { HeaderProps } from './Header.types';
 import UserSidebar from './UserSidebar';
 import { COLORS } from '../../theme/theme';
+import { useMediaQuery } from '@mui/material';
 
 const Header: React.FC<HeaderProps> = ({ 
   activeStep = 0, 
@@ -33,6 +34,9 @@ const Header: React.FC<HeaderProps> = ({
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const steps = ['Start', 'Generate', 'Refine', 'Export'];
+  
+  // Определяем мобильный режим для экранов до 768px
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   const getInitials = (email: string) => {
     return email.charAt(0).toUpperCase();
@@ -84,7 +88,7 @@ const Header: React.FC<HeaderProps> = ({
     <Box sx={{ 
       bgcolor: 'white', 
       borderBottom: '1px solid #eee',
-      px: { xs: 2, sm: 4 }, // Адаптивные отступы
+      px: isMobile ? 2 : 4, // Адаптивные отступы
       py: 1,
       display: 'flex',
       alignItems: 'center',
@@ -95,7 +99,7 @@ const Header: React.FC<HeaderProps> = ({
         <Box 
           onClick={handleLogoClick}
           sx={{ 
-            display: { xs: 'none', sm: 'flex' }, // Скрываем на мобильных
+            display: isMobile ? 'none' : 'flex', // Скрываем на мобильных
             alignItems: 'center',
             cursor: 'pointer',
             '&:hover': {
@@ -127,7 +131,7 @@ const Header: React.FC<HeaderProps> = ({
         {isPro ? (
           /* Tabs for pro users */
           <Box sx={{
-            width: { xs: '300px', sm: '400px' },
+            width: isMobile ? '300px' : '400px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center'
@@ -139,7 +143,7 @@ const Header: React.FC<HeaderProps> = ({
               sx={{
                 width: '100%',
                 '& .MuiTab-root': {
-                  fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                  fontSize: isMobile ? '0.75rem' : '0.875rem',
                   fontWeight: 500,
                   textTransform: 'none',
                   minHeight: 40,
@@ -168,14 +172,14 @@ const Header: React.FC<HeaderProps> = ({
                 onClick={onBack}
                 sx={{
                   cursor: 'pointer',
-                  fontSize: { xs: '1.5rem', sm: '2rem' },
+                  fontSize: isMobile ? '1.5rem' : '2rem',
                   fontWeight: 'bold',
                   color: '#666',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  width: { xs: 32, sm: 40 },
-                  height: { xs: 32, sm: 40 },
+                  width: isMobile ? 32 : 40,
+                  height: isMobile ? 32 : 40,
                   '&:hover': {
                     color: COLORS.primary.main,
                     transform: 'scale(1.1)'
@@ -190,7 +194,7 @@ const Header: React.FC<HeaderProps> = ({
             {/* Область степпера с фиксированной шириной */}
             {showSteps && (
               <Box sx={{
-                width: { xs: '336px', sm: '480px' },
+                width: isMobile ? '336px' : '480px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center'
@@ -201,7 +205,7 @@ const Header: React.FC<HeaderProps> = ({
                   sx={{ 
                     width: '100%',
                     '& .MuiStepLabel-label': {
-                      fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                      fontSize: isMobile ? '0.75rem' : '0.875rem'
                     }
                   }}
                 >
@@ -216,7 +220,7 @@ const Header: React.FC<HeaderProps> = ({
                             transform: 'scale(1.05)',
                           } : {}),
                           '& .MuiStepLabel-label': {
-                            fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                            fontSize: isMobile ? '0.75rem' : '0.875rem',
                             color: index <= activeStep ? `${COLORS.primary.main} !important` : '#999 !important',
                             fontWeight: index === activeStep ? 600 : 400,
                             transform: index === activeStep ? 'scale(1.1)' : 'scale(1)',
@@ -245,14 +249,14 @@ const Header: React.FC<HeaderProps> = ({
                 onClick={onNext}
                 sx={{
                   cursor: 'pointer',
-                  fontSize: { xs: '1.5rem', sm: '2rem' },
+                  fontSize: isMobile ? '1.5rem' : '2rem',
                   fontWeight: 'bold',
                   color: COLORS.primary.main,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  width: { xs: 32, sm: 40 },
-                  height: { xs: 32, sm: 40 },
+                  width: isMobile ? 32 : 40,
+                  height: isMobile ? 32 : 40,
                   '&:hover': {
                     color: COLORS.primary.dark,
                     transform: 'scale(1.1)'

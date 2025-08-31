@@ -131,7 +131,7 @@
         
         <detail>
           <name>Адаптивность</name>
-          <value>Скрытие логотипа на xs экранах</value>
+          <value>Скрытие логотипа на экранах до 768px, кастомный брейкпоинт для лучшей поддержки планшетов</value>
         </detail>
       </technical_details>
     </component>
