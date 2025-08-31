@@ -502,49 +502,7 @@ const RefinePage: React.FC = () => {
             )}
           </Box>
           
-          {/* Мобильная панель шаблонов (только на мобильных) */}
-          {activeLeftPanel === 'templates' && (
-            <Box sx={{ 
-              display: isMobile ? 'block' : 'none',
-              bgcolor: COLORS.resume.header.background,
-              p: 2,
-              overflow: 'hidden',
-              height: 160,
-              flexShrink: 0,
-              borderBottom: `1px solid ${COLORS.resume.section.border}`
-            }}>
-              <Box sx={{ 
-                display: 'flex',
-                gap: 2,
-                overflowX: 'auto',
-                overflowY: 'hidden',
-                pb: 1,
-                '&::-webkit-scrollbar': {
-                  height: 6,
-                },
-                '&::-webkit-scrollbar-track': {
-                  bgcolor: COLORS.grey[100],
-                  borderRadius: 3,
-                },
-                '&::-webkit-scrollbar-thumb': {
-                  bgcolor: COLORS.grey[400],
-                  borderRadius: 3,
-                  '&:hover': {
-                    bgcolor: COLORS.grey[500],
-                  },
-                },
-              }}>
-                <TemplateSelector 
-                  onTemplateChange={handleTemplateChange}
-                  onTemplateHover={handleTemplateHover}
-                  onTemplateHoverEnd={handleTemplateHoverEnd}
-                  horizontalLayout={true}
-                  selectedTemplate={selectedTemplate}
-                  resumeData={displayData}
-                />
-              </Box>
-            </Box>
-          )}
+
 
           {/* Контент: редактор или шаблоны */}
           <Box sx={{ 
