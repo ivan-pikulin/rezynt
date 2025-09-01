@@ -6,10 +6,12 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Typography from '@mui/material/Typography';
 import { useResumes } from '../../features/resumes/hooks/useResumes';
 import { useAuthContext } from '../contexts/AuthContext';
+import { useOnboarding } from '../hooks/useOnboarding';
 
 const HomeRedirect: React.FC = () => {
   const { t } = useTranslation();
-  const { isAuthenticated, isLoading: authLoading } = useAuthContext();
+  const { isAuthenticated, isLoading: authLoading, user } = useAuthContext();
+  const { shouldShowOnboarding } = useOnboarding(user);
   const { resumes, isLoading: resumesLoading } = useResumes();
 
   // Если аутентификация еще загружается, показываем загрузку
@@ -34,6 +36,11 @@ const HomeRedirect: React.FC = () => {
   // Если пользователь не аутентифицирован, перенаправляем на страницу входа
   if (!isAuthenticated) {
     return <Navigate to="/auth" replace />;
+  }
+
+  // Если нужно показать онбординг, не загружаем резюме и перенаправляем на стартовую страницу
+  if (shouldShowOnboarding) {
+    return <Navigate to="/start" replace />;
   }
 
   // Если данные о резюме еще загружаются, показываем загрузку

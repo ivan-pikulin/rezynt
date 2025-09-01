@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Card,
@@ -86,26 +86,26 @@ const OnboardingPage: React.FC = () => {
     },
   ];
 
-  const handleResponseChange = (field: keyof OnboardingComplete['responses'], value: string) => {
+  const handleResponseChange = useCallback((field: keyof OnboardingComplete['responses'], value: string) => {
     setResponses(prev => ({
       ...prev,
       [field]: value,
     }));
-  };
+  }, []);
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     if (activeStep < steps.length - 1) {
       setActiveStep(prev => prev + 1);
     }
-  };
+  }, [activeStep, steps.length]);
 
-  const handleBack = () => {
+  const handleBack = useCallback(() => {
     if (activeStep > 0) {
       setActiveStep(prev => prev - 1);
     }
-  };
+  }, [activeStep]);
 
-  const handleComplete = async () => {
+  const handleComplete = useCallback(async () => {
     setIsLoading(true);
     setError('');
 
@@ -118,10 +118,14 @@ const OnboardingPage: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [responses, updateUser, navigate, t]);
+
+  const currentStep = steps[activeStep];
+  const isCurrentStepComplete = responses[currentStep.field] !== '';
+  const isAllStepsComplete = Object.values(responses).every(value => value !== '');
 
   // Обработчик нажатия Enter
-  const handleKeyPress = (event: React.KeyboardEvent) => {
+  const handleKeyPress = useCallback((event: React.KeyboardEvent) => {
     if (event.key === 'Enter' && isCurrentStepComplete) {
       if (activeStep === steps.length - 1) {
         handleComplete();
@@ -129,11 +133,7 @@ const OnboardingPage: React.FC = () => {
         handleNext();
       }
     }
-  };
-
-  const currentStep = steps[activeStep];
-  const isCurrentStepComplete = responses[currentStep.field] !== '';
-  const isAllStepsComplete = Object.values(responses).every(value => value !== '');
+  }, [activeStep, isCurrentStepComplete, steps.length, handleComplete, handleNext]);
 
   // Добавляем обработчик клавиатуры
   useEffect(() => {
@@ -151,7 +151,7 @@ const OnboardingPage: React.FC = () => {
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [activeStep, isCurrentStepComplete]);
+  }, [activeStep, isCurrentStepComplete, steps.length, handleComplete, handleNext]);
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
