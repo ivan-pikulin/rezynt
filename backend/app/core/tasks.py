@@ -16,69 +16,75 @@ from asgiref.sync import async_to_sync
 logger = logging.getLogger(__name__)
 
 
-def _generate_resume_text(resume_obj) -> str:
-    """Generate full text representation of resume for AI analysis"""
+def _generate_resume_text_from_parsed(parsed_data) -> str:
+    """Generate full text representation of resume using parsed_data to avoid DB IO."""
     text_parts = []
-    
-    # Add title
-    if resume_obj.title:
-        text_parts.append(f"Title: {resume_obj.title}")
-    
-    # Add personal info
-    if resume_obj.personal_info:
-        if resume_obj.personal_info.first_name or resume_obj.personal_info.last_name:
-            name_parts = []
-            if resume_obj.personal_info.first_name:
-                name_parts.append(resume_obj.personal_info.first_name)
-            if resume_obj.personal_info.last_name:
-                name_parts.append(resume_obj.personal_info.last_name)
-            text_parts.append(f"Name: {' '.join(name_parts)}")
-        
-        if resume_obj.personal_info.location:
-            text_parts.append(f"Location: {resume_obj.personal_info.location}")
-    
-    # Add professional summary
-    if resume_obj.professional_summary:
-        text_parts.append(f"Professional Summary: {resume_obj.professional_summary}")
-    
-    # Add contacts
-    if resume_obj.contacts:
-        contact_values = [contact.value for contact in resume_obj.contacts]
-        text_parts.append(f"Contacts: {', '.join(contact_values)}")
-    
-    # Add skills
-    if resume_obj.skills:
-        skill_names = [skill.name for skill in resume_obj.skills]
-        text_parts.append(f"Skills: {', '.join(skill_names)}")
-    
-    # Add experience
-    if resume_obj.experience:
+
+    # Name and location
+    name_parts = []
+    if getattr(parsed_data, 'first_name', None):
+        name_parts.append(parsed_data.first_name)
+    if getattr(parsed_data, 'last_name', None):
+        name_parts.append(parsed_data.last_name)
+    if name_parts:
+        text_parts.append(f"Name: {' '.join(name_parts)}")
+
+    if getattr(parsed_data, 'location', None):
+        text_parts.append(f"Location: {parsed_data.location}")
+
+    # Professional summary
+    if getattr(parsed_data, 'professional_summary', None):
+        text_parts.append(f"Professional Summary: {parsed_data.professional_summary}")
+
+    # Contacts
+    contacts = getattr(parsed_data, 'contacts', None) or []
+    if contacts:
+        text_parts.append(f"Contacts: {', '.join(contacts)}")
+
+    # Skills
+    skills = getattr(parsed_data, 'skills', None) or []
+    if skills:
+        text_parts.append(f"Skills: {', '.join(skills)}")
+
+    # Experience
+    experience = getattr(parsed_data, 'experience', None) or []
+    if experience:
         text_parts.append("Experience:")
-        for exp in resume_obj.experience:
-            exp_text = f"  - {exp.job_title} at {exp.company}"
-            if exp.location:
-                exp_text += f" ({exp.location})"
-            if exp.start_date:
-                exp_text += f" from {exp.start_date}"
-            if exp.end_date:
-                exp_text += f" to {exp.end_date}"
-            text_parts.append(exp_text)
-            
-            if exp.responsibilities:
-                for resp in exp.responsibilities:
-                    text_parts.append(f"    * {resp}")
-    
-    # Add education
-    if resume_obj.education:
+        for exp in experience:
+            job_title = exp.get('job_title', '')
+            company = exp.get('company', '')
+            location = exp.get('location', '')
+            start_date = exp.get('start_date')
+            end_date = exp.get('end_date')
+            responsibilities = exp.get('responsibilities', []) or []
+
+            header = f"  - {job_title} at {company}".strip()
+            if location:
+                header += f" ({location})"
+            if start_date:
+                header += f" from {start_date}"
+            if end_date:
+                header += f" to {end_date}"
+            text_parts.append(header)
+            for resp in responsibilities:
+                text_parts.append(f"    * {resp}")
+
+    # Education
+    education = getattr(parsed_data, 'education', None) or []
+    if education:
         text_parts.append("Education:")
-        for edu in resume_obj.education:
-            edu_text = f"  - {edu.degree} from {edu.institution}"
-            if edu.location:
-                edu_text += f" ({edu.location})"
-            if edu.graduation_date:
-                edu_text += f" - {edu.graduation_date}"
-            text_parts.append(edu_text)
-    
+        for edu in education:
+            degree = edu.get('degree', '')
+            institution = edu.get('institution', '')
+            location = edu.get('location', '')
+            graduation_date = edu.get('graduation_date')
+            header = f"  - {degree} from {institution}".strip()
+            if location:
+                header += f" ({location})"
+            if graduation_date:
+                header += f" - {graduation_date}"
+            text_parts.append(header)
+
     return "\n".join(text_parts)
 
 
@@ -367,45 +373,44 @@ async def _create_resume_with_data(user_id: int, filename: str, parsed_data):
             await db.commit()
             logger.info(f"Resume {resume.id} created successfully with all data for user {user_id}")
             logger.info(f"Final commit completed for resume {resume.id}")
-            
-            # Get startup message from platform
+
+            # Get startup message from platform (avoid lazy DB loads; build text from parsed_data)
             try:
                 logger.info(f"Getting startup message from platform for resume {resume.id}")
-                
-                # Generate full resume text
-                resume_text = _generate_resume_text(resume)
+
+                # Generate full resume text using parsed_data (no DB IO)
+                resume_text = _generate_resume_text_from_parsed(parsed_data)
                 logger.info(f"Generated resume text for platform, length: {len(resume_text)} characters")
-                
-                # Get startup message from platform
+
                 platform_chatflow = PlatformChatflow(
                     app_key=settings.PLATFORM_UPLOAD_APP_KEY,
                     app_url=settings.PLATFORM_APP_URL,
                     timeout=settings.PLATFORM_TIMEOUT
                 )
-                
+
                 startup_message, conversation_id = await platform_chatflow.get_startup_message(
                     user_id=str(user_id),
                     resume_id=str(resume.id),
                     resume_text=resume_text
                 )
-                
+
                 logger.info(f"Received startup message from platform: {startup_message[:100]}...")
                 logger.info(f"Received conversation_id from platform: {conversation_id}")
-                
-                # Store startup message in resume (we'll add a field for this)
-                # For now, we'll store it in the result
+
+                # Store message on the in-memory object for returning via Celery result
                 resume.startup_message = startup_message
-                
-                # Update conversation_id in database if we got one
+
+                # Persist conversation_id if present
                 if conversation_id:
                     resume.conversation_id = conversation_id
                     await db.commit()
                     logger.info(f"Updated conversation_id for resume {resume.id}: {conversation_id}")
-                
+
             except Exception as e:
                 logger.warning(f"Failed to get startup message from platform: {e}")
-                # Use fallback message
-                resume.startup_message = "Welcome aboard! I'm your AI Writer, here to save you time and boost your chances. Let's start?"
+                resume.startup_message = (
+                    "Welcome aboard! I'm your AI Writer, here to save you time and boost your chances. Let's start?"
+                )
             
             # Force garbage collection after database operations
             gc.collect()
