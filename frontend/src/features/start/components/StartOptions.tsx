@@ -86,7 +86,13 @@ const StartOptions: React.FC = () => {
       setIsUploading(true);
       try {
         const result = await startApi.uploadResume(file);
-        navigate(`/chat?resume_id=${result.id}`);
+        
+        // Сохраняем стартовое сообщение в localStorage для использования в чате
+        if (result.startupMessage) {
+          localStorage.setItem(`startup_message_${result.resume.id}`, result.startupMessage);
+        }
+        
+        navigate(`/chat?resume_id=${result.resume.id}`);
       } catch (error) {
         console.error('Failed to upload resume:', error);
         // Можно добавить уведомление пользователю об ошибке

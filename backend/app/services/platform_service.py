@@ -53,11 +53,11 @@ class PlatformChatflow:
         self.app_url = app_url
         self.timeout = timeout
 
-    async def chat(self, user_id: str, text: str, conversation_id: str = None, resume_id: str = None) -> PlatformMessage:
+    async def chat(self, user_id: str, text: str, conversation_id: str = None, inputs: Dict[str, Any] = None) -> PlatformMessage:
         request_data = {
             "query": text,
             "user": user_id,
-            "inputs": {"resume_id": resume_id} if resume_id else {},
+            "inputs": inputs or {},
             "response_mode": "blocking",
             "conversation_id": conversation_id or ""
         }
@@ -87,7 +87,7 @@ class PlatformChatflow:
 
             return PlatformMessage(text=answer, conversation_id=conversation_id)
 
-    async def chat_stream(self, user_id: str, text: str, conversation_id: str = None, resume_id: str = None) -> AsyncGenerator[tuple[str, str], None]:
+    async def chat_stream(self, user_id: str, text: str, conversation_id: str = None, inputs: Dict[str, Any] = None) -> AsyncGenerator[tuple[str, str], None]:
         """
         Stream chat response and yield (chunk, conversation_id) tuples.
         Returns the conversation_id from the first message event.
@@ -95,7 +95,7 @@ class PlatformChatflow:
         request_data = {
             "query": text,
             "user": user_id,
-            "inputs": {"resume_id": resume_id} if resume_id else {},
+            "inputs": inputs or {},
             "response_mode": "streaming",
             "conversation_id": conversation_id or ""
         }
@@ -190,3 +190,72 @@ class PlatformChatflow:
             logger.debug(f"Platform messages response: {response_data}")
             
             return PlatformMessagesResponse(**response_data)
+
+    async def get_startup_message(self, user_id: str, resume_id: str, resume_text: str) -> tuple[str, str]:
+        """
+        Get startup message from AI after resume processing using streaming mode.
+        Returns tuple of (message, conversation_id).
+        """
+        request_data = {
+            "query": "init",
+            "user": user_id,
+            "inputs": {
+                "resume_id": resume_id,
+                "resume": resume_text
+            },
+            "response_mode": "streaming",
+            "conversation_id": ""
+        }
+
+        async with httpx.AsyncClient(timeout=httpx.Timeout(self.timeout)) as client:
+            logger.info(f"Send startup message (streaming) request to platform: {self.app_url}")
+
+            async with client.stream(
+                "POST",
+                self.app_url,
+                json=request_data,
+                headers={
+                    "Authorization": f"Bearer {self.app_key}",
+                    "Content-Type": "application/json"
+                }
+            ) as response:
+                if response.status_code != 200:
+                    error_text = await response.aread()
+                    logger.error(f"HTTP {response.status_code}: {error_text}")
+                    raise Exception(f"HTTP {response.status_code}: {error_text}")
+
+                collected_answer_parts: list[str] = []
+                current_conversation_id: Optional[str] = None
+
+                async for line in response.aiter_lines():
+                    if not line:
+                        continue
+                    if line.startswith("data: "):
+                        data_str = line[6:]
+                        if data_str.strip() == "":
+                            continue
+                        try:
+                            data = json.loads(data_str)
+                            event = data.get("event")
+
+                            if event == "agent_message":
+                                chunk = data.get("answer", "")
+                                if chunk:
+                                    collected_answer_parts.append(chunk)
+                                if not current_conversation_id:
+                                    current_conversation_id = data.get("conversation_id")
+                            elif event == "message_end":
+                                current_conversation_id = data.get("conversation_id", current_conversation_id)
+                                break
+                            elif event == "error":
+                                error_msg = data.get("message", "Unknown error")
+                                logger.error(f"Streaming error: {error_msg}")
+                                raise Exception(f"Streaming error: {error_msg}")
+                        except json.JSONDecodeError as e:
+                            logger.warning(f"Failed to parse SSE data: {data_str}, error: {e}")
+                            continue
+
+                answer = "".join(collected_answer_parts).strip()
+                if not answer:
+                    answer = "Welcome aboard! I'm your AI Writer, here to save you time and boost your chances. Let's start?"
+                return answer, (current_conversation_id or "")

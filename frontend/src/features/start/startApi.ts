@@ -5,7 +5,7 @@ export const startApi = {
   /**
    * Загрузить файл резюме
    */
-  uploadResume: async (file: File): Promise<Resume> => {
+  uploadResume: async (file: File): Promise<{ resume: Resume; startupMessage?: string }> => {
     // Загружаем файл и получаем task_id
     const uploadResult = await resumeApi.uploadResume(file);
     
@@ -31,7 +31,13 @@ export const startApi = {
     }
     
     // Получаем созданное резюме
-    return await resumeApi.getResume(result.resume_id);
+    const resume = await resumeApi.getResume(result.resume_id);
+    
+    // Возвращаем резюме и стартовое сообщение
+    return {
+      resume,
+      startupMessage: result.startup_message
+    };
   },
 
   /**

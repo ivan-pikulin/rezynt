@@ -148,11 +148,25 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fr
       
       // Add welcome message if no messages exist
       if (finalMessages.length === 0) {
+        // Проверяем, есть ли стартовое сообщение в localStorage для загруженного резюме
+        const startupMessage = localStorage.getItem(`startup_message_${resumeId}`);
+        let welcomeContent;
+        
+        if (startupMessage && fromUpload) {
+          // Используем стартовое сообщение от AI для загруженного резюме
+          welcomeContent = startupMessage;
+          // Удаляем сообщение из localStorage после использования
+          localStorage.removeItem(`startup_message_${resumeId}`);
+        } else {
+          // Используем стандартное приветствие
+          welcomeContent = fromUpload 
+            ? "Welcome aboard! I'm your AI Writer, here to save you time and boost your chances. Let's start?"
+            : "Welcome aboard! I'm your AI Writer, here to save you time and boost your chances. Let's get personal: what's your name?";
+        }
+        
         const welcomeMessage = {
           id: 'welcome',
-          content: fromUpload 
-            ? "Welcome aboard! I'm your AI Writer, here to save you time and boost your chances. Let's start?"
-            : "Welcome aboard! I'm your AI Writer, here to save you time and boost your chances. Let's get personal: what's your name?",
+          content: welcomeContent,
           sender: 'assistant' as const,
           timestamp: new Date()
         };

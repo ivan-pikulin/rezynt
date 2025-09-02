@@ -58,7 +58,7 @@ async def send_message(
         user_id=str(user.id),
         text=request.message,
         conversation_id=resume_obj.conversation_id,
-        resume_id=str(request.resume_id)
+        inputs={"resume_id": str(request.resume_id)}
     )
     
     # Списываем кредит для free пользователей после успешной отправки
@@ -118,7 +118,7 @@ async def send_message_stream(
             user_id=str(user.id),
             text=request.message,
             conversation_id=resume_obj.conversation_id,
-            resume_id=str(request.resume_id)
+            inputs={"resume_id": str(request.resume_id)}
         ):
             new_conversation_id = conversation_id
             # Send chunk as SSE
