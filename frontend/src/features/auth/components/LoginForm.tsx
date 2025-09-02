@@ -10,9 +10,12 @@ import { useFormik } from 'formik';
 import * as yup from 'yup';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useTheme } from '@mui/material/styles';
+import { useMediaQuery } from '@mui/material';
 import { authApi } from '../../../shared/services/api';
 import { LoginCredentials } from '../types/auth';
 import { useAuthContext } from '../../../shared/contexts/AuthContext';
+import AnimatedResumePreview from './AnimatedResumePreview';
 
 interface LoginFormProps {
   onSuccess: () => void;
@@ -22,6 +25,8 @@ interface LoginFormProps {
 
 const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, onSwitchToSignup, onSwitchToPasswordReset }) => {
   const { t } = useTranslation();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [error, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuthContext();
@@ -64,86 +69,107 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, onSwitchToSignup, onSw
   });
 
   return (
-    <Box component="form" onSubmit={formik.handleSubmit} sx={{ mt: 1 }}>
-      {passwordResetSuccess && (
-        <Alert severity="success" sx={{ mb: 2 }}>
-          {t('auth.login.passwordResetSuccess')}
-        </Alert>
-      )}
-      
-      {error && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
-        </Alert>
-      )}
-      
-      <TextField
-        margin="normal"
-        fullWidth
-        id="username"
-        name="username"
-        label={t('auth.login.email')}
-        autoComplete="email"
-        autoFocus
-        value={formik.values.username}
-        onChange={formik.handleChange}
-        onBlur={formik.handleBlur}
-        error={formik.touched.username && Boolean(formik.errors.username)}
-        helperText={formik.touched.username && formik.errors.username}
-        disabled={isLoading}
-      />
-      
-      <TextField
-        margin="normal"
-        fullWidth
-        name="password"
-        label={t('auth.login.password')}
-        type="password"
-        id="password"
-        autoComplete="current-password"
-        value={formik.values.password}
-        onChange={formik.handleChange}
-        onBlur={formik.handleBlur}
-        error={formik.touched.password && Boolean(formik.errors.password)}
-        helperText={formik.touched.password && formik.errors.password}
-        disabled={isLoading}
-      />
-      
-      <Button
-        type="submit"
-        fullWidth
-        variant="contained"
-        sx={{ mt: 3, mb: 2, py: 1.5 }}
-        disabled={isLoading}
-      >
-        {isLoading ? <CircularProgress size={24} /> : t('auth.login.submit')}
-      </Button>
-      
-      <Box sx={{ textAlign: 'center' }}>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-          {t('auth.login.noAccount')}{' '}
-          <Link
-            component="button"
-            variant="body2"
-            onClick={onSwitchToSignup}
-            sx={{ cursor: 'pointer' }}
-          >
-            {t('auth.login.signup')}
-          </Link>
-        </Typography>
+    <Box sx={{ 
+      display: 'grid',
+      gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+      gap: 4,
+      alignItems: 'start',
+      mt: 1
+    }}>
+      {/* Left column - Login form */}
+      <Box component="form" onSubmit={formik.handleSubmit}>
+        {passwordResetSuccess && (
+          <Alert severity="success" sx={{ mb: 2 }}>
+            {t('auth.login.passwordResetSuccess')}
+          </Alert>
+        )}
         
-        <Typography variant="body2" color="text.secondary">
-          {t('auth.login.forgotPassword')}{' '}
-          <Link
-            component="button"
-            variant="body2"
-            onClick={onSwitchToPasswordReset}
-            sx={{ cursor: 'pointer' }}
-          >
-            {t('auth.login.resetPassword')}
-          </Link>
-        </Typography>
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
+        )}
+        
+        <TextField
+          margin="normal"
+          fullWidth
+          id="username"
+          name="username"
+          label={t('auth.login.email')}
+          autoComplete="email"
+          autoFocus
+          value={formik.values.username}
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+          error={formik.touched.username && Boolean(formik.errors.username)}
+          helperText={formik.touched.username && formik.errors.username}
+          disabled={isLoading}
+        />
+        
+        <TextField
+          margin="normal"
+          fullWidth
+          name="password"
+          label={t('auth.login.password')}
+          type="password"
+          id="password"
+          autoComplete="current-password"
+          value={formik.values.password}
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+          error={formik.touched.password && Boolean(formik.errors.password)}
+          helperText={formik.touched.password && formik.errors.password}
+          disabled={isLoading}
+        />
+        
+        <Button
+          type="submit"
+          fullWidth
+          variant="contained"
+          sx={{ mt: 3, mb: 2, py: 1.5 }}
+          disabled={isLoading}
+        >
+          {isLoading ? <CircularProgress size={24} /> : t('auth.login.submit')}
+        </Button>
+        
+        <Box sx={{ textAlign: 'center' }}>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+            {t('auth.login.noAccount')}{' '}
+            <Link
+              component="button"
+              variant="body2"
+              onClick={onSwitchToSignup}
+              sx={{ cursor: 'pointer' }}
+            >
+              {t('auth.login.signup')}
+            </Link>
+          </Typography>
+          
+          <Typography variant="body2" color="text.secondary">
+            {t('auth.login.forgotPassword')}{' '}
+            <Link
+              component="button"
+              variant="body2"
+              onClick={onSwitchToPasswordReset}
+              sx={{ cursor: 'pointer' }}
+            >
+              {t('auth.login.resetPassword')}
+            </Link>
+          </Typography>
+        </Box>
       </Box>
+
+      {/* Right column - Resume preview */}
+      {!isMobile && (
+        <Box sx={{ 
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          height: 'fit-content'
+        }}>
+          <AnimatedResumePreview />
+        </Box>
+      )}
     </Box>
   );
 };

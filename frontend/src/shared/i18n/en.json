@@ -36,6 +36,10 @@
       "signupTitle": "Sign Up",
       "signupSuccessMessage": "Registration successful! Please check your email to confirm your account."
     },
+    "preview": {
+      "title": "Live Resume Preview",
+      "subtitle": "Watch how AI creates professional resumes in real-time"
+    },
     "signup": {
       "title": "Sign Up",
       "email": "Email",

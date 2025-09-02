@@ -12,7 +12,8 @@
         │   ├── LoginForm.tsx                    # Login form component
         │   ├── SignupForm.tsx                   # Signup form component
         │   ├── EmailConfirmation.tsx            # Email confirmation success/error page
-        │   ├── AuthLayout.tsx                   # Common layout for auth pages
+        │   ├── AuthLayout.tsx                   # Common layout for auth pages with resume preview
+        │   ├── AnimatedResumePreview.tsx        # Animated resume preview component
         │   ├── RequestPasswordResetForm.tsx     # Password reset request form
         │   └── ResetPasswordForm.tsx            # New password setup form
         ├── AuthPage.tsx                         # Main auth page with form switching
@@ -35,12 +36,17 @@
                 <feature name="touch_optimized" desc="Larger touch targets for buttons and inputs" />
             </mobile_features>
         </component>
-        <component name="LoginForm" desc="Login form with email and password fields">
+        <component name="LoginForm" desc="Login form with email and password fields and integrated resume preview">
             <props>
                 <prop name="onSuccess" desc="Callback when login is successful" />
                 <prop name="onSwitchToSignup" desc="Callback to switch to signup form" />
                 <prop name="onSwitchToPasswordReset" desc="Callback to navigate to password reset" />
             </props>
+            <features>
+                <feature name="two_column_layout" desc="Left column for login form, right column for resume preview on desktop" />
+                <feature name="responsive_design" desc="Single column layout on mobile, two columns on desktop" />
+                <feature name="integrated_preview" desc="Resume preview embedded within the login form" />
+            </features>
             <validation>
                 <rule name="email_required" desc="Email field is required" />
                 <rule name="password_required" desc="Password field is required" />
@@ -92,6 +98,29 @@
                 <prop name="children" desc="Auth form components" />
                 <prop name="title" desc="Page title" />
             </props>
+            <features>
+                <feature name="centered_layout" desc="Single centered card layout for auth forms" />
+                <feature name="responsive_design" desc="Adaptive padding and sizing for different screen sizes" />
+                <feature name="clean_interface" desc="Minimalist design focusing on form content" />
+            </features>
+        </component>
+        <component name="AnimatedResumePreview" desc="Compact animated resume preview with real-time text animation and template switching">
+            <features>
+                <feature name="demo_data" desc="Three different resume datasets (Sam Altman, Elon Musk, Donald Trump) with full ResumeData structure" />
+                <feature name="real_templates" desc="Uses actual resume templates: nume (Clarity), vero (Frame), luma (Sidebar)" />
+                <feature name="resume_renderer" desc="Integrates with ResumeRenderer component for authentic preview" />
+                <feature name="template_rotation" desc="Automatically cycles through different template styles every 8 seconds" />
+                <feature name="text_animation" desc="Real-time character-by-character text animation for all resume fields" />
+                <feature name="array_animation" desc="Progressive animation for contacts, skills, experience, and education arrays" />
+                <feature name="seamless_transitions" desc="Smooth transitions between different personas and templates" />
+                <feature name="compact_display" desc="Fixed scale 0.35 for immediate compact display without size animation" />
+                <feature name="inline_integration" desc="Designed to fit within auth layout right column without overflow" />
+            </features>
+            <deps>
+                <dep name="ResumeRenderer" purpose="Renders actual resume templates with fixed compact scaling" />
+                <dep name="ResumeData" purpose="Uses proper resume data structure from shared types" />
+                <dep name="Template System" purpose="Integrates with existing template infrastructure" />
+            </deps>
         </component>
     </components>
 
