@@ -7,10 +7,33 @@ from app.schemas.resume import (EducationCreateRequest, EducationUpdateRequest,
                                 ExperienceUpdateRequest, ResumeEducationCreate,
                                 ResumeEducationUpdate, ResumeExperienceCreate,
                                 ResumeExperienceUpdate, ResumePartialUpdate,
-                                ResumePatchRequest, ResumeUpdate)
+                                ResumePatchRequest, ResumeUpdate, UnifiedResume)
 from fastapi import APIRouter, HTTPException, status
 
 router = APIRouter()
+
+
+@router.get("/resume/{resume_id}", response_model=UnifiedResume, tags=["resume"])
+async def get_full_resume(
+    *,
+    db: AsyncDB,
+    resume_id: int,
+    _: APIKeyVerified,
+) -> UnifiedResume:
+    """
+    Get full resume text in structured format.
+    Returns complete resume with all related data: personal info, contacts, skills, experience, education.
+    Requires valid API key for authorization.
+    """
+    # Get the complete resume
+    resume = await resume_manager.get_resume_by_id(db, resume_id=resume_id)
+    if not resume:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Resume not found"
+        )
+    
+    return resume
 
 
 @router.patch("/resume/{resume_id}", response_model=Dict[str, Any], tags=["resume"])
