@@ -197,7 +197,7 @@ class PlatformChatflow:
         Returns tuple of (message, conversation_id).
         """
         request_data = {
-            "query": "init",
+            "query": "Here is my resume, what do you think about it?",
             "user": user_id,
             "inputs": {
                 "resume_id": resume_id,
