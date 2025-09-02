@@ -140,6 +140,12 @@
                     - Maintains scroll position during streaming
                 </user_experience>
             </streaming>
+            <markdown_rendering>
+                <feature name="real_time_parsing" desc="Markdown content is parsed and rendered in real-time as it streams" />
+                <feature name="progressive_enhancement" desc="Text appears first, then Markdown formatting is applied progressively" />
+                <feature name="syntax_highlighting" desc="Code blocks get syntax highlighting as soon as they are complete" />
+                <feature name="responsive_layout" desc="Markdown elements adapt to available space and message container" />
+            </markdown_rendering>
         </feature>
         <feature name="loading_states" desc="Visual feedback during message processing">
             <states>
