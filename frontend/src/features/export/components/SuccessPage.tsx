@@ -33,7 +33,7 @@ const SuccessPage: React.FC<SuccessPageProps> = ({ onBackToStart }) => {
       alignItems: 'center',
       p: { xs: 2, sm: 3, md: 4 }
     }}>
-      {/* Карточка с поздравлением */}
+              {/* Congratulations card */}
       <Card sx={{
         maxWidth: { xs: '100%', sm: 500, md: 600 },
         width: '100%',
@@ -51,7 +51,7 @@ const SuccessPage: React.FC<SuccessPageProps> = ({ onBackToStart }) => {
           alignItems: 'center',
           gap: 3
         }}>
-          {/* Иконка успеха */}
+          {/* Success icon */}
           <Box sx={{
             position: 'relative',
             mb: 2
@@ -74,7 +74,7 @@ const SuccessPage: React.FC<SuccessPageProps> = ({ onBackToStart }) => {
             </Box>
           </Box>
 
-          {/* Заголовок */}
+          {/* Title */}
           <Typography
             variant="h4"
             component="h1"
@@ -88,7 +88,7 @@ const SuccessPage: React.FC<SuccessPageProps> = ({ onBackToStart }) => {
             Download Complete!
           </Typography>
 
-          {/* Описание */}
+          {/* Description */}
           <Typography
             variant="body1"
             sx={{
@@ -102,7 +102,7 @@ const SuccessPage: React.FC<SuccessPageProps> = ({ onBackToStart }) => {
             Your resume is ready to connect you with your next opportunity.
           </Typography>
 
-          {/* Кнопка "Back" */}
+          {/* Back button */}
           <Button
             variant="outlined"
             startIcon={<ArrowBackIcon />}
@@ -128,7 +128,7 @@ const SuccessPage: React.FC<SuccessPageProps> = ({ onBackToStart }) => {
         </CardContent>
       </Card>
 
-      {/* CSS анимация для пульсации */}
+              {/* CSS animation for pulsing */}
       <style>
         {`
           @keyframes pulse {

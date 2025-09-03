@@ -4,7 +4,7 @@ import ResumeRenderer from './ResumeRenderer';
 import { TemplateService } from '../services/templateService';
 
 /**
- * Демонстрационный компонент для тестирования адаптивного масштабирования ResumeRenderer
+ * Demo component for testing adaptive scaling of ResumeRenderer
  */
 const ResumeRendererDemo: React.FC = () => {
   const [fitToContainer, setFitToContainer] = useState(true);
@@ -35,10 +35,10 @@ const ResumeRendererDemo: React.FC = () => {
   return (
     <Box sx={{ p: 3, height: '100vh', display: 'flex', flexDirection: 'column', gap: 2 }}>
       <Typography variant="h4" gutterBottom>
-        ResumeRenderer Demo - Адаптивное масштабирование
+        ResumeRenderer Demo - Adaptive Scaling
       </Typography>
       
-      {/* Контролы */}
+              {/* Controls */}
       <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
         <FormControlLabel
           control={
@@ -47,7 +47,7 @@ const ResumeRendererDemo: React.FC = () => {
               onChange={(e) => setFitToContainer(e.target.checked)}
             />
           }
-          label="Адаптивное масштабирование"
+                      label="Adaptive Scaling"
         />
         
         <FormControlLabel
@@ -57,7 +57,7 @@ const ResumeRendererDemo: React.FC = () => {
               onChange={(e) => setDebug(e.target.checked)}
             />
           }
-          label="Отладка"
+          label="Debug"
         />
         
         <Box sx={{ display: 'flex', gap: 1 }}>
@@ -66,40 +66,40 @@ const ResumeRendererDemo: React.FC = () => {
             size="small"
             onClick={() => setContainerSize('small')}
           >
-            Маленький
+                         Small
           </Button>
           <Button 
             variant={containerSize === 'medium' ? 'contained' : 'outlined'}
             size="small"
             onClick={() => setContainerSize('medium')}
           >
-            Средний
+                         Medium
           </Button>
           <Button 
             variant={containerSize === 'large' ? 'contained' : 'outlined'}
             size="small"
             onClick={() => setContainerSize('large')}
           >
-            Большой
+                         Large
           </Button>
         </Box>
       </Box>
       
-      {/* Информация */}
+              {/* Information */}
       <Box sx={{ p: 2, backgroundColor: '#e3f2fd', borderRadius: '4px' }}>
         <Typography variant="body2">
-          <strong>Текущие настройки:</strong><br/>
-          • Адаптивное масштабирование: {fitToContainer ? 'Включено' : 'Выключено'}<br/>
-          • Размер контейнера: {containerSize}<br/>
-          • Отладка: {debug ? 'Включена' : 'Выключена'}
+                     <strong>Current settings:</strong><br/>
+           • Adaptive scaling: {fitToContainer ? 'Enabled' : 'Disabled'}<br/>
+           • Container size: {containerSize}<br/>
+           • Debug: {debug ? 'Enabled' : 'Disabled'}
         </Typography>
       </Box>
       
-      {/* Контейнер с резюме */}
+              {/* Resume container */}
       <Box sx={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
         <Box sx={getContainerStyle(containerSize)}>
           <Typography variant="subtitle2" sx={{ textAlign: 'center', color: '#666' }}>
-            Контейнер: {containerSize}
+                         Container: {containerSize}
           </Typography>
           
           <Box sx={{ flex: 1, position: 'relative' }}>

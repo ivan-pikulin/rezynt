@@ -2,7 +2,7 @@ import { Resume } from '../../../shared/services/api/types';
 import { ResumeData } from '../../../shared/types/resume';
 
 /**
- * Преобразует данные резюме из API формата в формат для отображения
+ * Converts resume data from API format to display format
  */
 export function convertApiResumeToDisplayData(apiResume: Resume): ResumeData {
   return {
@@ -25,9 +25,9 @@ export function convertApiResumeToDisplayData(apiResume: Resume): ResumeData {
 }
 
 /**
- * Преобразует данные резюме из формата отображения в API формат
+ * Converts resume data from display format to API format
  */
-export function convertDisplayDataToApiResume(displayData: ResumeData, resumeId: string): Partial<Resume> {
+export function convertDisplayDataToApiResume(displayData: ResumeData, resumeId: number): Partial<Resume> {
   return {
     id: resumeId,
     title: displayData.title || '',

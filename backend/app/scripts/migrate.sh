@@ -2,7 +2,7 @@
 
 set -e
 
-echo "📦 Запуск Alembic миграций..."
+echo "📦 Running Alembic migrations..."
 
 APP_ENV=${APP_ENV:-dev}
 PROJECT_ROOT="/app"
@@ -18,19 +18,19 @@ ALEMBIC_CMD="uv run alembic -c $ALEMBIC_INI"
 
 # Check if alembic.ini exists
 if [ ! -f "$ALEMBIC_INI" ]; then
-  echo "❌ Не найден alembic.ini по пути: $ALEMBIC_INI"
+  echo "❌ alembic.ini not found at path: $ALEMBIC_INI"
   exit 1
 fi
 
 # Check and create versions directory
 if [ ! -d "$VERSIONS_DIR" ]; then
-  echo "📁 Папка versions не найдена. Создаю: $VERSIONS_DIR"
+  echo "📁 versions folder not found. Creating: $VERSIONS_DIR"
   mkdir -p "$VERSIONS_DIR"
   chmod 777 "$VERSIONS_DIR"
 fi
 
 # Wait for database to be ready
-echo "⏳ Ожидание готовности базы данных..."
+echo "⏳ Waiting for database to be ready..."
 until uv run python -c "
 import asyncio
 import asyncpg
@@ -57,21 +57,21 @@ else:
     print('Database not ready')
     exit(1)
 " 2>/dev/null; do
-  echo "⏳ База данных еще не готова, ожидание..."
+  echo "⏳ Database is not ready yet, waiting..."
   sleep 2
 done
-echo "✅ База данных готова"
+echo "✅ Database is ready"
 
 # Auto-generate migrations if AUTO_GENERATE_MIGRATIONS is set
 if [ "${AUTO_GENERATE_MIGRATIONS:-false}" = "true" ]; then
-  echo "🔧 Автоматическое создание миграций..."
+  echo "🔧 Auto-generating migrations..."
   $ALEMBIC_CMD upgrade head
   $ALEMBIC_CMD revision --autogenerate -m "autogen"
-  echo "✅ Создание миграции завершено"
+  echo "✅ Migration creation completed"
 fi
 
 
-echo "📝 Применение миграций..."
+echo "📝 Applying migrations..."
 $ALEMBIC_CMD upgrade head
 
-echo "✅ Alembic миграции выполнены"
+echo "✅ Alembic migrations completed"

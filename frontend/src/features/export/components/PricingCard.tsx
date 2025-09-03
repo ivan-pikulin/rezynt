@@ -76,7 +76,7 @@ const PricingCard: React.FC<PricingCardProps> = ({
       )}
       
       <CardContent sx={{ p: 4 }}>
-        {/* Заголовок и цена */}
+        {/* Title and price */}
         <Box sx={{ textAlign: 'center', mb: 3 }}>
           <Typography 
             variant="h5" 
@@ -107,7 +107,7 @@ const PricingCard: React.FC<PricingCardProps> = ({
           )}
         </Box>
         
-        {/* Список фич */}
+        {/* Feature list */}
         <Box sx={{ mb: 4 }}>
           {features.map((feature, index) => (
             <Box 
@@ -138,7 +138,7 @@ const PricingCard: React.FC<PricingCardProps> = ({
           ))}
         </Box>
         
-        {/* Кнопка */}
+        {/* Button */}
         <Button
           variant={buttonVariant}
           size="large"

@@ -47,45 +47,45 @@ const RefinePage: React.FC = () => {
   const [hoverTemplate, setHoverTemplate] = useState<TemplateConfig | null>(null);
   const templateContainerRef = useRef<HTMLDivElement>(null);
   
-  // Определяем мобильный режим для экранов до 768px
-  const isMobile = useMediaQuery('(max-width: 768px)');
-
-  // Устанавливаем заголовок при загрузке резюме
+  // Define mobile mode for screens up to 768px
+  const isMobile = useMediaQuery('(max-width:768px)');
+  
+  // Set title when loading resume
   useEffect(() => {
     if (resume) {
       setTitleValue(resume.title);
     }
   }, [resume]);
 
-  // Обработчик обновления резюме
+  // Resume update handler
   const handleResumeUpdate = (updatedResume: Resume) => {
     updateResumeInCache(updatedResume);
     setTitleValue(updatedResume.title);
   };
 
-  // Обработчик изменения шаблона
+  // Template change handler
   const handleTemplateChange = async (template: TemplateConfig) => {
-    // Сначала мгновенно обновляем локальное состояние для превью
+    // First, instantly update local state for preview
     updateTemplate(template);
     
-    // Обновляем кеш резюме для мгновенного отображения
+    // Update resume cache for instant display
     if (resume) {
       const updatedResume = { ...resume, template_slug: template.id };
       updateResumeInCache(updatedResume);
     }
     
-    // Затем асинхронно сохраняем на сервере
+    // Then asynchronously save to server
     if (resumeId) {
       try {
         await resumeApi.assignTemplateBySlug(parseInt(resumeId), template.id);
       } catch (err) {
         console.error('Error updating template on server:', err);
-        // В случае ошибки можно показать уведомление пользователю
+        // In case of error, we can show user notification
       }
     }
   };
-
-  // Обработчики для hover-событий шаблонов
+  
+  // Handlers for template hover events
   const handleTemplateHover = (template: TemplateConfig) => {
     setHoverTemplate(template);
   };
@@ -94,29 +94,29 @@ const RefinePage: React.FC = () => {
     setHoverTemplate(null);
   };
 
-  // Обработчик редактирования заголовка
+  // Title editing handler
   const handleTitleEdit = () => {
     setIsEditingTitle(true);
   };
 
-  // Обработчик сохранения заголовка
+  // Title save handler
   const handleTitleSave = async () => {
     if (!resume || !resumeId) return;
     
-    // Сразу закрываем редактирование
+    // Close editing immediately
     setIsEditingTitle(false);
     
     try {
       const updatedResume = await resumeApi.updateResumePartial(parseInt(resumeId), { title: titleValue });
       updateResumeInCache(updatedResume);
     } catch (err) {
-      console.error('Error saving title:', err);
-      // В случае ошибки возвращаем оригинальное значение
+      // In case of error, return to original value
       setTitleValue(resume.title);
+      console.error('Error saving title:', err);
     }
   };
-
-  // Обработчик отмены редактирования заголовка
+  
+  // Title cancel handler
   const handleTitleCancel = () => {
     setTitleValue(resume?.title || '');
     setIsEditingTitle(false);
@@ -138,7 +138,7 @@ const RefinePage: React.FC = () => {
       case 1: // Generate
         navigate(`/chat?resume_id=${resumeId}`);
         break;
-      case 2: // Refine - уже на этой странице
+      case 2: // Refine - already on this page
         break;
       case 3: // Export
         navigate(`/export?resume_id=${resumeId}`);
@@ -302,7 +302,7 @@ const RefinePage: React.FC = () => {
     return fullHtml;
   };
 
-  // Если нет resumeId, показываем ошибку
+  // If no resumeId, show error
   if (!resumeId) {
     return (
       <Box sx={{ 
@@ -317,7 +317,7 @@ const RefinePage: React.FC = () => {
     );
   }
 
-  // Если загрузка, показываем индикатор
+  // If loading, show indicator
   if (loading) {
     return (
       <Box sx={{ 
@@ -329,7 +329,7 @@ const RefinePage: React.FC = () => {
     );
   }
 
-  // Если ошибка, показываем сообщение
+  // If error, show message
   if (queryError || !resume) {
     return (
       <Box sx={{ 
@@ -344,7 +344,7 @@ const RefinePage: React.FC = () => {
     );
   }
 
-  // Преобразуем данные резюме для отображения
+  // Convert resume data for display
   const displayData = convertApiResumeToDisplayData(resume);
 
   return (
@@ -356,7 +356,7 @@ const RefinePage: React.FC = () => {
       position: 'relative',
       overflow: 'hidden'
     }}>
-      {/* Общая шапка */}
+      {/* Common header */}
       <Header 
         activeStep={2} 
         onNext={handleNext}
@@ -370,7 +370,7 @@ const RefinePage: React.FC = () => {
         onTabChange={handleTabChange}
       />
       
-      {/* Основная область */}
+      {/* Main area */}
       <Box sx={{ 
         flex: 1, 
         display: 'flex', 
@@ -380,7 +380,7 @@ const RefinePage: React.FC = () => {
       }}>
 
 
-        {/* Левая панель: редактор или шаблоны */}
+        {/* Left panel: editor or templates */}
         <Box sx={{ 
           width: isMobile ? '100%' : '50%',
           height: '100%',
@@ -390,7 +390,7 @@ const RefinePage: React.FC = () => {
           position: 'relative',
           bgcolor: COLORS.resume.header.background
         }}>
-          {/* Заголовок резюме */}
+          {/* Resume header */}
           <Box sx={{ 
             bgcolor: COLORS.resume.header.background,
             borderBottom: `1px solid ${COLORS.resume.section.border}`,
@@ -476,7 +476,7 @@ const RefinePage: React.FC = () => {
                       <ViewModuleIcon />
                     </IconButton>
                   </Tooltip>
-                  {/* Кнопка глаза для мобильных */}
+                  {/* Eye button for mobile */}
                   {isMobile && (
                     <Tooltip title="Preview Resume">
                       <IconButton 
@@ -504,7 +504,7 @@ const RefinePage: React.FC = () => {
           
 
 
-          {/* Контент: редактор или шаблоны */}
+          {/* Content: editor or templates */}
           <Box sx={{ 
             flex: 1,
             bgcolor: 'white',
@@ -551,7 +551,7 @@ const RefinePage: React.FC = () => {
           </Box>
         </Box>
 
-        {/* Вертикальный разделитель */}
+        {/* Vertical separator */}
         <Box sx={{ 
           display: isMobile ? 'none' : 'block',
           width: '1px',
@@ -559,7 +559,7 @@ const RefinePage: React.FC = () => {
           mx: 0
         }} />
         
-        {/* Правая панель: превью резюме */}
+        {/* Right panel: resume preview */}
         <Box sx={{ 
           width: isMobile ? 0 : '50%',
           height: isMobile ? 0 : 'auto',
@@ -569,7 +569,7 @@ const RefinePage: React.FC = () => {
           position: 'relative',
           bgcolor: 'white'
         }}>
-          {/* Превью резюме */}
+          {/* Resume preview */}
           <Box sx={{ 
             flex: 1,
             display: 'flex',
@@ -633,7 +633,7 @@ const RefinePage: React.FC = () => {
         </Box>
       </Box>
 
-      {/* Боковая панель с превью (на весь экран для мобильных) */}
+      {/* Sidebar with preview (full screen for mobile) */}
       <Box sx={{
         position: 'fixed',
         top: 0,
@@ -648,7 +648,7 @@ const RefinePage: React.FC = () => {
         transition: 'transform 0.3s ease-in-out',
         overflow: 'hidden'
       }}>
-        {/* Заголовок панели */}
+        {/* Sidebar header */}
         <Box sx={{
           display: 'flex',
           alignItems: 'center',
@@ -672,7 +672,7 @@ const RefinePage: React.FC = () => {
           </IconButton>
         </Box>
 
-        {/* Содержимое панели */}
+        {/* Sidebar content */}
         <Box sx={{
           flex: 1,
           display: 'flex',
@@ -682,7 +682,7 @@ const RefinePage: React.FC = () => {
           p: 2,
           overflow: 'auto'
         }}>
-          {/* Превью резюме */}
+          {/* Resume preview */}
           <Box sx={{ 
             width: '100%',
             maxWidth: '400px',

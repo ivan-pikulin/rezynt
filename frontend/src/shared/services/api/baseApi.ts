@@ -78,7 +78,7 @@ baseApi.interceptors.response.use(
           return baseApi(originalRequest);
         }
       } catch (refreshError) {
-        // Если refresh не удался, очищаем токены и редиректим на авторизацию
+        // If refresh failed, clear tokens and redirect to auth
         tokenService.clearTokens();
         window.location.href = '/auth';
         return Promise.reject(refreshError);

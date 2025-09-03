@@ -163,7 +163,7 @@ const EducationEditor: React.FC<EducationEditorProps> = ({
         </Button>
       </Box>
 
-      {/* Список образования */}
+      {/* Education list */}
       {localEducation.map((edu, index) => (
         <Card key={index} sx={{ mb: 2, border: '1px solid #e0e0e0' }}>
           <CardContent>
@@ -202,7 +202,7 @@ const EducationEditor: React.FC<EducationEditorProps> = ({
         </Card>
       ))}
 
-      {/* Диалог добавления/редактирования */}
+      {/* Add/Edit dialog */}
       <Dialog open={isDialogOpen} onClose={handleCloseDialog} maxWidth="md" fullWidth>
         <DialogTitle>
           {editingEducationIndex !== null ? t('refine.editor.editEducation') : t('refine.editor.addEducation')}

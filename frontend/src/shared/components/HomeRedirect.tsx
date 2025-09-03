@@ -14,7 +14,7 @@ const HomeRedirect: React.FC = () => {
   const { shouldShowOnboarding } = useOnboarding(user);
   const { resumes, isLoading: resumesLoading } = useResumes();
 
-  // Если аутентификация еще загружается, показываем загрузку
+  // If authentication is still loading, show loading
   if (authLoading) {
     return (
       <Box sx={{ 
@@ -33,17 +33,17 @@ const HomeRedirect: React.FC = () => {
     );
   }
 
-  // Если пользователь не аутентифицирован, перенаправляем на страницу входа
+  // If user is not authenticated, redirect to login page
   if (!isAuthenticated) {
     return <Navigate to="/auth" replace />;
   }
 
-  // Если нужно показать онбординг, не загружаем резюме и перенаправляем на стартовую страницу
+  // If onboarding needs to be shown, don't load resumes and redirect to start page
   if (shouldShowOnboarding) {
     return <Navigate to="/start" replace />;
   }
 
-  // Если данные о резюме еще загружаются, показываем загрузку
+  // If resume data is still loading, show loading
   if (resumesLoading) {
     return (
       <Box sx={{ 
@@ -62,12 +62,12 @@ const HomeRedirect: React.FC = () => {
     );
   }
 
-  // Если у пользователя есть резюме, перенаправляем на страницу резюме
+  // If user has resumes, redirect to resumes page
   if (resumes && Array.isArray(resumes) && resumes.length > 0) {
     return <Navigate to="/resumes" replace />;
   }
 
-  // Если у пользователя нет резюме, перенаправляем на стартовую страницу
+  // If user has no resumes, redirect to start page
   return <Navigate to="/start" replace />;
 };
 

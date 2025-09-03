@@ -19,7 +19,7 @@ const ErrorMessage: React.FC<ErrorMessageProps> = ({ message, onRetry }) => {
       p: 3
     }}>
       <Typography variant="h6" color="error" align="center">
-        Ошибка
+        Error
       </Typography>
       <Typography variant="body2" color="text.secondary" align="center">
         {message}
@@ -31,7 +31,7 @@ const ErrorMessage: React.FC<ErrorMessageProps> = ({ message, onRetry }) => {
           onClick={onRetry}
           sx={{ mt: 2 }}
         >
-          Попробовать снова
+          Try Again
         </Button>
       )}
     </Box>

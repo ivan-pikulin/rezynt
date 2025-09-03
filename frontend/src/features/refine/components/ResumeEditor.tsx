@@ -202,25 +202,25 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
       }
 
       // Группируем изменения по типам
-      const mainUpdates: any = {};
-      const personalInfoUpdates: any = {};
+      const basicFields: any = {};
+      const personalFields: any = {};
 
       for (const [fieldName, value] of changedFields) {
         if (['title', 'professional_summary'].includes(fieldName)) {
-          mainUpdates[fieldName] = value;
+          (basicFields as any)[fieldName] = value;
         } else if (['first_name', 'last_name', 'location'].includes(fieldName)) {
-          personalInfoUpdates[fieldName] = value;
+          (personalFields as any)[fieldName] = value;
         }
       }
 
       // Сохраняем основные поля резюме
-      if (Object.keys(mainUpdates).length > 0) {
-        await resumeApi.updateResumePartial(resume.id, mainUpdates);
+      if (Object.keys(basicFields).length > 0) {
+        await resumeApi.updateResumePartial(resume.id, basicFields);
       }
 
       // Сохраняем личную информацию (используем новый метод для UnifiedResume)
-      if (Object.keys(personalInfoUpdates).length > 0) {
-        await resumeApi.updatePersonalInfo(resume.id, personalInfoUpdates);
+      if (Object.keys(personalFields).length > 0) {
+        await resumeApi.updatePersonalInfo(resume.id, personalFields);
       }
 
       // Получаем обновленное резюме
@@ -249,8 +249,8 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
 
   return (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      {/* Содержимое вкладок */}
-              <Box sx={{ flex: 1, bgcolor: COLORS.resume.header.background, p: 2, minHeight: 0 }}>
+      {/* Tab content */}
+      <Box sx={{ flex: 1, bgcolor: COLORS.resume.header.background, p: 2, minHeight: 0 }}>
         <Box sx={{ 
           bgcolor: 'white', 
           borderRadius: 2, 
@@ -259,7 +259,7 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
           display: 'flex',
           flexDirection: 'column'
         }}>
-          {/* Вкладки */}
+          {/* Tabs */}
           <Tabs 
             value={activeTab} 
             onChange={handleTabChange} 

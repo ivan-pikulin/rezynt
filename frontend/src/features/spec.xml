@@ -44,7 +44,7 @@
     </folder_structure>
 
     <components>
-        <component name="App" desc="Главный компонент приложения, экспортируется по умолчанию из App.tsx" />
+        <component name="App" desc="Main application component, exported as default from App.tsx" />
         <feature name="auth" desc="Authentication and authorization with login, signup, and email confirmation">
             <component name="AuthPage" desc="Main auth page with form switching between login and signup"/>
             <component name="EmailConfirmationPage" desc="Email confirmation success/error page"/>

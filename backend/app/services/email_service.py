@@ -26,11 +26,11 @@ class EmailService:
         logger.info(f"Domain: {self.domain}")
         logger.info(f"DKIM selector: {self.selector}")
         
-        # Загружаем приватный ключ DKIM
-        self.dkim_private_key = self._load_dkim_key()
+        # Load DKIM private key
+        self.dkim_private_key = self._load_dkim_private_key()
     
-    def _load_dkim_key(self) -> str:
-        """Загружает приватный ключ DKIM из файла"""
+    def _load_dkim_private_key(self) -> str:
+        """Loads DKIM private key from file"""
         try:
             with open(settings.email.EMAIL_DKIM_PRIVATE_KEY_PATH, 'r') as f:
                 key_content = f.read()
@@ -45,31 +45,31 @@ class EmailService:
     
     def send_email(self, to_email: str, subject: str, body: str) -> bool:
         """
-        Отправляет email с DKIM подписью
+        Sends email with DKIM signature
         
         Args:
-            to_email: Email получателя
-            subject: Тема письма
-            body: Текст письма
+            to_email: Recipient email
+            subject: Email subject
+            body: Email body
             
         Returns:
-            bool: True если письмо отправлено успешно, False в противном случае
+            bool: True if email sent successfully, False otherwise
         """
         try:
             logger.info(f"Attempting to send email to {to_email}")
             
-            # Создаем MIME сообщение как в test_email_send.py
+            # Create MIME message as in test_email_send.py
             msg = MIMEText(body, 'html')
             msg['From'] = f"Rezynt <{self.sender_email}>"
             msg['To'] = to_email
             msg['Subject'] = subject
             
-            # Добавляем DKIM подпись если есть приватный ключ
+            # Add DKIM signature if private key is available
             if self.dkim_private_key:
-                # Заголовки, которые надо подписать
+                # Headers to sign
                 headers = [b"from", b"to", b"subject"]
                 
-                # Создаем DKIM-подпись как в test_email_send.py
+                # Create DKIM signature as in test_email_send.py
                 signature = dkim.sign(
                     message=msg.as_bytes(),
                     selector=self.selector.encode(),
@@ -78,21 +78,21 @@ class EmailService:
                     include_headers=headers
                 )
                 
-                # Добавляем DKIM-подпись в заголовки письма
+                # Add DKIM signature to message headers
                 sig_header = signature[len("DKIM-Signature: "):].decode()
                 msg['DKIM-Signature'] = sig_header
                 logger.info("DKIM signature added to message headers")
             else:
                 logger.warning("No DKIM private key available - sending without DKIM signature")
             
-            # Отправляем письмо через smtplib с SSL как в test_email_send.py
+            # Send email via smtplib with SSL as in test_email_send.py
             logger.info(f"Connecting to SMTP server {self.smtp_server}:{self.smtp_port}")
             with smtplib.SMTP_SSL(self.smtp_server, self.smtp_port) as smtp:
                 logger.info("SMTP connection established, attempting login")
                 smtp.login(self.sender_email, self.sender_password)
                 logger.info("SMTP login successful")
                 
-                # Отправляем письмо
+                # Send email
                 smtp.sendmail(msg['From'], [msg['To']], msg.as_string())
                 logger.info(f"Email sent successfully to {to_email}")
             
@@ -111,20 +111,20 @@ class EmailService:
     
     def send_confirmation_email(self, to_email: str, confirmation_token: str) -> bool:
         """
-        Отправляет email для подтверждения регистрации
+        Sends confirmation email for registration
         
         Args:
-            to_email: Email пользователя
-            confirmation_token: Токен для подтверждения
+            to_email: User email
+            confirmation_token: Confirmation token
             
         Returns:
-            bool: True если письмо отправлено успешно
+            bool: True if email sent successfully
         """
         logger.info(f"Sending confirmation email to {to_email}")
         
         subject = "Email Confirmation - Rezynt"
         
-        # HTML шаблон письма
+        # HTML template for email
         html_template = """<!DOCTYPE html>
 <html>
 <head>
@@ -147,7 +147,7 @@ class EmailService:
 </body>
 </html>"""
         
-        # Рендерим HTML шаблон
+        # Render HTML template
         html_content = Template(html_template).render(
             api_url=settings.API_BASE_URL,
             token=confirmation_token
@@ -160,20 +160,20 @@ class EmailService:
 
     def send_password_reset_email(self, to_email: str, reset_token: str) -> bool:
         """
-        Отправляет email для сброса пароля
+        Sends password reset email
         
         Args:
-            to_email: Email пользователя
-            reset_token: Токен для сброса пароля
+            to_email: User email
+            reset_token: Password reset token
             
         Returns:
-            bool: True если письмо отправлено успешно
+            bool: True if email sent successfully
         """
         logger.info(f"Sending password reset email to {to_email}")
         
         subject = "Password Reset - Rezynt"
         
-        # HTML шаблон письма
+        # HTML template for email
         html_template = """<!DOCTYPE html>
 <html>
 <head>
@@ -196,7 +196,7 @@ class EmailService:
 </body>
 </html>"""
         
-        # Рендерим HTML шаблон
+        # Render HTML template
         html_content = Template(html_template).render(
             frontend_url=settings.FRONTEND_BASE_URL,
             token=reset_token

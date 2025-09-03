@@ -90,7 +90,7 @@ def _generate_resume_text_from_parsed(parsed_data) -> str:
 
 @celery_app.task(name="send_confirmation_email_task")
 def send_confirmation_email_task(email: str, token: str):
-    """Отправка email с подтверждением регистрации через EmailService"""
+    """Send confirmation email for registration via EmailService"""
     return async_to_sync(_send_confirmation_email_task)(email, token)
 
 
@@ -118,7 +118,7 @@ async def _send_confirmation_email_task(email: str, token: str):
 
 @celery_app.task(name="send_password_reset_email_task")
 def send_password_reset_email_task(email: str, token: str):
-    """Отправка email с токеном для сброса пароля через EmailService"""
+    """Send password reset email with token via EmailService"""
     return async_to_sync(_send_password_reset_email_task)(email, token)
 
 
@@ -146,7 +146,7 @@ async def _send_password_reset_email_task(email: str, token: str):
 
 @celery_app.task(name="process_resume_upload_task")
 def process_resume_upload_task(file_content: bytes, filename: str, user_id: int):
-    """Обработка загруженного резюме с помощью ParseService"""
+    """Process uploaded resume using ParseService"""
     return async_to_sync(_process_resume_upload_task)(file_content, filename, user_id)
 
 
@@ -249,7 +249,7 @@ async def _process_resume_upload_task(file_content: bytes, filename: str, user_i
 
 
 async def _create_resume_with_data(user_id: int, filename: str, parsed_data):
-    """Создает резюме в базе данных со всеми данными из ParseService"""
+    """Creates resume in database with all data from ParseService"""
     logger.info(f"Starting database operations for user {user_id}, filename: {filename}")
     logger.info(f"Parsed data summary: first_name={parsed_data.first_name}, last_name={parsed_data.last_name}, experience_count={len(parsed_data.experience)}, education_count={len(parsed_data.education)}, skills_count={len(parsed_data.skills)}, contacts_count={len(parsed_data.contacts)}")
     

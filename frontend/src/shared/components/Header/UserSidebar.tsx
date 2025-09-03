@@ -44,7 +44,7 @@ const UserSidebar: React.FC<UserSidebarProps> = ({
     if (open && !userData && user) {
       fetchUserData();
     } else if (!open) {
-      // Сбрасываем данные при закрытии сайдбара
+              // Reset data when closing sidebar
       setUserData(null);
     }
   }, [open, userData, user]);
@@ -56,9 +56,9 @@ const UserSidebar: React.FC<UserSidebarProps> = ({
     try {
       const data = await userApi.getCurrentUser();
       setUserData(data);
-      updateUser(data); // Обновляем пользователя в контексте
+              updateUser(data); // Update user in context
       
-      // Загружаем количество резюме для premium пользователей
+              // Load resume count for premium users
       if (data.is_premium) {
         try {
           const resumes = await resumeApi.getUserResumes();
@@ -118,7 +118,7 @@ const UserSidebar: React.FC<UserSidebarProps> = ({
         flexDirection: 'column', 
         height: '100%'
       }}>
-        {/* Заголовок с кнопкой закрытия */}
+        {/* Header with close button */}
         <Box sx={{ 
           display: 'flex', 
           justifyContent: 'space-between', 
@@ -133,7 +133,7 @@ const UserSidebar: React.FC<UserSidebarProps> = ({
           </IconButton>
         </Box>
 
-        {/* Информация о пользователе */}
+        {/* User information */}
         <Box sx={{ 
           display: 'flex', 
           flexDirection: 'column', 
@@ -195,7 +195,7 @@ const UserSidebar: React.FC<UserSidebarProps> = ({
 
         <Divider sx={{ mb: 2 }} />
 
-        {/* Основная навигация */}
+        {/* Main navigation */}
         <Box sx={{ mb: 2 }}>
           <Button
             variant="contained"
@@ -234,7 +234,7 @@ const UserSidebar: React.FC<UserSidebarProps> = ({
             }}
           >
             My Resumes
-            {/* Счетчик резюме для premium пользователей */}
+            {/* Resume counter for premium users */}
             {(userData?.is_premium ?? user?.is_premium) && resumeCount > 0 && (
               <Badge
                 badgeContent={resumeCount}
@@ -259,10 +259,10 @@ const UserSidebar: React.FC<UserSidebarProps> = ({
           </Button>
         </Box>
 
-        {/* Spacer для выталкивания кнопок вниз */}
+        {/* Spacer to push buttons down */}
         <Box sx={{ flex: 1 }} />
 
-        {/* Дополнительные опции внизу */}
+        {/* Additional options at bottom */}
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
           <Button
             variant="text"

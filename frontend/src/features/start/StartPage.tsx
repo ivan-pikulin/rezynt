@@ -12,7 +12,7 @@ const StartPage: React.FC = () => {
 
   const handleStepClick = (stepIndex: number) => {
     switch (stepIndex) {
-      case 0: // Start - уже на этой странице
+              case 0: // Start - already on this page
         break;
       case 1: // Generate
         navigate('/chat');
@@ -49,27 +49,27 @@ const StartPage: React.FC = () => {
       flexDirection: 'column', 
       bgcolor: COLORS.resume.section.background
     }}>
-      {/* Общая шапка */}
+              {/* Common header */}
       <Header 
         activeStep={0} 
         showBackButton={false}
         showNextButton={false}
-        showLogo={true} // Показываем лого на десктопе
-        onStepClick={undefined} // Отключаем кликабельность шагов
+                  showLogo={true} // Show logo on desktop
+          onStepClick={undefined} // Disable step clickability
         isProUser={user?.is_premium}
         currentTab="resumes"
         onTabChange={handleTabChange}
       />
       
-      {/* Основная область */}
+              {/* Main area */}
       <Box sx={{ 
         flex: 1, 
         display: 'flex', 
         justifyContent: 'center',
         alignItems: 'center',
-        p: { xs: 2, sm: 3, md: 4 }, // Адаптивные отступы
-        py: { xs: 3, sm: 4, md: 6 }, // Дополнительные вертикальные отступы
-        minHeight: { xs: 'calc(100vh - 64px)', sm: 'calc(100vh - 80px)' } // Учитываем высоту header
+                  p: { xs: 2, sm: 3, md: 4 }, // Adaptive padding
+                  py: { xs: 3, sm: 4, md: 6 }, // Additional vertical padding
+          minHeight: { xs: 'calc(100vh - 64px)', sm: 'calc(100vh - 80px)' } // Account for header height
       }}>
         <StartOptions />
       </Box>

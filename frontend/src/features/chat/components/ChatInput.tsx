@@ -12,7 +12,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled })
   
   const handleSend = () => {
     if (message.trim() && !disabled) {
-      onSendMessage(message); // Убираем .trim() чтобы сохранить переносы строк
+      onSendMessage(message); // Remove .trim() to preserve line breaks
       setMessage('');
     }
   };
@@ -29,9 +29,9 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled })
       p: 1,
       display: 'flex',
       gap: 1.5,
-      alignItems: 'center', // Центрируем по вертикали
+      alignItems: 'center', // Center vertically
       width: '100%',
-      position: 'relative' // Для правильного позиционирования
+      position: 'relative' // For proper positioning
     }}>
       <TextField
         fullWidth
@@ -46,44 +46,44 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled })
         autoFocus
         sx={{
           '& .MuiOutlinedInput-root': {
-            borderRadius: '20px', // Более округлые углы
-            bgcolor: '#f8f9fa', // Светло-серый фон
+            borderRadius: '20px', // More rounded corners
+            bgcolor: '#f8f9fa', // Light gray background
             fontSize: '0.95rem',
-            minHeight: '40px', // Минимальная высота
-            maxHeight: '150px', // Максимальная высота (примерно 6 строк)
-            paddingRight: '0px', // Убираем paddingRight у контейнера
-            overflow: 'hidden', // Убираем прокрутку у контейнера
-            display: 'flex', // Flexbox для правильного размещения
-            alignItems: 'stretch', // Растягиваем по высоте
-            flexDirection: 'column', // Вертикальное направление
+            minHeight: '40px', // Minimum height
+            maxHeight: '150px', // Maximum height (about 6 lines)
+            paddingRight: '0px', // Remove paddingRight from container
+            overflow: 'hidden', // Remove scrolling from container
+            display: 'flex', // Flexbox for proper placement
+            alignItems: 'stretch', // Stretch by height
+            flexDirection: 'column', // Vertical direction
             '& fieldset': {
-              borderColor: 'transparent', // Убираем границу
+              borderColor: 'transparent', // Remove border
               borderWidth: '1px'
             },
             '&:hover fieldset': {
-              borderColor: '#e0e0e0' // Граница при наведении
+              borderColor: '#e0e0e0' // Border on hover
             },
             '&.Mui-focused fieldset': {
-              borderColor: '#1976d2', // Граница при фокусе
+              borderColor: '#1976d2', // Border on focus
               borderWidth: '2px'
             },
             '& input': {
               fontSize: '0.95rem',
-              padding: '12px 16px' // Увеличиваем отступы
+              padding: '12px 16px' // Increase padding
             },
             '& textarea': {
               fontSize: '0.95rem',
-              padding: '12px 76px 12px 16px', // Отступы: top right bottom left (76px справа для кнопки)
-              margin: 0, // Убираем margin
+              padding: '12px 76px 12px 16px', // Padding: top right bottom left (76px right for button)
+              margin: 0, // Remove margin
               lineHeight: '1.4',
-              resize: 'none', // Отключаем ручное изменение размера
-              overflow: 'auto', // Прокрутка только внутри textarea
-              maxHeight: '126px', // Максимальная высота textarea (150px - 24px отступы)
-              border: 'none', // Убираем границу у textarea
-              outline: 'none', // Убираем outline у textarea
-              width: '100%', // Занимаем всю ширину
-              boxSizing: 'border-box', // Включаем padding в расчет ширины
-              position: 'relative' // Для правильного позиционирования
+              resize: 'none', // Disable manual resizing
+              overflow: 'auto', // Scrolling only inside textarea
+              maxHeight: '126px', // Maximum textarea height (150px - 24px padding)
+              border: 'none', // Remove border from textarea
+              outline: 'none', // Remove outline from textarea
+              width: '100%', // Take full width
+              boxSizing: 'border-box', // Include padding in width calculation
+              position: 'relative' // For proper positioning
             }
           },
           '& .MuiInputBase-input': {
@@ -103,13 +103,13 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled })
           color: message.trim() ? 'white' : '#9e9e9e',
           width: '40px',
           height: '40px',
-          borderRadius: '50%', // Круглая кнопка
+          borderRadius: '50%', // Round button
           transition: 'all 0.2s ease-in-out',
-          flexShrink: 0, // Предотвращаем сжатие кнопки
+          flexShrink: 0, // Prevent button compression
           '&:hover': {
             bgcolor: message.trim() ? '#1565c0' : '#d5d5d5',
             transform: 'scale(1.05)',
-            boxShadow: '0 4px 12px rgba(25, 118, 210, 0.3)' // Тень при наведении
+            boxShadow: '0 4px 12px rgba(25, 118, 210, 0.3)' // Shadow on hover
           },
           '&:active': {
             transform: 'scale(0.95)',
@@ -122,11 +122,11 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled })
             boxShadow: 'none'
           },
           '& .MuiSvgIcon-root': {
-            fontSize: '20px', // Увеличиваем размер иконки
+            fontSize: '20px', // Increase icon size
             transition: 'transform 0.2s ease-in-out'
           },
           '&:hover .MuiSvgIcon-root': {
-            transform: 'translateX(1px)' // Легкое смещение иконки при наведении
+            transform: 'translateX(1px)' // Light icon shift on hover
           }
         }}
       >

@@ -10,7 +10,7 @@ interface TemplateSelectorProps {
   onTemplateHoverEnd?: () => void;
   horizontalLayout?: boolean;
   selectedTemplate?: TemplateConfig | null;
-  resumeData?: any; // Реальные данные резюме для превью
+  resumeData?: any; // Real resume data for preview
 }
 
 const TemplateSelector: React.FC<TemplateSelectorProps> = ({ 
@@ -26,30 +26,30 @@ const TemplateSelector: React.FC<TemplateSelectorProps> = ({
     externalSelectedTemplate || templates[0]
   );
 
-  // Используем только реальные данные резюме
+  // Use only real resume data
   const previewData = resumeData;
 
-  // Используем внешний selectedTemplate если он передан, иначе внутренний
+  // Use external selectedTemplate if passed, otherwise internal
   const selectedTemplate = externalSelectedTemplate || internalSelectedTemplate;
 
-  // Если нет данных резюме, не рендерим шаблоны
+  // If no resume data, don't render templates
   if (!previewData) {
     return null;
   }
 
-  // Синхронизируем с внешним selectedTemplate
+  // Sync with external selectedTemplate
   useEffect(() => {
     if (externalSelectedTemplate && externalSelectedTemplate.id !== internalSelectedTemplate?.id) {
       setInternalSelectedTemplate(externalSelectedTemplate);
     }
   }, [externalSelectedTemplate, internalSelectedTemplate?.id]);
 
-  // Вызываем onTemplateChange при инициализации с выбранным шаблоном
+  // Call onTemplateChange when initializing with selected template
   useEffect(() => {
     if (selectedTemplate && onTemplateChange) {
       onTemplateChange(selectedTemplate);
     }
-  }, []); // Пустой массив зависимостей - выполняется только при монтировании
+  }, []); // Empty dependency array - executed only on mount
 
   const handleTemplateSelect = (template: TemplateConfig) => {
     setInternalSelectedTemplate(template);

@@ -2,186 +2,186 @@
 <specification>
     <name>Services Layer</name>
     <description>
-        Слой сервисов для бизнес-логики приложения. Содержит классы для работы с пользователями, отправки email и парсинга резюме.
+        Services layer for application business logic. Contains classes for working with users, sending emails and parsing resumes.
     </description>
     
     <components>
         <component>
             <name>ParseService</name>
             <description>
-                Сервис для парсинга резюме с использованием OpenAI Structured Outputs. Читает файлы через markitdown и извлекает структурированные данные с гарантированным форматом через Pydantic модели.
+                Service for parsing resumes using OpenAI Structured Outputs. Reads files through markitdown and extracts structured data with guaranteed format through Pydantic models.
             </description>
             <methods>
                 <method>
                     <name>parse_resume_file</name>
-                    <description>Парсит файл резюме и возвращает структурированные данные (асинхронно)</description>
+                    <description>Parses resume file and returns structured data (asynchronously)</description>
                     <params>
-                        <param name="file_path" type="str">Путь к файлу резюме</param>
+                        <param name="file_path" type="str">Path to resume file</param>
                     </params>
-                    <returns type="ParsedResumeData">Структурированные данные резюме</returns>
-                    <async>True - использует асинхронные HTTP запросы к OpenAI API</async>
-                    <validation>Проверяет размер файла (максимум 10MB) перед обработкой</validation>
-                    <memory_management>Использует garbage collection для освобождения памяти</memory_management>
-                    <text_limiting>Ограничивает длину текста до 50000 символов для предотвращения превышения лимитов токенов</text_limiting>
+                    <returns type="ParsedResumeData">Structured resume data</returns>
+                    <async>True - uses asynchronous HTTP requests to OpenAI API</async>
+                    <validation>Checks file size (maximum 10MB) before processing</validation>
+                    <memory_management>Uses garbage collection to free memory</memory_management>
+                    <text_limiting>Limits text length to 50000 characters to prevent token limit exceed</text_limiting>
                 </method>
                 <method>
                     <name>_parse_with_openai_structured</name>
-                    <description>Парсит текст резюме через OpenAI Structured Outputs используя OpenAIStructuredResume schema (асинхронно)</description>
+                    <description>Parses resume text through OpenAI Structured Outputs using OpenAIStructuredResume schema (asynchronously)</description>
                     <params>
-                        <param name="text_content" type="str">Текст резюме</param>
+                        <param name="text_content" type="str">Resume text</param>
                     </params>
-                    <returns type="ParsedResumeData">Структурированные данные</returns>
-                    <async>True - использует асинхронные HTTP запросы к OpenAI API</async>
-                    <token_limiting>Ограничивает ответ до 4000 токенов для предотвращения превышения лимитов</token_limiting>
-                    <memory_management>Использует garbage collection для освобождения памяти после обработки</memory_management>
+                    <returns type="ParsedResumeData">Structured data</returns>
+                    <async>True - uses asynchronous HTTP requests to OpenAI API</async>
+                    <token_limiting>Limits response to 4000 tokens to prevent limit exceed</token_limiting>
+                    <memory_management>Uses garbage collection to free memory after processing</memory_management>
                 </method>
                 <method>
                     <name>_convert_structured_to_parsed</name>
-                    <description>Преобразует OpenAIStructuredResume в ParsedResumeData</description>
+                    <description>Converts OpenAIStructuredResume to ParsedResumeData</description>
                     <params>
-                        <param name="structured_data" type="OpenAIStructuredResume">Структурированные данные от OpenAI</param>
+                        <param name="structured_data" type="OpenAIStructuredResume">Structured data from OpenAI</param>
                     </params>
-                    <returns type="ParsedResumeData">Преобразованные данные</returns>
+                    <returns type="ParsedResumeData">Converted data</returns>
                 </method>
                 <method>
                     <name>parse_resume_to_unified</name>
-                    <description>Парсит файл резюме и возвращает данные в формате UnifiedResume</description>
+                    <description>Parses resume file and returns data in UnifiedResume format</description>
                     <params>
-                        <param name="file_path" type="str">Путь к файлу резюме</param>
-                        <param name="user_id" type="int">ID пользователя</param>
-                        <param name="title" type="str">Заголовок резюме</param>
+                        <param name="file_path" type="str">Path to resume file</param>
+                        <param name="user_id" type="int">User ID</param>
+                        <param name="title" type="str">Resume title</param>
                     </params>
-                    <returns type="Dict[str, Any]">Данные в формате UnifiedResume</returns>
+                    <returns type="Dict[str, Any]">Data in UnifiedResume format</returns>
                 </method>
                 <method>
                     <name>test_structured_output</name>
-                    <description>Тестирует OpenAI Structured Outputs с примером текста (асинхронно)</description>
+                    <description>Tests OpenAI Structured Outputs with sample text (asynchronously)</description>
                     <params>
-                        <param name="sample_text" type="str">Пример текста резюме для тестирования</param>
+                        <param name="sample_text" type="str">Sample resume text for testing</param>
                     </params>
-                    <returns type="Dict[str, Any]">Результат парсинга</returns>
-                    <async>True - использует асинхронные HTTP запросы к OpenAI API</async>
+                    <returns type="Dict[str, Any]">Parsing result</returns>
+                    <async>True - uses asynchronous HTTP requests to OpenAI API</async>
                 </method>
             </methods>
             <configuration>
-                <openai_api_key>OPENAI_API_KEY - API ключ OpenAI</openai_api_key>
-                <openai_proxy_url>OPENAI_PROXY_URL - URL прокси для OpenAI</openai_proxy_url>
-                <model>gpt-4o-mini - Модель OpenAI для парсинга</model>
-                <structured_output>Использует OpenAI Structured Outputs с Pydantic моделями для гарантированного формата</structured_output>
-                <max_file_size>10MB - Максимальный размер файла для обработки</max_file_size>
-                <max_text_length>50000 символов - Максимальная длина текста для обработки</max_text_length>
-                <max_tokens>4000 токенов - Максимальное количество токенов в ответе OpenAI</max_tokens>
+                <openai_api_key>OPENAI_API_KEY - OpenAI API key</openai_api_key>
+                <openai_proxy_url>OPENAI_PROXY_URL - Proxy URL for OpenAI</openai_proxy_url>
+                <model>gpt-4o-mini - OpenAI model for parsing</model>
+                <structured_output>Uses OpenAI Structured Outputs with Pydantic models for guaranteed format</structured_output>
+                <max_file_size>10MB - Maximum file size for processing</max_file_size>
+                <max_text_length>50000 characters - Maximum text length for processing</max_text_length>
+                <max_tokens>4000 tokens - Maximum number of tokens in OpenAI response</max_tokens>
             </configuration>
             <schemas>
-                <schema name="OpenAIStructuredResume">Pydantic модель для OpenAI Structured Output</schema>
-                <schema name="OpenAIStructuredResumeExperience">Модель для опыта работы в structured output</schema>
-                <schema name="OpenAIStructuredResumeEducation">Модель для образования в structured output</schema>
+                <schema name="OpenAIStructuredResume">Pydantic model for OpenAI Structured Output</schema>
+                <schema name="OpenAIStructuredResumeExperience">Model for work experience in structured output</schema>
+                <schema name="OpenAIStructuredResumeEducation">Model for education in structured output</schema>
             </schemas>
         </component>
         
         <component>
             <name>PlatformChatflow</name>
             <description>
-                Сервис для взаимодействия с внешней платформой чат-бота. Отправляет сообщения, получает ответы в блокирующем и потоковом режимах, а также получает историю сообщений.
+                Service for interacting with external chatbot platform. Sends messages, receives responses in blocking and streaming modes, and gets message history.
             </description>
             <methods>
                 <method>
                     <name>chat</name>
-                    <description>Отправляет сообщение в чат и получает ответ в блокирующем режиме</description>
+                    <description>Sends message to chat and receives response in blocking mode</description>
                     <params>
-                        <param name="user_id" type="str">ID пользователя</param>
-                        <param name="text" type="str">Текст сообщения</param>
-                        <param name="conversation_id" type="str">ID беседы (опционально)</param>
-                        <param name="resume_id" type="str">ID резюме для передачи в inputs (опционально)</param>
+                        <param name="user_id" type="str">User ID</param>
+                        <param name="text" type="str">Message text</param>
+                        <param name="conversation_id" type="str">Conversation ID (optional)</param>
+                        <param name="resume_id" type="str">Resume ID to pass in inputs (optional)</param>
                     </params>
-                    <returns type="PlatformMessage">Ответ от платформы</returns>
+                    <returns type="PlatformMessage">Response from platform</returns>
                 </method>
                 <method>
                     <name>chat_stream</name>
-                    <description>Отправляет сообщение в чат и получает ответ в потоковом режиме (SSE)</description>
+                    <description>Sends message to chat and receives response in streaming mode (SSE)</description>
                     <params>
-                        <param name="user_id" type="str">ID пользователя</param>
-                        <param name="text" type="str">Текст сообщения</param>
-                        <param name="conversation_id" type="str">ID беседы (опционально)</param>
-                        <param name="resume_id" type="str">ID резюме для передачи в inputs (опционально)</param>
+                        <param name="user_id" type="str">User ID</param>
+                        <param name="text" type="str">Message text</param>
+                        <param name="conversation_id" type="str">Conversation ID (optional)</param>
+                        <param name="resume_id" type="str">Resume ID to pass in inputs (optional)</param>
                     </params>
-                    <returns type="AsyncGenerator[tuple[str, str], None]">Поток чанков ответа от платформы с conversation_id</returns>
-                    <async>True - использует асинхронные HTTP запросы с потоковым ответом</async>
+                    <returns type="AsyncGenerator[tuple[str, str], None]">Stream of response chunks from platform with conversation_id</returns>
+                    <async>True - uses asynchronous HTTP requests with streaming response</async>
                 </method>
                 <method>
                     <name>get_messages</name>
-                    <description>Получает историю сообщений из платформы с пагинацией</description>
+                    <description>Gets message history from platform with pagination</description>
                     <params>
-                        <param name="user_id" type="str">ID пользователя</param>
-                        <param name="conversation_id" type="str">ID беседы (опционально)</param>
-                        <param name="first_id" type="str">ID сообщения для пагинации (опционально)</param>
-                        <param name="limit" type="int">Количество сообщений (по умолчанию 20)</param>
+                        <param name="user_id" type="str">User ID</param>
+                        <param name="conversation_id" type="str">Conversation ID (optional)</param>
+                        <param name="first_id" type="str">Message ID for pagination (optional)</param>
+                        <param name="limit" type="int">Number of messages (default 20)</param>
                     </params>
-                    <returns type="PlatformMessagesResponse">Ответ с историей сообщений от платформы</returns>
-                    <async>True - использует асинхронные HTTP запросы</async>
+                    <returns type="PlatformMessagesResponse">Response with message history from platform</returns>
+                    <async>True - uses asynchronous HTTP requests</async>
                 </method>
             </methods>
             <configuration>
-                <app_key>Ключ приложения платформы</app_key>
-                <app_url>URL API платформы</app_url>
-                <timeout>Таймаут запроса в секундах</timeout>
+                <app_key>Platform application key</app_key>
+                <app_url>Platform API URL</app_url>
+                <timeout>Request timeout in seconds</timeout>
             </configuration>
             <streaming>
-                <mode>response_mode: streaming - использует Server-Sent Events (SSE)</mode>
+                <mode>response_mode: streaming - uses Server-Sent Events (SSE)</mode>
                 <events>
-                    <event name="agent_message">Чанки ответа от LLM</event>
-                    <event name="message_end">Сигнал завершения потока</event>
-                    <event name="error">Ошибки в потоке</event>
+                    <event name="agent_message">Response chunks from LLM</event>
+                    <event name="message_end">Stream completion signal</event>
+                    <event name="error">Errors in stream</event>
                 </events>
             </streaming>
             <schemas>
-                <schema name="PlatformMessage">Базовая модель сообщения от платформы</schema>
-                <schema name="PlatformMessageResponse">Модель сообщения с полными данными от платформы</schema>
-                <schema name="PlatformMessagesResponse">Модель ответа с историей сообщений</schema>
-                <schema name="PlatformMessageFile">Модель файла сообщения</schema>
-                <schema name="PlatformAgentThought">Модель мысли агента</schema>
-                <schema name="PlatformRetrieverResource">Модель ресурса поиска</schema>
+                <schema name="PlatformMessage">Base message model from platform</schema>
+                <schema name="PlatformMessageResponse">Message model with full data from platform</schema>
+                <schema name="PlatformMessagesResponse">Response model with message history</schema>
+                <schema name="PlatformMessageFile">Message file model</schema>
+                <schema name="PlatformAgentThought">Agent thought model</schema>
+                <schema name="PlatformRetrieverResource">Retriever resource model</schema>
             </schemas>
         </component>
         
         <component>
             <name>UserService</name>
             <description>
-                Сервис для работы с пользователями. Обеспечивает создание, аутентификацию и подтверждение email пользователей.
+                Service for working with users. Provides user creation, authentication and email confirmation.
             </description>
             <methods>
                 <method>
                     <name>create_user</name>
-                    <description>Создает нового пользователя и отправляет email для подтверждения</description>
+                    <description>Creates new user and sends confirmation email</description>
                     <params>
-                        <param name="user_in" type="UserCreate">Данные для создания пользователя</param>
+                        <param name="user_in" type="UserCreate">Data for user creation</param>
                     </params>
-                    <returns type="User">Созданный пользователь</returns>
+                    <returns type="User">Created user</returns>
                 </method>
                 <method>
                     <name>confirm_user</name>
-                    <description>Подтверждает email пользователя по токену</description>
+                    <description>Confirms user email by token</description>
                     <params>
-                        <param name="token" type="str">Токен подтверждения</param>
+                        <param name="token" type="str">Confirmation token</param>
                     </params>
-                    <returns type="User">Подтвержденный пользователь</returns>
+                    <returns type="User">Confirmed user</returns>
                 </method>
                 <method>
                     <name>get_user_by_email</name>
-                    <description>Получает пользователя по email</description>
+                    <description>Gets user by email</description>
                     <params>
-                        <param name="email" type="str">Email пользователя</param>
+                        <param name="email" type="str">User email</param>
                     </params>
-                    <returns type="Optional[User]">Пользователь или None</returns>
+                    <returns type="Optional[User]">User or None</returns>
                 </method>
                 <method>
                     <name>authenticate_user</name>
-                    <description>Аутентифицирует пользователя</description>
+                    <description>Authenticates user</description>
                     <params>
-                        <param name="email" type="str">Email пользователя</param>
-                        <param name="password" type="str">Пароль пользователя</param>
+                        <param name="email" type="str">User email</param>
+                        <param name="password" type="str">User password</param>
                     </params>
-                    <returns type="Optional[User]">Аутентифицированный пользователь или None</returns>
+                    <returns type="Optional[User]">Authenticated user or None</returns>
                 </method>
             </methods>
         </component>
@@ -189,116 +189,116 @@
         <component>
             <name>EmailService</name>
             <description>
-                Сервис для отправки email сообщений с поддержкой DKIM подписи. Использует MIMEText и dkim.sign для совместимости с SMTP серверами.
+                Service for sending email messages with DKIM signature support. Uses MIMEText and dkim.sign for SMTP server compatibility.
             </description>
             <methods>
                 <method>
                     <name>send_email</name>
-                    <description>Отправляет email с DKIM подписью используя MIMEText и dkim.sign</description>
+                    <description>Sends email with DKIM signature using MIMEText and dkim.sign</description>
                     <params>
-                        <param name="to_email" type="str">Email получателя</param>
-                        <param name="subject" type="str">Тема письма</param>
-                        <param name="body" type="str">Текст письма (поддерживает HTML)</param>
+                        <param name="to_email" type="str">Recipient email</param>
+                        <param name="subject" type="str">Email subject</param>
+                        <param name="body" type="str">Email body (supports HTML)</param>
                     </params>
-                    <returns type="bool">True если письмо отправлено успешно</returns>
+                    <returns type="bool">True if email sent successfully</returns>
                 </method>
                 <method>
                     <name>send_confirmation_email</name>
-                    <description>Отправляет красивый HTML email для подтверждения регистрации с использованием Jinja2 шаблона</description>
+                    <description>Sends beautiful HTML email for registration confirmation using Jinja2 template</description>
                     <params>
-                        <param name="to_email" type="str">Email пользователя</param>
-                        <param name="confirmation_token" type="str">Токен для подтверждения</param>
+                        <param name="to_email" type="str">User email</param>
+                        <param name="confirmation_token" type="str">Confirmation token</param>
                     </params>
-                    <returns type="bool">True если письмо отправлено успешно</returns>
-                    <template>HTML шаблон с английским текстом и зеленым цветом (#4caf50)</template>
+                    <returns type="bool">True if email sent successfully</returns>
+                    <template>HTML template with English text and green color (#4caf50)</template>
                 </method>
                 <method>
                     <name>send_password_reset_email</name>
-                    <description>Отправляет HTML email для сброса пароля с использованием Jinja2 шаблона</description>
+                    <description>Sends HTML email for password reset using Jinja2 template</description>
                     <params>
-                        <param name="to_email" type="str">Email пользователя</param>
-                        <param name="reset_token" type="str">Токен для сброса пароля</param>
+                        <param name="to_email" type="str">User email</param>
+                        <param name="reset_token" type="str">Password reset token</param>
                     </params>
-                    <returns type="bool">True если письмо отправлено успешно</returns>
-                    <template>HTML шаблон с английским текстом и зеленым цветом (#4caf50)</template>
+                    <returns type="bool">True if email sent successfully</returns>
+                    <template>HTML template with English text and green color (#4caf50)</template>
                 </method>
                 <method>
                     <name>_load_dkim_key</name>
-                    <description>Загружает приватный ключ DKIM из файла</description>
-                    <returns type="str">Содержимое приватного ключа или пустая строка</returns>
+                    <description>Loads DKIM private key from file</description>
+                    <returns type="str">Private key content or empty string</returns>
                 </method>
             </methods>
             <configuration>
-                <smtp_server>Настраивается через EMAIL_HOST в config</smtp_server>
-                <smtp_port>Настраивается через EMAIL_PORT в config</smtp_port>
-                <sender_email>Настраивается через EMAIL_USERNAME в config</sender_email>
-                <domain>Настраивается через EMAIL_DOMAIN в config</domain>
-                <dkim_selector>Настраивается через EMAIL_DKIM_SELECTOR в config</dkim_selector>
-                <dkim_key_path>Настраивается через EMAIL_DKIM_PRIVATE_KEY_PATH в config</dkim_key_path>
+                <smtp_server>Configured through EMAIL_HOST in config</smtp_server>
+                <smtp_port>Configured through EMAIL_PORT in config</smtp_port>
+                <sender_email>Configured through EMAIL_USERNAME in config</sender_email>
+                <domain>Configured through EMAIL_DOMAIN in config</domain>
+                <dkim_selector>Configured through EMAIL_DKIM_SELECTOR in config</dkim_selector>
+                <dkim_key_path>Configured through EMAIL_DKIM_PRIVATE_KEY_PATH in config</dkim_key_path>
             </configuration>
         </component>
         
         <component>
             <name>PDFService</name>
             <description>
-                Сервис для генерации PDF файлов из HTML контента с поддержкой водяных знаков. Использует WeasyPrint для конвертации HTML в PDF с настраиваемыми стилями и фоновыми изображениями.
+                Service for generating PDF files from HTML content with watermark support. Uses WeasyPrint for HTML to PDF conversion with customizable styles and background images.
             </description>
             <methods>
                 <method>
                     <name>generate_pdf_from_html</name>
-                    <description>Генерирует PDF из HTML контента с условным применением водяных знаков</description>
+                    <description>Generates PDF from HTML content with conditional watermark application</description>
                     <params>
-                        <param name="html_content" type="str">HTML контент для конвертации</param>
-                        <param name="filename" type="Optional[str]">Имя файла PDF (опционально)</param>
-                        <param name="use_watermark" type="bool">Применять ли водяные знаки (по умолчанию True)</param>
+                        <param name="html_content" type="str">HTML content for conversion</param>
+                        <param name="filename" type="Optional[str]">PDF filename (optional)</param>
+                        <param name="use_watermark" type="bool">Whether to apply watermarks (default True)</param>
                     </params>
-                    <returns type="tuple[bytes, str]">Кортеж из байтов PDF и имени файла</returns>
-                    <watermark_support>Условно применяет водяные знаки в зависимости от параметра use_watermark</watermark_support>
-                    <premium_logic>Водяные знаки применяются только для не-премиум пользователей</premium_logic>
-                    <page_format>A4 размер без отступов (margin: 0)</page_format>
+                    <returns type="tuple[bytes, str]">Tuple of PDF bytes and filename</returns>
+                    <watermark_support>Conditionally applies watermarks based on use_watermark parameter</watermark_support>
+                    <premium_logic>Watermarks are applied only for non-premium users</premium_logic>
+                    <page_format>A4 size without margins (margin: 0)</page_format>
                 </method>
                 <method>
                     <name>_get_watermark_css</name>
-                    <description>Генерирует CSS для водяных знаков из SVG файла</description>
-                    <returns type="str">CSS строка с настройками водяных знаков</returns>
-                    <file_check>Проверяет существование файла водяных знаков</file_check>
-                    <path_conversion>Конвертирует относительный путь в абсолютный для WeasyPrint</path_conversion>
+                    <description>Generates CSS for watermarks from SVG file</description>
+                    <returns type="str">CSS string with watermark settings</returns>
+                    <file_check>Checks watermark file existence</file_check>
+                    <path_conversion>Converts relative path to absolute for WeasyPrint</path_conversion>
                 </method>
                 <method>
                     <name>save_pdf_temp</name>
-                    <description>Сохраняет PDF во временный файл</description>
+                    <description>Saves PDF to temporary file</description>
                     <params>
-                        <param name="pdf_bytes" type="bytes">Байты PDF</param>
-                        <param name="filename" type="str">Имя файла</param>
+                        <param name="pdf_bytes" type="bytes">PDF bytes</param>
+                        <param name="filename" type="str">Filename</param>
                     </params>
-                    <returns type="str">Путь к временному файлу</returns>
+                    <returns type="str">Path to temporary file</returns>
                 </method>
                 <method>
                     <name>create_file_response</name>
-                    <description>Создает FastAPI FileResponse для скачивания PDF</description>
+                    <description>Creates FastAPI FileResponse for PDF download</description>
                     <params>
-                        <param name="pdf_bytes" type="bytes">Байты PDF</param>
-                        <param name="filename" type="str">Имя файла</param>
+                        <param name="pdf_bytes" type="bytes">PDF bytes</param>
+                        <param name="filename" type="str">Filename</param>
                     </params>
-                    <returns type="FileResponse">FastAPI файловый ответ</returns>
+                    <returns type="FileResponse">FastAPI file response</returns>
                 </method>
             </methods>
             <configuration>
-                <watermark_path>PDF_WATERMARK_PATH - путь к SVG файлу водяных знаков</watermark_path>
-                <default_watermark>app/static/watermarks/watermark.svg - путь по умолчанию</default_watermark>
-                <page_size>A4 - размер страницы</page_size>
-                <margins>0 - без отступов и полей</margins>
-                <single_page>Ограничение контента одной страницей с обрезкой</single_page>
-                <font_config>FontConfiguration для поддержки шрифтов</font_config>
+                <watermark_path>PDF_WATERMARK_PATH - path to SVG watermark file</watermark_path>
+                <default_watermark>app/static/watermarks/watermark.svg - default path</default_watermark>
+                <page_size>A4 - page size</page_size>
+                <margins>0 - without margins and borders</margins>
+                <single_page>Content limited to single page with cropping</single_page>
+                <font_config>FontConfiguration for font support</font_config>
             </configuration>
             <watermark_features>
-                <overlay_approach>Водяные знаки накладываются поверх контента резюме</overlay_approach>
-                <positioning>position: fixed с z-index: 1000 для наложения поверх текста</positioning>
-                <opacity>opacity: 0.3 для полупрозрачности</opacity>
-                <pointer_events>pointer-events: none для предотвращения блокировки контента</pointer_events>
-                <background_size>contain - размер водяного знака</background_size>
-                <background_position>center - позиция водяного знака</background_position>
-                <background_repeat>no-repeat - без повторения</background_repeat>
+                <overlay_approach>Watermarks are overlaid on resume content</overlay_approach>
+                <positioning>position: fixed with z-index: 1000 for overlaying on text</positioning>
+                <opacity>opacity: 0.3 for semi-transparency</opacity>
+                <pointer_events>pointer-events: none to prevent content blocking</pointer_events>
+                <background_size>contain - watermark size</background_size>
+                <background_position>center - watermark position</background_position>
+                <background_repeat>no-repeat - without repetition</background_repeat>
             </watermark_features>
         </component>
     </components>

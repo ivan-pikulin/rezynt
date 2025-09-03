@@ -2,50 +2,50 @@
 <specification>
   <title>Shared Components</title>
   <description>
-    Общие компоненты, используемые во всем приложении Rezynt.
+    Common components used throughout the Rezynt application.
   </description>
   
   <components>
     <component>
       <name>Header</name>
       <description>
-        Основной компонент шапки приложения с логотипом, навигационными кнопками, степпером и профилем пользователя.
-        Поддерживает адаптивный дизайн и различные конфигурации отображения элементов.
+        Main application header component with logo, navigation buttons, stepper and user profile.
+        Supports responsive design and various display configurations for elements.
       </description>
       
       <features>
         <feature>
-          <name>Кликабельный логотип</name>
+          <name>Clickable logo</name>
           <description>
-            При клике на логотип происходит переход на главную страницу (/) с умным перенаправлением
+            Clicking on the logo navigates to the main page (/) with smart redirection
           </description>
         </feature>
         
         <feature>
-          <name>Адаптивный дизайн</name>
+          <name>Responsive design</name>
           <description>
-            Логотип скрывается на мобильных устройствах для экономии места
+            Logo is hidden on mobile devices to save space
           </description>
         </feature>
         
         <feature>
-          <name>Навигационные кнопки</name>
+          <name>Navigation buttons</name>
           <description>
-            Кнопки "Назад" и "Вперед" с анимацией при наведении
+            "Back" and "Forward" buttons with hover animation
           </description>
         </feature>
         
         <feature>
-          <name>Степпер</name>
+          <name>Stepper</name>
           <description>
-            Отображает прогресс создания резюме с возможностью клика по шагам
+            Displays resume creation progress with ability to click on steps
           </description>
         </feature>
         
         <feature>
-          <name>Профиль пользователя</name>
+          <name>User profile</name>
           <description>
-            Аватар с инициалами пользователя, открывающий боковую панель
+            Avatar with user initials, opening side panel
           </description>
         </feature>
       </features>
@@ -56,28 +56,28 @@
           <type>number</type>
           <required>false</required>
           <default>0</default>
-          <description>Активный шаг в степпере</description>
+          <description>Active step in stepper</description>
         </prop>
         
         <prop>
           <name>onNext</name>
           <type>() => void</type>
           <required>false</required>
-          <description>Callback для кнопки "Вперед"</description>
+          <description>Callback for "Forward" button</description>
         </prop>
         
         <prop>
           <name>onBack</name>
           <type>() => void</type>
           <required>false</required>
-          <description>Callback для кнопки "Назад"</description>
+          <description>Callback for "Back" button</description>
         </prop>
         
         <prop>
           <name>onStepClick</name>
           <type>(stepIndex: number) => void</type>
           <required>false</required>
-          <description>Callback для клика по шагу степпера</description>
+          <description>Callback for clicking on stepper step</description>
         </prop>
         
         <prop>
@@ -85,7 +85,7 @@
           <type>boolean</type>
           <required>false</required>
           <default>true</default>
-          <description>Показывать ли логотип</description>
+          <description>Whether to show logo</description>
         </prop>
         
         <prop>
@@ -93,7 +93,7 @@
           <type>boolean</type>
           <required>false</required>
           <default>true</default>
-          <description>Показывать ли степпер</description>
+          <description>Whether to show stepper</description>
         </prop>
         
         <prop>
@@ -101,7 +101,7 @@
           <type>boolean</type>
           <required>false</required>
           <default>true</default>
-          <description>Показывать ли кнопку "Назад"</description>
+          <description>Whether to show "Back" button</description>
         </prop>
         
         <prop>
@@ -109,29 +109,29 @@
           <type>boolean</type>
           <required>false</required>
           <default>true</default>
-          <description>Показывать ли кнопку "Вперед"</description>
+          <description>Whether to show "Forward" button</description>
         </prop>
       </props>
       
       <technical_details>
         <detail>
-          <name>Зависимости</name>
+          <name>Dependencies</name>
           <value>Material-UI, React Router, AuthContext</value>
         </detail>
         
         <detail>
-          <name>Навигация</name>
-          <value>useNavigate для перехода на главную страницу</value>
+          <name>Navigation</name>
+          <value>useNavigate for navigation to main page</value>
         </detail>
         
         <detail>
-          <name>Анимации</name>
-          <value>CSS transitions для hover эффектов</value>
+          <name>Animations</name>
+          <value>CSS transitions for hover effects</value>
         </detail>
         
         <detail>
-          <name>Адаптивность</name>
-          <value>Скрытие логотипа на экранах до 768px, кастомный брейкпоинт для лучшей поддержки планшетов</value>
+          <name>Responsiveness</name>
+          <value>Logo hidden on screens up to 768px, custom breakpoint for better tablet support</value>
         </detail>
       </technical_details>
     </component>
@@ -139,50 +139,50 @@
     <component>
       <name>HomeRedirect</name>
       <description>
-        Компонент для умного перенаправления пользователей на главную страницу.
-        Проверяет наличие резюме у пользователя и перенаправляет на соответствующую страницу:
-        - Если у пользователя есть резюме → /resumes
-        - Если у пользователя нет резюме → /start
-        - Если пользователь не аутентифицирован → /auth
+        Component for smart redirection of users to the main page.
+        Checks if user has resumes and redirects to appropriate page:
+        - If user has resumes → /resumes
+        - If user has no resumes → /start
+        - If user is not authenticated → /auth
       </description>
       
       <features>
         <feature>
-          <name>Умное перенаправление</name>
+          <name>Smart redirection</name>
           <description>
-            Автоматически определяет куда перенаправить пользователя на основе его данных
+            Automatically determines where to redirect user based on their data
           </description>
         </feature>
         
         <feature>
-          <name>Обработка загрузки</name>
+          <name>Loading handling</name>
           <description>
-            Показывает красивый экран загрузки во время проверки аутентификации и загрузки данных о резюме
+            Shows beautiful loading screen while checking authentication and loading resume data
           </description>
         </feature>
         
         <feature>
-          <name>Защита маршрутов</name>
+          <name>Route protection</name>
           <description>
-            Работает только с аутентифицированными пользователями через ProtectedRoute
+            Works only with authenticated users through ProtectedRoute
           </description>
         </feature>
       </features>
       
              <technical_details>
          <detail>
-           <name>Зависимости</name>
+           <name>Dependencies</name>
            <value>useAuthContext, useResumes, React Router Navigate</value>
          </detail>
          
          <detail>
-           <name>Состояния загрузки</name>
+           <name>Loading states</name>
            <value>authLoading, resumesLoading</value>
          </detail>
          
          <detail>
-           <name>Логика перенаправления</name>
-           <value>Проверка isAuthenticated → Проверка наличия резюме → Перенаправление</value>
+           <name>Redirection logic</name>
+           <value>Check isAuthenticated → Check resume existence → Redirect</value>
          </detail>
        </technical_details>
      </component>
@@ -190,59 +190,59 @@
      <component>
        <name>useResumeQuery</name>
        <description>
-         Хук для работы с данными резюме с использованием React Query.
-         Обеспечивает кеширование данных и синхронизацию между компонентами.
-         Позволяет избежать повторных запросов к серверу при переключении между страницами.
+         Hook for working with resume data using React Query.
+         Provides data caching and synchronization between components.
+         Allows avoiding repeated server requests when switching between pages.
        </description>
        
        <features>
          <feature>
-           <name>Кеширование данных</name>
+           <name>Data caching</name>
            <description>
-             Автоматически кеширует данные резюме на 5 минут (staleTime) и хранит в памяти 10 минут (gcTime)
+             Automatically caches resume data for 5 minutes (staleTime) and stores in memory for 10 minutes (gcTime)
            </description>
          </feature>
          
          <feature>
-           <name>Синхронизация между компонентами</name>
+           <name>Component synchronization</name>
            <description>
-             Все компоненты, использующие этот хук, автоматически получают обновленные данные
+             All components using this hook automatically receive updated data
            </description>
          </feature>
          
          <feature>
-           <name>Оптимизация запросов</name>
+           <name>Query optimization</name>
            <description>
-             Не делает повторные запросы при монтировании компонента, если данные уже есть в кеше
+             Does not make repeated requests when component mounts if data is already in cache
            </description>
          </feature>
          
          <feature>
-           <name>Управление кешем</name>
+           <name>Cache management</name>
            <description>
-             Предоставляет функции для обновления и инвалидации кеша
+             Provides functions for updating and invalidating cache
            </description>
          </feature>
        </features>
        
        <technical_details>
          <detail>
-           <name>Зависимости</name>
+           <name>Dependencies</name>
            <value>@tanstack/react-query, resumeApi</value>
          </detail>
          
          <detail>
-           <name>Время кеширования</name>
-           <value>staleTime: 5 минут, gcTime: 10 минут</value>
+           <name>Cache time</name>
+           <value>staleTime: 5 minutes, gcTime: 10 minutes</value>
          </detail>
          
          <detail>
-           <name>Ключ кеша</name>
+           <name>Cache key</name>
            <value>['resume', resumeId]</value>
          </detail>
          
          <detail>
-           <name>Функции управления</name>
+           <name>Management functions</name>
            <value>refreshResume, updateResumeInCache, invalidateResume</value>
          </detail>
        </technical_details>
@@ -251,43 +251,43 @@
     <component>
       <name>ResumeRenderer</name>
       <description>
-        Основной компонент для рендеринга резюме с поддержкой адаптивного масштабирования.
-        Компонент автоматически подстраивает размер резюме под доступное пространство контейнера,
-        сохраняя пропорции A4 формата.
+        Main component for rendering resumes with adaptive scaling support.
+        Component automatically adjusts resume size to fit available container space,
+        maintaining A4 format proportions.
       </description>
       
       <features>
         <feature>
-          <name>Адаптивное масштабирование</name>
+          <name>Adaptive scaling</name>
           <description>
-            Резюме автоматически масштабируется для заполнения всей доступной ширины и высоты контейнера.
-            Использует ResizeObserver для отслеживания изменений размера контейнера.
-            Контейнер имеет точные размеры (width/height = A4 * scale) для предотвращения наложения на другие элементы.
+            Resume automatically scales to fill entire available container width and height.
+            Uses ResizeObserver to track container size changes.
+            Container has exact dimensions (width/height = A4 * scale) to prevent overlapping with other elements.
           </description>
         </feature>
         
         <feature>
-          <name>Поддержка шаблонов</name>
+          <name>Template support</name>
           <description>
-            Поддерживает различные шаблоны резюме через систему шаблонов.
-            Каждый шаблон может иметь свой уникальный дизайн и стиль.
+            Supports various resume templates through template system.
+            Each template can have its unique design and style.
           </description>
         </feature>
         
         <feature>
-          <name>Экспорт</name>
+          <name>Export</name>
           <description>
-            Поддерживает экспорт резюме в PDF и PNG форматы.
-            Экспорт выполняется с высоким качеством (2x масштаб).
-            При экспорте PDF используются отступы только на уровне шаблонов (padding 38px 30px для печати), обеспечивая точное соответствие превью.
+            Supports resume export to PDF and PNG formats.
+            Export is performed with high quality (2x scale).
+            PDF export uses padding only at template level (38px 30px padding for printing), ensuring exact preview match.
           </description>
         </feature>
         
         <feature>
-          <name>Режим превью</name>
+          <name>Preview mode</name>
           <description>
-            Поддерживает режим превью с тенью и скругленными углами,
-            а также режим экспорта с полным размером A4.
+            Supports preview mode with shadow and rounded corners,
+            as well as export mode with full A4 size.
           </description>
         </feature>
       </features>
@@ -297,7 +297,7 @@
           <name>data</name>
           <type>ResumeData</type>
           <required>true</required>
-          <description>Данные резюме для рендеринга</description>
+          <description>Resume data for rendering</description>
         </prop>
         
         <prop>
@@ -305,7 +305,7 @@
           <type>string</type>
           <required>false</required>
           <default>nume</default>
-          <description>ID шаблона для рендеринга</description>
+          <description>Template ID for rendering</description>
         </prop>
         
         <prop>
@@ -313,14 +313,14 @@
           <type>boolean</type>
           <required>false</required>
           <default>true</default>
-          <description>Режим превью (true) или экспорта (false)</description>
+          <description>Preview mode (true) or export mode (false)</description>
         </prop>
         
         <prop>
           <name>onExport</name>
           <type>() => void</type>
           <required>false</required>
-          <description>Callback для экспорта резюме</description>
+          <description>Callback for resume export</description>
         </prop>
         
         <prop>
@@ -328,7 +328,7 @@
           <type>number</type>
           <required>false</required>
           <default>1</default>
-          <description>Фиксированный масштаб (используется если fitToContainer=false)</description>
+          <description>Fixed scale (used if fitToContainer=false)</description>
         </prop>
         
         <prop>
@@ -336,7 +336,7 @@
           <type>boolean</type>
           <required>false</required>
           <default>true</default>
-          <description>Включить адаптивное масштабирование под контейнер</description>
+          <description>Enable adaptive scaling to container</description>
         </prop>
         
         <prop>
@@ -344,34 +344,34 @@
           <type>boolean</type>
           <required>false</required>
           <default>false</default>
-          <description>Включить отладочную информацию в консоль</description>
+          <description>Enable debug information in console</description>
         </prop>
       </props>
       
       <technical_details>
         <detail>
-          <name>Размеры A4</name>
-          <value>794x1123 пикселей (при 96 DPI)</value>
+          <name>A4 dimensions</name>
+          <value>794x1123 pixels (at 96 DPI)</value>
         </detail>
         
         <detail>
-          <name>Минимальный масштаб</name>
+          <name>Minimum scale</name>
           <value>0.1 (10%)</value>
         </detail>
         
         <detail>
-          <name>Максимальный масштаб</name>
+          <name>Maximum scale</name>
           <value>1.0 (100%)</value>
         </detail>
         
         <detail>
-          <name>Отступы</name>
-          <value>Отступы в превью: 40px, в шаблонах для печати: 38px 30px (увеличены в 1.5 раза)</value>
+          <name>Padding</name>
+          <value>Preview padding: 40px, template printing padding: 38px 30px (increased by 1.5x)</value>
         </detail>
         
         <detail>
-          <name>Анимация</name>
-          <value>CSS transition для плавного изменения масштаба</value>
+          <name>Animation</name>
+          <value>CSS transition for smooth scale changes</value>
         </detail>
       </technical_details>
     </component>
@@ -379,44 +379,44 @@
     <component>
       <name>Resume Templates</name>
       <description>
-        Система шаблонов резюме с поддержкой различных дизайнов и стилей.
-        Все шаблоны наследуются от BaseTemplate и обеспечивают корректное отображение при экспорте в PDF.
+        Resume template system with support for various designs and styles.
+        All templates inherit from BaseTemplate and ensure correct display when exporting to PDF.
       </description>
       
       <features>
         <feature>
           <name>AltoTemplate</name>
           <description>
-            Шаблон с логотипом-инициалами в квадратной рамке, расположенными слева от имени.
-            Контактная информация размещена справа. Использует коричневую цветовую схему (#8B4513).
-            Оптимизирован для печати с ограничением ширины и overflow: hidden.
+            Template with logo-initials in square frame, positioned to the left of the name.
+            Contact information placed to the right. Uses brown color scheme (#8B4513).
+            Optimized for printing with width limitation and overflow: hidden.
           </description>
         </feature>
         
         <feature>
           <name>VeroTemplate</name>
           <description>
-            Центрированный шаблон с именем по центру и контактной информацией под ним.
-            Секции разделены горизонтальными линиями. Использует коричневую цветовую схему (#8B4513).
-            Оптимизирован для печати с ограничением ширины и overflow: hidden.
+            Centered template with name in center and contact information below.
+            Sections separated by horizontal lines. Uses brown color scheme (#8B4513).
+            Optimized for printing with width limitation and overflow: hidden.
           </description>
         </feature>
         
         <feature>
           <name>LumaTemplate</name>
           <description>
-            Двухколоночный шаблон с темной боковой панелью (35%) и основным контентом (65%).
-            Контакты и навыки размещены в боковой панели. Использует фиксированную ширину колонок.
-            Оптимизирован для печати с overflow: hidden.
+            Two-column template with dark sidebar (35%) and main content (65%).
+            Contacts and skills placed in sidebar. Uses fixed column widths.
+            Optimized for printing with overflow: hidden.
           </description>
         </feature>
         
                  <feature>
            <name>PDF Export Optimization</name>
            <description>
-             Все шаблоны оптимизированы для экспорта в PDF с правильным ограничением ширины и высоты.
-             Используют maxWidth: 100%, maxHeight: 100vh, boxSizing: border-box и overflow: hidden для предотвращения выхода за границы.
-             Специальные стили для @media print с уменьшенными отступами (20px 30px) и межсекционными отступами (15px).
+             All templates are optimized for PDF export with proper width and height limitation.
+             Use maxWidth: 100%, maxHeight: 100vh, boxSizing: border-box and overflow: hidden to prevent going beyond boundaries.
+             Special styles for @media print with reduced padding (20px 30px) and inter-section spacing (15px).
            </description>
          </feature>
       </features>
@@ -424,27 +424,27 @@
       <technical_details>
         <detail>
           <name>BaseTemplate</name>
-          <value>Базовый класс с общими методами форматирования дат и периодов работы</value>
+          <value>Base class with common methods for formatting dates and work periods</value>
         </detail>
         
         <detail>
           <name>Responsive Design</name>
-          <value>Адаптивная верстка с flexbox и grid для корректного отображения на разных экранах</value>
+          <value>Responsive layout with flexbox and grid for correct display on different screens</value>
         </detail>
         
                  <detail>
            <name>Print Styles</name>
-           <value>Специальные стили для печати с уменьшенными шрифтами, отступами (20px 30px) и межсекционными отступами (15px)</value>
+           <value>Special styles for printing with reduced fonts, padding (20px 30px) and inter-section spacing (15px)</value>
          </detail>
         
         <detail>
           <name>Color Scheme</name>
-          <value>Единая коричневая цветовая схема (#8B4513) для всех шаблонов</value>
+          <value>Unified brown color scheme (#8B4513) for all templates</value>
         </detail>
         
         <detail>
           <name>Typography</name>
-          <value>Использование системных шрифтов Arial и Source Sans Pro для лучшей читаемости</value>
+          <value>Use of system fonts Arial and Source Sans Pro for better readability</value>
         </detail>
       </technical_details>
     </component>

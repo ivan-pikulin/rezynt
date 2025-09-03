@@ -50,7 +50,7 @@ class JSONPrettyRichHandler(RichHandler):
                 record.args = ()
 
         except Exception as e:
-            console.print(f"[bold red]Ошибка при форматировании логов: {e}[/bold red]")
+            console.print(f"[bold red]Error formatting logs: {e}[/bold red]")
 
         super().emit(record)
 

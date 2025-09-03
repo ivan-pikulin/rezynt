@@ -45,7 +45,7 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ open, onClose, onSuccess })
       await exportApi.downloadResume(planId);
       console.log(`Successfully processed ${selectedPlan} plan`);
       
-      // Обновляем данные пользователя после успешной оплаты
+              // Update user data after successful payment
       try {
         const updatedUser = await refetchUser();
         if (updatedUser.data) {

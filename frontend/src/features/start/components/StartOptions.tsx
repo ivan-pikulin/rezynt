@@ -18,7 +18,7 @@ const StartOptions: React.FC = () => {
   const [isCreating, setIsCreating] = useState(false);
   const [uploadMessage, setUploadMessage] = useState('');
   
-  // Список сообщений для отображения во время загрузки
+  // List of messages to display during loading
   const uploadMessages = [
     "We are extracting your strengths and achievements...",
     "Optimizing your resume for ATS systems...",
@@ -37,7 +37,7 @@ const StartOptions: React.FC = () => {
     "Setting up your personalized resume..."
   ];
   
-  // Простой эффект для смены сообщений
+      // Simple effect for message switching
   useEffect(() => {
     if (!isUploading) {
       setUploadMessage('');
@@ -46,10 +46,10 @@ const StartOptions: React.FC = () => {
     
     let messageIndex = 0;
     
-    // Показываем первое сообщение сразу
+          // Show first message immediately
     setUploadMessage(uploadMessages[0]);
     
-    // Меняем сообщение каждые 4 секунды
+          // Change message every 4 seconds
     const interval = setInterval(() => {
       messageIndex = (messageIndex + 1) % uploadMessages.length;
       setUploadMessage(uploadMessages[messageIndex]);
@@ -87,7 +87,7 @@ const StartOptions: React.FC = () => {
       try {
         const result = await startApi.uploadResume(file);
         
-        // Сохраняем стартовое сообщение в localStorage для использования в чате
+        // Save startup message to localStorage for use in chat
         if (result.startupMessage) {
           localStorage.setItem(`startup_message_${result.resume.id}`, result.startupMessage);
         }
@@ -95,12 +95,12 @@ const StartOptions: React.FC = () => {
         navigate(`/chat?resume_id=${result.resume.id}`);
       } catch (error) {
         console.error('Failed to upload resume:', error);
-        // Можно добавить уведомление пользователю об ошибке
+        // Can add user notification about error
       } finally {
         setIsUploading(false);
       }
     }
-    // Сбрасываем input для возможности повторной загрузки того же файла
+            // Reset input to allow re-uploading the same file
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -108,7 +108,7 @@ const StartOptions: React.FC = () => {
 
   return (
     <>
-      {/* Скрытый input для загрузки файлов */}
+              {/* Hidden input for file upload */}
       <input
         type="file"
         ref={fileInputRef}
@@ -119,9 +119,9 @@ const StartOptions: React.FC = () => {
       
       <Box sx={{ 
         display: 'flex', 
-        flexDirection: { xs: 'column', md: 'row' }, // Вертикально на мобильных, горизонтально на десктопе
-        gap: { xs: 2, sm: 3, md: 4 }, // Уменьшаем отступы между карточками
-        maxWidth: { xs: '100%', sm: 700, md: 800 }, // Уменьшаем максимальную ширину
+                  flexDirection: { xs: 'column', md: 'row' }, // Vertical on mobile, horizontal on desktop
+                  gap: { xs: 2, sm: 3, md: 4 }, // Reduce gaps between cards
+                  maxWidth: { xs: '100%', sm: 700, md: 800 }, // Reduce maximum width
         width: '100%'
       }}>
       {/* Start from Scratch */}
@@ -130,14 +130,14 @@ const StartOptions: React.FC = () => {
           flex: 1,
           cursor: isCreating ? 'not-allowed' : 'pointer',
           transition: 'all 0.3s ease',
-          minHeight: { xs: 160, sm: 200, md: 250 }, // Уменьшаем высоту карточек
+          minHeight: { xs: 160, sm: 200, md: 250 }, // Reduce card height
           opacity: isCreating ? 0.7 : 1,
           '&:hover': {
-            transform: { xs: 'none', md: isCreating ? 'none' : 'translateY(-4px)' }, // Отключаем hover на мобильных
+            transform: { xs: 'none', md: isCreating ? 'none' : 'translateY(-4px)' }, // Disable hover on mobile
             boxShadow: { xs: '0 2px 8px rgba(0,0,0,0.1)', md: isCreating ? '0 2px 8px rgba(0,0,0,0.1)' : '0 8px 25px rgba(0,0,0,0.15)' }
           },
           '&:active': {
-            transform: { xs: 'scale(0.98)', md: isCreating ? 'none' : 'translateY(-4px)' }, // Touch feedback на мобильных
+            transform: { xs: 'scale(0.98)', md: isCreating ? 'none' : 'translateY(-4px)' }, // Touch feedback on mobile
             boxShadow: { xs: '0 1px 4px rgba(0,0,0,0.1)', md: isCreating ? '0 1px 4px rgba(0,0,0,0.1)' : '0 8px 25px rgba(0,0,0,0.15)' }
           }
         }}
@@ -145,7 +145,7 @@ const StartOptions: React.FC = () => {
       >
         <CardContent sx={{ 
           textAlign: 'center', 
-          p: { xs: 2.5, sm: 3, md: 4 }, // Уменьшаем отступы
+          p: { xs: 2.5, sm: 3, md: 4 }, // Reduce padding
           height: '100%',
           display: 'flex',
           flexDirection: 'column',
@@ -153,7 +153,7 @@ const StartOptions: React.FC = () => {
           alignItems: 'center'
         }}>
           <CreateIcon sx={{ 
-            fontSize: { xs: 40, sm: 48, md: 56 }, // Уменьшаем размер иконки
+            fontSize: { xs: 40, sm: 48, md: 56 }, // Reduce icon size
             color: COLORS.primary.main,
             mb: { xs: 1, sm: 1.5, md: 2 }
           }} />
@@ -164,7 +164,7 @@ const StartOptions: React.FC = () => {
               mb: { xs: 1, sm: 1.5, md: 2 },
               fontWeight: 600,
               color: '#2c3e50',
-              fontSize: { xs: '1.1rem', sm: '1.25rem', md: '1.5rem' } // Уменьшаем размер шрифта
+              fontSize: { xs: '1.1rem', sm: '1.25rem', md: '1.5rem' } // Reduce font size
             }}
           >
             {isCreating ? 'Creating Resume...' : 'Start from Scratch'}
@@ -174,8 +174,8 @@ const StartOptions: React.FC = () => {
             color="text.secondary"
             sx={{ 
               mb: { xs: 1.5, sm: 2, md: 3 },
-              fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' }, // Уменьшаем размер шрифта
-              lineHeight: { xs: 1.3, sm: 1.4, md: 1.5 } // Уменьшаем межстрочный интервал
+              fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' }, // Reduce font size
+              lineHeight: { xs: 1.3, sm: 1.4, md: 1.5 } // Reduce line height
             }}
           >
             {isCreating ? 'Setting up your new resume...' : 'Create your resume from the beginning with AI assistance'}
@@ -186,13 +186,13 @@ const StartOptions: React.FC = () => {
             disabled={isCreating}
             sx={{
               borderRadius: '8px',
-              px: { xs: 2.5, sm: 3, md: 4 }, // Уменьшаем горизонтальные отступы
-              py: { xs: 1, sm: 1.25, md: 1.5 }, // Уменьшаем вертикальные отступы
+              px: { xs: 2.5, sm: 3, md: 4 }, // Reduce horizontal padding
+              py: { xs: 1, sm: 1.25, md: 1.5 }, // Reduce vertical padding
               fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' },
               fontWeight: 600,
               textTransform: 'none',
               bgcolor: COLORS.primary.main,
-              minHeight: { xs: 40, sm: 44, md: 48 }, // Уменьшаем минимальную высоту
+              minHeight: { xs: 40, sm: 44, md: 48 }, // Reduce minimum height
               '&:hover': {
                 bgcolor: COLORS.primary.dark
               }
@@ -213,14 +213,14 @@ const StartOptions: React.FC = () => {
           flex: 1,
           cursor: isUploading ? 'not-allowed' : 'pointer',
           transition: 'all 0.3s ease',
-          minHeight: { xs: 160, sm: 200, md: 250 }, // Уменьшаем высоту карточек
+          minHeight: { xs: 160, sm: 200, md: 250 }, // Reduce card height
           opacity: isUploading ? 0.7 : 1,
           '&:hover': {
-            transform: { xs: 'none', md: isUploading ? 'none' : 'translateY(-4px)' }, // Отключаем hover на мобильных
+            transform: { xs: 'none', md: isUploading ? 'none' : 'translateY(-4px)' }, // Disable hover on mobile
             boxShadow: { xs: '0 2px 8px rgba(0,0,0,0.1)', md: isUploading ? '0 2px 8px rgba(0,0,0,0.1)' : '0 8px 25px rgba(0,0,0,0.15)' }
           },
           '&:active': {
-            transform: { xs: 'scale(0.98)', md: isUploading ? 'none' : 'translateY(-4px)' }, // Touch feedback на мобильных
+            transform: { xs: 'scale(0.98)', md: isUploading ? 'none' : 'translateY(-4px)' }, // Touch feedback on mobile
             boxShadow: { xs: '0 1px 4px rgba(0,0,0,0.1)', md: isUploading ? '0 1px 4px rgba(0,0,0,0.1)' : '0 8px 25px rgba(0,0,0,0.15)' }
           }
         }}
@@ -228,7 +228,7 @@ const StartOptions: React.FC = () => {
       >
         <CardContent sx={{ 
           textAlign: 'center', 
-          p: { xs: 2.5, sm: 3, md: 4 }, // Уменьшаем отступы
+          p: { xs: 2.5, sm: 3, md: 4 }, // Reduce padding
           height: '100%',
           display: 'flex',
           flexDirection: 'column',
@@ -236,7 +236,7 @@ const StartOptions: React.FC = () => {
           alignItems: 'center'
         }}>
           <CloudUploadIcon sx={{ 
-            fontSize: { xs: 40, sm: 48, md: 56 }, // Уменьшаем размер иконки
+            fontSize: { xs: 40, sm: 48, md: 56 }, // Reduce icon size
             color: COLORS.upload.main,
             mb: { xs: 1, sm: 1.5, md: 2 }
           }} />
@@ -247,7 +247,7 @@ const StartOptions: React.FC = () => {
               mb: { xs: 1, sm: 1.5, md: 2 },
               fontWeight: 600,
               color: '#2c3e50',
-              fontSize: { xs: '1.1rem', sm: '1.25rem', md: '1.5rem' } // Уменьшаем размер шрифта
+              fontSize: { xs: '1.1rem', sm: '1.25rem', md: '1.5rem' } // Reduce font size
             }}
           >
             {isUploading ? 'Processing Resume...' : 'Upload Your Resume'}
@@ -257,9 +257,9 @@ const StartOptions: React.FC = () => {
             color="text.secondary"
             sx={{ 
               mb: { xs: 1.5, sm: 2, md: 3 },
-              fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' }, // Уменьшаем размер шрифта
-              lineHeight: { xs: 1.3, sm: 1.4, md: 1.5 }, // Уменьшаем межстрочный интервал
-              minHeight: { xs: '2.6rem', sm: '2.8rem', md: '3rem' }, // Фиксированная высота для предотвращения прыжков
+              fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' }, // Reduce font size
+              lineHeight: { xs: 1.3, sm: 1.4, md: 1.5 }, // Reduce line height
+              minHeight: { xs: '2.6rem', sm: '2.8rem', md: '3rem' }, // Fixed height to prevent jumping
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -274,13 +274,13 @@ const StartOptions: React.FC = () => {
             disabled={isUploading}
             sx={{
               borderRadius: '8px',
-              px: { xs: 2.5, sm: 3, md: 4 }, // Уменьшаем горизонтальные отступы
-              py: { xs: 1, sm: 1.25, md: 1.5 }, // Уменьшаем вертикальные отступы
+              px: { xs: 2.5, sm: 3, md: 4 }, // Reduce horizontal padding
+              py: { xs: 1, sm: 1.25, md: 1.5 }, // Reduce vertical padding
               fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' },
               fontWeight: 600,
               textTransform: 'none',
               bgcolor: COLORS.upload.main,
-              minHeight: { xs: 40, sm: 44, md: 48 }, // Уменьшаем минимальную высоту
+              minHeight: { xs: 40, sm: 44, md: 48 }, // Reduce minimum height
               '&:hover': {
                 bgcolor: COLORS.upload.dark
               }

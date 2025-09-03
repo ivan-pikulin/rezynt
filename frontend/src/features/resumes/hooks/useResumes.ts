@@ -16,14 +16,14 @@ export const useResumes = () => {
   } = useQuery<Resume[]>({
     queryKey: ['resumes'],
     queryFn: () => resumeApi.getUserResumes(),
-    enabled: !shouldShowOnboarding, // Не делаем запрос если пользователь в онбординге
+    enabled: !shouldShowOnboarding, // Don't make request if user is in onboarding
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
   });
 
   return {
     resumes,
-    isLoading: shouldShowOnboarding ? false : isLoading, // Не показываем загрузку если в онбординге
+    isLoading: shouldShowOnboarding ? false : isLoading, // Don't show loading if in onboarding
     error: error?.message || null,
     refetch
   };

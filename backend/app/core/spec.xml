@@ -2,42 +2,42 @@
 <specification>
     <name>Core Tasks</name>
     <description>
-        Модуль с Celery задачами для асинхронной обработки. Содержит задачи для отправки email и обработки загруженных резюме.
+        Module with Celery tasks for asynchronous processing. Contains tasks for sending emails and processing uploaded resumes.
     </description>
     
     <components>
         <component>
             <name>Email Tasks</name>
             <description>
-                Задачи для отправки email сообщений через Celery
+                Tasks for sending email messages through Celery
             </description>
             <tasks>
                 <task>
                     <name>send_confirmation_email_task</name>
-                    <description>Отправляет email с подтверждением регистрации через EmailService</description>
+                    <description>Sends confirmation email through EmailService</description>
                     <params>
-                        <param name="email" type="str">Email пользователя</param>
-                        <param name="token" type="str">Токен подтверждения</param>
+                        <param name="email" type="str">User email</param>
+                        <param name="token" type="str">Confirmation token</param>
                     </params>
-                    <returns type="Dict">Результат отправки с статусом и деталями</returns>
+                    <returns type="Dict">Sending result with status and details</returns>
                     <implementation>
-                        <async_wrapper>Использует async_to_sync для обертывания асинхронной функции</async_wrapper>
-                        <error_handling>Логирует ошибки и возвращает статус error при неудаче</error_handling>
-                        <logging>Подробное логирование всех этапов отправки email</logging>
+                        <async_wrapper>Uses async_to_sync to wrap asynchronous function</async_wrapper>
+                        <error_handling>Logs errors and returns error status on failure</error_handling>
+                        <logging>Detailed logging of all email sending stages</logging>
                     </implementation>
                 </task>
                 <task>
                     <name>send_password_reset_email_task</name>
-                    <description>Отправляет email с токеном для сброса пароля через EmailService</description>
+                    <description>Sends email with password reset token through EmailService</description>
                     <params>
-                        <param name="email" type="str">Email пользователя</param>
-                        <param name="token" type="str">Токен сброса пароля</param>
+                        <param name="email" type="str">User email</param>
+                        <param name="token" type="str">Password reset token</param>
                     </params>
-                    <returns type="Dict">Результат отправки с статусом и деталями</returns>
+                    <returns type="Dict">Sending result with status and details</returns>
                     <implementation>
-                        <async_wrapper>Использует async_to_sync для обертывания асинхронной функции</async_wrapper>
-                        <error_handling>Логирует ошибки и возвращает статус error при неудаче</error_handling>
-                        <logging>Подробное логирование всех этапов отправки email</logging>
+                        <async_wrapper>Uses async_to_sync to wrap asynchronous function</async_wrapper>
+                        <error_handling>Logs errors and returns error status on failure</error_handling>
+                        <logging>Detailed logging of all email sending stages</logging>
                     </implementation>
                 </task>
             </tasks>
@@ -46,27 +46,27 @@
         <component>
             <name>Resume Processing Tasks</name>
             <description>
-                Задачи для обработки загруженных резюме с использованием ParseService
+                Tasks for processing uploaded resumes using ParseService
             </description>
             <tasks>
                 <task>
                     <name>process_resume_upload_task</name>
-                    <description>Обрабатывает загруженное резюме: сохраняет во временный файл, парсит через ParseService и создает записи в БД</description>
+                    <description>Processes uploaded resume: saves to temporary file, parses through ParseService and creates database records</description>
                     <params>
-                        <param name="file_content" type="bytes">Содержимое файла резюме</param>
-                        <param name="filename" type="str">Имя файла</param>
-                        <param name="user_id" type="int">ID пользователя</param>
+                        <param name="file_content" type="bytes">Resume file content</param>
+                        <param name="filename" type="str">File name</param>
+                        <param name="user_id" type="int">User ID</param>
                     </params>
-                    <returns type="Dict">Результат обработки с статусом и ID созданного резюме</returns>
+                    <returns type="Dict">Processing result with status and created resume ID</returns>
                     <implementation>
-                        <file_validation>Проверяет размер файла перед обработкой (максимум 10MB)</file_validation>
-                        <file_handling>Сохраняет файл во временную директорию с уникальным именем</file_handling>
-                        <memory_management>Использует garbage collection для освобождения памяти после каждого этапа</memory_management>
-                        <parsing>Использует ParseService для извлечения структурированных данных</parsing>
-                        <database>Создает резюме и все связанные записи (личная информация, контакты, навыки, опыт, образование)</database>
-                        <cleanup>Автоматически удаляет временные файлы и освобождает память после обработки</cleanup>
-                        <error_handling>Обрабатывает ошибки парсинга и создания записей в БД с полной очисткой ресурсов</error_handling>
-                        <logging>Подробное логирование всех этапов обработки</logging>
+                        <file_validation>Validates file size before processing (maximum 10MB)</file_validation>
+                        <file_handling>Saves file to temporary directory with unique name</file_handling>
+                        <memory_management>Uses garbage collection to free memory after each stage</memory_management>
+                        <parsing>Uses ParseService to extract structured data</parsing>
+                        <database>Creates resume and all related records (personal info, contacts, skills, experience, education)</database>
+                        <cleanup>Automatically removes temporary files and frees memory after processing</cleanup>
+                        <error_handling>Handles parsing errors and database record creation with full resource cleanup</error_handling>
+                        <logging>Detailed logging of all processing stages</logging>
                     </implementation>
                 </task>
             </tasks>
@@ -76,25 +76,25 @@
     <database_operations>
         <operation>
             <name>_create_resume_with_data</name>
-            <description>Создает резюме в базе данных со всеми данными из ParseService</description>
+            <description>Creates resume in database with all data from ParseService</description>
             <steps>
-                <step>Создание основной записи резюме</step>
-                <step>Создание личной информации (если доступна)</step>
-                <step>Создание контактов (если доступны)</step>
-                <step>Создание навыков (если доступны)</step>
-                <step>Создание опыта работы (если доступен)</step>
-                <step>Создание образования (если доступно)</step>
+                <step>Creating main resume record</step>
+                <step>Creating personal information (if available)</step>
+                <step>Creating contacts (if available)</step>
+                <step>Creating skills (if available)</step>
+                <step>Creating work experience (if available)</step>
+                <step>Creating education (if available)</step>
             </steps>
             <data_handling>
-                <experience>Обрабатывает словари с ключами: job_title, company, location, start_date, end_date, responsibilities</experience>
-                <education>Обрабатывает словари с ключами: degree, institution, location, graduation_date</education>
-                <error_safety>Использует .get() метод для безопасного доступа к ключам словарей</error_safety>
+                <experience>Processes dictionaries with keys: job_title, company, location, start_date, end_date, responsibilities</experience>
+                <education>Processes dictionaries with keys: degree, institution, location, graduation_date</education>
+                <error_safety>Uses .get() method for safe access to dictionary keys</error_safety>
             </data_handling>
             <logging>
-                <summary>Логирует сводку данных перед началом операций</summary>
-                <progress>Логирует прогресс создания каждой категории данных</summary>
-                <details>Логирует детали каждого создаваемого элемента</summary>
-                <completion>Логирует успешное завершение всех операций</summary>
+                <summary>Logs data summary before starting operations</summary>
+                <progress>Logs progress of creating each data category</summary>
+                <details>Logs details of each created element</summary>
+                <completion>Logs successful completion of all operations</summary>
             </logging>
         </operation>
     </database_operations>
@@ -112,9 +112,9 @@
     </dependencies>
     
     <error_handling>
-        <strategy>Все задачи оборачивают операции в try-catch блоки</strategy>
-        <logging>Подробное логирование ошибок с полным стектрейсом</logging>
-        <cleanup>Автоматическая очистка временных файлов при ошибках</logging>
-        <rollback>Откат транзакций БД при ошибках создания записей</logging>
+        <strategy>All tasks wrap operations in try-catch blocks</strategy>
+        <logging>Detailed error logging with full stack trace</logging>
+        <cleanup>Automatic cleanup of temporary files on errors</logging>
+        <rollback>Database transaction rollback on record creation errors</logging>
     </error_handling>
 </specification>

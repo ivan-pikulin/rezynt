@@ -29,12 +29,12 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
 
   if (requireAuth && !isAuthenticated) {
-    // Сохраняем текущий путь для редиректа после входа
+            // Save current path for redirect after login
     return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
   if (!requireAuth && isAuthenticated) {
-    // Если пользователь авторизован, но пытается зайти на страницу авторизации
+    // If user is authenticated but trying to access auth page
     return <Navigate to="/" replace />;
   }
 

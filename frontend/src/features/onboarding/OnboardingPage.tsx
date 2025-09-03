@@ -124,7 +124,7 @@ const OnboardingPage: React.FC = () => {
   const isCurrentStepComplete = responses[currentStep.field] !== '';
   const isAllStepsComplete = Object.values(responses).every(value => value !== '');
 
-  // Обработчик нажатия Enter
+          // Enter key handler
   const handleKeyPress = useCallback((event: React.KeyboardEvent) => {
     if (event.key === 'Enter' && isCurrentStepComplete) {
       if (activeStep === steps.length - 1) {
@@ -135,7 +135,7 @@ const OnboardingPage: React.FC = () => {
     }
   }, [activeStep, isCurrentStepComplete, steps.length, handleComplete, handleNext]);
 
-  // Добавляем обработчик клавиатуры
+          // Add keyboard handler
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Enter' && isCurrentStepComplete) {
@@ -176,7 +176,7 @@ const OnboardingPage: React.FC = () => {
           p: 2,
         }}
       >
-        {/* Карточка с вопросом */}
+        {/* Question card */}
         <Card sx={{ maxWidth: 600, width: '100%' }}>
           <CardContent sx={{ p: 4 }}>
             {error && (
@@ -208,9 +208,9 @@ const OnboardingPage: React.FC = () => {
                 </RadioGroup>
               </FormControl>
 
-              {/* Стрелки навигации на карточке */}
+              {/* Navigation arrows on card */}
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 3 }}>
-                {/* Left Arrow - только если не первый шаг */}
+                {/* Left Arrow - only if not first step */}
                 {activeStep > 0 ? (
                   <IconButton
                     onClick={handleBack}
@@ -225,7 +225,7 @@ const OnboardingPage: React.FC = () => {
                     <ArrowBackIcon />
                   </IconButton>
                 ) : (
-                  <Box /> // Пустой элемент для выравнивания
+                  <Box /> // Empty element for alignment
                 )}
 
                 {/* Right Arrow */}

@@ -369,9 +369,9 @@ class PDFExportRequest(BaseModel):
     template_slug: Optional[str] = None
 
 
-# Unified Resume Schema - единый объект резюме
+# Unified Resume Schema - unified resume object
 class UnifiedResume(BaseModel):
-    # Основная информация
+    # Basic information
     id: int
     user_id: int
     title: str
@@ -382,21 +382,21 @@ class UnifiedResume(BaseModel):
     created_at: datetime
     updated_at: datetime
     
-    # Персональная информация
+    # Personal information
     first_name: Optional[str] = None
     last_name: Optional[str] = None
     location: Optional[str] = None
     
-    # Контакты и навыки
+    # Contacts and skills
     contacts: List[str] = []
     skills: List[str] = []
     
-    # Опыт и образование
+    # Experience and education
     experience: List[UnifiedResumeExperience] = []
     education: List[UnifiedResumeEducation] = []
     
     def to_json(self) -> Dict[str, Any]:
-        """Преобразует объект в JSON для возврата в API"""
+        """Converts object to JSON for API response"""
         return {
             "id": self.id,
             "user_id": self.user_id,

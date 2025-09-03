@@ -38,7 +38,7 @@ const Header: React.FC<HeaderProps> = ({
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const steps = ['Start', 'Generate', 'Refine', 'Export'];
   
-  // Определяем мобильный режим для экранов до 768px
+  // Define mobile mode for screens up to 768px
   const isMobile = useMediaQuery('(max-width: 768px)');
 
   const getInitials = (email: string) => {
@@ -93,18 +93,18 @@ const Header: React.FC<HeaderProps> = ({
     <Box sx={{ 
       bgcolor: 'white', 
       borderBottom: '1px solid #eee',
-      px: isMobile ? 2 : 4, // Адаптивные отступы
+              px: isMobile ? 2 : 4, // Adaptive padding
       py: 1,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between'
     }}>
-      {/* Логотип */}
+              {/* Logo */}
       {showLogo && (
         <Box 
           onClick={handleLogoClick}
           sx={{ 
-            display: isMobile ? 'none' : 'flex', // Скрываем на мобильных
+            display: isMobile ? 'none' : 'flex', // Hide on mobile
             alignItems: 'center',
             cursor: isOnboarding ? 'default' : 'pointer',
             '&:hover': {
@@ -125,7 +125,7 @@ const Header: React.FC<HeaderProps> = ({
         </Box>
       )}
 
-      {/* Центральная область с кнопками и степпером/табами */}
+              {/* Central area with buttons and stepper/tabs */}
       <Box sx={{ 
         flex: 1,
         display: 'flex',
@@ -201,7 +201,7 @@ const Header: React.FC<HeaderProps> = ({
         ) : (
           /* Steps for regular users */
           <>
-            {/* Кнопка "Назад" слева */}
+            {/* Back button on left */}
             {showSteps && showBackButton && onBack && (
               <Box
                 onClick={onBack}
@@ -226,7 +226,7 @@ const Header: React.FC<HeaderProps> = ({
               </Box>
             )}
 
-            {/* Область степпера с фиксированной шириной */}
+            {/* Stepper area with fixed width */}
             {showSteps && (
               <Box sx={{
                 width: isMobile ? '336px' : '480px',
@@ -278,7 +278,7 @@ const Header: React.FC<HeaderProps> = ({
               </Box>
             )}
 
-            {/* Кнопка "Вперед" справа */}
+            {/* Forward button on right */}
             {showSteps && showNextButton && onNext && (
               <Box
                 onClick={onNext}
@@ -306,7 +306,7 @@ const Header: React.FC<HeaderProps> = ({
         )}
       </Box>
 
-      {/* Аватар пользователя справа - скрываем в режиме онбординга */}
+              {/* User avatar on right - hide in onboarding mode */}
       {!isOnboarding && (
         <Box sx={{ 
           display: 'flex',
@@ -339,7 +339,7 @@ const Header: React.FC<HeaderProps> = ({
         </Box>
       )}
       
-      {/* Боковая панель пользователя */}
+              {/* User sidebar */}
       <UserSidebar 
         open={sidebarOpen} 
         onClose={handleSidebarClose} 

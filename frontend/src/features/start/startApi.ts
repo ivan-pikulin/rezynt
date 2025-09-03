@@ -3,10 +3,10 @@ import { Resume } from '../../shared/services/api/types';
 
 export const startApi = {
   /**
-   * Загрузить файл резюме
-   */
+ * Upload resume file
+ */
   uploadResume: async (file: File): Promise<{ resume: Resume; startupMessage?: string }> => {
-    // Загружаем файл и получаем task_id
+          // Upload file and get task_id
     const uploadResult = await resumeApi.uploadResume(file);
     
     // Ждем завершения обработки

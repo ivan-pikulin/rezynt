@@ -5,6 +5,8 @@ alwaysApply: true
 ---
 This is a project of AI resume builder Rezynt with a separated frontend and backend architecture.
 
+All the content, comments, docstings, ui elements - in English.
+
 rezynt/
 ├── backend/         # Backend server directory
 ├── frontend/        # Frontend application directory

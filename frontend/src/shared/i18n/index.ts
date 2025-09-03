@@ -8,7 +8,7 @@ i18n
     resources: {
       en: { translation: en },
     },
-    lng: 'en', // язык по умолчанию
+    lng: 'en', // default language
     fallbackLng: 'en',
     interpolation: { escapeValue: false },
   });

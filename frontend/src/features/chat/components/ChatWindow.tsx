@@ -21,7 +21,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ resumeId, onResumeUpdate, fromU
   const { user, refetch: refetchUser } = useUser();
   const [showPaywallModal, setShowPaywallModal] = useState(false);
   
-  // Определяем мобильный режим для экранов до 768px
+      // Define mobile mode for screens up to 768px
   const isMobile = useMediaQuery('(max-width: 768px)');
   
   const { 
@@ -73,43 +73,43 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ resumeId, onResumeUpdate, fromU
       backdropFilter: 'blur(10px)',
       position: 'relative'
     }}>
-      {/* Современная шапка чата */}
+              {/* Modern chat header */}
       <Box sx={{
         flexShrink: 0,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        p: isMobile ? 1.5 : 2, // Уменьшил с 3 до 2, еще меньше на мобильных
-        background: COLORS.gradients.primary, // Использую цвета приложения
+                  p: isMobile ? 1.5 : 2,
+          background: COLORS.gradients.primary,
         position: 'relative',
         overflow: 'hidden'
       }}>
-        {/* Декоративные элементы */}
+        {/* Decorative elements */}
         <Box sx={{
           position: 'absolute',
-          top: -15, // Уменьшил с -20 до -15
-          right: -15, // Уменьшил с -20 до -15
-          width: 45, // Уменьшил с 60 до 45
-          height: 45, // Уменьшил с 60 до 45
+          top: -15, // Reduced from -20 to -15
+          right: -15, // Reduced from -20 to -15
+          width: 45, // Reduced from 60 to 45
+          height: 45, // Reduced from 60 to 45
           borderRadius: '50%',
-          background: 'rgba(198, 156, 114, 0.2)', // Использую цвет c69c72ff
+          background: 'rgba(198, 156, 114, 0.2)', // Using color c69c72ff
           backdropFilter: 'blur(10px)'
         }} />
         <Box sx={{
           position: 'absolute',
-          bottom: -10, // Уменьшил с -15 до -10
-          left: -10, // Уменьшил с -15 до -10
-          width: 30, // Уменьшил с 40 до 30
-          height: 30, // Уменьшил с 40 до 30
+          bottom: -10, // Reduced from -15 to -10
+          left: -10, // Reduced from -15 to -10
+          width: 30, // Reduced from 40 to 30
+          height: 30, // Reduced from 40 to 30
           borderRadius: '50%',
-          background: 'rgba(192, 183, 177, 0.15)', // Использую цвет c0b7b1ff
+          background: 'rgba(192, 183, 177, 0.15)', // Using color c0b7b1ff
           backdropFilter: 'blur(10px)'
         }} />
         
         <Typography variant="h6" sx={{ 
           fontWeight: 700, 
           color: 'white',
-          fontSize: isMobile ? '1rem' : '1.1rem', // Уменьшил с 1.25rem до 1.1rem, еще меньше на мобильных
+          fontSize: isMobile ? '1rem' : '1.1rem', // Reduced from 1.25rem to 1.1rem, even less on mobile
           textShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
           position: 'relative',
           zIndex: 1
@@ -146,7 +146,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ resumeId, onResumeUpdate, fromU
         )}
       </Box>
 
-      {/* Область чата с современным дизайном */}
+      {/* Chat area with modern design */}
       <Box 
         ref={chatContainerRef}
         sx={{ 
@@ -157,13 +157,13 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ resumeId, onResumeUpdate, fromU
           gap: isMobile ? 1.5 : 2,
           p: isMobile ? 2 : 3,
           minHeight: 0,
-          maxHeight: 'calc(100% - 60px - 56px)', // Минимальная высота области ввода + шапка
+          maxHeight: 'calc(100% - 60px - 56px)', // Minimum height of input area + header
           background: COLORS.gradients.white,
           position: 'relative'
         }}
         onScroll={handleScroll}
       >
-        {/* Декоративная сетка на фоне */}
+        {/* Decorative grid background */}
         <Box sx={{
           position: 'absolute',
           top: 0,
@@ -201,16 +201,16 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ resumeId, onResumeUpdate, fromU
         <div ref={messagesEndRef} />
       </Box>
 
-      {/* Современное поле ввода */}
+              {/* Modern input field */}
       <Box sx={{
         flexShrink: 0,
         height: 'auto',
-        minHeight: '60px', // Минимальная высота
-        maxHeight: '170px', // Максимальная высота (150px + отступы)
+        minHeight: '60px', // Minimum height
+        maxHeight: '170px', // Maximum height (150px + padding)
         display: 'flex',
-        alignItems: 'flex-end', // Выравниваем по нижнему краю
+        alignItems: 'flex-end', // Align to bottom
         position: 'relative',
-        overflow: 'hidden' // Предотвращаем выход за границы
+        overflow: 'hidden' // Prevent overflow
       }}>
         <ChatInput onSendMessage={sendUserMessage} disabled={isLoading} />
       </Box>

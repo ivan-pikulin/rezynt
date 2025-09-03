@@ -77,11 +77,11 @@ class PlatformChatflow:
                 logger.error(f"HTTP {response.status_code}: {response.text}")
                 raise Exception(f"HTTP {response.status_code}: {response.text}")
             
-            # Читаем ответ как JSON
+            # Read response as JSON
             response_data = response.json()
             logger.debug(f"Dify response: {response_data}")
             
-            # Извлекаем данные из ответа
+            # Extract data from response
             answer = response_data.get("answer", "")
             conversation_id = response_data.get("conversation_id")
 

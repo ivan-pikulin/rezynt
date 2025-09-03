@@ -14,7 +14,7 @@ interface ChatMessageProps {
   currentThinkingPhrase?: string;
 }
 
-// Компонент для анимированных точек
+  // Component for animated dots
 const AnimatedDots: React.FC = () => (
   <Box sx={{ display: 'flex', gap: 0.5 }}>
     {[0, 1, 2].map((index) => (
@@ -45,7 +45,7 @@ const AnimatedDots: React.FC = () => (
 
 export const ChatMessage: React.FC<ChatMessageProps> = memo(({ message, isLoading = false, currentThinkingPhrase = 'Thinking...' }) => {
   const isUser = message.sender === 'user';
-  // Показываем фразу ожидания только если нет контента
+      // Show waiting phrase only if there's no content
   const showLoading = isLoading && !isUser && !message.content;
   
   return (
@@ -59,22 +59,22 @@ export const ChatMessage: React.FC<ChatMessageProps> = memo(({ message, isLoadin
       }}>
       {!isUser && (
         <Avatar sx={{ 
-          width: 36, // Увеличиваем с 32 до 36
-          height: 36, // Увеличиваем с 32 до 36
-          bgcolor: COLORS.chat.bot.avatar, // Синий цвет для бота
-          fontSize: '1rem' // Увеличиваем с 0.875rem до 1rem
+          width: 36, // Increased from 32 to 36
+          height: 36, // Increased from 32 to 36
+          bgcolor: COLORS.chat.bot.avatar, // Blue color for bot
+          fontSize: '1rem' // Increased from 0.875rem to 1rem
         }}>
           <SmartToyIcon sx={{ fontSize: '1.2rem', color: 'white' }} />
         </Avatar>
       )}
       
       <Box sx={{ 
-        bgcolor: isUser ? COLORS.chat.user.background : COLORS.chat.bot.background, // Синий для пользователя, голубой для бота
-        color: isUser ? COLORS.chat.user.text : COLORS.chat.bot.text, // Белый текст для пользователя, синий для бота
+        bgcolor: isUser ? COLORS.chat.user.background : COLORS.chat.bot.background, // Blue for user, light blue for bot
+        color: isUser ? COLORS.chat.user.text : COLORS.chat.bot.text, // White text for user, blue for bot
         p: 1.5,
         borderRadius: '8px',
         maxWidth: '70%',
-        fontSize: '1rem', // Увеличиваем с 0.875rem до 1rem
+        fontSize: '1rem', // Increased from 0.875rem to 1rem
         display: 'flex',
         alignItems: 'center',
         gap: 1,
@@ -82,7 +82,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = memo(({ message, isLoadin
       }}>
         {showLoading ? (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-            <Typography variant="body2" sx={{ fontSize: '1rem' }}> {/* Увеличиваем с 0.875rem до 1rem */}
+            <Typography variant="body2" sx={{ fontSize: '1rem' }}> {/* Increased from 0.875rem to 1rem */}
               {currentThinkingPhrase}
             </Typography>
             <AnimatedDots />
@@ -92,9 +92,9 @@ export const ChatMessage: React.FC<ChatMessageProps> = memo(({ message, isLoadin
             component="div"
             sx={{ 
               fontSize: '1rem',
-              wordBreak: 'break-word', // Переносим длинные слова
+              wordBreak: 'break-word', // Break long words
               '& .markdown-content': {
-                // Стили для Markdown контента
+                // Styles for Markdown content
                 '& h1, & h2, & h3, & h4, & h5, & h6': {
                   margin: '0.5em 0 0.3em 0',
                   fontWeight: 600,
@@ -181,7 +181,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = memo(({ message, isLoadin
               <ReactMarkdown 
                 remarkPlugins={[remarkGfm]}
                 components={{
-                  // Кастомизируем компоненты для лучшего отображения
+                  // Customize components for better display
                   code: ({ node, inline, className, children, ...props }: any) => {
                     const match = /language-(\w+)/.exec(className || '');
                     return !inline ? (
@@ -205,7 +205,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = memo(({ message, isLoadin
                       </code>
                     );
                   },
-                  // Убираем лишние отступы для списков
+                  // Remove extra padding for lists
                   ul: ({ children, ...props }: any) => (
                     <ul style={{ margin: '0.5em 0', paddingLeft: '1.5em' }} {...props}>
                       {children}
@@ -227,10 +227,10 @@ export const ChatMessage: React.FC<ChatMessageProps> = memo(({ message, isLoadin
       
       {isUser && (
         <Avatar sx={{ 
-          width: 36, // Увеличиваем с 32 до 36
-          height: 36, // Увеличиваем с 32 до 36
-          bgcolor: COLORS.chat.user.avatar, // Коричневый цвет для пользователя
-          fontSize: '1rem' // Увеличиваем с дефолтного до 1rem
+                      width: 36, // Increased from 32 to 36
+            height: 36, // Increased from 32 to 36
+                      bgcolor: COLORS.chat.user.avatar, // Brown color for user
+                      fontSize: '1rem' // Increased from default to 1rem
         }}>
           U
         </Avatar>

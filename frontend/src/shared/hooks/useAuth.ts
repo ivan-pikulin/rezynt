@@ -24,7 +24,7 @@ export const useAuth = (): UseAuthReturn => {
 
 
 
-  // Проверяем токены при загрузке
+  // Check tokens on load
   useEffect(() => {
     if (hasInitialized.current) return;
     
@@ -40,12 +40,12 @@ export const useAuth = (): UseAuthReturn => {
           return;
         }
 
-        // Проверяем, не истек ли access token
+        // Check if access token has expired
         const tokenData = JSON.parse(atob(accessToken.split('.')[1]));
         const currentTime = Date.now() / 1000;
 
         if (tokenData.exp < currentTime) {
-          // Access token истек, пытаемся обновить
+          // Access token expired, try to refresh
           const success = await refreshTokens();
           if (!success) {
             tokenService.clearTokens();
@@ -53,7 +53,7 @@ export const useAuth = (): UseAuthReturn => {
           }
         } else {
           setIsAuthenticated(true);
-          // Токен валиден, загружаем данные пользователя
+          // Token is valid, load user data
           try {
             const userData = await userApi.getCurrentUser();
             setUser(userData);
@@ -86,7 +86,7 @@ export const useAuth = (): UseAuthReturn => {
       const newTokens = await tokenService.refreshToken(refreshToken);
       tokenService.storeTokens(newTokens);
       setIsAuthenticated(true);
-      // Загружаем данные пользователя после обновления токена
+      // Load user data after token refresh
       try {
         const userData = await userApi.getCurrentUser();
         setUser(userData);
@@ -110,7 +110,7 @@ export const useAuth = (): UseAuthReturn => {
   const login = useCallback(async (tokens: TokenResponse) => {
     tokenService.storeTokens(tokens);
     setIsAuthenticated(true);
-    // Загружаем данные пользователя после логина
+    // Load user data after login
     try {
       const userData = await userApi.getCurrentUser();
       setUser(userData);

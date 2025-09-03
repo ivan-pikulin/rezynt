@@ -159,7 +159,7 @@ class CRUDResume(CRUDBase[Resume, ResumeCreate, ResumeUpdate]):
         await db.commit()
         await db.refresh(db_obj)
         
-        # Загружаем объект с полными данными через eager loading
+        # Load object with full data via eager loading
         result = await db.execute(
             select(self.model)
             .options(
@@ -188,7 +188,7 @@ class CRUDResume(CRUDBase[Resume, ResumeCreate, ResumeUpdate]):
         await db.commit()
         await db.refresh(db_obj)
         
-        # Загружаем объект с полными данными через eager loading
+        # Load object with full data via eager loading
         result = await db.execute(
             select(self.model)
             .options(
@@ -250,7 +250,7 @@ class CRUDResume(CRUDBase[Resume, ResumeCreate, ResumeUpdate]):
         
         await db.commit()
         
-        # Загружаем объект с полными данными через eager loading
+        # Load object with full data via eager loading
         result = await db.execute(
             select(self.model)
             .options(

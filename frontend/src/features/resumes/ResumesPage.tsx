@@ -32,7 +32,7 @@ const ResumesPage: React.FC = () => {
       // Show paywall for non-pro users with existing resumes
       setShowPaywall(true);
     } else {
-      // Переходим к созданию резюме
+              // Go to resume creation
       navigate('/start');
     }
   };
@@ -43,7 +43,7 @@ const ResumesPage: React.FC = () => {
 
   const handlePaywallSuccess = () => {
     setShowPaywall(false);
-    // После успешной оплаты переходим к созданию резюме
+            // After successful payment, go to resume creation
     navigate('/start');
   };
 
@@ -146,7 +146,7 @@ const ResumesPage: React.FC = () => {
       flexDirection: 'column', 
       bgcolor: COLORS.resume.section.background
     }}>
-      {/* Шапка только с логотипом */}
+              {/* Header with logo only */}
       <Header 
         showLogo={true} 
         showSteps={false} 
@@ -155,7 +155,7 @@ const ResumesPage: React.FC = () => {
         onTabChange={handleTabChange}
       />
       
-      {/* Основная область */}
+              {/* Main area */}
       <Box sx={{ 
         flex: 1, 
         p: { xs: 2, sm: 3, md: 4 },
@@ -182,7 +182,7 @@ const ResumesPage: React.FC = () => {
           justifyContent: 'center',
           alignItems: 'flex-start'
         }}>
-          {/* Карточки резюме */}
+          {/* Resume cards */}
           {Array.isArray(resumes) && resumes.map((resume: any) => (
             <Box key={resume.id}>
                               <Card 
@@ -206,7 +206,7 @@ const ResumesPage: React.FC = () => {
                   flexDirection: 'column',
                   p: 1
                 }}>
-                  {/* Название резюме вверху */}
+                  {/* Resume title at top */}
                                      <Typography 
                      variant="h6" 
                      component="h2" 
@@ -221,7 +221,7 @@ const ResumesPage: React.FC = () => {
                      {resume.title}
                    </Typography>
                   
-                  {/* Превью резюме */}
+                  {/* Resume preview */}
                   <Box sx={{ 
                     flex: 1,
                     display: 'flex',
@@ -244,7 +244,7 @@ const ResumesPage: React.FC = () => {
             </Box>
           ))}
           
-          {/* Карточка добавления нового резюме */}
+          {/* Add new resume card */}
           <Box>
             <Card 
               sx={{ 

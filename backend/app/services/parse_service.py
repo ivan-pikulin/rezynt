@@ -3,7 +3,6 @@ import os
 import gc
 from datetime import datetime
 from typing import Any, Dict, List, Optional
-from weakref import proxy
 
 import httpx
 from app.core.config import settings
@@ -16,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 class ParsedResumeData(BaseModel):
-    """Структура данных для парсинга резюме через OpenAI"""
+    """Data structure for resume parsing via OpenAI"""
     first_name: Optional[str] = None
     last_name: Optional[str] = None
     location: Optional[str] = None
@@ -28,7 +27,7 @@ class ParsedResumeData(BaseModel):
 
 
 class ParseService:
-    """Сервис для парсинга резюме с использованием OpenAI structured output"""
+    """Service for resume parsing using OpenAI structured output"""
     
     # Maximum file size in bytes (10MB)
     MAX_FILE_SIZE = 10 * 1024 * 1024
@@ -42,13 +41,13 @@ class ParseService:
     
     async def parse_resume_file(self, file_path: str) -> ParsedResumeData:
         """
-        Парсит файл резюме и возвращает структурированные данные
+        Parses resume file and returns structured data
         
         Args:
-            file_path: Путь к файлу резюме
+            file_path: Path to resume file
             
         Returns:
-            ParsedResumeData: Структурированные данные резюме
+            ParsedResumeData: Structured resume data
         """
         try:
             # Validate file size before processing
@@ -58,7 +57,7 @@ class ParseService:
             if file_size > self.MAX_FILE_SIZE:
                 raise ValueError(f"File size ({file_size} bytes) exceeds maximum allowed size ({self.MAX_FILE_SIZE} bytes)")
             
-            # Читаем файл через markitdown
+            # Read file via markitdown
             result = self.md.convert(file_path)
             text_content = result.text_content
             
@@ -77,7 +76,7 @@ class ParseService:
                 logger.warning(f"Text content too long ({len(text_content)} chars), truncating to 50000 chars")
                 text_content = text_content[:50000] + "..."
             
-            # Парсим через OpenAI с structured output
+            # Parse via OpenAI with structured output
             parsed_data = await self._parse_with_openai_structured(text_content)
             
             # Clean up text content
@@ -95,16 +94,16 @@ class ParseService:
     
     async def _parse_with_openai_structured(self, text_content: str) -> ParsedResumeData:
         """
-        Парсит текст резюме через OpenAI с structured output используя OpenAIStructuredResume schema
+        Parses resume text via OpenAI with structured output using OpenAIStructuredResume schema
         
         Args:
-            text_content: Текст резюме
+            text_content: Resume text
             
         Returns:
-            ParsedResumeData: Структурированные данные
+            ParsedResumeData: Structured data
         """
         try:
-            # Используем OpenAI Structured Outputs с Pydantic моделью
+            # Use OpenAI Structured Outputs with Pydantic model
             response = self.client.beta.chat.completions.parse(
                 model="gpt-4o-mini",
                 messages=[
@@ -132,7 +131,7 @@ class ParseService:
                 max_tokens=4000  # Limit response size
             )
             
-            # Получаем структурированные данные
+            # Get structured data
             structured_data = response.choices[0].message.parsed
             
             # Clean up response object immediately
@@ -141,7 +140,7 @@ class ParseService:
             
             logger.info(f"Structured data received, processing...")
             
-            # Преобразуем в ParsedResumeData
+            # Convert to ParsedResumeData
             parsed_data = self._convert_structured_to_parsed(structured_data)
             
             # Clean up structured data
@@ -155,18 +154,18 @@ class ParseService:
             logger.error(f"Error in OpenAI structured parsing: {e}", exc_info=True)
             # Force garbage collection on error
             gc.collect()
-            # Возвращаем пустые данные в случае ошибки
+            # Return empty data in case of error
             return ParsedResumeData()
     
     def _convert_structured_to_parsed(self, structured_data: OpenAIStructuredResume) -> ParsedResumeData:
         """
-        Преобразует OpenAIStructuredResume в ParsedResumeData
+        Converts OpenAIStructuredResume to ParsedResumeData
         
         Args:
-            structured_data: Структурированные данные от OpenAI
+            structured_data: Structured data from OpenAI
             
         Returns:
-            ParsedResumeData: Преобразованные данные
+            ParsedResumeData: Converted data
         """
         return ParsedResumeData(
             first_name=structured_data.first_name,
@@ -199,19 +198,19 @@ class ParseService:
     
     def parse_resume_to_unified(self, file_path: str, user_id: int, title: str = "Parsed Resume") -> Dict[str, Any]:
         """
-        Парсит файл резюме и возвращает данные в формате UnifiedResume
+        Parses resume file and returns data in UnifiedResume format
         
         Args:
-            file_path: Путь к файлу резюме
-            user_id: ID пользователя
-            title: Заголовок резюме
+            file_path: Path to resume file
+            user_id: User ID
+            title: Resume title
             
         Returns:
-            Dict[str, Any]: Данные в формате UnifiedResume
+            Dict[str, Any]: Data in UnifiedResume format
         """
         parsed_data = self.parse_resume_file(file_path)
         
-        # Преобразуем даты из строк в datetime объекты
+        # Convert dates from strings to datetime objects
         experience = []
         for exp in parsed_data.experience:
             start_date = None
@@ -255,7 +254,7 @@ class ParseService:
                 "graduation_date": graduation_date
             })
         
-        # Возвращаем данные в формате UnifiedResume
+        # Return data in UnifiedResume format
         return {
             "user_id": user_id,
             "title": title,
@@ -271,13 +270,13 @@ class ParseService:
     
     async def test_structured_output(self, sample_text: str = None) -> Dict[str, Any]:
         """
-        Тестирует OpenAI Structured Outputs с примером текста
+        Tests OpenAI Structured Outputs with sample text
         
         Args:
-            sample_text: Пример текста резюме для тестирования
+            sample_text: Sample resume text for testing
             
         Returns:
-            Dict[str, Any]: Результат парсинга
+            Dict[str, Any]: Parsing result
         """
         if sample_text is None:
             sample_text = """
@@ -306,10 +305,10 @@ class ParseService:
             """
         
         try:
-            # Тестируем structured output
+            # Test structured output
             structured_data = await self._parse_with_openai_structured(sample_text)
             
-            # Преобразуем в словарь для удобства
+            # Convert to dictionary for convenience
             result = {
                 "first_name": structured_data.first_name,
                 "last_name": structured_data.last_name,

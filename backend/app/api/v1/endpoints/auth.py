@@ -75,13 +75,13 @@ async def confirm_registration(
         service = UserService(db)
         await service.confirm_user(token=token)
         
-        # Перенаправляем на страницу успешного подтверждения
+        # Redirect to successful confirmation page
         success_url = f"{settings.FRONTEND_BASE_URL}/auth/email-confirmed"
         response.headers["Location"] = success_url
         
         return {"message": "Email confirmed", "redirect_url": success_url}
     except ValueError as e:
-        # При ошибке перенаправляем на страницу ошибки
+        # On error, redirect to error page
         error_url = f"{settings.FRONTEND_BASE_URL}/auth/email-confirmation-error?error={str(e)}"
         response.headers["Location"] = error_url
         response.status_code = status.HTTP_302_FOUND
@@ -106,7 +106,7 @@ async def request_password_reset(
             "message": "If an account with that email exists, a password reset link has been sent."
         }
     except Exception as e:
-        # Для безопасности всегда возвращаем успешный ответ
+        # For security, always return successful response
         return {
             "message": "If an account with that email exists, a password reset link has been sent."
         }

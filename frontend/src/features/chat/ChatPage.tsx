@@ -23,7 +23,7 @@ const ChatPage: React.FC = () => {
   const { user } = useUser();
   const [showPreview, setShowPreview] = useState(false);
   
-  // Определяем мобильный режим для экранов до 768px
+  // Define mobile mode for screens up to 768px
   const isMobile = useMediaQuery('(max-width: 768px)');
 
   const handleNext = () => {
@@ -39,7 +39,7 @@ const ChatPage: React.FC = () => {
       case 0: // Start
         navigate('/');
         break;
-      case 1: // Generate - уже на этой странице
+              case 1: // Generate - already on this page
         break;
       case 2: // Refine
         navigate(`/refine?resume_id=${resumeId}`);
@@ -79,49 +79,49 @@ const ChatPage: React.FC = () => {
       position: 'relative',
       overflow: 'hidden'
     }}>
-      {/* Общая шапка */}
+              {/* Common header */}
       <Header 
         activeStep={1} 
         onNext={handleNext}
         onBack={handleBack}
         nextButtonText="Refine"
         previousButtonText="Resumes"
-        showLogo={true} // Показываем лого на десктопе
-        showBackButton={true} // Показываем кнопку "Назад" на странице чата
+                  showLogo={true} // Show logo on desktop
+          showBackButton={true} // Show back button on chat page
         onStepClick={handleStepClick}
         isProUser={user?.is_premium}
         currentTab="ai-writer"
         onTabChange={handleTabChange}
       />
       
-      {/* Основная область */}
+              {/* Main area */}
       <Box sx={{ 
         flex: 1, 
-        minHeight: 0, // Важно для правильной работы flex
+                  minHeight: 0, // Important for proper flex operation
         display: 'flex', 
-        p: isMobile ? 1 : 2, // Уменьшаем отступы на мобильных
-        gap: isMobile ? 0 : 2, // Убираем отступы между элементами на мобильных
+                  p: isMobile ? 1 : 2, // Reduce padding on mobile
+          gap: isMobile ? 0 : 2, // Remove gaps between elements on mobile
         alignItems: 'stretch',
         justifyContent: 'center'
       }}>
-        {/* Основной контейнер со скруглением */}
+        {/* Main container with rounded corners */}
         <Box sx={{
-          width: isMobile ? '100%' : '95%', // Полная ширина на мобильных
+                      width: isMobile ? '100%' : '95%', // Full width on mobile
           height: '100%',
           bgcolor: 'white',
-          borderRadius: isMobile ? 0 : '8px', // Убираем скругление на мобильных
-          boxShadow: isMobile ? 'none' : '0 2px 8px rgba(0, 0, 0, 0.1)', // Убираем тень на мобильных
+                      borderRadius: isMobile ? 0 : '8px', // Remove rounding on mobile
+                      boxShadow: isMobile ? 'none' : '0 2px 8px rgba(0, 0, 0, 0.1)', // Remove shadow on mobile
           display: 'flex',
           overflow: 'hidden',
           position: 'relative'
         }}>
-          {/* Кнопка с глазом для открытия превью */}
+          {/* Eye button to open preview */}
           <Box sx={{
             position: 'absolute',
             top: isMobile ? 8 : 12,
             right: isMobile ? 8 : 12,
             zIndex: 10,
-            display: isMobile ? 'block' : 'none' // Показываем только на мобильных
+                          display: isMobile ? 'block' : 'none' // Show only on mobile
           }}>
             <IconButton
               onClick={togglePreview}
@@ -138,15 +138,15 @@ const ChatPage: React.FC = () => {
             </IconButton>
           </Box>
 
-          {/* Левая+центральная часть: чат */}
+          {/* Left+center part: chat */}
           <Box sx={{ 
-            flex: 1, // Занимаем все доступное пространство
+                          flex: 1, // Take all available space
             minWidth: 0, 
-            minHeight: 0, // Важно для правильной работы flex
-            p: isMobile ? 1 : 2, // Уменьшаем отступы на мобильных
+            minHeight: 0, // Important for proper flex operation
+                          p: isMobile ? 1 : 2, // Reduce padding on mobile
             display: 'flex', 
             flexDirection: 'column',
-            overflow: 'hidden' // Предотвращаем переполнение
+                          overflow: 'hidden' // Prevent overflow
           }}>
             <ChatWindow 
               resumeId={resumeId} 
@@ -155,7 +155,7 @@ const ChatPage: React.FC = () => {
             />
           </Box>
           
-          {/* Правая часть: превью (скрыто на мобильных по умолчанию) */}
+          {/* Right part: preview (hidden on mobile by default) */}
           <Box sx={{ 
             width: isMobile ? 0 : '400px',
             display: isMobile ? 'none' : 'flex',
@@ -174,7 +174,7 @@ const ChatPage: React.FC = () => {
         </Box>
       </Box>
 
-      {/* Боковая панель с превью (на весь экран) */}
+              {/* Side panel with preview (full screen) */}
       <Box sx={{
         position: 'fixed',
         top: 0,
@@ -183,13 +183,13 @@ const ChatPage: React.FC = () => {
         bottom: 0,
         bgcolor: 'white',
         zIndex: 1000,
-        display: isMobile ? (showPreview ? 'flex' : 'none') : 'none', // Показываем только на мобильных
+                  display: isMobile ? (showPreview ? 'flex' : 'none') : 'none', // Show only on mobile
         flexDirection: 'column',
         transform: isMobile ? (showPreview ? 'translateX(0)' : 'translateX(100%)') : 'translateX(100%)',
         transition: 'transform 0.3s ease-in-out',
         overflow: 'hidden'
       }}>
-        {/* Заголовок панели */}
+        {/* Panel header */}
         <Box sx={{
           display: 'flex',
           alignItems: 'center',
@@ -213,7 +213,7 @@ const ChatPage: React.FC = () => {
           </IconButton>
         </Box>
 
-        {/* Содержимое панели */}
+        {/* Panel content */}
         <Box sx={{
           flex: 1,
           display: 'flex',

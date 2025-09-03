@@ -13,46 +13,46 @@ export type { BaseTemplateProps };
 export { NumeTemplate, LumaTemplate, AltoTemplate, VeroTemplate };
 export type { TemplateConfig };
 
-// Конфигурации доступных шаблонов
-export const TEMPLATE_CONFIGS: TemplateConfig[] = [
-  {
+// Available template configurations
+export const TEMPLATE_CONFIGS: Record<string, TemplateConfig> = {
+  nume: {
     id: 'nume',
     name: 'Clarity',
-    description: 'Классический профессиональный шаблон с четкой структурой',
+    description: 'Classic professional template with clear structure',
     category: 'classic'
   },
-  {
+  vero: {
     id: 'vero',
     name: 'Frame',
-    description: 'Центрированный шаблон с горизонтальными разделителями',
+    description: 'Centered template with horizontal separators',
     category: 'classic'
   },
-  {
+  luma: {
     id: 'luma',
     name: 'Sidebar',
-    description: 'Двухколоночный шаблон с темной боковой панелью для контактов и навыков',
+    description: 'Two-column template with dark sidebar for contacts and skills',
     category: 'modern'
   },
-  {
+  alto: {
     id: 'alto',
     name: 'Professional',
-    description: 'Шаблон с квадратным логотипом и контактной информацией в заголовке',
+    description: 'Template with square logo and contact information in header',
     category: 'modern'
   }
-];
+};
 
-// Фабрика для создания шаблонов
-export const createTemplate = (templateId: string, props: any) => {
+// Factory for creating templates
+export function createTemplate(templateId: string, resumeData: ResumeData): React.ReactElement | null {
   switch (templateId) {
     case 'nume':
-      return React.createElement(NumeTemplate, props);
+      return React.createElement(NumeTemplate, resumeData);
     case 'luma':
-      return React.createElement(LumaTemplate, props);
+      return React.createElement(LumaTemplate, resumeData);
 
     case 'alto':
-      return React.createElement(AltoTemplate, props);
+      return React.createElement(AltoTemplate, resumeData);
     case 'vero':
-      return React.createElement(VeroTemplate, props);
+      return React.createElement(VeroTemplate, resumeData);
     default:
       throw new Error(`Template with id "${templateId}" not found`);
   }

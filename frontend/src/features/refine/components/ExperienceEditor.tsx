@@ -199,7 +199,7 @@ const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
         </Button>
       </Box>
 
-      {/* Список опыта работы */}
+      {/* Work experience list */}
       {localExperience.map((exp, index) => (
         <Card key={index} sx={{ mb: 2, border: '1px solid #e0e0e0' }}>
           <CardContent>
@@ -259,7 +259,7 @@ const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
         </Card>
       ))}
 
-      {/* Диалог добавления/редактирования */}
+      {/* Add/Edit dialog */}
       <Dialog open={isDialogOpen} onClose={handleCloseDialog} maxWidth="md" fullWidth>
         <DialogTitle>
           {editingExperienceIndex !== null ? t('refine.editor.editExperience') : t('refine.editor.addExperience')}

@@ -23,7 +23,7 @@ const PricingTable: React.FC = () => {
       maxWidth: 900,
       width: '100%'
     }}>
-      {/* Заголовок */}
+              {/* Title */}
       <Typography 
         variant="h4" 
         sx={{ 
@@ -36,7 +36,7 @@ const PricingTable: React.FC = () => {
         Choose Your Plan
       </Typography>
       
-      {/* Таблица тарифов */}
+              {/* Pricing table */}
       <Box sx={{ 
         display: 'flex', 
         gap: 3,

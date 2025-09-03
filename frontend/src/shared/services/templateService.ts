@@ -40,30 +40,30 @@ export class TemplateService {
   static validateResumeData(data: ResumeData): { isValid: boolean; errors: string[] } {
     const errors: string[] = [];
 
-    // Проверка персональной информации
+    // Check personal information
     if (!data.first_name) errors.push('First name is required');
     if (!data.last_name) errors.push('Last name is required');
     if (!data.location) errors.push('Location is required');
 
-    // Проверка контактов
+    // Check contacts
     if (!data.contacts || data.contacts.length === 0) {
       errors.push('At least one contact is required');
     }
 
-    // Проверка профессионального резюме
+    // Check professional summary
     if (!data.professional_summary) errors.push('Professional summary is required');
 
-    // Проверка навыков
+    // Check skills
     if (!data.skills || data.skills.length === 0) {
       errors.push('At least one skill is required');
     }
 
-    // Проверка опыта
+    // Check experience
     if (!data.experience || data.experience.length === 0) {
       errors.push('At least one experience entry is required');
     }
 
-    // Проверка образования
+    // Check education
     if (!data.education || data.education.length === 0) {
       errors.push('At least one education entry is required');
     }

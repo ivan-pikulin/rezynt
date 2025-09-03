@@ -27,7 +27,7 @@ const TemplateThumbnail: React.FC<TemplateThumbnailProps> = ({
   if (horizontal) {
     return (
       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: 100 }}>
-        {/* Карточка с шаблоном */}
+        {/* Template card */}
         <Card 
           onClick={onSelect}
           onMouseEnter={() => onHover?.(template)}
@@ -37,7 +37,7 @@ const TemplateThumbnail: React.FC<TemplateThumbnailProps> = ({
             m: 0,
             cursor: 'pointer',
             width: 80,
-            height: 113, // A4 пропорции
+            height: 113, // A4 proportions
             transition: 'all 0.2s ease',
             border: isSelected ? '2px solid #1976d2' : '2px solid transparent',
             bgcolor: isSelected ? 'rgba(25, 118, 210, 0.04)' : 'white',
@@ -90,7 +90,7 @@ const TemplateThumbnail: React.FC<TemplateThumbnailProps> = ({
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', m: 0 }}>
-      {/* Карточка с шаблоном */}
+              {/* Template card */}
       <Card 
         onClick={onSelect}
         onMouseEnter={() => onHover?.(template)}

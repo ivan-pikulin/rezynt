@@ -12,22 +12,22 @@ const OnboardingGuard: React.FC<OnboardingGuardProps> = ({ children }) => {
   const { user, isLoading } = useAuthContext();
   const { shouldShowOnboarding } = useOnboarding(user);
 
-  // Показываем загрузку пока проверяем аутентификацию
+  // Show loading while checking authentication
   if (isLoading) {
-    return null; // Или компонент загрузки
+    return null; // Or loading component
   }
 
-  // Если пользователь не аутентифицирован, не показываем онбординг
+  // If user is not authenticated, don't show onboarding
   if (!user) {
     return <Navigate to="/auth" replace />;
   }
 
-  // Если нужно показать онбординг, показываем его
+  // If onboarding needs to be shown, show it
   if (shouldShowOnboarding) {
     return <OnboardingPage />;
   }
 
-  // Иначе показываем дочерние компоненты
+  // Otherwise show child components
   return <>{children}</>;
 };
 

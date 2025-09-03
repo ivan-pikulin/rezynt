@@ -2,8 +2,8 @@ import { Resume } from '../services/api/types';
 import { ResumeData } from '../types/resume';
 
 /**
- * Конвертер для преобразования UnifiedResume в новую структуру ResumeData
- * Простое копирование, так как структуры совпадают
+ * Converter for transforming UnifiedResume to new ResumeData structure
+ * Simple copying as structures match
  */
 export const convertApiResumeToResumeData = (apiResume: Resume): ResumeData => {
   return {

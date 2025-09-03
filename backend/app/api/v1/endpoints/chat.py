@@ -29,7 +29,7 @@ async def send_message(
     """
     Send message to chat via platform.
     """
-    # Проверяем кредиты для free пользователей
+    # Check credits for free users
     if not user.is_premium:
         if not await user_crud.has_credits(db, user_id=user.id):
             raise HTTPException(
@@ -37,16 +37,16 @@ async def send_message(
                 detail="No credits remaining. Please upgrade to continue."
             )
     
-    # Получаем резюме
+    # Get resume
     resume_obj = await resume_manager.get_resume_by_id(db, resume_id=request.resume_id)
     if not resume_obj:
         raise HTTPException(status_code=404, detail="Resume not found")
     
-    # Проверяем, что резюме принадлежит пользователю
+    # Check that resume belongs to user
     if resume_obj.user_id != user.id:
         raise HTTPException(status_code=403, detail="Access denied")
     
-    # Создаем агента платформы с соответствующим ключом
+    # Create platform agent with appropriate key
     app_key = settings.PLATFORM_UPLOAD_APP_KEY if resume_obj.from_upload else settings.PLATFORM_SCRATCH_APP_KEY
     platform_chatflow = PlatformChatflow(
         app_key=app_key,
@@ -61,11 +61,11 @@ async def send_message(
         inputs={"resume_id": str(request.resume_id)}
     )
     
-    # Списываем кредит для free пользователей после успешной отправки
+    # Consume credit for free users after successful sending
     if not user.is_premium:
         await user_crud.consume_credit(db, user_id=user.id)
     
-    # Обновляем conversation_id в резюме, если он изменился
+    # Update conversation_id in resume if it changed
     if response.conversation_id and response.conversation_id != resume_obj.conversation_id:
         await resume_manager.update_conversation_id(db, resume_id=request.resume_id, conversation_id=response.conversation_id)
     
@@ -85,7 +85,7 @@ async def send_message_stream(
     """
     Send message to chat with streaming response via platform.
     """
-    # Проверяем кредиты для free пользователей
+    # Check credits for free users
     if not user.is_premium:
         if not await user_crud.has_credits(db, user_id=user.id):
             raise HTTPException(
@@ -93,16 +93,16 @@ async def send_message_stream(
                 detail="No credits remaining. Please upgrade to continue."
             )
     
-    # Получаем резюме
+    # Get resume
     resume_obj = await resume_manager.get_resume_by_id(db, resume_id=request.resume_id)
     if not resume_obj:
         raise HTTPException(status_code=404, detail="Resume not found")
     
-    # Проверяем, что резюме принадлежит пользователю
+    # Check that resume belongs to user
     if resume_obj.user_id != user.id:
         raise HTTPException(status_code=403, detail="Access denied")
     
-    # Создаем агента платформы с соответствующим ключом
+    # Create platform agent with appropriate key
     app_key = settings.PLATFORM_UPLOAD_APP_KEY if resume_obj.from_upload else settings.PLATFORM_SCRATCH_APP_KEY
     platform_chatflow = PlatformChatflow(
         app_key=app_key,
@@ -124,7 +124,7 @@ async def send_message_stream(
             # Send chunk as SSE
             yield f"data: {json.dumps({'chunk': chunk})}\n\n"
         
-        # Списываем кредит для free пользователей после успешной отправки
+        # Consume credit for free users after successful sending
         if not user.is_premium and not credit_consumed:
             await user_crud.consume_credit(db, user_id=user.id)
             credit_consumed = True
@@ -162,16 +162,16 @@ async def get_messages(
     - Use first_id=null for latest messages (initial load)
     - Use first_id=message_id for older messages (pagination)
     """
-    # Получаем резюме
+    # Get resume
     resume_obj = await resume_manager.get_resume_by_id(db, resume_id=resume_id)
     if not resume_obj:
         raise HTTPException(status_code=404, detail="Resume not found")
     
-    # Проверяем, что резюме принадлежит пользователю
+    # Check that resume belongs to user
     if resume_obj.user_id != user.id:
         raise HTTPException(status_code=403, detail="Access denied")
     
-    # Создаем агента платформы с соответствующим ключом
+    # Create platform agent with appropriate key
     app_key = settings.PLATFORM_UPLOAD_APP_KEY if resume_obj.from_upload else settings.PLATFORM_SCRATCH_APP_KEY
     platform_chatflow = PlatformChatflow(
         app_key=app_key,
@@ -179,7 +179,7 @@ async def get_messages(
         timeout=settings.PLATFORM_TIMEOUT
     )
     
-    # Если у резюме нет conversation_id, возвращаем пустой список
+    # If resume has no conversation_id, return empty list
     if not resume_obj.conversation_id:
         return ChatMessageList(
             messages=[],
@@ -187,7 +187,7 @@ async def get_messages(
             limit=limit
         )
     
-    # Получаем сообщения с платформы
+    # Get messages from platform
     platform_response = await platform_chatflow.get_messages(
         user_id=str(user.id),
         conversation_id=resume_obj.conversation_id,
@@ -195,10 +195,10 @@ async def get_messages(
         limit=limit
     )
     
-    # Преобразуем сообщения платформы в наш формат
+    # Convert platform messages to our format
     messages = []
     for platform_msg in platform_response.data:
-        # Добавляем сообщение пользователя
+        # Add user message
         messages.append(ChatMessage(
             id=f"{platform_msg.id}_user",
             role="user",
@@ -207,7 +207,7 @@ async def get_messages(
             conversation_id=platform_msg.conversation_id
         ))
         
-        # Добавляем ответ ассистента
+        # Add assistant response
         messages.append(ChatMessage(
             id=f"{platform_msg.id}_assistant",
             role="assistant",
