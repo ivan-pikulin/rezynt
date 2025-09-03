@@ -109,7 +109,7 @@
         <endpoint name="confirmEmail" method="GET" path="/auth/confirm-email">
             <desc>Email confirmation via token</desc>
             <request>Query parameter 'token'</request>
-            <response>Redirect to frontend with success/error status. On success, includes access_token, refresh_token, token_type in query for auto-login.</response>
+            <response>Frontend route captures token and redirects to backend /auth/confirm-email; backend then redirects to /auth/email-confirmed or /auth/email-confirmation-error. On success, includes access_token, refresh_token, token_type in query for auto-login.</response>
         </endpoint>
         <endpoint name="requestPasswordReset" method="POST" path="/auth/request-password-reset">
             <desc>Request password reset via email</desc>
