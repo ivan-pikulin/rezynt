@@ -137,10 +137,10 @@ class EmailService:
 <h2 style="color:#333">Confirm your email</h2>
 <p>Thank you for signing up! To complete your registration, please confirm your email address.</p>
 <p style="text-align:center;margin:30px 0">
-<a href="{{ api_url }}/auth/confirm-email?token={{ token }}" style="display:inline-block;padding:12px 24px;background-color:#4caf50;color:white;text-decoration:none;border-radius:4px;font-weight:bold">Confirm Email</a>
+<a href="{{ api_url }}/api/v1/auth/confirm-email?token={{ token }}" style="display:inline-block;padding:12px 24px;background-color:#4caf50;color:white;text-decoration:none;border-radius:4px;font-weight:bold">Confirm Email</a>
 </p>
 <p>If the button doesn't work, copy and paste the following link into your browser:</p>
-<p style="word-break:break-all;background-color:#f0f0f0;padding:10px;border-radius:4px;margin:20px 0">{{ api_url }}/auth/confirm-email?token={{ token }}</p>
+<p style="word-break:break-all;background-color:#f0f0f0;padding:10px;border-radius:4px;margin:20px 0">{{ api_url }}/api/v1/auth/confirm-email?token={{ token }}</p>
 <p>If you didn't sign up for our service, please ignore this email.</p>
 <p style="text-align:center;color:#666;font-size:12px;margin-top:30px">&copy; 2025 Rezynt. All rights reserved.</p>
 </div>
