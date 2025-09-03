@@ -48,8 +48,8 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token }) => {
           new_password: values.new_password,
         });
         
-        // Redirect to login page with success message
-        navigate('/auth/login?message=password_reset_success');
+        // Redirect to auth page with success message
+        navigate('/auth?message=password_reset_success');
       } catch (err: any) {
         console.error('Password reset error:', err);
         setError(err.response?.data?.detail || t('auth.passwordReset.reset.errorMessage'));

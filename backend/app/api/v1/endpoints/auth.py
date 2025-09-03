@@ -73,12 +73,20 @@ async def confirm_registration(
     """
     try:
         service = UserService(db)
-        await service.confirm_user(token=token)
-        
-        # Redirect to successful confirmation page
-        success_url = f"{settings.FRONTEND_BASE_URL}/auth/email-confirmed"
+        user = await service.confirm_user(token=token)
+
+        # Issue tokens after successful confirmation
+        access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        access_token = security.create_access_token(user.id, expires_delta=access_token_expires)
+        refresh_token = security.create_refresh_token(user.id)
+
+        # Redirect to frontend with tokens in query for auto-login
+        success_url = (
+            f"{settings.FRONTEND_BASE_URL}/auth/email-confirmed"
+            f"?access_token={access_token}&refresh_token={refresh_token}&token_type=bearer"
+        )
         response.headers["Location"] = success_url
-        
+
         return {"message": "Email confirmed", "redirect_url": success_url}
     except ValueError as e:
         # On error, redirect to error page

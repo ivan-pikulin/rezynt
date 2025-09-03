@@ -109,7 +109,7 @@
         <endpoint name="confirmEmail" method="GET" path="/auth/confirm-email">
             <desc>Email confirmation via token</desc>
             <request>Query parameter 'token'</request>
-            <response>Redirect to frontend with success/error status</response>
+            <response>Redirect to frontend with success/error status. On success, includes access_token, refresh_token, token_type in query for auto-login.</response>
         </endpoint>
         <endpoint name="requestPasswordReset" method="POST" path="/auth/request-password-reset">
             <desc>Request password reset via email</desc>
@@ -131,7 +131,7 @@
     <navigation>
         <flow name="login_success" desc="Redirect to / after successful login" />
         <flow name="signup_success" desc="Show email confirmation message" />
-        <flow name="email_confirmation" desc="Handle email confirmation redirect" />
+        <flow name="email_confirmation" desc="Handle email confirmation redirect and auto-login if tokens present; then redirect to /" />
         <flow name="password_reset_request" desc="Navigate to password reset request page" />
         <flow name="password_reset_confirm" desc="Handle password reset via email token" />
         <flow name="password_reset_success" desc="Redirect to login with success message" />

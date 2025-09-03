@@ -7,7 +7,7 @@ const RequestPasswordResetPage: React.FC = () => {
   const navigate = useNavigate();
 
   const handleBackToLogin = () => {
-    navigate('/auth/login');
+    navigate('/auth');
   };
 
   return (
