@@ -5,10 +5,16 @@ import Header from '../../shared/components/Header/Header';
 import StartOptions from './components/StartOptions';
 import { useUser } from '../../shared/hooks';
 import { COLORS } from '../../shared/theme/theme';
+import PaywallModal from '../../shared/components/PaywallModal';
+import { useResumes } from '../resumes/hooks/useResumes';
 
 const StartPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useUser();
+  const { resumes } = useResumes();
+  const [showPaywall, setShowPaywall] = React.useState(false);
+
+  const hasResumes = Array.isArray(resumes) && resumes.length > 0;
 
   const handleStepClick = (stepIndex: number) => {
     switch (stepIndex) {
@@ -42,6 +48,22 @@ const StartPage: React.FC = () => {
     }
   };
 
+  const guardStartFromScratch = () => {
+    if (hasResumes) {
+      setShowPaywall(true);
+      return false;
+    }
+    return true;
+  };
+
+  const guardUploadResume = () => {
+    if (hasResumes) {
+      setShowPaywall(true);
+      return false;
+    }
+    return true;
+  };
+
   return (
     <Box sx={{ 
       minHeight: '100vh', 
@@ -71,8 +93,16 @@ const StartPage: React.FC = () => {
                   py: { xs: 3, sm: 4, md: 6 }, // Additional vertical padding
           minHeight: { xs: 'calc(100vh - 64px)', sm: 'calc(100vh - 80px)' } // Account for header height
       }}>
-        <StartOptions />
+        <StartOptions 
+          onGuardStartFromScratch={guardStartFromScratch}
+          onGuardUploadResume={guardUploadResume}
+        />
       </Box>
+      <PaywallModal 
+        open={showPaywall}
+        onClose={() => setShowPaywall(false)}
+        onSuccess={() => setShowPaywall(false)}
+      />
     </Box>
   );
 };

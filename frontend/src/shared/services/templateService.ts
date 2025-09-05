@@ -1,5 +1,5 @@
 import { TEMPLATE_CONFIGS, TemplateConfig } from '../components/templates';
-import { ResumeData, ExportOptions } from '../types/resume';
+import { ResumeData } from '../types/resume';
 
 /**
  * Сервис для работы с шаблонами резюме
@@ -9,19 +9,17 @@ export class TemplateService {
    * Получить все доступные шаблоны
    */
   static getTemplates(): TemplateConfig[] {
-    return TEMPLATE_CONFIGS;
+    return Object.values(TEMPLATE_CONFIGS);
   }
 
   /**
    * Получить шаблон по ID
    */
   static getTemplateById(id: string): TemplateConfig | undefined {
-    const template = TEMPLATE_CONFIGS.find(template => template.id === id);
-    
+    const template = TEMPLATE_CONFIGS[id];
     if (!template) {
       console.warn('🎨 [TemplateService] Template not found for ID:', id);
     }
-    
     return template;
   }
 
@@ -29,7 +27,7 @@ export class TemplateService {
    * Получить шаблоны по категории
    */
   static getTemplatesByCategory(category: string): TemplateConfig[] {
-    return TEMPLATE_CONFIGS.filter(template => template.category === category);
+    return Object.values(TEMPLATE_CONFIGS).filter(template => template.category === category);
   }
 
 

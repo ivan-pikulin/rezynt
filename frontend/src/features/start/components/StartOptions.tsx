@@ -11,7 +11,12 @@ import { useNavigate } from 'react-router-dom';
 import { startApi } from '../startApi';
 import { COLORS } from '../../../shared/theme/theme';
 
-const StartOptions: React.FC = () => {
+interface StartOptionsProps {
+  onGuardStartFromScratch?: () => boolean;
+  onGuardUploadResume?: () => boolean;
+}
+
+const StartOptions: React.FC<StartOptionsProps> = ({ onGuardStartFromScratch, onGuardUploadResume }) => {
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -61,6 +66,9 @@ const StartOptions: React.FC = () => {
   }, [isUploading]);
   
   const handleStartFromScratch = async () => {
+    if (onGuardStartFromScratch && !onGuardStartFromScratch()) {
+      return;
+    }
     if (isCreating) return;
     
     setIsCreating(true);
@@ -75,6 +83,9 @@ const StartOptions: React.FC = () => {
   };
 
   const handleUploadResume = () => {
+    if (onGuardUploadResume && !onGuardUploadResume()) {
+      return;
+    }
     fileInputRef.current?.click();
   };
 

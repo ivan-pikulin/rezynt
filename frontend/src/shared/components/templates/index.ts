@@ -42,17 +42,17 @@ export const TEMPLATE_CONFIGS: Record<string, TemplateConfig> = {
 };
 
 // Factory for creating templates
-export function createTemplate(templateId: string, resumeData: ResumeData): React.ReactElement | null {
+export function createTemplate(templateId: string, props: BaseTemplateProps): React.ReactElement | null {
   switch (templateId) {
     case 'nume':
-      return React.createElement(NumeTemplate, resumeData);
+      return React.createElement(NumeTemplate, props);
     case 'luma':
-      return React.createElement(LumaTemplate, resumeData);
+      return React.createElement(LumaTemplate, props);
 
     case 'alto':
-      return React.createElement(AltoTemplate, resumeData);
+      return React.createElement(AltoTemplate, props);
     case 'vero':
-      return React.createElement(VeroTemplate, resumeData);
+      return React.createElement(VeroTemplate, props);
     default:
       throw new Error(`Template with id "${templateId}" not found`);
   }
