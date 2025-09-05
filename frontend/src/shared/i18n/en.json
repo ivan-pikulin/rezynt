@@ -201,4 +201,13 @@
     },
     "error": "Failed to complete onboarding. Please try again."
   }
+  ,
+  "payment": {
+    "success": {
+      "title": "Payment successful!",
+      "message": "Your premium features are now unlocked. Enjoy unlimited AI writing, unlimited resumes and clean PDF downloads.",
+      "goToExport": "Go to Export",
+      "goToResumes": "Go to Resumes"
+    }
+  }
 }

@@ -17,6 +17,7 @@
         │   └── SuccessPage.tsx        # Success page after download completion
         ├── exportApi.ts               # API for export functionality
         ├── ExportPage.tsx             # Main export page (mobile-optimized, loads real resume data)
+        ├── PaymentSuccessPage.tsx     # Payment success page with app-styled layout
         └── spec.xml                   # This file
     </folder_structure>
 
@@ -61,6 +62,13 @@
                 <feature name="success_message" desc="Displays success message after download"/>
                 <feature name="navigation" desc="Provides option to return to start page"/>
                 <feature name="mobile_optimized" desc="Responsive design for mobile devices"/>
+            </features>
+        </component>
+
+        <component name="PaymentSuccessPage" desc="Standalone route displaying payment success with navigation to resumes">
+            <features>
+                <feature name="user_refresh" desc="Refreshes user profile to reflect premium status"/>
+                <feature name="cta_resumes" desc="CTA to go to resumes list"/>
             </features>
         </component>
     </components>

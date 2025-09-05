@@ -20,6 +20,7 @@ const EmailConfirmationPage = React.lazy(() => import('./features/auth/EmailConf
 const RequestPasswordResetPage = React.lazy(() => import('./features/auth/RequestPasswordResetPage'));
 const ResetPasswordPage = React.lazy(() => import('./features/auth/ResetPasswordPage'));
 const HomeRedirect = React.lazy(() => import('./shared/components/HomeRedirect'));
+const PaymentSuccessPage = React.lazy(() => import('./features/export/PaymentSuccessPage'));
 
 function AppRoutes() {
   return (
@@ -74,6 +75,13 @@ function AppRoutes() {
           <ProtectedRoute requireAuth={true}>
             <OnboardingGuard>
               <ExportPage />
+            </OnboardingGuard>
+          </ProtectedRoute>
+        } />
+        <Route path="/export/success" element={
+          <ProtectedRoute requireAuth={true}>
+            <OnboardingGuard>
+              <PaymentSuccessPage />
             </OnboardingGuard>
           </ProtectedRoute>
         } />
