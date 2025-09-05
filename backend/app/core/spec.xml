@@ -101,6 +101,7 @@
     
     <dependencies>
         <dependency>app.core.celery_app</dependency>
+        <dependency>redis (separate DB index for Celery via REDIS_CELERY_DB)</dependency>
         <dependency>app.services.email_service</dependency>
         <dependency>app.services.parse_service</dependency>
         <dependency>app.database.models.resume</dependency>

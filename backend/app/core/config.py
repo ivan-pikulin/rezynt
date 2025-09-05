@@ -22,12 +22,19 @@ class RedisSettings(BaseSettings):
     REDIS_HOST: str
     REDIS_PORT: int
     REDIS_DB: int
+    # Optional dedicated DB index for Celery (falls back to REDIS_DB if not provided)
+    REDIS_CELERY_DB: int | None = None
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf8", extra="ignore")
 
     @property
     def redis_url(self) -> str:
         return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
+
+    @property
+    def redis_celery_url(self) -> str:
+        db_index = self.REDIS_CELERY_DB if self.REDIS_CELERY_DB is not None else self.REDIS_DB
+        return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/{db_index}"
 
 
 class OpenAISettings(BaseSettings):

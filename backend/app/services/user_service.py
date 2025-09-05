@@ -5,12 +5,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config import settings
 from app.database.crud import user_crud
 from app.schemas import UserCreate, User
+from logging import getLogger
 
 
 class UserService:
     def __init__(self, db: AsyncSession):
         self.db = db
         self.serializer = URLSafeTimedSerializer(settings.SECRET_KEY)
+        self.logger = getLogger(__name__)
 
     async def signup(self, user_in: UserCreate) -> User:
         """Creates a new user and sends confirmation email"""
@@ -26,8 +28,14 @@ class UserService:
         token = self.serializer.dumps(str(user.id), salt='email-confirm')
         
         # Send email in background
-        from app.core.tasks import send_confirmation_email_task
-        send_confirmation_email_task.delay(user.email, token)
+        # Try enqueueing via Celery; if broker is read-only/unavailable, fallback to direct send
+        try:
+            from app.core.tasks import send_confirmation_email_task
+            send_confirmation_email_task.delay(user.email, token)
+        except Exception as celery_error:
+            self.logger.warning(f"Celery publish failed, falling back to direct email: {celery_error}")
+            from app.services.email_service import EmailService
+            EmailService().send_confirmation_email(user.email, token)
         
         return user
 
@@ -59,8 +67,13 @@ class UserService:
         token = self.serializer.dumps(str(user.id), salt='password-reset')
         
         # Send email in background
-        from app.core.tasks import send_password_reset_email_task
-        send_password_reset_email_task.delay(user.email, token)
+        try:
+            from app.core.tasks import send_password_reset_email_task
+            send_password_reset_email_task.delay(user.email, token)
+        except Exception as celery_error:
+            self.logger.warning(f"Celery publish failed, falling back to direct email: {celery_error}")
+            from app.services.email_service import EmailService
+            EmailService().send_password_reset_email(user.email, token)
         
         return True
 

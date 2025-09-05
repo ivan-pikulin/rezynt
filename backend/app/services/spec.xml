@@ -157,6 +157,7 @@
                         <param name="user_in" type="UserCreate">Data for user creation</param>
                     </params>
                     <returns type="User">Created user</returns>
+                    <notes>Tries to enqueue Celery task; falls back to direct email if broker is unavailable</notes>
                 </method>
                 <method>
                     <name>confirm_user</name>
@@ -182,6 +183,7 @@
                         <param name="password" type="str">User password</param>
                     </params>
                     <returns type="Optional[User]">Authenticated user or None</returns>
+                    <notes>Password reset emails also fall back to direct send if Celery is unavailable</notes>
                 </method>
             </methods>
         </component>

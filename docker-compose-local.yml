@@ -7,6 +7,7 @@ x-common-variables: &common-variables
   REDIS_HOST: redis
   REDIS_PORT: 6379
   REDIS_DB: 0
+  REDIS_CELERY_DB: 1
 
 x-backend-variables: &backend-variables
   <<: *common-variables

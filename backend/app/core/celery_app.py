@@ -4,13 +4,12 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-# Log Redis configuration
-logger.info(f"Celery Redis URL: {settings.redis.redis_url}")
+logger.info(f"Celery Redis URL: {settings.redis.redis_celery_url}")
 
 celery_app = Celery(
     "rezynt",
-    broker=settings.redis.redis_url,
-    backend=settings.redis.redis_url,
+    broker=settings.redis.redis_celery_url,
+    backend=settings.redis.redis_celery_url,
     include=["app.core.tasks"]
 )
 
