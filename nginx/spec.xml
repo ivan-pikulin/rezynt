@@ -75,11 +75,13 @@
         <upstream_services>
             <service name="frontend" port="80"/>
             <service name="backend" port="8000"/>
+            <service name="landing" port="80"/>
         </upstream_services>
         
         <routes>
-            <route path="/" target="frontend" description="React SPA"/>
-            <route path="/api" target="backend" description="FastAPI backend"/>
+            <route path="/" target="frontend" description="React SPA (app.rezynt.com)"/>
+            <route path="/api" target="backend" description="FastAPI backend (app.rezynt.com)"/>
+            <route path="/" target="landing" description="Landing pages (rezynt.com)"/>
             <route path="/health" target="nginx" description="Health check"/>
         </routes>
         
@@ -89,6 +91,7 @@
                 <domains>rezynt.com, www.rezynt.com</domains>
                 <ssl>enabled</ssl>
                 <http_redirect>enabled</http_redirect>
+                <upstream>landing</upstream>
             </block>
             <block>
                 <name>App Subdomain</name>
