@@ -43,6 +43,8 @@ services:
       - /etc/letsencrypt/live/app.rezynt.com/privkey.pem:/etc/nginx/ssl/app.rezynt.com/privkey.pem:ro
       - /etc/letsencrypt/live/rezynt.com/fullchain.pem:/etc/nginx/ssl/rezynt.com/fullchain.pem:ro
       - /etc/letsencrypt/live/rezynt.com/privkey.pem:/etc/nginx/ssl/rezynt.com/privkey.pem:ro
+      - letsencrypt_data:/etc/letsencrypt
+      - ./nginx/webroot:/var/www/certbot
     depends_on:
       - backend
       - frontend
@@ -173,10 +175,22 @@ services:
       - backend-network
     restart: unless-stopped
 
+  certbot:
+    image: certbot/certbot:latest
+    volumes:
+      - letsencrypt_data:/etc/letsencrypt
+      - ./nginx/webroot:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew --webroot --webroot-path=/var/www/certbot --quiet --post-hook \"nginx -s reload\"; sleep 12h & wait $${!}; done;'"
+    depends_on:
+      - nginx
+    networks:
+      - app-network
+
 volumes:
   postgres_data:
   redis_data:
   migrations_data:
+  letsencrypt_data:
 
 networks:
   app-network:
