@@ -15,7 +15,8 @@
         │   ├── AuthLayout.tsx                   # Common layout for auth pages
         │   ├── RequestPasswordResetForm.tsx     # Password reset request form
         │   └── ResetPasswordForm.tsx            # New password setup form
-        ├── AuthPage.tsx                         # Main auth page with form switching
+        ├── LoginPage.tsx                        # Dedicated login page
+        ├── SignupPage.tsx                       # Dedicated signup page
         ├── RequestPasswordResetPage.tsx         # Password reset request page
         ├── ResetPasswordPage.tsx                # New password setup page
         ├── authApi.ts                           # API for authentication operations
@@ -25,15 +26,11 @@
     </folder_structure>
 
     <components>
-        <component name="AuthPage" desc="Main auth page with form switching between login and signup">
-            <props>
-                <prop name="mode" desc="Initial mode: 'login' or 'signup'" />
-            </props>
-            <mobile_features>
-                <feature name="responsive_padding" desc="Adaptive padding based on screen size" />
-                <feature name="compact_layout" desc="Optimized spacing for mobile devices" />
-                <feature name="touch_optimized" desc="Larger touch targets for buttons and inputs" />
-            </mobile_features>
+        <component name="LoginPage" desc="Login page using AuthLayout and LoginForm">
+            <props />
+        </component>
+        <component name="SignupPage" desc="Signup page using AuthLayout and SignupForm">
+            <props />
         </component>
         <component name="LoginForm" desc="Login form with email and password fields">
             <props>
@@ -135,7 +132,7 @@
         <flow name="password_reset_request" desc="Navigate to password reset request page" />
         <flow name="password_reset_confirm" desc="Handle password reset via email token" />
         <flow name="password_reset_success" desc="Redirect to login with success message" />
-        <flow name="auth_error" desc="Show error message and stay on auth page" />
+        <flow name="auth_error" desc="Show error message and stay on login page" />
     </navigation>
 
     <deps>

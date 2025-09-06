@@ -15,7 +15,8 @@ const ChatPage = React.lazy(() => import('./features/chat/ChatPage'));
 const RefinePage = React.lazy(() => import('./features/refine/RefinePage'));
 const ExportPage = React.lazy(() => import('./features/export/ExportPage'));
 const ResumesPage = React.lazy(() => import('./features/resumes/ResumesPage'));
-const AuthPage = React.lazy(() => import('./features/auth/AuthPage'));
+const LoginPage = React.lazy(() => import('./features/auth/LoginPage'));
+const SignupPage = React.lazy(() => import('./features/auth/SignupPage'));
 const EmailConfirmationPage = React.lazy(() => import('./features/auth/EmailConfirmationPage'));
 const RequestPasswordResetPage = React.lazy(() => import('./features/auth/RequestPasswordResetPage'));
 const ResetPasswordPage = React.lazy(() => import('./features/auth/ResetPasswordPage'));
@@ -27,14 +28,14 @@ function AppRoutes() {
     <React.Suspense fallback={<div>Loading...</div>}>
       <Routes>
         {/* Public routes */}
-        <Route path="/auth" element={
-          <ProtectedRoute requireAuth={false}>
-            <AuthPage />
-          </ProtectedRoute>
-        } />
         <Route path="/login" element={
           <ProtectedRoute requireAuth={false}>
-            <AuthPage />
+            <LoginPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/signup" element={
+          <ProtectedRoute requireAuth={false}>
+            <SignupPage />
           </ProtectedRoute>
         } />
         <Route path="/auth/email-confirmed" element={<EmailConfirmationPage />} />

@@ -35,7 +35,7 @@ const HomeRedirect: React.FC = () => {
 
   // If user is not authenticated, redirect to login page
   if (!isAuthenticated) {
-    return <Navigate to="/auth" replace />;
+    return <Navigate to="/login" replace />;
   }
 
   // If onboarding needs to be shown, don't load resumes and redirect to start page

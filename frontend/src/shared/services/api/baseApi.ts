@@ -78,9 +78,9 @@ baseApi.interceptors.response.use(
           return baseApi(originalRequest);
         }
       } catch (refreshError) {
-        // If refresh failed, clear tokens and redirect to auth
+        // If refresh failed, clear tokens and redirect to login
         tokenService.clearTokens();
-        window.location.href = '/auth';
+        window.location.href = '/login';
         return Promise.reject(refreshError);
       }
     }

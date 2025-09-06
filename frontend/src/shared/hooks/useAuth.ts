@@ -126,7 +126,7 @@ export const useAuth = (): UseAuthReturn => {
     tokenService.clearTokens();
     setIsAuthenticated(false);
     setUser(null);
-    navigate('/auth');
+    navigate('/login');
   }, [navigate]);
 
   const updateUser = useCallback((userData: User) => {

@@ -24,7 +24,7 @@ const EmailConfirmation: React.FC<EmailConfirmationProps> = ({
   const navigate = useNavigate();
 
   const handleGoToLogin = () => {
-    navigate('/auth?mode=login');
+    navigate('/login');
   };
 
   const handleGoToHome = () => {

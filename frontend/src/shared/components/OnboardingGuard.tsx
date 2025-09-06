@@ -19,7 +19,7 @@ const OnboardingGuard: React.FC<OnboardingGuardProps> = ({ children }) => {
 
   // If user is not authenticated, don't show onboarding
   if (!user) {
-    return <Navigate to="/auth" replace />;
+    return <Navigate to="/login" replace />;
   }
 
   // If onboarding needs to be shown, show it
