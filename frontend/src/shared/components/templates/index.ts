@@ -1,17 +1,15 @@
 import React from 'react';
 import { BaseTemplate } from './BaseTemplate';
-import { BaseTemplateProps } from './types';
-import { NumeTemplate } from './NumeTemplate';
 import { LumaTemplate } from './LumaTemplate';
+import { NumeTemplate } from './NumeTemplate';
+import { BaseTemplateProps } from './types';
 
+import { TemplateConfig } from '../../types/resume';
 import { AltoTemplate } from './AltoTemplate';
 import { VeroTemplate } from './VeroTemplate';
-import { TemplateConfig } from '../../types/resume';
 
-export { BaseTemplate };
-export type { BaseTemplateProps };
-export { NumeTemplate, LumaTemplate, AltoTemplate, VeroTemplate };
-export type { TemplateConfig };
+export { AltoTemplate, BaseTemplate, LumaTemplate, NumeTemplate, VeroTemplate };
+export type { BaseTemplateProps, TemplateConfig };
 
 // Available template configurations
 export const TEMPLATE_CONFIGS: Record<string, TemplateConfig> = {
