@@ -29,6 +29,7 @@ import { TemplateConfig } from '../../shared/types/resume';
 import { COLORS } from '../../shared/theme/theme';
 import { exportApi } from '../export/exportApi';
 import { useMediaQuery } from '@mui/material';
+import PaywallModal from '../../shared/components/PaywallModal';
 
 const RefinePage: React.FC = () => {
   const { t } = useTranslation();
@@ -46,6 +47,8 @@ const RefinePage: React.FC = () => {
   const [activeLeftPanel, setActiveLeftPanel] = useState<'editor' | 'templates'>('editor');
   const [hoverTemplate, setHoverTemplate] = useState<TemplateConfig | null>(null);
   const templateContainerRef = useRef<HTMLDivElement>(null);
+  const [showPaywallModal, setShowPaywallModal] = useState(false);
+  const [pendingPremiumTemplate, setPendingPremiumTemplate] = useState<TemplateConfig | null>(null);
   
   // Define mobile mode for screens up to 768px
   const isMobile = useMediaQuery('(max-width:768px)');
@@ -92,6 +95,28 @@ const RefinePage: React.FC = () => {
 
   const handleTemplateHoverEnd = () => {
     setHoverTemplate(null);
+  };
+
+  // Handler for premium template selection
+  const handlePremiumTemplateSelect = (template: TemplateConfig) => {
+    setPendingPremiumTemplate(template);
+    setShowPaywallModal(true);
+  };
+
+  // Handler for paywall modal close
+  const handlePaywallClose = () => {
+    setShowPaywallModal(false);
+    setPendingPremiumTemplate(null);
+  };
+
+  // Handler for successful upgrade
+  const handleUpgradeSuccess = () => {
+    setShowPaywallModal(false);
+    // If there was a pending premium template, apply it now
+    if (pendingPremiumTemplate) {
+      handleTemplateChange(pendingPremiumTemplate);
+      setPendingPremiumTemplate(null);
+    }
   };
 
   // Title editing handler
@@ -545,6 +570,8 @@ const RefinePage: React.FC = () => {
                   horizontalLayout={false}
                   selectedTemplate={selectedTemplate}
                   resumeData={displayData}
+                  onPremiumTemplateSelect={handlePremiumTemplateSelect}
+                  isUserPremium={user?.is_premium}
                 />
               </Box>
             )}
@@ -759,6 +786,13 @@ const RefinePage: React.FC = () => {
           </div>
         </Box>
       )}
+
+      {/* PaywallModal for premium templates */}
+      <PaywallModal
+        open={showPaywallModal}
+        onClose={handlePaywallClose}
+        onSuccess={handleUpgradeSuccess}
+      />
     </Box>
   );
 };

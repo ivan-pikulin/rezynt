@@ -2,6 +2,8 @@ import React from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Card from '@mui/material/Card';
+import Chip from '@mui/material/Chip';
+import StarIcon from '@mui/icons-material/Star';
 import ResumeRenderer from '../../../shared/components/ResumeRenderer';
 import { TemplateConfig } from '../../../shared/types/resume';
 
@@ -43,6 +45,7 @@ const TemplateThumbnail: React.FC<TemplateThumbnailProps> = ({
             bgcolor: isSelected ? 'rgba(25, 118, 210, 0.04)' : 'white',
             display: 'flex',
             flexDirection: 'column',
+            position: 'relative',
             '&:hover': {
               borderColor: '#1976d2',
               transform: 'translateY(-2px)',
@@ -50,6 +53,26 @@ const TemplateThumbnail: React.FC<TemplateThumbnailProps> = ({
             }
           }}
         >
+          {template.isPremium && (
+            <Chip
+              icon={<StarIcon sx={{ fontSize: 12 }} />}
+              label="PRO"
+              size="small"
+              sx={{
+                position: 'absolute',
+                top: 2,
+                right: 2,
+                zIndex: 1,
+                height: 16,
+                fontSize: '0.6rem',
+                bgcolor: '#ff9800',
+                color: 'white',
+                '& .MuiChip-icon': {
+                  color: 'white'
+                }
+              }}
+            />
+          )}
           <Box sx={{ 
             width: '100%',
             height: '100%',
@@ -105,6 +128,7 @@ const TemplateThumbnail: React.FC<TemplateThumbnailProps> = ({
           bgcolor: isSelected ? 'rgba(25, 118, 210, 0.04)' : 'white',
           display: 'flex',
           flexDirection: 'column',
+          position: 'relative',
           '&:hover': {
             borderColor: '#1976d2',
             transform: 'translateY(-2px)',
@@ -112,6 +136,26 @@ const TemplateThumbnail: React.FC<TemplateThumbnailProps> = ({
           }
         }}
       >
+        {template.isPremium && (
+          <Chip
+            icon={<StarIcon sx={{ fontSize: 14 }} />}
+            label="PRO"
+            size="small"
+            sx={{
+              position: 'absolute',
+              top: 4,
+              right: 4,
+              zIndex: 1,
+              height: 20,
+              fontSize: '0.7rem',
+              bgcolor: '#ff9800',
+              color: 'white',
+              '& .MuiChip-icon': {
+                color: 'white'
+              }
+            }}
+          />
+        )}
         <Box sx={{ 
           width: '100%',
           height: '100%',

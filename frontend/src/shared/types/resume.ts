@@ -53,6 +53,7 @@ export interface TemplateConfig {
   name: string;
   description: string;
   category: 'modern' | 'classic' | 'creative';
+  isPremium?: boolean;
 }
 
 export interface ExportOptions {

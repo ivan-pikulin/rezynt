@@ -19,25 +19,29 @@ export const TEMPLATE_CONFIGS: Record<string, TemplateConfig> = {
     id: 'nume',
     name: 'Clarity',
     description: 'Classic professional template with clear structure',
-    category: 'classic'
+    category: 'classic',
+    isPremium: false
   },
   vero: {
     id: 'vero',
     name: 'Frame',
     description: 'Centered template with horizontal separators',
-    category: 'classic'
+    category: 'classic',
+    isPremium: false
   },
   luma: {
     id: 'luma',
     name: 'Sidebar',
     description: 'Two-column template with dark sidebar for contacts and skills',
-    category: 'modern'
+    category: 'modern',
+    isPremium: true
   },
   alto: {
     id: 'alto',
     name: 'Professional',
     description: 'Template with square logo and contact information in header',
-    category: 'modern'
+    category: 'modern',
+    isPremium: true
   }
 };
 

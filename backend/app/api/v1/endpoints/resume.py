@@ -65,6 +65,12 @@ async def create_resume(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Invalid template_slug. Must be one of: {', '.join(settings.VALID_TEMPLATE_SLUGS)}"
             )
+        # Check if template is premium and user has access
+        if resume_in.template_slug in settings.PREMIUM_TEMPLATE_SLUGS and not user.is_premium:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Premium template requires premium subscription"
+            )
     
     resume = await resume_manager.create_resume(db, obj_in=resume_in, user_id=current_user.id)
     
@@ -256,6 +262,13 @@ async def assign_template(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Invalid template_slug. Must be one of: {', '.join(settings.VALID_TEMPLATE_SLUGS)}"
+        )
+    
+    # Check if template is premium and user has access
+    if slug in settings.PREMIUM_TEMPLATE_SLUGS and not current_user.is_premium:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Premium template requires premium subscription"
         )
     
     # Check if resume exists and belongs to user

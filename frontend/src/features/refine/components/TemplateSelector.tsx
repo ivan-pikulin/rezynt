@@ -11,6 +11,8 @@ interface TemplateSelectorProps {
   horizontalLayout?: boolean;
   selectedTemplate?: TemplateConfig | null;
   resumeData?: any; // Real resume data for preview
+  onPremiumTemplateSelect?: (template: TemplateConfig) => void;
+  isUserPremium?: boolean;
 }
 
 const TemplateSelector: React.FC<TemplateSelectorProps> = ({ 
@@ -19,7 +21,9 @@ const TemplateSelector: React.FC<TemplateSelectorProps> = ({
   onTemplateHoverEnd, 
   horizontalLayout = false, 
   selectedTemplate: externalSelectedTemplate, 
-  resumeData 
+  resumeData,
+  onPremiumTemplateSelect,
+  isUserPremium = false
 }) => {
   const templates = TemplateService.getTemplates();
   const [internalSelectedTemplate, setInternalSelectedTemplate] = useState<TemplateConfig | null>(
@@ -52,6 +56,12 @@ const TemplateSelector: React.FC<TemplateSelectorProps> = ({
   }, []); // Empty dependency array - executed only on mount
 
   const handleTemplateSelect = (template: TemplateConfig) => {
+    // Check if template is premium and user is not premium
+    if (template.isPremium && !isUserPremium) {
+      onPremiumTemplateSelect?.(template);
+      return;
+    }
+    
     setInternalSelectedTemplate(template);
     onTemplateChange?.(template);
   };

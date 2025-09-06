@@ -89,6 +89,7 @@ class Settings(BaseSettings):
     
     # Template settings
     VALID_TEMPLATE_SLUGS: List[str] = ["nume", "luma", "alto", "vero"]
+    PREMIUM_TEMPLATE_SLUGS: List[str] = ["luma", "alto"]
 
     @property
     def sync_database_url(self) -> str:
