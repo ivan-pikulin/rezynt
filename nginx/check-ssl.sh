@@ -1,37 +1,28 @@
 #!/bin/bash
 
-# Скрипт для проверки статуса SSL-сертификатов
-# Использование: ./check-ssl.sh
+# Check SSL certificate validity
+echo "Checking SSL certificate for rezynt.com..."
 
-echo "🔍 Проверка статуса SSL-сертификатов"
-echo "===================================="
+# Check if certificate files exist
+if [ ! -f "/etc/nginx/ssl/rezynt.com/fullchain.pem" ]; then
+    echo "ERROR: SSL certificate file not found: /etc/nginx/ssl/rezynt.com/fullchain.pem"
+    exit 1
+fi
 
-# Функция для проверки сертификата
-check_certificate() {
-    local domain=$1
-    echo "📋 Проверка сертификата для $domain:"
-    
-    # Проверяем сертификат через openssl
-    echo | openssl s_client -servername $domain -connect $domain:443 2>/dev/null | openssl x509 -noout -dates -subject -issuer
-    
-    # Проверяем сертификат через curl
-    local curl_result=$(curl -I -s --connect-timeout 10 https://$domain | head -n 1)
-    echo "HTTP статус: $curl_result"
-    echo ""
-}
+if [ ! -f "/etc/nginx/ssl/rezynt.com/privkey.pem" ]; then
+    echo "ERROR: SSL private key file not found: /etc/nginx/ssl/rezynt.com/privkey.pem"
+    exit 1
+fi
 
-# Проверяем оба домена
-check_certificate "rezynt.com"
-check_certificate "app.rezynt.com"
+# Check certificate validity
+echo "Certificate details:"
+openssl x509 -in /etc/nginx/ssl/rezynt.com/fullchain.pem -text -noout | grep -E "(Subject:|Not Before|Not After)"
 
-# Проверяем статус автоматического обновления
-echo "⏰ Статус автоматического обновления:"
-docker-compose ps certbot
+# Check if certificate is valid
+if openssl x509 -checkend 86400 -noout -in /etc/nginx/ssl/rezynt.com/fullchain.pem; then
+    echo "SSL certificate is valid and will not expire in the next 24 hours"
+else
+    echo "WARNING: SSL certificate will expire within 24 hours or is already expired"
+fi
 
-echo ""
-echo "📝 Информация о сертификатах в контейнере:"
-docker-compose exec certbot certbot certificates
-
-echo ""
-echo "🔄 Тест обновления сертификатов (dry-run):"
-docker-compose exec certbot certbot renew --dry-run
+echo "SSL check completed" 
