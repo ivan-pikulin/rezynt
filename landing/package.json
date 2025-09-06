@@ -1,0 +1,17 @@
+{
+  "name": "rezynt-landing",
+  "version": "1.0.0",
+  "description": "Rezynt AI Resume Builder Landing Page",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "vite": "^4.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0"
+  }
+}
