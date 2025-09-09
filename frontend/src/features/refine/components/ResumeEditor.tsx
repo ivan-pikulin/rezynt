@@ -22,6 +22,7 @@ import {
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { resumeApi } from '../../../shared/services/api';
+import { guestResumeService } from '../../../shared/services/guestResumeService';
 import { Resume } from '../../../shared/services/api/types';
 import { COLORS } from '../../../shared/theme/theme';
 import EducationEditor from './EducationEditor';
@@ -215,16 +216,27 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
 
       // Сохраняем основные поля резюме
       if (Object.keys(basicFields).length > 0) {
-        await resumeApi.updateResumePartial(resume.id, basicFields);
+        if (resume.id === -1) {
+          guestResumeService.update(basicFields);
+        } else {
+          await resumeApi.updateResumePartial(resume.id, basicFields);
+        }
       }
 
       // Сохраняем личную информацию (используем новый метод для UnifiedResume)
       if (Object.keys(personalFields).length > 0) {
-        await resumeApi.updatePersonalInfo(resume.id, personalFields);
+        if (resume.id === -1) {
+          guestResumeService.update(personalFields);
+        } else {
+          await resumeApi.updatePersonalInfo(resume.id, personalFields);
+        }
       }
 
       // Получаем обновленное резюме
-      const updatedResume = await resumeApi.getResume(resume.id);
+      const updatedResume =
+        resume.id === -1
+          ? (guestResumeService.get() as any)
+          : await resumeApi.getResume(resume.id);
       
       // Обновляем локальное состояние
       setLocalResume(updatedResume);

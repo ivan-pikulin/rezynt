@@ -24,6 +24,7 @@ import {
   Edit as EditIcon
 } from '@mui/icons-material';
 import { resumeApi } from '../../../shared/services/api';
+import { guestResumeService } from '../../../shared/services/guestResumeService';
 
 interface SkillsEditorProps {
   skills: string[];
@@ -45,7 +46,11 @@ const SkillsEditor: React.FC<SkillsEditorProps> = ({ skills, resumeId, onSkillsU
     setIsSaving(true);
     try {
       const updatedSkills = [...skills, newSkillName.trim()];
-      await resumeApi.updateSkills(resumeId, updatedSkills);
+      if (resumeId === -1) {
+        guestResumeService.update({ skills: updatedSkills as any });
+      } else {
+        await resumeApi.updateSkills(resumeId, updatedSkills);
+      }
       onSkillsUpdate(updatedSkills);
       setNewSkillName('');
     } catch (error) {
@@ -59,7 +64,11 @@ const SkillsEditor: React.FC<SkillsEditorProps> = ({ skills, resumeId, onSkillsU
     setIsSaving(true);
     try {
       const updatedSkills = skills.filter((_, index) => index !== skillIndex);
-      await resumeApi.updateSkills(resumeId, updatedSkills);
+      if (resumeId === -1) {
+        guestResumeService.update({ skills: updatedSkills as any });
+      } else {
+        await resumeApi.updateSkills(resumeId, updatedSkills);
+      }
       onSkillsUpdate(updatedSkills);
     } catch (error) {
       console.error('Error deleting skill:', error);
@@ -75,7 +84,11 @@ const SkillsEditor: React.FC<SkillsEditorProps> = ({ skills, resumeId, onSkillsU
     try {
       const updatedSkills = [...skills];
       updatedSkills[editingSkillIndex] = editingSkillName.trim();
-      await resumeApi.updateSkills(resumeId, updatedSkills);
+      if (resumeId === -1) {
+        guestResumeService.update({ skills: updatedSkills as any });
+      } else {
+        await resumeApi.updateSkills(resumeId, updatedSkills);
+      }
       onSkillsUpdate(updatedSkills);
       setEditDialogOpen(false);
       setEditingSkillIndex(null);

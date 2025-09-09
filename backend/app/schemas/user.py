@@ -23,6 +23,7 @@ class UserInDBBase(UserBase):
     password_hash: str
     is_verified: bool
     is_premium: bool
+    is_registered: bool
     has_completed_onboarding: bool
     onboarding_responses: Optional[Dict[str, Any]] = None
     credits: int
@@ -37,6 +38,7 @@ class UserPublic(UserBase):
     id: int
     is_verified: bool
     is_premium: bool
+    is_registered: bool
     has_completed_onboarding: bool
     onboarding_responses: Optional[Dict[str, Any]] = None
     credits: int

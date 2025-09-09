@@ -51,34 +51,11 @@ function AppRoutes() {
             </OnboardingGuard>
           </ProtectedRoute>
         } />
-        <Route path="/start" element={
-          <ProtectedRoute requireAuth={true}>
-            <OnboardingGuard>
-              <StartPage />
-            </OnboardingGuard>
-          </ProtectedRoute>
-        } />
-        <Route path="/chat" element={
-          <ProtectedRoute requireAuth={true}>
-            <OnboardingGuard>
-              <ChatPage />
-            </OnboardingGuard>
-          </ProtectedRoute>
-        } />
-        <Route path="/refine" element={
-          <ProtectedRoute requireAuth={true}>
-            <OnboardingGuard>
-              <RefinePage />
-            </OnboardingGuard>
-          </ProtectedRoute>
-        } />
-        <Route path="/export" element={
-          <ProtectedRoute requireAuth={true}>
-            <OnboardingGuard>
-              <ExportPage />
-            </OnboardingGuard>
-          </ProtectedRoute>
-        } />
+        {/* Publicly accessible creation flow for guests */}
+        <Route path="/start" element={<StartPage />} />
+        <Route path="/chat" element={<ChatPage />} />
+        <Route path="/refine" element={<RefinePage />} />
+        <Route path="/export" element={<ExportPage />} />
         <Route path="/export/success" element={
           <ProtectedRoute requireAuth={true}>
             <OnboardingGuard>
@@ -86,13 +63,7 @@ function AppRoutes() {
             </OnboardingGuard>
           </ProtectedRoute>
         } />
-        <Route path="/" element={
-          <ProtectedRoute requireAuth={true}>
-            <OnboardingGuard>
-              <HomeRedirect />
-            </OnboardingGuard>
-          </ProtectedRoute>
-        } />
+        <Route path="/" element={<HomeRedirect />} />
       </Routes>
     </React.Suspense>
   );

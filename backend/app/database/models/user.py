@@ -12,6 +12,7 @@ class User(Base):
     password_hash = Column(String(255), nullable=False)
     is_verified = Column(Boolean, default=False, nullable=False)
     is_premium = Column(Boolean, default=False, nullable=False)
+    is_registered = Column(Boolean, default=True, nullable=False)
     has_completed_onboarding = Column(Boolean, default=False, nullable=False)
     onboarding_responses = Column(JSON, nullable=True)
     credits = Column(Integer, default=100, nullable=False)

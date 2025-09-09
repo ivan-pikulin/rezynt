@@ -23,6 +23,7 @@ import {
 } from '@mui/icons-material';
 import { UnifiedResumeEducation } from '../../../shared/services/api/types';
 import { resumeApi } from '../../../shared/services/api';
+import { guestResumeService } from '../../../shared/services/guestResumeService';
 
 interface EducationEditorProps {
   education: UnifiedResumeEducation[];
@@ -115,7 +116,11 @@ const EducationEditor: React.FC<EducationEditorProps> = ({
         education: updatedEducation
       };
       
-      await resumeApi.updateResumePartial(resumeId, resumeUpdate);
+      if (resumeId === -1) {
+        guestResumeService.update({ education: updatedEducation as any });
+      } else {
+        await resumeApi.updateResumePartial(resumeId, resumeUpdate);
+      }
       
       setLocalEducation(updatedEducation);
       onEducationUpdate(updatedEducation);
@@ -136,7 +141,11 @@ const EducationEditor: React.FC<EducationEditorProps> = ({
         education: updatedEducation
       };
       
-      await resumeApi.updateResumePartial(resumeId, resumeUpdate);
+      if (resumeId === -1) {
+        guestResumeService.update({ education: updatedEducation as any });
+      } else {
+        await resumeApi.updateResumePartial(resumeId, resumeUpdate);
+      }
       
       setLocalEducation(updatedEducation);
       onEducationUpdate(updatedEducation);

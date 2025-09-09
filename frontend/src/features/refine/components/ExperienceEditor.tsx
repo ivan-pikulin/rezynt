@@ -26,6 +26,7 @@ import {
 } from '@mui/icons-material';
 import { UnifiedResumeExperience } from '../../../shared/services/api/types';
 import { resumeApi } from '../../../shared/services/api';
+import { guestResumeService } from '../../../shared/services/guestResumeService';
 
 interface ExperienceEditorProps {
   experience: UnifiedResumeExperience[];
@@ -134,7 +135,11 @@ const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
         experience: updatedExperience
       };
       
-      await resumeApi.updateResumePartial(resumeId, resumeUpdate);
+      if (resumeId === -1) {
+        guestResumeService.update({ experience: updatedExperience as any });
+      } else {
+        await resumeApi.updateResumePartial(resumeId, resumeUpdate);
+      }
       
       setLocalExperience(updatedExperience);
       onExperienceUpdate(updatedExperience);
@@ -155,7 +160,11 @@ const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
         experience: updatedExperience
       };
       
-      await resumeApi.updateResumePartial(resumeId, resumeUpdate);
+      if (resumeId === -1) {
+        guestResumeService.update({ experience: updatedExperience as any });
+      } else {
+        await resumeApi.updateResumePartial(resumeId, resumeUpdate);
+      }
       
       setLocalExperience(updatedExperience);
       onExperienceUpdate(updatedExperience);

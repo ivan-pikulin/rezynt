@@ -22,6 +22,7 @@ export interface User {
   email: string;
   is_verified: boolean;
   is_premium: boolean;
+  is_registered: boolean;
   has_completed_onboarding: boolean;
   onboarding_responses?: {
     experience: string;

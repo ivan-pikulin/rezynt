@@ -247,6 +247,12 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fr
       return;
     }
 
+    // Block unauthenticated users and show registration modal
+    if (!user) {
+      onShowPaywall?.();
+      return;
+    }
+
     // Проверяем кредиты для free пользователей
     if (!user?.is_premium && user?.credits === 0) {
       onShowPaywall?.();
@@ -381,7 +387,11 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fr
       
       // Проверяем, является ли ошибка связанной с кредитами
       const errorMessage = error instanceof Error ? error.message : String(error);
-      if (errorMessage.includes('No credits remaining') || errorMessage.includes('402')) {
+      if (
+        errorMessage.includes('No credits remaining') ||
+        errorMessage.includes('402') ||
+        errorMessage.includes('401')
+      ) {
         onShowPaywall?.();
         // Удаляем сообщение пользователя и placeholder ассистента
         setMessages(prev => prev.filter(msg => msg.id !== userMessage.id && msg.id !== assistantMessageId));

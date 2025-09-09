@@ -16,6 +16,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Header from '../../shared/components/Header/Header';
 import PaywallModal from '../../shared/components/PaywallModal';
+import RegistrationModal from '../../shared/components/RegistrationModal';
 import ResumeRenderer from '../../shared/components/ResumeRenderer';
 import { useUser } from '../../shared/hooks';
 import { useResumeQuery } from '../../shared/hooks/useResumeQuery';
@@ -49,6 +50,7 @@ const RefinePage: React.FC = () => {
   const templateContainerRef = useRef<HTMLDivElement>(null);
   const [showPaywallModal, setShowPaywallModal] = useState(false);
   const [pendingPremiumTemplate, setPendingPremiumTemplate] = useState<TemplateConfig | null>(null);
+  const [showRegistration, setShowRegistration] = useState(false);
   
   // Define mobile mode for screens up to 768px
   const isMobile = useMediaQuery('(max-width:768px)');
@@ -196,6 +198,10 @@ const RefinePage: React.FC = () => {
   };
 
   const handleDownload = () => {
+    if (!user) {
+      setShowRegistration(true);
+      return;
+    }
     if (user?.is_premium) {
       // For pro users, download directly
       handleDirectDownload();
@@ -792,6 +798,11 @@ const RefinePage: React.FC = () => {
         open={showPaywallModal}
         onClose={handlePaywallClose}
         onSuccess={handleUpgradeSuccess}
+      />
+      <RegistrationModal
+        open={showRegistration}
+        onClose={() => setShowRegistration(false)}
+        onSuccess={() => setShowRegistration(false)}
       />
     </Box>
   );

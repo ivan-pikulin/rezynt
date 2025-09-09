@@ -18,6 +18,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             email=obj_in.email,
             password_hash=get_password_hash(obj_in.password),
             is_verified=False,
+            is_registered=True,
             credits=100,  # Set 100 credits by default
         )
         db.add(db_obj)

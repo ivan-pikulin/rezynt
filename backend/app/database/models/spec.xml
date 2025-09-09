@@ -15,6 +15,7 @@
                 <field name="password_hash" type="String" nullable="false"/>
                 <field name="is_verified" type="Boolean" default="false"/>
                 <field name="is_premium" type="Boolean" default="false"/>
+                <field name="is_registered" type="Boolean" default="true"/>
                 <field name="has_completed_onboarding" type="Boolean" default="false"/>
                 <field name="onboarding_responses" type="JSON" nullable="true"/>
                 <field name="credits" type="Integer" default="100"/>

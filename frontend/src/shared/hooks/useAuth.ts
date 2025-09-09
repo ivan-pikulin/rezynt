@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { TokenResponse } from '../../features/auth/types/auth';
 import { tokenService } from '../services/api/tokenService';
 import { userApi } from '../services/api';
+import { migrateGuestResumeIfAny } from '../services/guestResumeMigration';
 import { User } from '../services/api/types';
 
 interface UseAuthReturn {
@@ -36,6 +37,7 @@ export const useAuth = (): UseAuthReturn => {
 
         if (!accessToken || !refreshToken) {
           setIsAuthenticated(false);
+          setUser(null);
           setIsLoading(false);
           return;
         }
@@ -50,6 +52,7 @@ export const useAuth = (): UseAuthReturn => {
           if (!success) {
             tokenService.clearTokens();
             setIsAuthenticated(false);
+            setUser(null);
           }
         } else {
           setIsAuthenticated(true);
@@ -68,6 +71,7 @@ export const useAuth = (): UseAuthReturn => {
         console.error('Auth check error:', error);
         tokenService.clearTokens();
         setIsAuthenticated(false);
+        setUser(null);
       } finally {
         setIsLoading(false);
       }
@@ -114,6 +118,8 @@ export const useAuth = (): UseAuthReturn => {
     try {
       const userData = await userApi.getCurrentUser();
       setUser(userData);
+      // Migrate guest resume if exists
+      await migrateGuestResumeIfAny();
     } catch (error) {
       console.error('Error loading user data after login:', error);
       tokenService.clearTokens();

@@ -13,6 +13,7 @@ import { convertApiResumeToDisplayData } from '../refine/utils/resumeDataConvert
 import DownloadOptions from './components/DownloadOptions';
 import SuccessPage from './components/SuccessPage';
 import { exportApi } from './exportApi';
+import RegistrationModal from '../../shared/components/RegistrationModal';
 
 const ExportPage: React.FC = () => {
   const { t } = useTranslation();
@@ -24,6 +25,7 @@ const ExportPage: React.FC = () => {
   const { selectedTemplate } = useTemplate(resumeId, resume?.template_slug);
 
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showRegistration, setShowRegistration] = useState(false);
   const { user } = useAuthContext();
 
   const handleBack = () => {
@@ -63,6 +65,10 @@ const ExportPage: React.FC = () => {
   };
 
   const handleExportPDF = async () => {
+    if (!user) {
+      setShowRegistration(true);
+      return;
+    }
     if (!templateContainerRef.current || !resume) return;
     
     try {
@@ -290,6 +296,11 @@ const ExportPage: React.FC = () => {
           />
         </div>
       </Box>
+      <RegistrationModal
+        open={showRegistration}
+        onClose={() => setShowRegistration(false)}
+        onSuccess={() => setShowRegistration(false)}
+      />
     </Box>
   );
 };

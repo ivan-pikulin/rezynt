@@ -10,6 +10,9 @@ import CreateIcon from '@mui/icons-material/Create';
 import { useNavigate } from 'react-router-dom';
 import { startApi } from '../startApi';
 import { COLORS } from '../../../shared/theme/theme';
+import { useAuthContext } from '../../../shared/contexts/AuthContext';
+import { guestResumeService } from '../../../shared/services/guestResumeService';
+import RegistrationModal from '../../../shared/components/RegistrationModal';
 
 interface StartOptionsProps {
   onGuardStartFromScratch?: () => boolean;
@@ -18,10 +21,12 @@ interface StartOptionsProps {
 
 const StartOptions: React.FC<StartOptionsProps> = ({ onGuardStartFromScratch, onGuardUploadResume }) => {
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuthContext();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [uploadMessage, setUploadMessage] = useState('');
+  const [showRegistration, setShowRegistration] = useState(false);
   
   // List of messages to display during loading
   const uploadMessages = [
@@ -73,8 +78,14 @@ const StartOptions: React.FC<StartOptionsProps> = ({ onGuardStartFromScratch, on
     
     setIsCreating(true);
     try {
-      const result = await startApi.startFromScratch();
-      navigate(`/chat?resume_id=${result.id}`);
+      if (!isAuthenticated) {
+        // Guest flow: create local resume and go to refine/chat
+        guestResumeService.createOrGet();
+        navigate(`/refine?resume_id=guest`);
+      } else {
+        const result = await startApi.startFromScratch();
+        navigate(`/chat?resume_id=${result.id}`);
+      }
     } catch (error) {
       console.error('Failed to start from scratch:', error);
     } finally {
@@ -84,6 +95,10 @@ const StartOptions: React.FC<StartOptionsProps> = ({ onGuardStartFromScratch, on
 
   const handleUploadResume = () => {
     if (onGuardUploadResume && !onGuardUploadResume()) {
+      return;
+    }
+    if (!isAuthenticated) {
+      setShowRegistration(true);
       return;
     }
     fileInputRef.current?.click();
@@ -306,6 +321,11 @@ const StartOptions: React.FC<StartOptionsProps> = ({ onGuardStartFromScratch, on
         </CardContent>
       </Card>
     </Box>
+    <RegistrationModal
+      open={showRegistration}
+      onClose={() => setShowRegistration(false)}
+      onSuccess={() => setShowRegistration(false)}
+    />
     </>
   );
 };

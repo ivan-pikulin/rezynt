@@ -9,6 +9,7 @@ import { useUser } from '../../../shared/hooks/useUser';
 import { COLORS } from '../../../shared/theme/theme';
 import { useTranslation } from 'react-i18next';
 import PaywallModal from '../../../shared/components/PaywallModal';
+import RegistrationModal from '../../../shared/components/RegistrationModal';
 import { useMediaQuery } from '@mui/material';
 
 interface ChatWindowProps {
@@ -22,6 +23,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ resumeId, onResumeUpdate, fromU
   const { t } = useTranslation();
   const { user, refetch: refetchUser } = useUser();
   const [showPaywallModal, setShowPaywallModal] = useState(false);
+  const [showRegistrationModal, setShowRegistrationModal] = useState(false);
   
       // Define mobile mode for screens up to 768px
   const isMobile = useMediaQuery('(max-width: 768px)');
@@ -36,7 +38,19 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ resumeId, onResumeUpdate, fromU
     messagesEndRef,
     chatContainerRef,
     currentThinkingPhrase
-  } = useChat(resumeId, onResumeUpdate, fromUpload, () => setShowPaywallModal(true));
+  } = useChat(
+    resumeId,
+    onResumeUpdate,
+    fromUpload,
+    () => {
+      // If not authenticated, show registration modal instead of paywall
+      if (!user) {
+        setShowRegistrationModal(true);
+      } else {
+        setShowPaywallModal(true);
+      }
+    }
+  );
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const { scrollTop } = e.currentTarget;
@@ -47,6 +61,10 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ resumeId, onResumeUpdate, fromU
   };
 
   const handleCreditsClick = () => {
+    if (!user) {
+      setShowRegistrationModal(true);
+      return;
+    }
     if (!user?.is_premium) {
       setShowPaywallModal(true);
     }
@@ -237,6 +255,11 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ resumeId, onResumeUpdate, fromU
         open={showPaywallModal}
         onClose={handlePaywallClose}
         onSuccess={handlePaywallSuccess}
+      />
+      <RegistrationModal
+        open={showRegistrationModal}
+        onClose={() => setShowRegistrationModal(false)}
+        onSuccess={() => setShowRegistrationModal(false)}
       />
     </Box>
   );
