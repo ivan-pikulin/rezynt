@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Box, Typography, Chip, CircularProgress } from '@mui/material';
+import { Box, Typography, Chip, CircularProgress, IconButton } from '@mui/material';
 import StarIcon from '@mui/icons-material/Star';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import { ChatMessage } from './ChatMessage';
 import { ChatInput } from './ChatInput';
 import { useChat } from '../hooks/useChat';
@@ -14,9 +15,10 @@ interface ChatWindowProps {
   resumeId: string | null;
   onResumeUpdate?: () => void;
   fromUpload?: boolean;
+  onTogglePreview?: () => void;
 }
 
-const ChatWindow: React.FC<ChatWindowProps> = ({ resumeId, onResumeUpdate, fromUpload = false }) => {
+const ChatWindow: React.FC<ChatWindowProps> = ({ resumeId, onResumeUpdate, fromUpload = false, onTogglePreview }) => {
   const { t } = useTranslation();
   const { user, refetch: refetchUser } = useUser();
   const [showPaywallModal, setShowPaywallModal] = useState(false);
@@ -117,33 +119,48 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ resumeId, onResumeUpdate, fromU
           AI Writer
         </Typography>
         
-        {!user?.is_premium && (
-          <Chip
-            icon={<StarIcon sx={{ fontSize: '1rem', color: COLORS.credits.star }} />}
-            label={`${user?.credits || 0}/100`}
-            size="small"
-            onClick={handleCreditsClick}
-            sx={{
-              background: user?.credits === 0 ? 'rgba(211, 47, 47, 0.2)' : 'rgba(255, 255, 255, 0.15)',
-              backdropFilter: 'blur(10px)',
-              color: user?.credits === 0 ? COLORS.error.main : 'white',
-              border: user?.credits === 0 ? `1px solid ${COLORS.error.main}` : '1px solid rgba(255, 255, 255, 0.2)',
-              fontWeight: 600,
-              fontSize: '0.8rem',
-              cursor: 'pointer',
-              '& .MuiChip-icon': {
-                color: user?.credits === 0 ? COLORS.error.main : COLORS.credits.star
-              },
-              '&:hover': {
-                background: user?.credits === 0 ? 'rgba(211, 47, 47, 0.3)' : 'rgba(255, 255, 255, 0.25)',
-                transform: 'translateY(-1px)',
-                transition: 'all 0.2s ease'
-              },
-              position: 'relative',
-              zIndex: 1
-            }}
-          />
-        )}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, position: 'relative', zIndex: 1 }}>
+          {!user?.is_premium && (
+            <Chip
+              icon={<StarIcon sx={{ fontSize: '1rem', color: COLORS.credits.star }} />}
+              label={`${user?.credits || 0}/100`}
+              size="small"
+              onClick={handleCreditsClick}
+              sx={{
+                background: user?.credits === 0 ? 'rgba(211, 47, 47, 0.2)' : 'rgba(255, 255, 255, 0.15)',
+                backdropFilter: 'blur(10px)',
+                color: user?.credits === 0 ? COLORS.error.main : 'white',
+                border: user?.credits === 0 ? `1px solid ${COLORS.error.main}` : '1px solid rgba(255, 255, 255, 0.2)',
+                fontWeight: 600,
+                fontSize: '0.8rem',
+                cursor: 'pointer',
+                '& .MuiChip-icon': {
+                  color: user?.credits === 0 ? COLORS.error.main : COLORS.credits.star
+                },
+                '&:hover': {
+                  background: user?.credits === 0 ? 'rgba(211, 47, 47, 0.3)' : 'rgba(255, 255, 255, 0.25)',
+                  transform: 'translateY(-1px)',
+                  transition: 'all 0.2s ease'
+                }
+              }}
+            />
+          )}
+          {isMobile && (
+            <IconButton
+              onClick={onTogglePreview}
+              sx={{
+                width: 30,
+                height: 30,
+                color: 'white',
+                bgcolor: 'rgba(255, 255, 255, 0.15)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.25)' }
+              }}
+            >
+              <VisibilityIcon sx={{ fontSize: 18 }} />
+            </IconButton>
+          )}
+        </Box>
       </Box>
 
       {/* Chat area with modern design */}

@@ -256,6 +256,17 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fr
     // Устанавливаем тип загрузки для нового сообщения
     setLastLoadType('new');
 
+    // Оптимистично уменьшаем кредиты на фронте для free пользователей
+    let didOptimisticDecrement = false;
+    if (!user?.is_premium && (user?.credits ?? 0) > 0) {
+      queryClient.setQueryData(['user'], (prev: any) => {
+        if (!prev) return prev;
+        const nextCredits = Math.max(0, (prev.credits ?? 0) - 1);
+        didOptimisticDecrement = true;
+        return { ...prev, credits: nextCredits };
+      });
+    }
+
     // Добавляем сообщение пользователя
     const userMessage: ChatMessage = {
       id: `user-${Date.now()}`,
@@ -352,6 +363,14 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fr
               )
             );
           }
+
+          // Откатываем оптимистичное уменьшение в случае ошибки
+          if (didOptimisticDecrement) {
+            queryClient.setQueryData(['user'], (prev: any) => {
+              if (!prev) return prev;
+              return { ...prev, credits: (prev.credits ?? 0) + 1 };
+            });
+          }
           setIsLoading(false);
         }
       );
@@ -375,6 +394,14 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fr
               : msg
           )
         );
+      }
+
+      // Откатываем оптимистичное уменьшение в случае ошибки
+      if (didOptimisticDecrement) {
+        queryClient.setQueryData(['user'], (prev: any) => {
+          if (!prev) return prev;
+          return { ...prev, credits: (prev.credits ?? 0) + 1 };
+        });
       }
       setIsLoading(false);
     }

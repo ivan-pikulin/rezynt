@@ -29,13 +29,14 @@
                     <feature name="flex_layout" desc="Chat takes remaining space with flex: 1, preview has flexShrink: 0" />
                     <feature name="overflow_handling" desc="Chat container has overflow: hidden to prevent content overflow" />
                     <feature name="preview_scale" desc="Resume preview uses scale 0.35 for optimal fit in 400px width" />
+                    <feature name="edit_button_overlay" desc="Circular edit button over preview navigates to Refine page; on desktop it's smaller (34px) and positioned further below the top edge (~40px) to overlap neatly in the top-right area" />
                 </desktop_features>
                 <mobile_features>
                     <feature name="chat_only_default" desc="Shows only chat interface on mobile devices by default" />
-                    <feature name="hamburger_menu" desc="Three horizontal lines button in top-right corner" />
-                    <feature name="full_screen_panel" desc="Full-screen overlay panel with resume preview" />
+                    <feature name="hamburger_menu" desc="Small eye button (30px) in top-right corner opens preview" />
+                    <feature name="full_screen_panel" desc="Full-screen overlay panel with resume preview and circular edit button overlay" />
                     <feature name="panel_header" desc="Panel header with title and close button" />
-                    <feature name="larger_preview" desc="Larger resume preview scale (0.6) in full-screen panel" />
+                    <feature name="larger_preview" desc="Larger resume preview scale (1.0) filling the screen in full-screen panel" />
                     <feature name="slide_animation" desc="Slide-in animation from right to left" />
                     <feature name="no_logo" desc="Logo is hidden in header on mobile" />
                     <feature name="minimal_padding" desc="Reduced padding and margins for mobile" />
@@ -124,6 +125,12 @@
                 5. Assistant response streams in real-time, updating the message as chunks arrive
                 6. Complete response is saved to database after streaming ends
             </flow>
+            <credits_management>
+                <rule name="optimistic_frontend_decrement" desc="On message send, decrement credits by 1 in the frontend immediately for non-premium users." />
+                <rule name="backend_decrement_on_success" desc="On successful response generation, backend decrements credits by 1 in DB for non-premium users." />
+                <rule name="frontend_sync_on_response" desc="Do not refetch user on stream end; backend credits are fetched only on page load." />
+                <rule name="rollback_on_error" desc="If the request fails, revert the optimistic decrement in the frontend." />
+            </credits_management>
             <streaming>
                 <mode>Server-Sent Events (SSE)</mode>
                 <implementation>
