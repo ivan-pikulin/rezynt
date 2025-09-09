@@ -1,19 +1,18 @@
-import React, { useState } from 'react';
+import CloseIcon from '@mui/icons-material/Close';
+import EditIcon from '@mui/icons-material/Edit';
+import { useMediaQuery } from '@mui/material';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import EditIcon from '@mui/icons-material/Edit';
-import CloseIcon from '@mui/icons-material/Close';
+import React, { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Header from '../../shared/components/Header/Header';
-import ChatWindow from './components/ChatWindow';
 import ResumeRenderer from '../../shared/components/ResumeRenderer';
+import { useUser } from '../../shared/hooks';
 import { useResumeQuery } from '../../shared/hooks/useResumeQuery';
 import { useTemplate } from '../../shared/hooks/useTemplate';
-import { useUser } from '../../shared/hooks';
-import { convertApiResumeToResumeData } from '../../shared/utils/resumeDataConverter';
 import { COLORS } from '../../shared/theme/theme';
-import { useMediaQuery } from '@mui/material';
+import { convertApiResumeToResumeData } from '../../shared/utils/resumeDataConverter';
+import ChatWindow from './components/ChatWindow';
 
 const ChatPage: React.FC = () => {
   const navigate = useNavigate();
