@@ -8,6 +8,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import Header from '../../shared/components/Header/Header';
 import ResumeRenderer from '../../shared/components/ResumeRenderer';
 import { useUser } from '../../shared/hooks';
+import { useAuthContext } from '../../shared/contexts/AuthContext';
 import { useResumeQuery } from '../../shared/hooks/useResumeQuery';
 import { useTemplate } from '../../shared/hooks/useTemplate';
 import { COLORS } from '../../shared/theme/theme';
@@ -21,6 +22,7 @@ const ChatPage: React.FC = () => {
   const { resume: resumeData, refreshResume } = useResumeQuery(resumeId);
   const { selectedTemplate } = useTemplate(resumeId, resumeData?.template_slug);
   const { user } = useUser();
+  const { isAuthenticated } = useAuthContext();
   const [showPreview, setShowPreview] = useState(false);
 
   // Define mobile mode for screens up to 768px
@@ -31,13 +33,21 @@ const ChatPage: React.FC = () => {
   };
 
   const handleBack = () => {
+    if (!isAuthenticated) {
+      navigate('/start');
+      return;
+    }
     navigate('/resumes');
   };
 
   const handleStepClick = (stepIndex: number) => {
     switch (stepIndex) {
       case 0: // Start
-        navigate('/');
+        if (!isAuthenticated) {
+          navigate('/start');
+        } else {
+          navigate('/');
+        }
         break;
       case 1: // Generate - already on this page
         break;
@@ -89,6 +99,7 @@ const ChatPage: React.FC = () => {
         showLogo={true} // Show logo on desktop
         showBackButton={true} // Show back button on chat page
         onStepClick={handleStepClick}
+        allowFirstStepClick={!isAuthenticated}
         isProUser={user?.is_premium}
         currentTab="ai-writer"
         onTabChange={handleTabChange}

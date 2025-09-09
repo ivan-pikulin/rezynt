@@ -14,7 +14,8 @@
         │   ├── PricingModal.tsx       # Pricing modal dialog
         │   ├── PricingTable.tsx       # Pricing comparison table
         │   ├── ProModal.tsx           # Pro features modal
-        │   └── SuccessPage.tsx        # Success page after download completion
+        │   ├── SuccessPage.tsx        # Success page after download completion
+        │   └── UnauthenticatedExportView.tsx # Preview + benefits + download for unauthenticated users
         ├── exportApi.ts               # API for export functionality
         ├── ExportPage.tsx             # Main export page (mobile-optimized, loads real resume data)
         ├── PaymentSuccessPage.tsx     # Payment success page with app-styled layout
@@ -22,7 +23,7 @@
     </folder_structure>
 
     <components>
-        <component name="ExportPage" desc="Main export page with download options and success page integration. Loads real resume data from API to ensure current user data is exported.">
+        <component name="ExportPage" desc="Main export page with download options and success page integration. Loads real resume data from API to ensure current user data is exported. Shows different layouts for authenticated vs unauthenticated users.">
             <props>
                 <prop name="resumeId" type="string" desc="Resume ID from URL parameters"/>
                 <prop name="resume" type="Resume" desc="Loaded resume data from API"/>
@@ -31,6 +32,7 @@
                 <prop name="error" type="string" desc="Error message if resume loading fails"/>
                 <prop name="isExporting" type="boolean" desc="Export process state"/>
                 <prop name="showSuccess" type="boolean" desc="Success page visibility"/>
+                <prop name="isAuthenticated" type="boolean" desc="User authentication status"/>
             </props>
             <features>
                 <feature name="resume_loading" desc="Loads real resume data from API using resumeId parameter"/>
@@ -39,6 +41,7 @@
                 <feature name="success_page" desc="Shows success page after successful export"/>
                 <feature name="error_handling" desc="Handles loading and export errors with user-friendly messages"/>
                 <feature name="responsive_design" desc="Mobile-optimized layout with adaptive padding and spacing"/>
+                <feature name="auth_based_layout" desc="Shows DownloadOptions for authenticated users, UnauthenticatedExportView for guests"/>
             </features>
         </component>
         
@@ -69,6 +72,21 @@
             <features>
                 <feature name="user_refresh" desc="Refreshes user profile to reflect premium status"/>
                 <feature name="cta_resumes" desc="CTA to go to resumes list"/>
+            </features>
+        </component>
+
+        <component name="UnauthenticatedExportView" desc="Export view for unauthenticated users with resume preview, benefits list, and download button that opens registration modal">
+            <props>
+                <prop name="resume" type="Resume" desc="Resume data for preview"/>
+                <prop name="selectedTemplateId" type="string" desc="Template ID for resume rendering"/>
+                <prop name="onDownloadClick" type="function" desc="Callback when download button is clicked (opens registration modal)"/>
+            </props>
+            <features>
+                <feature name="resume_preview" desc="Shows resume preview using ResumeRenderer with 0.25 scale to fit on screen"/>
+                <feature name="benefits_list" desc="Responsive benefits display: mobile (simple list with checkmarks), desktop (styled cards with hover effects): Your resume is recruiter-ready, Optimized for all ATS systems, Boost your interview chances, Publish and get more offers, Download and start applying today"/>
+                <feature name="download_button" desc="Large download button that opens registration modal"/>
+                <feature name="responsive_card_layout" desc="Single white card with responsive layout: mobile (vertical stack), desktop (preview left, benefits+button right). Mobile uses full width with margins, desktop uses fixed 750px max width"/>
+                <feature name="registration_modal" desc="Opens RegistrationModal when download button is clicked"/>
             </features>
         </component>
     </components>

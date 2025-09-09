@@ -21,6 +21,7 @@ const Header: React.FC<HeaderProps> = ({
   onNext, 
   onBack, 
   onStepClick,
+  allowFirstStepClick = false,
   nextButtonText = 'Next',
   previousButtonText,
   showBackButton = true,
@@ -128,6 +129,7 @@ const Header: React.FC<HeaderProps> = ({
               {/* Central area with buttons and stepper/tabs */}
       <Box sx={{ 
         flex: 1,
+        minWidth: 0,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -207,14 +209,15 @@ const Header: React.FC<HeaderProps> = ({
                 onClick={onBack}
                 sx={{
                   cursor: 'pointer',
-                  fontSize: isMobile ? '1.5rem' : '2rem',
+                  fontSize: isMobile ? 'clamp(1.1rem, 6vw, 1.5rem)' : '2rem',
                   fontWeight: 'bold',
                   color: '#666',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  width: isMobile ? 32 : 40,
-                  height: isMobile ? 32 : 40,
+                  width: isMobile ? 'clamp(28px, 8vw, 40px)' : 40,
+                  height: isMobile ? 'clamp(28px, 8vw, 40px)' : 40,
+                  lineHeight: 1,
                   '&:hover': {
                     color: COLORS.primary.main,
                     transform: 'scale(1.1)'
@@ -226,10 +229,13 @@ const Header: React.FC<HeaderProps> = ({
               </Box>
             )}
 
-            {/* Stepper area with fixed width */}
+            {/* Stepper area with responsive width */}
             {showSteps && (
               <Box sx={{
-                width: isMobile ? '336px' : '480px',
+                // On mobile take remaining space between arrows; on desktop keep fixed max width
+                flex: isMobile ? 1 : 'unset',
+                minWidth: isMobile ? 0 : 'unset',
+                width: isMobile ? 'auto' : '480px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center'
@@ -240,40 +246,49 @@ const Header: React.FC<HeaderProps> = ({
                   sx={{ 
                     width: '100%',
                     '& .MuiStepLabel-label': {
-                      fontSize: isMobile ? '0.75rem' : '0.875rem'
+                      fontSize: isMobile ? 'clamp(0.6rem, 2.8vw, 0.75rem)' : '0.875rem',
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis'
+                    },
+                    '& .MuiStepIcon-root': {
+                      fontSize: isMobile ? 'clamp(18px, 5vw, 24px)' : 24
                     }
                   }}
                 >
-                  {steps.map((label, index) => (
-                    <Step key={label}>
-                      <StepLabel 
-                        onClick={index === 0 ? undefined : () => handleStepClick(index)}
-                        sx={{
-                          cursor: index === 0 ? 'default' : (onStepClick ? 'pointer' : 'default'),
-                          transition: 'all 0.2s ease',
-                          '&:hover': index === 0 ? {} : (onStepClick ? {
-                            transform: 'scale(1.05)',
-                          } : {}),
-                          '& .MuiStepLabel-label': {
-                            fontSize: isMobile ? '0.75rem' : '0.875rem',
-                            color: index <= activeStep ? `${COLORS.primary.main} !important` : '#999 !important',
-                            fontWeight: index === activeStep ? 600 : 400,
-                            transform: index === activeStep ? 'scale(1.1)' : 'scale(1)',
+                  {steps.map((label, index) => {
+                    const canClickStep = (index === 0 ? allowFirstStepClick : true) && Boolean(onStepClick);
+                    return (
+                      <Step key={label}>
+                        <StepLabel 
+                          onClick={canClickStep ? () => handleStepClick(index) : undefined}
+                          sx={{
+                            cursor: canClickStep ? 'pointer' : 'default',
                             transition: 'all 0.2s ease',
-                          },
-                          '& .MuiStepLabel-iconContainer': {
-                            transform: index === activeStep ? 'scale(1.2)' : 'scale(1)',
-                            transition: 'all 0.2s ease',
-                            '& .MuiStepIcon-root': {
-                              color: index <= activeStep ? COLORS.primary.main : '#999',
+                            '&:hover': canClickStep ? {
+                              transform: 'scale(1.05)',
+                            } : {},
+                            '& .MuiStepLabel-label': {
+                              fontSize: isMobile ? 'clamp(0.6rem, 2.8vw, 0.75rem)' : '0.875rem',
+                              color: index <= activeStep ? `${COLORS.primary.main} !important` : '#999 !important',
+                              fontWeight: index === activeStep ? 600 : 400,
+                              transform: index === activeStep ? (isMobile ? 'scale(1.08)' : 'scale(1.1)') : 'scale(1)',
+                              transition: 'all 0.2s ease',
+                            },
+                            '& .MuiStepLabel-iconContainer': {
+                              transform: index === activeStep ? (isMobile ? 'scale(1.1)' : 'scale(1.2)') : 'scale(1)',
+                              transition: 'all 0.2s ease',
+                              '& .MuiStepIcon-root': {
+                                color: index <= activeStep ? COLORS.primary.main : '#999',
+                              }
                             }
-                          }
-                        }}
-                      >
-                        {label}
-                      </StepLabel>
-                    </Step>
-                  ))}
+                          }}
+                        >
+                          {label}
+                        </StepLabel>
+                      </Step>
+                    );
+                  })}
                 </Stepper>
               </Box>
             )}
@@ -284,14 +299,15 @@ const Header: React.FC<HeaderProps> = ({
                 onClick={onNext}
                 sx={{
                   cursor: 'pointer',
-                  fontSize: isMobile ? '1.5rem' : '2rem',
+                  fontSize: isMobile ? 'clamp(1.1rem, 6vw, 1.5rem)' : '2rem',
                   fontWeight: 'bold',
                   color: COLORS.primary.main,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  width: isMobile ? 32 : 40,
-                  height: isMobile ? 32 : 40,
+                  width: isMobile ? 'clamp(28px, 8vw, 40px)' : 40,
+                  height: isMobile ? 'clamp(28px, 8vw, 40px)' : 40,
+                  lineHeight: 1,
                   '&:hover': {
                     color: COLORS.primary.dark,
                     transform: 'scale(1.1)'
@@ -325,10 +341,10 @@ const Header: React.FC<HeaderProps> = ({
             >
               <Avatar
                 sx={{
-                  width: 40,
-                  height: 40,
+                  width: isMobile ? 'clamp(32px, 9vw, 40px)' : 40,
+                  height: isMobile ? 'clamp(32px, 9vw, 40px)' : 40,
                   bgcolor: COLORS.primary.main,
-                  fontSize: '1.2rem',
+                  fontSize: isMobile ? 'clamp(0.9rem, 3.5vw, 1.2rem)' : '1.2rem',
                   fontWeight: 600
                 }}
               >

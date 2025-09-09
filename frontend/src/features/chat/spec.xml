@@ -42,6 +42,10 @@
                     <feature name="minimal_padding" desc="Reduced padding and margins for mobile" />
                     <feature name="no_border_radius" desc="Removed border radius and shadow on mobile" />
                 </mobile_features>
+                <navigation_rules>
+                    <rule name="back_arrow_behavior" desc="Back arrow in Header routes unauthenticated users to /start, authenticated users to /resumes" />
+                    <rule name="start_step_click" desc="Start step is clickable on ChatPage when user is unauthenticated and routes to /start" />
+                </navigation_rules>
             </component>
             <component name="MainDialogPage" desc="Main page with progress bar, full-height chat window and vertically centered resume preview with next button"/>
             <component name="ChatWindow" desc="Chat container with scrollable messages area and fixed input at bottom">

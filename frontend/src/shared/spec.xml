@@ -24,7 +24,7 @@
         <feature>
           <name>Responsive design</name>
           <description>
-            Logo is hidden on mobile devices to save space
+            Logo is hidden on mobile devices to save space. On mobile screens, the stepper responsively scales labels and icons to ensure all steps fit between navigation arrows and the user avatar without overflow. Back/next arrows and the user avatar sizes are scaled with the same clamp-based logic to stay visually synchronized with the stepper.
           </description>
         </feature>
         
@@ -38,7 +38,7 @@
         <feature>
           <name>Stepper</name>
           <description>
-            Displays resume creation progress with ability to click on steps
+            Displays resume creation progress with ability to click on steps. Supports optional clicking of the first step (Start) via allowFirstStepClick prop for guest flows.
           </description>
         </feature>
         
@@ -78,6 +78,14 @@
           <type>(stepIndex: number) => void</type>
           <required>false</required>
           <description>Callback for clicking on stepper step</description>
+        </prop>
+
+        <prop>
+          <name>allowFirstStepClick</name>
+          <type>boolean</type>
+          <required>false</required>
+          <default>false</default>
+          <description>Allow clicking on the first step (Start). Useful for unauthenticated guest flows.</description>
         </prop>
         
         <prop>
@@ -131,7 +139,7 @@
         
         <detail>
           <name>Responsiveness</name>
-          <value>Logo hidden on screens up to 768px, custom breakpoint for better tablet support</value>
+          <value>Logo hidden on screens up to 768px; stepper uses clamp-based font sizes and reduced active-scale on mobile; arrows use clamp for fontSize and square hit area; avatar uses clamp for width/height and fontSize; container uses flex:1 and minWidth:0 to avoid overflow and allow fitting between arrows and avatar</value>
         </detail>
       </technical_details>
     </component>

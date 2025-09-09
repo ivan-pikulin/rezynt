@@ -12,6 +12,7 @@ import LoadingSpinner from '../refine/components/LoadingSpinner';
 import { convertApiResumeToDisplayData } from '../refine/utils/resumeDataConverter';
 import DownloadOptions from './components/DownloadOptions';
 import SuccessPage from './components/SuccessPage';
+import UnauthenticatedExportView from './components/UnauthenticatedExportView';
 import { exportApi } from './exportApi';
 import RegistrationModal from '../../shared/components/RegistrationModal';
 
@@ -26,7 +27,7 @@ const ExportPage: React.FC = () => {
 
   const [showSuccess, setShowSuccess] = useState(false);
   const [showRegistration, setShowRegistration] = useState(false);
-  const { user } = useAuthContext();
+  const { user, isAuthenticated } = useAuthContext();
 
   const handleBack = () => {
     navigate(`/refine?resume_id=${resumeId}`);
@@ -62,6 +63,10 @@ const ExportPage: React.FC = () => {
         navigate(`/refine?resume_id=${resumeId}`);
         break;
     }
+  };
+
+  const handleUnauthenticatedDownload = () => {
+    setShowRegistration(true);
   };
 
   const handleExportPDF = async () => {
@@ -278,10 +283,18 @@ const ExportPage: React.FC = () => {
         p: { xs: 2, sm: 3, md: 4 }, // Responsive padding
         py: { xs: 3, sm: 4, md: 6 } // Additional vertical padding
       }}>
-        <DownloadOptions 
-          onExportPDF={handleExportPDF} 
-          isPremium={user?.is_premium || false}
-        />
+        {!isAuthenticated ? (
+          <UnauthenticatedExportView
+            resume={resume}
+            selectedTemplateId={selectedTemplate?.id}
+            onDownloadClick={handleUnauthenticatedDownload}
+          />
+        ) : (
+          <DownloadOptions 
+            onExportPDF={handleExportPDF} 
+            isPremium={user?.is_premium || false}
+          />
+        )}
       </Box>
 
       {/* Hidden template for export */}
