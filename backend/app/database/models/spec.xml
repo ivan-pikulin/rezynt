@@ -18,7 +18,7 @@
                 <field name="is_registered" type="Boolean" default="true"/>
                 <field name="has_completed_onboarding" type="Boolean" default="false"/>
                 <field name="onboarding_responses" type="JSON" nullable="true"/>
-                <field name="credits" type="Integer" default="100"/>
+                <field name="credits" type="Integer" default="20"/>
                 <field name="created_at" type="TIMESTAMP" server_default="func.now()"/>
                 <field name="updated_at" type="TIMESTAMP" server_default="func.now()" onupdate="func.now()"/>
             </fields>

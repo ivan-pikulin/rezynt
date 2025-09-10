@@ -141,7 +141,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ resumeId, onResumeUpdate, fromU
           {!user?.is_premium && (
             <Chip
               icon={<StarIcon sx={{ fontSize: '1rem', color: COLORS.credits.star }} />}
-              label={`${user?.credits || 0}/100`}
+              label={`${user?.credits || 0}/20`}
               size="small"
               onClick={handleCreditsClick}
               sx={{

@@ -15,7 +15,7 @@ class User(Base):
     is_registered = Column(Boolean, default=True, nullable=False)
     has_completed_onboarding = Column(Boolean, default=False, nullable=False)
     onboarding_responses = Column(JSON, nullable=True)
-    credits = Column(Integer, default=100, nullable=False)
+    credits = Column(Integer, default=20, nullable=False)
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 

@@ -19,7 +19,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             password_hash=get_password_hash(obj_in.password),
             is_verified=False,
             is_registered=True,
-            credits=100,  # Set 100 credits by default
+            credits=20,  # Set 20 credits by default
         )
         db.add(db_obj)
         await db.commit()

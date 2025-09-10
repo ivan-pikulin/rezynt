@@ -132,6 +132,19 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fr
   const loadLatestMessages = useCallback(async () => {
     if (!resumeId) return;
 
+    // For unauthenticated users, show welcome message immediately without API call
+    if (!user) {
+      const welcomeMessage = {
+        id: 'welcome',
+        content: "Welcome aboard! I'm your AI Resume Builder, here to save you time and boost your chances. Let's get personal: what's your name?",
+        sender: 'assistant' as const,
+        timestamp: new Date()
+      };
+      setMessages([welcomeMessage]);
+      setHasMoreMessages(false);
+      return;
+    }
+
     setIsLoadingMessages(true);
     setLastLoadType('initial');
     try {
@@ -158,7 +171,7 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fr
           // Удаляем сообщение из localStorage после использования
           localStorage.removeItem(`startup_message_${resumeId}`);
         } else {
-          // Используем стандартное приветствие
+          // Используем стандартное приветствие для авторизованных пользователей
           welcomeContent = fromUpload 
             ? "Welcome aboard! I'm your AI Writer, here to save you time and boost your chances. Let's start?"
             : "Welcome aboard! I'm your AI Writer, here to save you time and boost your chances. Let's get personal: what's your name?";
@@ -180,7 +193,7 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fr
     } finally {
       setIsLoadingMessages(false);
     }
-  }, [resumeId, fromUpload]);
+  }, [resumeId, fromUpload, user]);
 
   // Управление скроллом в зависимости от типа загрузки сообщений
   useEffect(() => {
