@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Box from '@mui/material/Box';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../shared/components/Header/Header';
@@ -11,10 +11,26 @@ import { useResumes } from '../resumes/hooks/useResumes';
 const StartPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useUser();
-  const { resumes } = useResumes();
+  const { resumes, isLoading: resumesLoading } = useResumes();
   const [showPaywall, setShowPaywall] = React.useState(false);
 
   const hasResumes = Array.isArray(resumes) && resumes.length > 0;
+
+  // Redirect logic for registered free users with resumes
+  useEffect(() => {
+    // Only redirect if we have all the necessary data
+    if (user && resumes && !resumesLoading) {
+      const isRegistered = user.is_registered;
+      const isFreeUser = !user.is_premium;
+      const hasResumes = Array.isArray(resumes) && resumes.length > 0;
+      
+      // If user is registered, on free plan, and has resumes, redirect to chat with first resume
+      if (isRegistered && isFreeUser && hasResumes) {
+        const firstResume = resumes[0];
+        navigate(`/chat?resume_id=${firstResume.id}`, { replace: true });
+      }
+    }
+  }, [user, resumes, resumesLoading, navigate]);
 
   const handleStepClick = (stepIndex: number) => {
     switch (stepIndex) {
