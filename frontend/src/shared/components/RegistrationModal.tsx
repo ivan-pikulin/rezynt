@@ -9,19 +9,34 @@ import Typography from '@mui/material/Typography';
 import React, { useState } from 'react';
 import LoginForm from '../../features/auth/components/LoginForm';
 import SignupForm from '../../features/auth/components/SignupForm';
+import EmailConfirmationModal from './EmailConfirmationModal';
 
 interface RegistrationModalProps {
   open: boolean;
   onClose: () => void;
   onSuccess?: () => void;
+  onSignupSuccess?: (email?: string) => void;
 }
 
-const RegistrationModal: React.FC<RegistrationModalProps> = ({ open, onClose, onSuccess }) => {
+const RegistrationModal: React.FC<RegistrationModalProps> = ({ open, onClose, onSuccess, onSignupSuccess }) => {
   const [activeTab, setActiveTab] = useState<'login' | 'signup'>('signup');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [showEmailConfirmation, setShowEmailConfirmation] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState<string>('');
 
   const handleSuccess = () => {
     onSuccess?.();
+    onClose();
+  };
+
+  const handleSignupSuccess = (email?: string) => {
+    setRegisteredEmail(email || '');
+    setShowEmailConfirmation(true);
+  };
+
+  const handleEmailConfirmationClose = () => {
+    setShowEmailConfirmation(false);
+    setRegisteredEmail('');
     onClose();
   };
 
@@ -79,7 +94,7 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({ open, onClose, on
 
         {activeTab === 'signup' ? (
           <SignupForm
-            onSuccess={handleSuccess}
+            onSuccess={onSignupSuccess || handleSignupSuccess}
             onSwitchToLogin={() => setActiveTab('login')}
           />
         ) : (
@@ -95,6 +110,38 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({ open, onClose, on
   );
 };
 
-export default RegistrationModal;
+// Separate component for email confirmation
+const RegistrationModalWithEmailConfirmation: React.FC<RegistrationModalProps> = (props) => {
+  const [showEmailConfirmation, setShowEmailConfirmation] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState<string>('');
+
+  const handleSignupSuccess = (email?: string) => {
+    setRegisteredEmail(email || '');
+    setShowEmailConfirmation(true);
+  };
+
+  const handleEmailConfirmationClose = () => {
+    setShowEmailConfirmation(false);
+    setRegisteredEmail('');
+    props.onClose();
+  };
+
+  return (
+    <>
+      <RegistrationModal
+        {...props}
+        onSignupSuccess={handleSignupSuccess}
+      />
+      <EmailConfirmationModal
+        open={showEmailConfirmation}
+        onClose={handleEmailConfirmationClose}
+        email={registeredEmail}
+      />
+    </>
+  );
+};
+
+
+export default RegistrationModalWithEmailConfirmation;
 
 

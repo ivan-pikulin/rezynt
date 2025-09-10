@@ -13,7 +13,7 @@ import { authApi } from '../../../shared/services/api';
 import { SignupCredentials } from '../types/auth';
 
 interface SignupFormProps {
-  onSuccess: () => void;
+  onSuccess: (email?: string) => void;
   onSwitchToLogin: () => void;
 }
 
@@ -53,7 +53,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSuccess, onSwitchToLogin }) =
           email: values.email,
           password: values.password
         });
-        onSuccess();
+        onSuccess(values.email);
       } catch (err: any) {
         setError(err.response?.data?.detail || t('auth.signup.signupError'));
       } finally {

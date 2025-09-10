@@ -8,7 +8,7 @@ const SignupPage: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  const handleSignupSuccess = () => {
+  const handleSignupSuccess = (email?: string) => {
     navigate('/login?signup_success=1');
   };
 

@@ -30,7 +30,7 @@ import { guestResumeService } from '../../../shared/services/guestResumeService'
 
 interface ExperienceEditorProps {
   experience: UnifiedResumeExperience[];
-  resumeId: number;
+  resumeId: string | null;
   onExperienceUpdate: (experience: UnifiedResumeExperience[]) => void;
 }
 
@@ -135,10 +135,10 @@ const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
         experience: updatedExperience
       };
       
-      if (resumeId === -1) {
+      if (resumeId === 'guest' || resumeId === '-1') {
         guestResumeService.update({ experience: updatedExperience as any });
       } else {
-        await resumeApi.updateResumePartial(resumeId, resumeUpdate);
+        await resumeApi.updateResumePartial(parseInt(resumeId!), resumeUpdate);
       }
       
       setLocalExperience(updatedExperience);
@@ -160,10 +160,10 @@ const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
         experience: updatedExperience
       };
       
-      if (resumeId === -1) {
+      if (resumeId === 'guest' || resumeId === '-1') {
         guestResumeService.update({ experience: updatedExperience as any });
       } else {
-        await resumeApi.updateResumePartial(resumeId, resumeUpdate);
+        await resumeApi.updateResumePartial(parseInt(resumeId!), resumeUpdate);
       }
       
       setLocalExperience(updatedExperience);

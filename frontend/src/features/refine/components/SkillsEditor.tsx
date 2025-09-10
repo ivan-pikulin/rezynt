@@ -28,7 +28,7 @@ import { guestResumeService } from '../../../shared/services/guestResumeService'
 
 interface SkillsEditorProps {
   skills: string[];
-  resumeId: number;
+  resumeId: string | null;
   onSkillsUpdate: (skills: string[]) => void;
 }
 
@@ -46,10 +46,10 @@ const SkillsEditor: React.FC<SkillsEditorProps> = ({ skills, resumeId, onSkillsU
     setIsSaving(true);
     try {
       const updatedSkills = [...skills, newSkillName.trim()];
-      if (resumeId === -1) {
+      if (resumeId === 'guest' || resumeId === '-1') {
         guestResumeService.update({ skills: updatedSkills as any });
       } else {
-        await resumeApi.updateSkills(resumeId, updatedSkills);
+        await resumeApi.updateSkills(parseInt(resumeId!), updatedSkills);
       }
       onSkillsUpdate(updatedSkills);
       setNewSkillName('');
@@ -64,10 +64,10 @@ const SkillsEditor: React.FC<SkillsEditorProps> = ({ skills, resumeId, onSkillsU
     setIsSaving(true);
     try {
       const updatedSkills = skills.filter((_, index) => index !== skillIndex);
-      if (resumeId === -1) {
+      if (resumeId === 'guest' || resumeId === '-1') {
         guestResumeService.update({ skills: updatedSkills as any });
       } else {
-        await resumeApi.updateSkills(resumeId, updatedSkills);
+        await resumeApi.updateSkills(parseInt(resumeId!), updatedSkills);
       }
       onSkillsUpdate(updatedSkills);
     } catch (error) {
@@ -84,10 +84,10 @@ const SkillsEditor: React.FC<SkillsEditorProps> = ({ skills, resumeId, onSkillsU
     try {
       const updatedSkills = [...skills];
       updatedSkills[editingSkillIndex] = editingSkillName.trim();
-      if (resumeId === -1) {
+      if (resumeId === 'guest' || resumeId === '-1') {
         guestResumeService.update({ skills: updatedSkills as any });
       } else {
-        await resumeApi.updateSkills(resumeId, updatedSkills);
+        await resumeApi.updateSkills(parseInt(resumeId!), updatedSkills);
       }
       onSkillsUpdate(updatedSkills);
       setEditDialogOpen(false);

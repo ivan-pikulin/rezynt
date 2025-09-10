@@ -35,11 +35,19 @@ const EmailConfirmationPage: React.FC = () => {
       error: error || undefined
     });
 
-    // If success and tokens provided, store tokens and redirect home
+    // If success and tokens provided, store tokens and redirect
     if (status === 'success' && accessToken && refreshToken) {
       login({ access_token: accessToken, refresh_token: refreshToken, token_type: tokenType });
-      // Replace to avoid keeping tokens in history
-      navigate('/', { replace: true });
+      
+      // Check if there's a resume_id parameter for redirect to RefinePage
+      const resumeId = searchParams.get('resume_id');
+      if (resumeId) {
+        // Redirect to RefinePage with resume_id, but add redirect parameter for onboarding
+        navigate(`/refine?resume_id=${resumeId}&redirect=/refine?resume_id=${resumeId}`, { replace: true });
+      } else {
+        // Replace to avoid keeping tokens in history
+        navigate('/', { replace: true });
+      }
     }
   }, [searchParams, login, navigate]);
 

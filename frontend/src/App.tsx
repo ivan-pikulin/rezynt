@@ -5,6 +5,7 @@ import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import { AuthProvider } from './shared/contexts/AuthContext';
 import ProtectedRoute from './shared/components/ProtectedRoute';
 import OnboardingGuard from './shared/components/OnboardingGuard';
+import PublicOnboardingGuard from './shared/components/PublicOnboardingGuard';
 
 // Create a client
 const queryClient = new QueryClient();
@@ -52,10 +53,26 @@ function AppRoutes() {
           </ProtectedRoute>
         } />
         {/* Publicly accessible creation flow for guests */}
-        <Route path="/start" element={<StartPage />} />
-        <Route path="/chat" element={<ChatPage />} />
-        <Route path="/refine" element={<RefinePage />} />
-        <Route path="/export" element={<ExportPage />} />
+        <Route path="/start" element={
+          <PublicOnboardingGuard>
+            <StartPage />
+          </PublicOnboardingGuard>
+        } />
+        <Route path="/chat" element={
+          <PublicOnboardingGuard>
+            <ChatPage />
+          </PublicOnboardingGuard>
+        } />
+        <Route path="/refine" element={
+          <PublicOnboardingGuard>
+            <RefinePage />
+          </PublicOnboardingGuard>
+        } />
+        <Route path="/export" element={
+          <PublicOnboardingGuard>
+            <ExportPage />
+          </PublicOnboardingGuard>
+        } />
         <Route path="/export/success" element={
           <ProtectedRoute requireAuth={true}>
             <OnboardingGuard>

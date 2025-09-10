@@ -84,9 +84,11 @@
     "emailConfirmation": {
       "title": "Email Confirmation",
       "success": {
-        "title": "Email Confirmed!",
-        "message": "Your email has been successfully confirmed. You can now Log in to the system.",
-        "loginButton": "Log In"
+        "title": "Check Your Email!",
+        "message": "We've sent a confirmation link to your email address. Please check your inbox and click the link to activate your account.",
+        "messageWithEmail": "We've sent a confirmation link to {{email}}. Please check your inbox and click the link to activate your account.",
+        "loginButton": "Log In",
+        "continueButton": "Continue"
       },
       "error": {
         "title": "Confirmation Error",

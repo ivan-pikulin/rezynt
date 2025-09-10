@@ -27,7 +27,11 @@ interface OnboardingStep {
   options: string[];
 }
 
-const OnboardingPage: React.FC = () => {
+interface OnboardingPageProps {
+  redirectUrl?: string;
+}
+
+const OnboardingPage: React.FC<OnboardingPageProps> = ({ redirectUrl }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { updateUser } = useAuthContext();
@@ -112,13 +116,19 @@ const OnboardingPage: React.FC = () => {
     try {
       const updatedUser = await userApi.completeOnboarding({ responses });
       updateUser(updatedUser);
-      navigate('/');
+      
+      // Navigate to redirect URL if provided, otherwise to home
+      if (redirectUrl) {
+        navigate(redirectUrl, { replace: true });
+      } else {
+        navigate('/', { replace: true });
+      }
     } catch (err: any) {
       setError(err.response?.data?.detail || t('onboarding.error'));
     } finally {
       setIsLoading(false);
     }
-  }, [responses, updateUser, navigate, t]);
+  }, [responses, updateUser, navigate, t, redirectUrl]);
 
   const currentStep = steps[activeStep];
   const isCurrentStepComplete = responses[currentStep.field] !== '';

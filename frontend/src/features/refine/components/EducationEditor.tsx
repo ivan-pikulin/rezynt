@@ -27,7 +27,7 @@ import { guestResumeService } from '../../../shared/services/guestResumeService'
 
 interface EducationEditorProps {
   education: UnifiedResumeEducation[];
-  resumeId: number;
+  resumeId: string | null;
   onEducationUpdate: (education: UnifiedResumeEducation[]) => void;
 }
 
@@ -116,10 +116,10 @@ const EducationEditor: React.FC<EducationEditorProps> = ({
         education: updatedEducation
       };
       
-      if (resumeId === -1) {
+      if (resumeId === 'guest' || resumeId === '-1') {
         guestResumeService.update({ education: updatedEducation as any });
       } else {
-        await resumeApi.updateResumePartial(resumeId, resumeUpdate);
+        await resumeApi.updateResumePartial(parseInt(resumeId!), resumeUpdate);
       }
       
       setLocalEducation(updatedEducation);
@@ -141,10 +141,10 @@ const EducationEditor: React.FC<EducationEditorProps> = ({
         education: updatedEducation
       };
       
-      if (resumeId === -1) {
+      if (resumeId === 'guest' || resumeId === '-1') {
         guestResumeService.update({ education: updatedEducation as any });
       } else {
-        await resumeApi.updateResumePartial(resumeId, resumeUpdate);
+        await resumeApi.updateResumePartial(parseInt(resumeId!), resumeUpdate);
       }
       
       setLocalEducation(updatedEducation);

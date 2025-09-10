@@ -76,8 +76,8 @@ const StartPage: React.FC = () => {
         activeStep={0} 
         showBackButton={false}
         showNextButton={false}
-                  showLogo={true} // Show logo on desktop
-          onStepClick={undefined} // Disable step clickability
+        showLogo={true}
+        onStepClick={handleStepClick}
         isProUser={user?.is_premium}
         currentTab="resumes"
         onTabChange={handleTabChange}

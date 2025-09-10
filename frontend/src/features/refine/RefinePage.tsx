@@ -548,6 +548,7 @@ const RefinePage: React.FC = () => {
               <ResumeEditor 
                 resume={resume} 
                 onResumeUpdate={handleResumeUpdate}
+                resumeId={resumeId}
               />
             ) : (
               <Box sx={{ 

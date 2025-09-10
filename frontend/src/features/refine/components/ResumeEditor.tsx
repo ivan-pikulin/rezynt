@@ -32,6 +32,7 @@ import SkillsEditor from './SkillsEditor';
 interface ResumeEditorProps {
   resume: Resume;
   onResumeUpdate: (resume: Resume) => void;
+  resumeId?: string | null;
 }
 
 interface TabPanelProps {
@@ -67,7 +68,7 @@ function a11yProps(index: number) {
   };
 }
 
-const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) => {
+const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate, resumeId }) => {
   const { t } = useTranslation();
   const [localResume, setLocalResume] = useState<Resume>(resume);
   const [formData, setFormData] = useState({
@@ -136,11 +137,23 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
     setIsSaving(true);
     try {
       const updatedContacts = [...localResume.contacts, newContact.trim()];
-      await resumeApi.updateContacts(localResume.id, updatedContacts);
       
-      const updatedResume = { ...localResume, contacts: updatedContacts };
-      setLocalResume(updatedResume);
-      onResumeUpdate(updatedResume);
+      // Check if this is a guest user (resumeId is 'guest' or null)
+      const isGuestUser = !resumeId || resumeId === 'guest';
+      
+      if (isGuestUser) {
+        // For guest users, update locally using guestResumeService
+        const updatedResume = guestResumeService.update({ contacts: updatedContacts as any });
+        setLocalResume(updatedResume);
+        onResumeUpdate(updatedResume);
+      } else {
+        // For authenticated users, update via API
+        await resumeApi.updateContacts(localResume.id, updatedContacts);
+        const updatedResume = { ...localResume, contacts: updatedContacts };
+        setLocalResume(updatedResume);
+        onResumeUpdate(updatedResume);
+      }
+      
       setNewContact('');
     } catch (error) {
       console.error('Error adding contact:', error);
@@ -158,11 +171,22 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
     setIsSaving(true);
     try {
       const updatedContacts = localResume.contacts.filter((_, index) => index !== contactIndex);
-      await resumeApi.updateContacts(localResume.id, updatedContacts);
       
-      const updatedResume = { ...localResume, contacts: updatedContacts };
-      setLocalResume(updatedResume);
-      onResumeUpdate(updatedResume);
+      // Check if this is a guest user (resumeId is 'guest' or null)
+      const isGuestUser = !resumeId || resumeId === 'guest';
+      
+      if (isGuestUser) {
+        // For guest users, update locally using guestResumeService
+        const updatedResume = guestResumeService.update({ contacts: updatedContacts as any });
+        setLocalResume(updatedResume);
+        onResumeUpdate(updatedResume);
+      } else {
+        // For authenticated users, update via API
+        await resumeApi.updateContacts(localResume.id, updatedContacts);
+        const updatedResume = { ...localResume, contacts: updatedContacts };
+        setLocalResume(updatedResume);
+        onResumeUpdate(updatedResume);
+      }
     } catch (error) {
       console.error('Error removing contact:', error);
       setSaveStatus({
@@ -465,10 +489,13 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
               
               <SkillsEditor 
                 skills={localResume.skills || []}
-                resumeId={resume.id}
+                resumeId={resumeId || null}
                 onSkillsUpdate={(updatedSkills) => {
-                  setLocalResume(prev => ({ ...prev, skills: updatedSkills }));
-                  onResumeUpdate({ ...localResume, skills: updatedSkills });
+                  setLocalResume(prev => {
+                    const updated = { ...prev, skills: updatedSkills };
+                    onResumeUpdate(updated);
+                    return updated;
+                  });
                 }}
               />
             </TabPanel>
@@ -477,10 +504,13 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
             <TabPanel value={activeTab} index={2}>
               <ExperienceEditor 
                 experience={localResume.experience || []}
-                resumeId={resume.id}
+                resumeId={resumeId || null}
                 onExperienceUpdate={(updatedExperience) => {
-                  setLocalResume(prev => ({ ...prev, experience: updatedExperience }));
-                  onResumeUpdate({ ...localResume, experience: updatedExperience });
+                  setLocalResume(prev => {
+                    const updated = { ...prev, experience: updatedExperience };
+                    onResumeUpdate(updated);
+                    return updated;
+                  });
                 }}
               />
             </TabPanel>
@@ -489,10 +519,13 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate }) =
             <TabPanel value={activeTab} index={3}>
               <EducationEditor 
                 education={localResume.education || []}
-                resumeId={resume.id}
+                resumeId={resumeId || null}
                 onEducationUpdate={(updatedEducation) => {
-                  setLocalResume(prev => ({ ...prev, education: updatedEducation }));
-                  onResumeUpdate({ ...localResume, education: updatedEducation });
+                  setLocalResume(prev => {
+                    const updated = { ...prev, education: updatedEducation };
+                    onResumeUpdate(updated);
+                    return updated;
+                  });
                 }}
               />
             </TabPanel>
