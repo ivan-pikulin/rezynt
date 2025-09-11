@@ -37,8 +37,8 @@ const ExportPage: React.FC = () => {
 
   const handleStepClick = (stepIndex: number) => {
     switch (stepIndex) {
-      case 0: // Start
-        navigate('/');
+      case 0: // Start - disabled for unauthenticated users
+        // Do nothing - step is not clickable
         break;
       case 1: // Generate
         navigate(`/chat?resume_id=${resumeId}`);
@@ -275,6 +275,7 @@ const ExportPage: React.FC = () => {
         previousButtonText="Refine"
         showLogo={true} // Show logo on desktop
         onStepClick={handleStepClick}
+        allowFirstStepClick={false} // Disable step navigation for all users
         isProUser={user?.is_premium}
         currentTab="editor"
         onTabChange={handleTabChange}

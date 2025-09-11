@@ -44,10 +44,8 @@ const ChatPage: React.FC = () => {
 
   const handleStepClick = (stepIndex: number) => {
     switch (stepIndex) {
-      case 0: // Start
-        if (!isAuthenticated) {
-          navigate('/start');
-        } else {
+      case 0: // Start - disabled for unauthenticated users
+        if (isAuthenticated) {
           navigate('/');
         }
         break;
@@ -99,9 +97,9 @@ const ChatPage: React.FC = () => {
         nextButtonText="Refine"
         previousButtonText="Resumes"
         showLogo={true} // Show logo on desktop
-        showBackButton={true} // Show back button on chat page
+        showBackButton={isAuthenticated} // Only show back button for authenticated users
         onStepClick={handleStepClick}
-        allowFirstStepClick={!isAuthenticated}
+        allowFirstStepClick={false} // Disable step navigation for all users
         isProUser={user?.is_premium}
         currentTab="ai-writer"
         onTabChange={handleTabChange}
