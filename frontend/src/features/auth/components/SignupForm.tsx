@@ -6,6 +6,10 @@ import Typography from '@mui/material/Typography';
 import Link from '@mui/material/Link';
 import Alert from '@mui/material/Alert';
 import CircularProgress from '@mui/material/CircularProgress';
+import InputAdornment from '@mui/material/InputAdornment';
+import IconButton from '@mui/material/IconButton';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import { useTranslation } from 'react-i18next';
@@ -21,6 +25,8 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSuccess, onSwitchToLogin }) =
   const { t } = useTranslation();
   const [error, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const validationSchema = yup.object({
     email: yup
@@ -91,7 +97,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSuccess, onSwitchToLogin }) =
         fullWidth
         name="password"
         label={t('auth.signup.password')}
-        type="password"
+        type={showPassword ? 'text' : 'password'}
         id="password"
         autoComplete="new-password"
         value={formik.values.password}
@@ -100,6 +106,23 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSuccess, onSwitchToLogin }) =
         error={formik.touched.password && Boolean(formik.errors.password)}
         helperText={formik.touched.password && formik.errors.password}
         disabled={isLoading}
+        slotProps={{
+          input: {
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  aria-label="toggle password visibility"
+                  onClick={() => setShowPassword(!showPassword)}
+                  onMouseDown={(e) => e.preventDefault()}
+                  edge="end"
+                  disabled={isLoading}
+                >
+                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              </InputAdornment>
+            ),
+          },
+        }}
       />
       
       <TextField
@@ -107,7 +130,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSuccess, onSwitchToLogin }) =
         fullWidth
         name="confirmPassword"
         label={t('auth.signup.confirmPassword')}
-        type="password"
+        type={showConfirmPassword ? 'text' : 'password'}
         id="confirmPassword"
         autoComplete="new-password"
         value={formik.values.confirmPassword}
@@ -116,6 +139,23 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSuccess, onSwitchToLogin }) =
         error={formik.touched.confirmPassword && Boolean(formik.errors.confirmPassword)}
         helperText={formik.touched.confirmPassword && formik.errors.confirmPassword}
         disabled={isLoading}
+        slotProps={{
+          input: {
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  aria-label="toggle confirm password visibility"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  onMouseDown={(e) => e.preventDefault()}
+                  edge="end"
+                  disabled={isLoading}
+                >
+                  {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              </InputAdornment>
+            ),
+          },
+        }}
       />
       
       <Button
