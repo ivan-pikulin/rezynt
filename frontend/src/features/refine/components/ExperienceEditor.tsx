@@ -27,6 +27,7 @@ import {
 import { UnifiedResumeExperience } from '../../../shared/services/api/types';
 import { resumeApi } from '../../../shared/services/api';
 import { guestResumeService } from '../../../shared/services/guestResumeService';
+import { useAuthErrorHandler } from '../../../shared/hooks/useAuthErrorHandler';
 
 interface ExperienceEditorProps {
   experience: UnifiedResumeExperience[];
@@ -50,6 +51,7 @@ const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
   onExperienceUpdate
 }) => {
   const { t } = useTranslation();
+  const { handleAuthError } = useAuthErrorHandler();
   const [localExperience, setLocalExperience] = useState<UnifiedResumeExperience[]>(experience);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingExperienceIndex, setEditingExperienceIndex] = useState<number | null>(null);
@@ -146,6 +148,10 @@ const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
       handleCloseDialog();
     } catch (error) {
       console.error('Error saving experience:', error);
+      // Handle 401 errors
+      if (handleAuthError(error)) {
+        return; // User will be redirected to login
+      }
     } finally {
       setIsSaving(false);
     }
@@ -170,6 +176,10 @@ const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
       onExperienceUpdate(updatedExperience);
     } catch (error) {
       console.error('Error deleting experience:', error);
+      // Handle 401 errors
+      if (handleAuthError(error)) {
+        return; // User will be redirected to login
+      }
     } finally {
       setIsSaving(false);
     }

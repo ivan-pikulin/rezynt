@@ -24,6 +24,7 @@ import {
 import { UnifiedResumeEducation } from '../../../shared/services/api/types';
 import { resumeApi } from '../../../shared/services/api';
 import { guestResumeService } from '../../../shared/services/guestResumeService';
+import { useAuthErrorHandler } from '../../../shared/hooks/useAuthErrorHandler';
 
 interface EducationEditorProps {
   education: UnifiedResumeEducation[];
@@ -44,6 +45,7 @@ const EducationEditor: React.FC<EducationEditorProps> = ({
   onEducationUpdate
 }) => {
   const { t } = useTranslation();
+  const { handleAuthError } = useAuthErrorHandler();
   const [localEducation, setLocalEducation] = useState<UnifiedResumeEducation[]>(education);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingEducationIndex, setEditingEducationIndex] = useState<number | null>(null);
@@ -127,6 +129,10 @@ const EducationEditor: React.FC<EducationEditorProps> = ({
       handleCloseDialog();
     } catch (error) {
       console.error('Error saving education:', error);
+      // Handle 401 errors
+      if (handleAuthError(error)) {
+        return; // User will be redirected to login
+      }
     } finally {
       setIsSaving(false);
     }
@@ -151,6 +157,10 @@ const EducationEditor: React.FC<EducationEditorProps> = ({
       onEducationUpdate(updatedEducation);
     } catch (error) {
       console.error('Error deleting education:', error);
+      // Handle 401 errors
+      if (handleAuthError(error)) {
+        return; // User will be redirected to login
+      }
     } finally {
       setIsSaving(false);
     }

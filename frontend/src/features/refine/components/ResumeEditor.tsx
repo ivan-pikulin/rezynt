@@ -24,6 +24,7 @@ import { useTranslation } from 'react-i18next';
 import { resumeApi } from '../../../shared/services/api';
 import { guestResumeService } from '../../../shared/services/guestResumeService';
 import { Resume } from '../../../shared/services/api/types';
+import { useAuthErrorHandler } from '../../../shared/hooks/useAuthErrorHandler';
 import { COLORS } from '../../../shared/theme/theme';
 import EducationEditor from './EducationEditor';
 import ExperienceEditor from './ExperienceEditor';
@@ -70,6 +71,7 @@ function a11yProps(index: number) {
 
 const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate, resumeId }) => {
   const { t } = useTranslation();
+  const { handleAuthError } = useAuthErrorHandler();
   const [localResume, setLocalResume] = useState<Resume>(resume);
   const [formData, setFormData] = useState({
     // Main fields
@@ -273,6 +275,10 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate, res
       });
     } catch (error) {
       console.error('Error saving changes:', error);
+      // Handle 401 errors
+      if (handleAuthError(error)) {
+        return; // User will be redirected to login
+      }
       setSaveStatus({
         show: true,
         message: t('refine.editor.errorSavingChanges'),

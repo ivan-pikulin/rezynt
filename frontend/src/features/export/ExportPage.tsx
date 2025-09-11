@@ -7,6 +7,7 @@ import ResumeRenderer from '../../shared/components/ResumeRenderer';
 import { useAuthContext } from '../../shared/contexts/AuthContext';
 import { useResumeQuery } from '../../shared/hooks/useResumeQuery';
 import { useTemplate } from '../../shared/hooks/useTemplate';
+import { useAuthErrorHandler } from '../../shared/hooks/useAuthErrorHandler';
 import ErrorMessage from '../refine/components/ErrorMessage';
 import LoadingSpinner from '../refine/components/LoadingSpinner';
 import { convertApiResumeToDisplayData } from '../refine/utils/resumeDataConverter';
@@ -28,6 +29,7 @@ const ExportPage: React.FC = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [showRegistration, setShowRegistration] = useState(false);
   const { user, isAuthenticated } = useAuthContext();
+  const { handleAuthError } = useAuthErrorHandler();
 
   const handleBack = () => {
     navigate(`/refine?resume_id=${resumeId}`);
@@ -112,6 +114,10 @@ const ExportPage: React.FC = () => {
       setShowSuccess(true);
     } catch (error) {
       console.error('Error exporting to PDF:', error);
+      // Handle 401 errors
+      if (handleAuthError(error)) {
+        return; // User will be redirected to login
+      }
       throw error;
     }
   };
