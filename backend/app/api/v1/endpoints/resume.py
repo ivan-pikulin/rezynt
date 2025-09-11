@@ -5,7 +5,7 @@ from app.core.celery_app import celery_app
 from app.core.config import settings
 from app.core.tasks import process_resume_upload_task
 from app.database.crud.crud_resume import resume_manager
-
+from app.database.crud.crud_temp_resume_file import temp_resume_file_crud
 from app.database.crud.crud_user import user_crud
 from app.schemas.resume import (PDFExportRequest, ResumeCreate,
                                 ResumePartialUpdate, ResumeUpdate)
@@ -239,6 +239,69 @@ async def upload_resume(
         
     except Exception as e:
         logger.error(f"Error in resume upload for user {current_user.id}: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to upload file: {str(e)}"
+        )
+
+
+@router.post("/temp-upload", response_model=Dict[str, Any])
+async def temp_upload_resume(
+    *,
+    file: UploadFile = File(...),
+) -> Dict[str, Any]:
+    """
+    Temporarily upload a resume file without processing.
+    Used for landing page uploads before user registration.
+    """
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    logger.info(f"Starting temp resume upload, filename: {file.filename}")
+    
+    # Validate file type
+    if not file.filename or not file.filename.lower().endswith(('.pdf', '.doc', '.docx')):
+        logger.warning(f"Invalid file type: {file.filename}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Only PDF, DOC, and DOCX files are allowed"
+        )
+    
+    try:
+        # Read file content
+        logger.info(f"Reading file content for {file.filename}")
+        file_content = await file.read()
+        logger.info(f"File content read successfully, size: {len(file_content)} bytes")
+        
+        # Validate file size (10MB limit)
+        max_size = 10 * 1024 * 1024  # 10MB
+        if len(file_content) > max_size:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="File size exceeds 10MB limit"
+            )
+        
+        # Create temporary file record
+        from app.database.session import SessionLocal
+        async with SessionLocal() as db:
+            temp_file = await temp_resume_file_crud.create_temp_file(
+                db=db,
+                filename=file.filename,
+                file_content=file_content,
+                content_type=file.content_type or "application/octet-stream"
+            )
+        
+        logger.info(f"Temp file created with ID: {temp_file.file_id}")
+        
+        return {
+            "file_id": temp_file.file_id,
+            "message": "File uploaded temporarily"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error in temp resume upload: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to upload file: {str(e)}"

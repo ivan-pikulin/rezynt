@@ -104,6 +104,7 @@ services:
     volumes:
       - ${EMAIL_DKIM_PRIVATE_KEY_PATH}:/app/dkim-key.private
       - migrations_data:/app/app/database/migrations
+      - temp_uploads_data:/app/temp_uploads
     networks:
       - app-network
       - backend-network
@@ -126,6 +127,7 @@ services:
     volumes:
       - ${EMAIL_DKIM_PRIVATE_KEY_PATH}:/app/dkim-key.private
       - migrations_data:/app/app/database/migrations
+      - temp_uploads_data:/app/temp_uploads
     networks:
       - app-network
       - backend-network
@@ -184,6 +186,7 @@ volumes:
   postgres_data:
   redis_data:
   migrations_data:
+  temp_uploads_data:
   letsencrypt:
   certbot-www:
 

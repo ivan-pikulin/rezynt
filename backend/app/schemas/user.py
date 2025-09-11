@@ -11,6 +11,7 @@ class UserBase(BaseModel):
 class UserCreate(BaseModel):
     email: EmailStr
     password: str
+    temp_file_id: Optional[str] = None
 
 
 class UserUpdate(BaseModel):

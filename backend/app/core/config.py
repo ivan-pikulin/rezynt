@@ -87,6 +87,10 @@ class Settings(BaseSettings):
     # PDF settings
     PDF_WATERMARK_PATH: str = "app/static/watermarks/watermark.svg"
     
+    # Temporary file storage settings
+    TEMP_UPLOAD_DIR: str = "/app/temp_uploads"
+    TEMP_FILE_EXPIRE_HOURS: int = 24
+    
     # Template settings
     VALID_TEMPLATE_SLUGS: List[str] = ["nume", "luma", "alto", "vero"]
     PREMIUM_TEMPLATE_SLUGS: List[str] = ["luma", "alto"]

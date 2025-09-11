@@ -21,3 +21,4 @@ class User(Base):
 
     # Relationships
     resumes = relationship("Resume", back_populates="user", cascade="all, delete-orphan", lazy="select")
+    temp_resume_files = relationship("TempResumeFile", back_populates="user", cascade="all, delete-orphan", lazy="select")

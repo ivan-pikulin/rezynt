@@ -1,25 +1,89 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
-import { useNavigate } from 'react-router-dom';
+import Typography from '@mui/material/Typography';
+import CircularProgress from '@mui/material/CircularProgress';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import Header from '../../shared/components/Header/Header';
 import StartOptions from './components/StartOptions';
 import { useUser } from '../../shared/hooks';
 import { COLORS } from '../../shared/theme/theme';
 import PaywallModal from '../../shared/components/PaywallModal';
 import { useResumes } from '../resumes/hooks/useResumes';
+import { resumeApi } from '../../shared/services/api';
 
 const StartPage: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user } = useUser();
   const { resumes, isLoading: resumesLoading } = useResumes();
   const [showPaywall, setShowPaywall] = React.useState(false);
+  const [isProcessingUpload, setIsProcessingUpload] = useState(false);
+  const [uploadMessage, setUploadMessage] = useState('');
 
   const hasResumes = Array.isArray(resumes) && resumes.length > 0;
 
+  // List of messages to display during upload processing
+  const uploadMessages = [
+    "We are extracting your strengths and achievements...",
+    "Optimizing your resume for ATS systems...",
+    "Analyzing your experience with AI precision...",
+    "Enhancing your professional summary...",
+    "Identifying key skills and competencies...",
+    "Structuring your resume for maximum impact...",
+    "Applying industry best practices...",
+    "Creating a compelling narrative...",
+    "Optimizing content for recruiters...",
+    "Ensuring your resume stands out...",
+    "Extracting contact information...",
+    "Organizing your work history...",
+    "Highlighting your achievements...",
+    "Preparing for AI-powered enhancement...",
+    "Setting up your personalized resume..."
+  ];
+
+  // Handle task_id parameter for processing uploaded resume
+  useEffect(() => {
+    const taskId = searchParams.get('task_id');
+    if (taskId && user && !isProcessingUpload) {
+      setIsProcessingUpload(true);
+      setUploadMessage(uploadMessages[0]);
+      
+      // Start message rotation
+      let messageIndex = 0;
+      const interval = setInterval(() => {
+        messageIndex = (messageIndex + 1) % uploadMessages.length;
+        setUploadMessage(uploadMessages[messageIndex]);
+      }, 4000);
+      
+      // Poll for task completion
+      const pollTask = async () => {
+        try {
+          const result = await resumeApi.getUploadResult(taskId);
+          if (result.status === 'completed' && result.resume_id) {
+            clearInterval(interval);
+            setIsProcessingUpload(false);
+            navigate(`/chat?resume_id=${result.resume_id}`, { replace: true });
+          }
+        } catch (error) {
+          console.error('Error polling task:', error);
+          // Continue polling on error
+          setTimeout(pollTask, 3000);
+        }
+      };
+      
+      // Start polling after 2 seconds
+      setTimeout(pollTask, 2000);
+      
+      return () => {
+        clearInterval(interval);
+      };
+    }
+  }, [searchParams, user, navigate, isProcessingUpload]);
+
   // Redirect logic for registered free users with resumes
   useEffect(() => {
-    // Only redirect if we have all the necessary data
-    if (user && resumes && !resumesLoading) {
+    // Only redirect if we have all the necessary data and not processing upload
+    if (user && resumes && !resumesLoading && !isProcessingUpload) {
       const isRegistered = user.is_registered;
       const isFreeUser = !user.is_premium;
       const hasResumes = Array.isArray(resumes) && resumes.length > 0;
@@ -30,7 +94,7 @@ const StartPage: React.FC = () => {
         navigate(`/chat?resume_id=${firstResume.id}`, { replace: true });
       }
     }
-  }, [user, resumes, resumesLoading, navigate]);
+  }, [user, resumes, resumesLoading, navigate, isProcessingUpload]);
 
   const handleStepClick = (stepIndex: number) => {
     switch (stepIndex) {
@@ -109,10 +173,36 @@ const StartPage: React.FC = () => {
                   py: { xs: 3, sm: 4, md: 6 }, // Additional vertical padding
           minHeight: { xs: 'calc(100vh - 64px)', sm: 'calc(100vh - 80px)' } // Account for header height
       }}>
-        <StartOptions 
-          onGuardStartFromScratch={guardStartFromScratch}
-          onGuardUploadResume={guardUploadResume}
-        />
+        {isProcessingUpload ? (
+          <Box sx={{ 
+            textAlign: 'center',
+            maxWidth: 600,
+            width: '100%'
+          }}>
+            <Typography variant="h4" sx={{ mb: 3, color: COLORS.primary.main }}>
+              Processing Your Resume...
+            </Typography>
+            <Typography variant="h6" sx={{ mb: 4, color: 'text.secondary' }}>
+              {uploadMessage}
+            </Typography>
+            <Box sx={{ 
+              display: 'flex', 
+              justifyContent: 'center',
+              alignItems: 'center',
+              gap: 2
+            }}>
+              <CircularProgress size={40} />
+              <Typography variant="body1" color="text.secondary">
+                Please wait while we process your resume
+              </Typography>
+            </Box>
+          </Box>
+        ) : (
+          <StartOptions 
+            onGuardStartFromScratch={guardStartFromScratch}
+            onGuardUploadResume={guardUploadResume}
+          />
+        )}
       </Box>
       <PaywallModal 
         open={showPaywall}

@@ -5,6 +5,7 @@ from app.api.deps import AsyncDB
 from app.core import security
 from app.core.config import settings
 from app.database.crud import user_crud
+from app.database.crud.crud_temp_resume_file import temp_resume_file_crud
 from app.schemas import RefreshRequest, Token, UserCreate, UserPublic, PasswordResetRequest, PasswordResetConfirm
 from app.services.user_service import UserService
 from fastapi import APIRouter, Body, Depends, HTTPException, status, Response
@@ -21,10 +22,25 @@ async def signup(
 ) -> Any:
     """
     Create new user with email confirmation.
+    If temp_file_id is provided, link it to the user after creation.
     """
     try:
         service = UserService(db)
         user = await service.signup(user_in)
+        
+        # If temp_file_id is provided, link it to the user
+        if user_in.temp_file_id:
+            temp_file = await temp_resume_file_crud.link_to_user(
+                db=db, 
+                file_id=user_in.temp_file_id, 
+                user_id=user.id
+            )
+            if not temp_file:
+                # Log warning but don't fail registration
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.warning(f"Failed to link temp file {user_in.temp_file_id} to user {user.id}")
+        
         return user
     except ValueError as e:
         raise HTTPException(
