@@ -9,8 +9,8 @@ const SignupPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  // Get file_id from URL parameters
-  const fileId = searchParams.get('file_id');
+  // Get temp_file_id from URL parameters
+  const tempFileId = searchParams.get('temp_file_id');
 
   const handleSignupSuccess = (email?: string) => {
     navigate('/login?signup_success=1');
@@ -25,7 +25,7 @@ const SignupPage: React.FC = () => {
       <SignupForm 
         onSuccess={handleSignupSuccess}
         onSwitchToLogin={handleSwitchToLogin}
-        tempFileId={fileId}
+        tempFileId={tempFileId}
       />
     </AuthLayout>
   );

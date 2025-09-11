@@ -56,13 +56,18 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSuccess, onSwitchToLogin, tem
       setError('');
       
       try {
-        await authApi.signup({
+        const signupData = {
           email: values.email,
           password: values.password,
           temp_file_id: tempFileId || undefined
-        });
+        };
+        
+        console.log('Sending signup request with data:', signupData);
+        
+        await authApi.signup(signupData);
         onSuccess(values.email);
       } catch (err: any) {
+        console.error('Signup error:', err);
         setError(err.response?.data?.detail || t('auth.signup.signupError'));
       } finally {
         setIsLoading(false);

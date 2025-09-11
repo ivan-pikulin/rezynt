@@ -24,12 +24,18 @@ async def signup(
     Create new user with email confirmation.
     If temp_file_id is provided, link it to the user after creation.
     """
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    logger.info(f"Signup request for email: {user_in.email}, temp_file_id: {user_in.temp_file_id}")
+    
     try:
         service = UserService(db)
         user = await service.signup(user_in)
         
         # If temp_file_id is provided, link it to the user
         if user_in.temp_file_id:
+            logger.info(f"Linking temp file {user_in.temp_file_id} to user {user.id}")
             temp_file = await temp_resume_file_crud.link_to_user(
                 db=db, 
                 file_id=user_in.temp_file_id, 
@@ -37,12 +43,15 @@ async def signup(
             )
             if not temp_file:
                 # Log warning but don't fail registration
-                import logging
-                logger = logging.getLogger(__name__)
                 logger.warning(f"Failed to link temp file {user_in.temp_file_id} to user {user.id}")
+            else:
+                logger.info(f"Successfully linked temp file {user_in.temp_file_id} to user {user.id}")
+        else:
+            logger.info(f"No temp_file_id provided for user {user.id}")
         
         return user
     except ValueError as e:
+        logger.error(f"Signup error for {user_in.email}: {e}")
         raise HTTPException(
             status_code=400,
             detail=str(e),
