@@ -111,7 +111,18 @@ async def complete_onboarding(
             await temp_resume_file_crud.delete_temp_file(db, temp_file)
             
             return {
-                "user": user,
+                "user": {
+                    "id": user.id,
+                    "email": user.email,
+                    "is_verified": user.is_verified,
+                    "is_premium": user.is_premium,
+                    "is_registered": user.is_registered,
+                    "has_completed_onboarding": user.has_completed_onboarding,
+                    "onboarding_responses": user.onboarding_responses,
+                    "credits": user.credits,
+                    "created_at": user.created_at.isoformat(),
+                    "updated_at": user.updated_at.isoformat()
+                },
                 "task_id": task.id,
                 "message": "Onboarding completed and resume processing started"
             }
@@ -120,11 +131,33 @@ async def complete_onboarding(
             logger.error(f"Failed to process temp resume for user {current_user.id}: {e}")
             # Don't fail onboarding if resume processing fails
             return {
-                "user": user,
+                "user": {
+                    "id": user.id,
+                    "email": user.email,
+                    "is_verified": user.is_verified,
+                    "is_premium": user.is_premium,
+                    "is_registered": user.is_registered,
+                    "has_completed_onboarding": user.has_completed_onboarding,
+                    "onboarding_responses": user.onboarding_responses,
+                    "credits": user.credits,
+                    "created_at": user.created_at.isoformat(),
+                    "updated_at": user.updated_at.isoformat()
+                },
                 "message": "Onboarding completed (resume processing failed)"
             }
     
     return {
-        "user": user,
+        "user": {
+            "id": user.id,
+            "email": user.email,
+            "is_verified": user.is_verified,
+            "is_premium": user.is_premium,
+            "is_registered": user.is_registered,
+            "has_completed_onboarding": user.has_completed_onboarding,
+            "onboarding_responses": user.onboarding_responses,
+            "credits": user.credits,
+            "created_at": user.created_at.isoformat(),
+            "updated_at": user.updated_at.isoformat()
+        },
         "message": "Onboarding completed"
     }

@@ -38,6 +38,7 @@ export interface User {
 export interface UserCreate {
   email: string;
   password: string;
+  temp_file_id?: string;
 }
 
 export interface UserUpdate {
@@ -59,6 +60,7 @@ export interface SignupCredentials {
   email: string;
   password: string;
   confirmPassword: string;
+  temp_file_id?: string;
 }
 
 export interface TokenResponse {

@@ -39,7 +39,8 @@ export class AuthApi extends BaseApi {
   async signup(userData: Omit<SignupCredentials, 'confirmPassword'>): Promise<User> {
     return this.post<User>('/auth/signup', {
       email: userData.email,
-      password: userData.password
+      password: userData.password,
+      temp_file_id: userData.temp_file_id
     });
   }
 

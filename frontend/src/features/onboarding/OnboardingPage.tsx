@@ -114,14 +114,19 @@ const OnboardingPage: React.FC<OnboardingPageProps> = ({ redirectUrl }) => {
     setError('');
 
     try {
-      const updatedUser = await userApi.completeOnboarding({ responses });
-      updateUser(updatedUser);
+      const result = await userApi.completeOnboarding({ responses });
+      updateUser(result.user);
       
-      // Navigate to redirect URL if provided, otherwise to home
-      if (redirectUrl) {
-        navigate(redirectUrl, { replace: true });
+      // If there's a task_id, redirect to start page with it
+      if (result.task_id) {
+        navigate(`/start?task_id=${result.task_id}`, { replace: true });
       } else {
-        navigate('/', { replace: true });
+        // Navigate to redirect URL if provided, otherwise to home
+        if (redirectUrl) {
+          navigate(redirectUrl, { replace: true });
+        } else {
+          navigate('/', { replace: true });
+        }
       }
     } catch (err: any) {
       setError(err.response?.data?.detail || t('onboarding.error'));

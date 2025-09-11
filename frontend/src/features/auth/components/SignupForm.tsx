@@ -19,9 +19,10 @@ import { SignupCredentials } from '../types/auth';
 interface SignupFormProps {
   onSuccess: (email?: string) => void;
   onSwitchToLogin: () => void;
+  tempFileId?: string | null;
 }
 
-const SignupForm: React.FC<SignupFormProps> = ({ onSuccess, onSwitchToLogin }) => {
+const SignupForm: React.FC<SignupFormProps> = ({ onSuccess, onSwitchToLogin, tempFileId }) => {
   const { t } = useTranslation();
   const [error, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
@@ -57,7 +58,8 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSuccess, onSwitchToLogin }) =
       try {
         await authApi.signup({
           email: values.email,
-          password: values.password
+          password: values.password,
+          temp_file_id: tempFileId || undefined
         });
         onSuccess(values.email);
       } catch (err: any) {
