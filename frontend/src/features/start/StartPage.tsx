@@ -19,6 +19,7 @@ const StartPage: React.FC = () => {
   const [showPaywall, setShowPaywall] = React.useState(false);
   const [isProcessingUpload, setIsProcessingUpload] = useState(false);
   const [uploadMessage, setUploadMessage] = useState('');
+  const [taskId, setTaskId] = useState<string | null>(null);
 
   const hasResumes = Array.isArray(resumes) && resumes.length > 0;
 
@@ -43,8 +44,9 @@ const StartPage: React.FC = () => {
 
   // Handle task_id parameter for processing uploaded resume
   useEffect(() => {
-    const taskId = searchParams.get('task_id');
-    if (taskId && user && !isProcessingUpload) {
+    const taskIdParam = searchParams.get('task_id');
+    if (taskIdParam && user && !isProcessingUpload) {
+      setTaskId(taskIdParam);
       setIsProcessingUpload(true);
       setUploadMessage(uploadMessages[0]);
       
@@ -58,7 +60,7 @@ const StartPage: React.FC = () => {
       // Poll for task completion
       const pollTask = async () => {
         try {
-          const result = await resumeApi.getUploadResult(taskId);
+          const result = await resumeApi.getUploadResult(taskIdParam);
           if (result.status === 'completed' && result.resume_id) {
             clearInterval(interval);
             setIsProcessingUpload(false);
@@ -173,36 +175,13 @@ const StartPage: React.FC = () => {
                   py: { xs: 3, sm: 4, md: 6 }, // Additional vertical padding
           minHeight: { xs: 'calc(100vh - 64px)', sm: 'calc(100vh - 80px)' } // Account for header height
       }}>
-        {isProcessingUpload ? (
-          <Box sx={{ 
-            textAlign: 'center',
-            maxWidth: 600,
-            width: '100%'
-          }}>
-            <Typography variant="h4" sx={{ mb: 3, color: COLORS.primary.main }}>
-              Processing Your Resume...
-            </Typography>
-            <Typography variant="h6" sx={{ mb: 4, color: 'text.secondary' }}>
-              {uploadMessage}
-            </Typography>
-            <Box sx={{ 
-              display: 'flex', 
-              justifyContent: 'center',
-              alignItems: 'center',
-              gap: 2
-            }}>
-              <CircularProgress size={40} />
-              <Typography variant="body1" color="text.secondary">
-                Please wait while we process your resume
-              </Typography>
-            </Box>
-          </Box>
-        ) : (
-          <StartOptions 
-            onGuardStartFromScratch={guardStartFromScratch}
-            onGuardUploadResume={guardUploadResume}
-          />
-        )}
+        <StartOptions 
+          onGuardStartFromScratch={guardStartFromScratch}
+          onGuardUploadResume={guardUploadResume}
+          isProcessingUpload={isProcessingUpload}
+          uploadMessage={uploadMessage}
+          isStartFromScratchDisabled={!!taskId}
+        />
       </Box>
       <PaywallModal 
         open={showPaywall}

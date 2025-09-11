@@ -17,9 +17,18 @@ import RegistrationModal from '../../../shared/components/RegistrationModal';
 interface StartOptionsProps {
   onGuardStartFromScratch?: () => boolean;
   onGuardUploadResume?: () => boolean;
+  isProcessingUpload?: boolean;
+  uploadMessage?: string;
+  isStartFromScratchDisabled?: boolean;
 }
 
-const StartOptions: React.FC<StartOptionsProps> = ({ onGuardStartFromScratch, onGuardUploadResume }) => {
+const StartOptions: React.FC<StartOptionsProps> = ({ 
+  onGuardStartFromScratch, 
+  onGuardUploadResume,
+  isProcessingUpload: externalIsProcessingUpload = false,
+  uploadMessage: externalUploadMessage = '',
+  isStartFromScratchDisabled = false
+}) => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuthContext();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -27,6 +36,10 @@ const StartOptions: React.FC<StartOptionsProps> = ({ onGuardStartFromScratch, on
   const [isCreating, setIsCreating] = useState(false);
   const [uploadMessage, setUploadMessage] = useState('');
   const [showRegistration, setShowRegistration] = useState(false);
+  
+  // Use external processing state if provided, otherwise use internal state
+  const isProcessingUpload = externalIsProcessingUpload || isUploading;
+  const currentUploadMessage = externalUploadMessage || uploadMessage;
   
   // List of messages to display during loading
   const uploadMessages = [
@@ -71,6 +84,7 @@ const StartOptions: React.FC<StartOptionsProps> = ({ onGuardStartFromScratch, on
   }, [isUploading]);
   
   const handleStartFromScratch = async () => {
+    if (isStartFromScratchDisabled) return;
     if (onGuardStartFromScratch && !onGuardStartFromScratch()) {
       return;
     }
@@ -94,6 +108,7 @@ const StartOptions: React.FC<StartOptionsProps> = ({ onGuardStartFromScratch, on
   };
 
   const handleUploadResume = () => {
+    if (isProcessingUpload) return;
     if (onGuardUploadResume && !onGuardUploadResume()) {
       return;
     }
@@ -154,20 +169,20 @@ const StartOptions: React.FC<StartOptionsProps> = ({ onGuardStartFromScratch, on
       <Card 
         sx={{ 
           flex: 1,
-          cursor: isCreating ? 'not-allowed' : 'pointer',
+          cursor: (isCreating || isStartFromScratchDisabled) ? 'not-allowed' : 'pointer',
           transition: 'all 0.3s ease',
           minHeight: { xs: 160, sm: 200, md: 250 }, // Reduce card height
-          opacity: isCreating ? 0.7 : 1,
+          opacity: (isCreating || isStartFromScratchDisabled) ? 0.7 : 1,
           '&:hover': {
-            transform: { xs: 'none', md: isCreating ? 'none' : 'translateY(-4px)' }, // Disable hover on mobile
-            boxShadow: { xs: '0 2px 8px rgba(0,0,0,0.1)', md: isCreating ? '0 2px 8px rgba(0,0,0,0.1)' : '0 8px 25px rgba(0,0,0,0.15)' }
+            transform: { xs: 'none', md: (isCreating || isStartFromScratchDisabled) ? 'none' : 'translateY(-4px)' }, // Disable hover on mobile
+            boxShadow: { xs: '0 2px 8px rgba(0,0,0,0.1)', md: (isCreating || isStartFromScratchDisabled) ? '0 2px 8px rgba(0,0,0,0.1)' : '0 8px 25px rgba(0,0,0,0.15)' }
           },
           '&:active': {
-            transform: { xs: 'scale(0.98)', md: isCreating ? 'none' : 'translateY(-4px)' }, // Touch feedback on mobile
-            boxShadow: { xs: '0 1px 4px rgba(0,0,0,0.1)', md: isCreating ? '0 1px 4px rgba(0,0,0,0.1)' : '0 8px 25px rgba(0,0,0,0.15)' }
+            transform: { xs: 'scale(0.98)', md: (isCreating || isStartFromScratchDisabled) ? 'none' : 'translateY(-4px)' }, // Touch feedback on mobile
+            boxShadow: { xs: '0 1px 4px rgba(0,0,0,0.1)', md: (isCreating || isStartFromScratchDisabled) ? '0 1px 4px rgba(0,0,0,0.1)' : '0 8px 25px rgba(0,0,0,0.15)' }
           }
         }}
-        onClick={isCreating ? undefined : handleStartFromScratch}
+        onClick={(isCreating || isStartFromScratchDisabled) ? undefined : handleStartFromScratch}
       >
         <CardContent sx={{ 
           textAlign: 'center', 
@@ -209,7 +224,7 @@ const StartOptions: React.FC<StartOptionsProps> = ({ onGuardStartFromScratch, on
           <Button 
             variant="contained" 
             size="large"
-            disabled={isCreating}
+            disabled={isCreating || isStartFromScratchDisabled}
             sx={{
               borderRadius: '8px',
               px: { xs: 2.5, sm: 3, md: 4 }, // Reduce horizontal padding
@@ -237,20 +252,20 @@ const StartOptions: React.FC<StartOptionsProps> = ({ onGuardStartFromScratch, on
       <Card 
         sx={{ 
           flex: 1,
-          cursor: isUploading ? 'not-allowed' : 'pointer',
+          cursor: isProcessingUpload ? 'not-allowed' : 'pointer',
           transition: 'all 0.3s ease',
           minHeight: { xs: 160, sm: 200, md: 250 }, // Reduce card height
-          opacity: isUploading ? 0.7 : 1,
+          opacity: isProcessingUpload ? 0.7 : 1,
           '&:hover': {
-            transform: { xs: 'none', md: isUploading ? 'none' : 'translateY(-4px)' }, // Disable hover on mobile
-            boxShadow: { xs: '0 2px 8px rgba(0,0,0,0.1)', md: isUploading ? '0 2px 8px rgba(0,0,0,0.1)' : '0 8px 25px rgba(0,0,0,0.15)' }
+            transform: { xs: 'none', md: isProcessingUpload ? 'none' : 'translateY(-4px)' }, // Disable hover on mobile
+            boxShadow: { xs: '0 2px 8px rgba(0,0,0,0.1)', md: isProcessingUpload ? '0 2px 8px rgba(0,0,0,0.1)' : '0 8px 25px rgba(0,0,0,0.15)' }
           },
           '&:active': {
-            transform: { xs: 'scale(0.98)', md: isUploading ? 'none' : 'translateY(-4px)' }, // Touch feedback on mobile
-            boxShadow: { xs: '0 1px 4px rgba(0,0,0,0.1)', md: isUploading ? '0 1px 4px rgba(0,0,0,0.1)' : '0 8px 25px rgba(0,0,0,0.15)' }
+            transform: { xs: 'scale(0.98)', md: isProcessingUpload ? 'none' : 'translateY(-4px)' }, // Touch feedback on mobile
+            boxShadow: { xs: '0 1px 4px rgba(0,0,0,0.1)', md: isProcessingUpload ? '0 1px 4px rgba(0,0,0,0.1)' : '0 8px 25px rgba(0,0,0,0.15)' }
           }
         }}
-        onClick={isUploading ? undefined : handleUploadResume}
+        onClick={isProcessingUpload ? undefined : handleUploadResume}
       >
         <CardContent sx={{ 
           textAlign: 'center', 
@@ -276,7 +291,7 @@ const StartOptions: React.FC<StartOptionsProps> = ({ onGuardStartFromScratch, on
               fontSize: { xs: '1.1rem', sm: '1.25rem', md: '1.5rem' } // Reduce font size
             }}
           >
-            {isUploading ? 'Processing Resume...' : 'Upload Your Resume'}
+            {isProcessingUpload ? 'Processing Resume...' : 'Upload Your Resume'}
           </Typography>
           <Typography 
             variant="body1" 
@@ -292,12 +307,12 @@ const StartOptions: React.FC<StartOptionsProps> = ({ onGuardStartFromScratch, on
               textAlign: 'center'
             }}
           >
-            {isUploading ? uploadMessage : 'Upload your existing resume and let AI enhance it'}
+            {isProcessingUpload ? currentUploadMessage : 'Upload your existing resume and let AI enhance it'}
           </Typography>
           <Button 
             variant="contained" 
             size="large"
-            disabled={isUploading}
+            disabled={isProcessingUpload}
             sx={{
               borderRadius: '8px',
               px: { xs: 2.5, sm: 3, md: 4 }, // Reduce horizontal padding
@@ -312,7 +327,7 @@ const StartOptions: React.FC<StartOptionsProps> = ({ onGuardStartFromScratch, on
               }
             }}
           >
-            {isUploading ? (
+            {isProcessingUpload ? (
               <CircularProgress size={20} color="inherit" />
             ) : (
               'Upload File'
