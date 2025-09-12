@@ -21,8 +21,10 @@ import {
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { resumeApi } from '../../../shared/services/api';
 import { guestResumeService } from '../../../shared/services/guestResumeService';
+import { useAuth } from '../../../shared/hooks/useAuth';
 import { Resume } from '../../../shared/services/api/types';
 import { COLORS } from '../../../shared/theme/theme';
 import EducationEditor from './EducationEditor';
@@ -70,6 +72,8 @@ function a11yProps(index: number) {
 
 const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate, resumeId }) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const [localResume, setLocalResume] = useState<Resume>(resume);
   const [formData, setFormData] = useState({
     // Main fields
@@ -105,6 +109,25 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate, res
       ([key, value]) => value !== originalData[key as keyof typeof originalData]
     );
   };
+
+  // Проверяем принадлежность резюме пользователю
+  useEffect(() => {
+    if (authLoading) return; // Ждем загрузки аутентификации
+    
+    const isGuestResume = !resumeId || resumeId === 'guest' || resume.id === -1;
+    
+    // Если это не гостевое резюме и пользователь не аутентифицирован
+    if (!isGuestResume && !isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+    
+    // Если пользователь аутентифицирован и это не его резюме
+    if (isAuthenticated && user && !isGuestResume && resume.user_id !== user.id) {
+      navigate('/login');
+      return;
+    }
+  }, [resume, user, isAuthenticated, authLoading, resumeId, navigate]);
 
   // Обновляем локальное состояние при изменении резюме
   useEffect(() => {

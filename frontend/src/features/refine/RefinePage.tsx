@@ -19,6 +19,7 @@ import PaywallModal from '../../shared/components/PaywallModal';
 import RegistrationModal from '../../shared/components/RegistrationModal';
 import ResumeRenderer from '../../shared/components/ResumeRenderer';
 import { useUser } from '../../shared/hooks';
+import { useAuth } from '../../shared/hooks/useAuth';
 import { useResumeQuery } from '../../shared/hooks/useResumeQuery';
 import { useTemplate } from '../../shared/hooks/useTemplate';
 import { resumeApi } from '../../shared/services/api';
@@ -41,6 +42,7 @@ const RefinePage: React.FC = () => {
   const { resume, isLoading: loading, error: queryError, updateResumeInCache } = useResumeQuery(resumeId);
   const { selectedTemplate, updateTemplate } = useTemplate(resumeId, resume?.template_slug);
   const { user } = useUser();
+  const { user: authUser, isAuthenticated, isLoading: authLoading } = useAuth();
   const [showPreview, setShowPreview] = useState(false);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [titleValue, setTitleValue] = useState('');
@@ -55,6 +57,27 @@ const RefinePage: React.FC = () => {
   // Define mobile mode for screens up to 768px
   const isMobile = useMediaQuery('(max-width:768px)');
   
+  // Проверяем принадлежность резюме пользователю
+  useEffect(() => {
+    if (authLoading || loading) return; // Ждем загрузки аутентификации и резюме
+    
+    if (resume) {
+      const isGuestResume = !resumeId || resumeId === 'guest' || resume.id === -1;
+      
+      // Если это не гостевое резюме и пользователь не аутентифицирован
+      if (!isGuestResume && !isAuthenticated) {
+        navigate('/login');
+        return;
+      }
+      
+      // Если пользователь аутентифицирован и это не его резюме
+      if (isAuthenticated && authUser && !isGuestResume && resume.user_id !== authUser.id) {
+        navigate('/login');
+        return;
+      }
+    }
+  }, [resume, authUser, isAuthenticated, authLoading, loading, resumeId, navigate]);
+
   // Set title when loading resume
   useEffect(() => {
     if (resume) {

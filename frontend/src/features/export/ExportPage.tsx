@@ -1,9 +1,10 @@
 import Box from '@mui/material/Box';
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Header from '../../shared/components/Header/Header';
 import ResumeRenderer from '../../shared/components/ResumeRenderer';
+import { useAuth } from '../../shared/hooks/useAuth';
 import { useAuthContext } from '../../shared/contexts/AuthContext';
 import { useResumeQuery } from '../../shared/hooks/useResumeQuery';
 import { useTemplate } from '../../shared/hooks/useTemplate';
@@ -28,6 +29,28 @@ const ExportPage: React.FC = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [showRegistration, setShowRegistration] = useState(false);
   const { user, isAuthenticated } = useAuthContext();
+  const { user: authUser, isAuthenticated: authAuthenticated, isLoading: authLoading } = useAuth();
+
+  // Проверяем принадлежность резюме пользователю
+  useEffect(() => {
+    if (authLoading || loading) return; // Ждем загрузки аутентификации и резюме
+    
+    if (resume) {
+      const isGuestResume = !resumeId || resumeId === 'guest' || resume.id === -1;
+      
+      // Если это не гостевое резюме и пользователь не аутентифицирован
+      if (!isGuestResume && !authAuthenticated) {
+        navigate('/login');
+        return;
+      }
+      
+      // Если пользователь аутентифицирован и это не его резюме
+      if (authAuthenticated && authUser && !isGuestResume && resume.user_id !== authUser.id) {
+        navigate('/login');
+        return;
+      }
+    }
+  }, [resume, authUser, authAuthenticated, authLoading, loading, resumeId, navigate]);
 
   const handleBack = () => {
     navigate(`/refine?resume_id=${resumeId}`);

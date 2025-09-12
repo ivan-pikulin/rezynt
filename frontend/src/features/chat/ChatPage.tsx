@@ -3,11 +3,12 @@ import EditIcon from '@mui/icons-material/Edit';
 import { useMediaQuery } from '@mui/material';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Header from '../../shared/components/Header/Header';
 import ResumeRenderer from '../../shared/components/ResumeRenderer';
 import { useUser } from '../../shared/hooks';
+import { useAuth } from '../../shared/hooks/useAuth';
 import { useAuthContext } from '../../shared/contexts/AuthContext';
 import { useResumeQuery } from '../../shared/hooks/useResumeQuery';
 import { useTemplate } from '../../shared/hooks/useTemplate';
@@ -19,14 +20,36 @@ const ChatPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const resumeId = searchParams.get('resume_id');
-  const { resume: resumeData, refreshResume } = useResumeQuery(resumeId);
+  const { resume: resumeData, refreshResume, isLoading: resumeLoading } = useResumeQuery(resumeId);
   const { selectedTemplate } = useTemplate(resumeId, resumeData?.template_slug);
   const { user } = useUser();
-  const { isAuthenticated } = useAuthContext();
+  const { user: authUser, isAuthenticated, isLoading: authLoading } = useAuth();
+  const { isAuthenticated: contextAuthenticated } = useAuthContext();
   const [showPreview, setShowPreview] = useState(false);
 
   // Define mobile mode for screens up to 768px
   const isMobile = useMediaQuery('(max-width: 768px)');
+
+  // Проверяем принадлежность резюме пользователю
+  useEffect(() => {
+    if (authLoading || resumeLoading) return; // Ждем загрузки аутентификации и резюме
+    
+    if (resumeData) {
+      const isGuestResume = !resumeId || resumeId === 'guest' || resumeData.id === -1;
+      
+      // Если это не гостевое резюме и пользователь не аутентифицирован
+      if (!isGuestResume && !isAuthenticated) {
+        navigate('/login');
+        return;
+      }
+      
+      // Если пользователь аутентифицирован и это не его резюме
+      if (isAuthenticated && authUser && !isGuestResume && resumeData.user_id !== authUser.id) {
+        navigate('/login');
+        return;
+      }
+    }
+  }, [resumeData, authUser, isAuthenticated, authLoading, resumeLoading, resumeId, navigate]);
 
   const handleNext = () => {
     navigate(`/refine?resume_id=${resumeId}`);
