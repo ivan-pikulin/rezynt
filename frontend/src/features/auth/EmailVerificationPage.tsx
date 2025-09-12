@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Alert } from '@mui/material';
@@ -17,6 +17,12 @@ const EmailVerificationPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [shouldStartTimer, setShouldStartTimer] = useState(false);
+
+  // Start the cooldown timer when component mounts
+  useEffect(() => {
+    setShouldStartTimer(true);
+  }, []);
 
   const handleSubmitCode = async (code: string) => {
     if (!email) {
@@ -65,6 +71,9 @@ const EmailVerificationPage: React.FC = () => {
       
       console.log('Verification code resent:', response.message);
       setError(null);
+      // Reset the timer to start a new 30-second cooldown
+      setShouldStartTimer(false);
+      setTimeout(() => setShouldStartTimer(true), 100);
     } catch (error) {
       console.error('Failed to resend verification code:', error);
       setError(t('auth.verification.invalidCode'));
@@ -105,7 +114,7 @@ const EmailVerificationPage: React.FC = () => {
         isLoading={isLoading}
         error={error}
         resendCooldown={30}
-        shouldStartTimer={false}
+        shouldStartTimer={shouldStartTimer}
       />
     </AuthLayout>
   );
