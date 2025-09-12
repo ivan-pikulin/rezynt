@@ -2,6 +2,7 @@ import {
   Close as CloseIcon,
   Description as DescriptionIcon,
   Lock as LockIcon,
+  Login as LoginIcon,
   Logout as LogoutIcon,
   Star as StarIcon
 } from '@mui/icons-material';
@@ -89,11 +90,17 @@ const UserSidebar: React.FC<UserSidebarProps> = ({
     onClose();
   };
 
-  const getInitials = (email: string) => {
-    return email.charAt(0).toUpperCase();
+  const handleNavigateToLogin = () => {
+    navigate('/auth/login');
+    onClose();
   };
 
-  const getPlanName = (isPremium: boolean) => {
+  const getInitials = (email: string) => {
+    return email ? email.charAt(0).toUpperCase() : 'G';
+  };
+
+  const getPlanName = (isPremium: boolean, isAuthenticated: boolean) => {
+    if (!isAuthenticated) return 'Guest';
     return isPremium ? 'Premium' : 'Free';
   };
 
@@ -154,12 +161,12 @@ const UserSidebar: React.FC<UserSidebarProps> = ({
           </Avatar>
           
           <Typography variant="h6" sx={{ fontWeight: 600, color: '#2c3e50', mb: 1 }}>
-            {userData?.email || user?.email}
+            {userData?.email || user?.email || 'Guest User'}
           </Typography>
           
           <Chip
             icon={(userData?.is_premium ?? user?.is_premium) ? <StarIcon /> : undefined}
-            label={getPlanName(userData?.is_premium ?? user?.is_premium ?? false)}
+            label={getPlanName(userData?.is_premium ?? user?.is_premium ?? false, !!user)}
             variant={(userData?.is_premium ?? user?.is_premium) ? 'filled' : 'outlined'}
             sx={{ 
               fontWeight: 600,
@@ -264,54 +271,81 @@ const UserSidebar: React.FC<UserSidebarProps> = ({
 
         {/* Additional options at bottom */}
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-          <Button
-            variant="text"
-            startIcon={<LockIcon />}
-            onClick={handleNavigateToPasswordReset}
-            fullWidth
-            sx={{
-              justifyContent: 'flex-start',
-              py: 1,
-              px: 2,
-              fontWeight: 400,
-              textTransform: 'none',
-              color: '#666',
-              borderRadius: '8px',
-              transition: 'all 0.2s ease-in-out',
-              '&:hover': {
-                bgcolor: 'rgba(0, 0, 0, 0.04)',
-                transform: 'translateX(4px)',
-                color: '#333'
-              }
-            }}
-          >
-            Change Password
-          </Button>
+          {user ? (
+            <>
+              <Button
+                variant="text"
+                startIcon={<LockIcon />}
+                onClick={handleNavigateToPasswordReset}
+                fullWidth
+                sx={{
+                  justifyContent: 'flex-start',
+                  py: 1,
+                  px: 2,
+                  fontWeight: 400,
+                  textTransform: 'none',
+                  color: '#666',
+                  borderRadius: '8px',
+                  transition: 'all 0.2s ease-in-out',
+                  '&:hover': {
+                    bgcolor: 'rgba(0, 0, 0, 0.04)',
+                    transform: 'translateX(4px)',
+                    color: '#333'
+                  }
+                }}
+              >
+                Change Password
+              </Button>
 
-          <Button
-            variant="outlined"
-            color="error"
-            startIcon={<LogoutIcon />}
-            onClick={handleLogout}
-            fullWidth
-            sx={{
-              borderRadius: '8px',
-              py: 1.5,
-              fontWeight: 600,
-              textTransform: 'none',
-              borderColor: '#d32f2f',
-              color: '#d32f2f',
-              transition: 'all 0.2s ease-in-out',
-              '&:hover': {
-                borderColor: '#b71c1c',
-                bgcolor: '#ffebee',
-                transform: 'translateY(-1px)',
-                boxShadow: '0 4px 8px rgba(211, 47, 47, 0.2)'
-              }
-            }}
-          >
-            Sign Out
-          </Button>
+              <Button
+                variant="outlined"
+                color="error"
+                startIcon={<LogoutIcon />}
+                onClick={handleLogout}
+                fullWidth
+                sx={{
+                  borderRadius: '8px',
+                  py: 1.5,
+                  fontWeight: 600,
+                  textTransform: 'none',
+                  borderColor: '#d32f2f',
+                  color: '#d32f2f',
+                  transition: 'all 0.2s ease-in-out',
+                  '&:hover': {
+                    borderColor: '#b71c1c',
+                    bgcolor: '#ffebee',
+                    transform: 'translateY(-1px)',
+                    boxShadow: '0 4px 8px rgba(211, 47, 47, 0.2)'
+                  }
+                }}
+              >
+                Sign Out
+              </Button>
+            </>
+          ) : (
+            <Button
+              variant="contained"
+              startIcon={<LoginIcon />}
+              onClick={handleNavigateToLogin}
+              fullWidth
+              sx={{
+                borderRadius: '8px',
+                py: 1.5,
+                fontWeight: 600,
+                textTransform: 'none',
+                bgcolor: COLORS.primary.main,
+                color: 'white',
+                transition: 'all 0.2s ease-in-out',
+                '&:hover': {
+                  bgcolor: COLORS.primary.dark,
+                  transform: 'translateY(-1px)',
+                  boxShadow: `0 4px 8px ${COLORS.primary.main}40`
+                }
+              }}
+            >
+              Login
+            </Button>
+          )}
         </Box>
       </Box>
     </Drawer>
