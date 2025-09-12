@@ -3,4 +3,3 @@ export { useResumeData } from './useResumeData';
 export { useTemplate } from './useTemplate';
 export { useUser } from './useUser';
 export { useOnboarding } from './useOnboarding';
-export { useAuthErrorHandler } from './useAuthErrorHandler';

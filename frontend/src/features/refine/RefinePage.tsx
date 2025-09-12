@@ -21,7 +21,6 @@ import ResumeRenderer from '../../shared/components/ResumeRenderer';
 import { useUser } from '../../shared/hooks';
 import { useResumeQuery } from '../../shared/hooks/useResumeQuery';
 import { useTemplate } from '../../shared/hooks/useTemplate';
-import { useAuthErrorHandler } from '../../shared/hooks/useAuthErrorHandler';
 import { resumeApi } from '../../shared/services/api';
 import { Resume } from '../../shared/services/api/types';
 import { COLORS } from '../../shared/theme/theme';
@@ -42,7 +41,6 @@ const RefinePage: React.FC = () => {
   const { resume, isLoading: loading, error: queryError, updateResumeInCache } = useResumeQuery(resumeId);
   const { selectedTemplate, updateTemplate } = useTemplate(resumeId, resume?.template_slug);
   const { user } = useUser();
-  const { handleAuthError } = useAuthErrorHandler();
   const [showPreview, setShowPreview] = useState(false);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [titleValue, setTitleValue] = useState('');
@@ -87,11 +85,7 @@ const RefinePage: React.FC = () => {
         await resumeApi.assignTemplateBySlug(parseInt(resumeId), template.id);
       } catch (err) {
         console.error('Error updating template on server:', err);
-        // Handle 401 errors
-        if (handleAuthError(err)) {
-          return; // User will be redirected to login
-        }
-        // In case of other errors, we can show user notification
+        // In case of error, we can show user notification
       }
     }
   };
@@ -143,11 +137,7 @@ const RefinePage: React.FC = () => {
       const updatedResume = await resumeApi.updateResumePartial(parseInt(resumeId), { title: titleValue });
       updateResumeInCache(updatedResume);
     } catch (err) {
-      // Handle 401 errors
-      if (handleAuthError(err)) {
-        return; // User will be redirected to login
-      }
-      // In case of other errors, return to original value
+      // In case of error, return to original value
       setTitleValue(resume.title);
       console.error('Error saving title:', err);
     }
@@ -252,10 +242,6 @@ const RefinePage: React.FC = () => {
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Error downloading resume:', error);
-      // Handle 401 errors
-      if (handleAuthError(error)) {
-        return; // User will be redirected to login
-      }
       // Fallback to export page if direct download fails
       navigate(`/export?resume_id=${resumeId}`);
     } finally {

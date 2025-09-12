@@ -4,7 +4,6 @@ import { useQueryClient } from '@tanstack/react-query';
 import { chatApi } from '../../../shared/services/api';
 import { SendMessageRequest, Message } from '../../../shared/services/api/types';
 import { useUser } from '../../../shared/hooks/useUser';
-import { useAuthErrorHandler } from '../../../shared/hooks/useAuthErrorHandler';
 
 // Local chat message type for UI
 export interface ChatMessage {
@@ -20,7 +19,6 @@ type MessageLoadType = 'initial' | 'older' | 'new' | 'none';
 export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fromUpload: boolean = false, onShowPaywall?: () => void) => {
   const queryClient = useQueryClient();
   const { user } = useUser();
-  const { handleAuthError } = useAuthErrorHandler();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -192,14 +190,10 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fr
       setHasMoreMessages(response.has_more);
     } catch (error) {
       console.error('Error loading messages:', error);
-      // Handle 401 errors
-      if (handleAuthError(error)) {
-        return; // User will be redirected to login
-      }
     } finally {
       setIsLoadingMessages(false);
     }
-  }, [resumeId, fromUpload, user, handleAuthError]);
+  }, [resumeId, fromUpload, user]);
 
   // Управление скроллом в зависимости от типа загрузки сообщений
   useEffect(() => {
@@ -255,14 +249,10 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fr
       setPendingScrollRestore(savedPosition);
     } catch (error) {
       console.error('Error loading older messages:', error);
-      // Handle 401 errors
-      if (handleAuthError(error)) {
-        return; // User will be redirected to login
-      }
     } finally {
       setIsLoadingMessages(false);
     }
-  }, [resumeId, messages, hasMoreMessages, saveScrollPosition, restoreScrollPosition, handleAuthError]);
+  }, [resumeId, messages, hasMoreMessages, saveScrollPosition, restoreScrollPosition]);
 
   const sendUserMessage = useCallback(async (content: string) => {
     if (!resumeId) {
@@ -408,18 +398,12 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fr
       clearInterval(phraseTimer);
       console.error('Chat API error:', error);
       
-      // Handle 401 errors first
-      if (handleAuthError(error)) {
-        // Удаляем сообщение пользователя и placeholder ассистента
-        setMessages(prev => prev.filter(msg => msg.id !== userMessage.id && msg.id !== assistantMessageId));
-        return; // User will be redirected to login
-      }
-      
       // Проверяем, является ли ошибка связанной с кредитами
       const errorMessage = error instanceof Error ? error.message : String(error);
       if (
         errorMessage.includes('No credits remaining') ||
-        errorMessage.includes('402')
+        errorMessage.includes('402') ||
+        errorMessage.includes('401')
       ) {
         onShowPaywall?.();
         // Удаляем сообщение пользователя и placeholder ассистента
@@ -444,7 +428,7 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fr
       }
       setIsLoading(false);
     }
-  }, [resumeId, onResumeUpdate, queryClient, user, onShowPaywall, handleAuthError]);
+  }, [resumeId, onResumeUpdate, queryClient, user, onShowPaywall]);
 
   return {
     messages,

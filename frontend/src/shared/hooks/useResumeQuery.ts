@@ -2,11 +2,9 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { resumeApi } from '../services/api';
 import { Resume } from '../services/api/types';
 import { guestResumeService } from '../services/guestResumeService';
-import { useAuthErrorHandler } from './useAuthErrorHandler';
 
 export const useResumeQuery = (resumeId: string | null) => {
   const queryClient = useQueryClient();
-  const { handleAuthError } = useAuthErrorHandler();
 
   const isGuest = resumeId === 'guest';
 
@@ -21,21 +19,13 @@ export const useResumeQuery = (resumeId: string | null) => {
       if (isGuest) {
         return Promise.resolve(guestResumeService.createOrGet());
       }
-      return resumeApi.getResume(parseInt(resumeId!));
+      return resumeApi.getResume(resumeId!);
     },
     enabled: !!resumeId,
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
-    retry: (failureCount, error) => {
-      // Don't retry on 401 errors, let the auth error handler deal with it
-      if (handleAuthError(error)) {
-        return false;
-      }
-      // Retry up to 3 times for other errors
-      return failureCount < 3;
-    },
   });
 
   // Функция для принудительного обновления данных
@@ -45,13 +35,7 @@ export const useResumeQuery = (resumeId: string | null) => {
       // no-op for guest
       return;
     }
-    try {
-      await refetch();
-    } catch (error) {
-      // Handle 401 errors during refresh
-      handleAuthError(error);
-      throw error;
-    }
+    await refetch();
   };
 
   // Функция для обновления данных резюме в кеше

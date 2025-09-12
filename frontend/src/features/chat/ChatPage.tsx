@@ -11,7 +11,6 @@ import { useUser } from '../../shared/hooks';
 import { useAuthContext } from '../../shared/contexts/AuthContext';
 import { useResumeQuery } from '../../shared/hooks/useResumeQuery';
 import { useTemplate } from '../../shared/hooks/useTemplate';
-import { useAuthErrorHandler } from '../../shared/hooks/useAuthErrorHandler';
 import { COLORS } from '../../shared/theme/theme';
 import { convertApiResumeToResumeData } from '../../shared/utils/resumeDataConverter';
 import ChatWindow from './components/ChatWindow';
@@ -24,7 +23,6 @@ const ChatPage: React.FC = () => {
   const { selectedTemplate } = useTemplate(resumeId, resumeData?.template_slug);
   const { user } = useUser();
   const { isAuthenticated } = useAuthContext();
-  const { handleAuthError } = useAuthErrorHandler();
   const [showPreview, setShowPreview] = useState(false);
 
   // Define mobile mode for screens up to 768px
@@ -140,17 +138,7 @@ const ChatPage: React.FC = () => {
           }}>
             <ChatWindow
               resumeId={resumeId}
-              onResumeUpdate={async () => {
-                try {
-                  await refreshResume();
-                } catch (error) {
-                  // Handle 401 errors
-                  if (handleAuthError(error)) {
-                    return; // User will be redirected to login
-                  }
-                  throw error; // Re-throw other errors
-                }
-              }}
+              onResumeUpdate={refreshResume}
               fromUpload={resumeData?.from_upload || false}
               onTogglePreview={togglePreview}
             />
