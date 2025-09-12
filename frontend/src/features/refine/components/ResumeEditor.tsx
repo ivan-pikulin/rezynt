@@ -19,7 +19,7 @@ import {
     TextField,
     Typography
 } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { resumeApi } from '../../../shared/services/api';
@@ -94,6 +94,44 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate, res
     message: '',
     severity: 'success'
   });
+
+  // Check if user is guest (not authenticated)
+  const isGuestUser = !isAuthenticated || !resumeId || resumeId === 'guest' || resume.id === -1;
+
+
+  // Debounced auto-save for guest users
+  useEffect(() => {
+    if (!isGuestUser) return;
+
+    const timeoutId = setTimeout(() => {
+      // Check if there are changes to save
+      const originalData = {
+        title: resume.title,
+        professional_summary: resume.professional_summary || '',
+        first_name: resume.first_name || '',
+        last_name: resume.last_name || '',
+        location: resume.location || ''
+      };
+
+      const changedFields = Object.entries(formData).filter(
+        ([key, value]) => value !== originalData[key as keyof typeof originalData]
+      );
+
+      if (changedFields.length > 0) {
+        // Auto-save all changed fields
+        const updateData = Object.fromEntries(changedFields);
+        try {
+          const updatedResume = guestResumeService.update(updateData);
+          setLocalResume(updatedResume);
+          onResumeUpdate(updatedResume);
+        } catch (error) {
+          console.error('Error auto-saving for guest:', error);
+        }
+      }
+    }, 1000); // 1 second debounce
+
+    return () => clearTimeout(timeoutId);
+  }, [formData, isGuestUser, resume, onResumeUpdate]);
 
   // Функция для проверки наличия несохраненных изменений
   const hasUnsavedChanges = () => {
@@ -556,44 +594,46 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate, res
         </Box>
       </Box>
 
-      {/* Блок с кнопкой сохранения */}
-      <Box sx={{ 
-        bgcolor: COLORS.resume.header.background, 
-        p: 2, 
-        display: 'flex',
-        justifyContent: 'center',
-        flexShrink: 0,
-        height: 80
-      }}>
-        <Button
-          variant="contained"
-          startIcon={<SaveIcon />}
-          onClick={saveAllChanges}
-          disabled={isSaving || !hasUnsavedChanges()}
-          sx={{
-            px: 4,
-            py: 1.5,
-            fontSize: '1rem',
-            fontWeight: 600,
-            borderRadius: 2,
-            bgcolor: hasUnsavedChanges() ? COLORS.primary.main : COLORS.grey[400],
-            boxShadow: hasUnsavedChanges() ? '0 4px 12px rgba(0, 0, 0, 0.15)' : 'none',
-            '&:hover': {
-              bgcolor: hasUnsavedChanges() ? COLORS.primary.dark : COLORS.grey[400],
-              boxShadow: hasUnsavedChanges() ? '0 6px 16px rgba(0, 0, 0, 0.2)' : 'none',
-              transform: hasUnsavedChanges() ? 'translateY(-1px)' : 'none'
-            },
-            '&:disabled': {
-              bgcolor: COLORS.grey[400],
-              color: COLORS.grey[600],
-              cursor: 'not-allowed'
-            },
-            transition: 'all 0.2s ease-in-out'
-          }}
-        >
-          {isSaving ? t('refine.editor.saving') : t('refine.editor.saveChanges')}
-        </Button>
-      </Box>
+      {/* Блок с кнопкой сохранения - только для авторизованных пользователей */}
+      {!isGuestUser && (
+        <Box sx={{ 
+          bgcolor: COLORS.resume.header.background, 
+          p: 2, 
+          display: 'flex',
+          justifyContent: 'center',
+          flexShrink: 0,
+          height: 80
+        }}>
+          <Button
+            variant="contained"
+            startIcon={<SaveIcon />}
+            onClick={saveAllChanges}
+            disabled={isSaving || !hasUnsavedChanges()}
+            sx={{
+              px: 4,
+              py: 1.5,
+              fontSize: '1rem',
+              fontWeight: 600,
+              borderRadius: 2,
+              bgcolor: hasUnsavedChanges() ? COLORS.primary.main : COLORS.grey[400],
+              boxShadow: hasUnsavedChanges() ? '0 4px 12px rgba(0, 0, 0, 0.15)' : 'none',
+              '&:hover': {
+                bgcolor: hasUnsavedChanges() ? COLORS.primary.dark : COLORS.grey[400],
+                boxShadow: hasUnsavedChanges() ? '0 6px 16px rgba(0, 0, 0, 0.2)' : 'none',
+                transform: hasUnsavedChanges() ? 'translateY(-1px)' : 'none'
+              },
+              '&:disabled': {
+                bgcolor: COLORS.grey[400],
+                color: COLORS.grey[600],
+                cursor: 'not-allowed'
+              },
+              transition: 'all 0.2s ease-in-out'
+            }}
+          >
+            {isSaving ? t('refine.editor.saving') : t('refine.editor.saveChanges')}
+          </Button>
+        </Box>
+      )}
 
       {/* Уведомления */}
       <Snackbar
