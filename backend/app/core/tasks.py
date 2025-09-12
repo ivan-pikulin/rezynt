@@ -6,7 +6,7 @@ import gc
 from app.core.celery_app import celery_app
 from app.core.config import settings
 from app.database.models.resume import Resume
-from app.database.session import SessionLocal
+from app.database.session import SyncSessionLocal
 from app.services.email_service import EmailService
 from app.services.parse_service import ParseService
 from app.services.platform_service import PlatformChatflow
@@ -193,7 +193,7 @@ async def _process_resume_upload_task(file_content: bytes, filename: str, user_i
         
         # Create resume with all parsed data
         logger.info("Starting database operations to create resume")
-        resume = await _create_resume_with_data(user_id, filename, parsed_data)
+        resume = _create_resume_with_data(user_id, filename, parsed_data)
         logger.info(f"Database operations completed successfully, resume ID: {resume.id}")
         
         # Clean up parsed data
@@ -224,7 +224,7 @@ async def _process_resume_upload_task(file_content: bytes, filename: str, user_i
         # Clean up objects on error
         if 'file_content' in locals():
             del file_content
-        if parse_service:
+        if parse_service is not None:
             del parse_service
         if 'parsed_data' in locals():
             del parsed_data
@@ -248,12 +248,12 @@ async def _process_resume_upload_task(file_content: bytes, filename: str, user_i
         return result
 
 
-async def _create_resume_with_data(user_id: int, filename: str, parsed_data):
+def _create_resume_with_data(user_id: int, filename: str, parsed_data):
     """Creates resume in database with all data from ParseService"""
     logger.info(f"Starting database operations for user {user_id}, filename: {filename}")
     logger.info(f"Parsed data summary: first_name={parsed_data.first_name}, last_name={parsed_data.last_name}, experience_count={len(parsed_data.experience)}, education_count={len(parsed_data.education)}, skills_count={len(parsed_data.skills)}, contacts_count={len(parsed_data.contacts)}")
     
-    async with SessionLocal() as db:
+    with SyncSessionLocal() as db:
         try:
             # Check user's plan and existing resumes
             from app.database.models.user import User
@@ -261,13 +261,13 @@ async def _create_resume_with_data(user_id: int, filename: str, parsed_data):
             from sqlalchemy import select
             
             # Get user
-            user_result = await db.execute(select(User).where(User.id == user_id))
+            user_result = db.execute(select(User).where(User.id == user_id))
             user = user_result.scalar_one_or_none()
             if not user:
                 raise ValueError(f"User {user_id} not found")
             
             # Get user's existing resumes count
-            resumes_result = await db.execute(select(ResumeModel).where(ResumeModel.user_id == user_id))
+            resumes_result = db.execute(select(ResumeModel).where(ResumeModel.user_id == user_id))
             existing_resumes = resumes_result.scalars().all()
             
             # Check if user is on free plan and already has a resume
@@ -288,8 +288,8 @@ async def _create_resume_with_data(user_id: int, filename: str, parsed_data):
             )
             
             db.add(resume)
-            await db.commit()
-            await db.refresh(resume)
+            db.commit()
+            db.refresh(resume)
             logger.info(f"Resume record created with ID: {resume.id}")
             
             # Create personal info if available
@@ -370,7 +370,7 @@ async def _create_resume_with_data(user_id: int, filename: str, parsed_data):
                     db.add(education)
                     logger.info(f"Education entry {i+1} added to database")
             
-            await db.commit()
+            db.commit()
             logger.info(f"Resume {resume.id} created successfully with all data for user {user_id}")
             logger.info(f"Final commit completed for resume {resume.id}")
 
@@ -388,7 +388,7 @@ async def _create_resume_with_data(user_id: int, filename: str, parsed_data):
                     timeout=settings.PLATFORM_TIMEOUT
                 )
 
-                startup_message, conversation_id = await platform_chatflow.get_startup_message(
+                startup_message, conversation_id = async_to_sync(platform_chatflow.get_startup_message)(
                     user_id=str(user_id),
                     resume_id=str(resume.id),
                     resume_text=resume_text
@@ -403,7 +403,7 @@ async def _create_resume_with_data(user_id: int, filename: str, parsed_data):
                 # Persist conversation_id if present
                 if conversation_id:
                     resume.conversation_id = conversation_id
-                    await db.commit()
+                    db.commit()
                     logger.info(f"Updated conversation_id for resume {resume.id}: {conversation_id}")
 
             except Exception as e:
@@ -419,5 +419,5 @@ async def _create_resume_with_data(user_id: int, filename: str, parsed_data):
             
         except Exception as e:
             logger.error(f"Error creating resume with data in database: {e}", exc_info=True)
-            await db.rollback()
+            db.rollback()
             raise 
