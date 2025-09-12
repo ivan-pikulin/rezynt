@@ -15,7 +15,7 @@ class TempResumeFile(Base):
     content_type = Column(String, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     expires_at = Column(DateTime, nullable=False)  # TTL для автоочистки
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)  # Привязка к пользователю после регистрации
+    user_id = Column(Integer, ForeignKey("users.id", ondelete='CASCADE'), nullable=True)  # Привязка к пользователю после регистрации
     
     # Relationship
     user = relationship("User", back_populates="temp_resume_files")
