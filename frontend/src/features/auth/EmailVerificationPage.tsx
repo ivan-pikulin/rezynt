@@ -18,6 +18,7 @@ const EmailVerificationPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [verificationToken, setVerificationToken] = useState<string | null>(null);
+  const [shouldStartTimer, setShouldStartTimer] = useState(false);
 
   // Get initial verification token when component mounts
   useEffect(() => {
@@ -32,6 +33,7 @@ const EmailVerificationPage: React.FC = () => {
         
         if (response.token) {
           setVerificationToken(response.token);
+          setShouldStartTimer(true); // Start timer after initial token fetch
         }
       } catch (error) {
         console.error('Failed to get initial verification token:', error);
@@ -137,8 +139,10 @@ const EmailVerificationPage: React.FC = () => {
         email={email}
         isLoading={isLoading}
         error={error}
+        resendCooldown={60}
         title={t('auth.verification.title')}
         subtitle={t('auth.verification.subtitle', { email })}
+        shouldStartTimer={shouldStartTimer}
       />
     </AuthLayout>
   );

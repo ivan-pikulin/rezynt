@@ -61,6 +61,7 @@ interface VerificationCodeInputProps {
   isLoading?: boolean;
   error?: string | null;
   resendCooldown?: number; // in seconds, default 60
+  shouldStartTimer?: boolean; // trigger to start timer
   title?: string;
   subtitle?: string;
 }
@@ -73,6 +74,7 @@ const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
   isLoading = false,
   error = null,
   resendCooldown = 60,
+  shouldStartTimer = false,
   title,
   subtitle,
 }) => {
@@ -81,6 +83,14 @@ const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
   const [timeLeft, setTimeLeft] = useState(0);
   const [isResending, setIsResending] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const errorTimeoutRef = useRef<number | null>(null);
+
+  // Start timer when shouldStartTimer becomes true
+  useEffect(() => {
+    if (shouldStartTimer && timeLeft === 0) {
+      setTimeLeft(resendCooldown);
+    }
+  }, [shouldStartTimer, resendCooldown, timeLeft]);
 
   // Timer effect
   useEffect(() => {
@@ -90,6 +100,35 @@ const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
     }
   }, [timeLeft]);
 
+  // Clear code 2 seconds after error appears
+  useEffect(() => {
+    if (error) {
+      // Clear any existing timeout
+      if (errorTimeoutRef.current) {
+        clearTimeout(errorTimeoutRef.current);
+      }
+      
+      // Set new timeout to clear code after 2 seconds
+      errorTimeoutRef.current = setTimeout(() => {
+        setCode(new Array(6).fill(''));
+        inputRefs.current[0]?.focus();
+      }, 2000);
+    } else {
+      // Clear timeout if error is cleared
+      if (errorTimeoutRef.current) {
+        clearTimeout(errorTimeoutRef.current);
+        errorTimeoutRef.current = null;
+      }
+    }
+
+    // Cleanup timeout on unmount
+    return () => {
+      if (errorTimeoutRef.current) {
+        clearTimeout(errorTimeoutRef.current);
+      }
+    };
+  }, [error]);
+
   const handleInputChange = (index: number, value: string) => {
     // Only allow digits
     if (!/^\d*$/.test(value)) return;
@@ -97,6 +136,12 @@ const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
     const newCode = [...code];
     newCode[index] = value.slice(-1); // Take only the last character
     setCode(newCode);
+
+    // Clear error timeout if user starts typing
+    if (errorTimeoutRef.current) {
+      clearTimeout(errorTimeoutRef.current);
+      errorTimeoutRef.current = null;
+    }
 
     // Auto-focus next input
     if (value && index < 5) {
@@ -133,6 +178,12 @@ const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
     const pastedData = event.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
     
     if (pastedData.length === 6) {
+      // Clear error timeout if user pastes code
+      if (errorTimeoutRef.current) {
+        clearTimeout(errorTimeoutRef.current);
+        errorTimeoutRef.current = null;
+      }
+
       const newCode = pastedData.split('');
       setCode(newCode);
       inputRefs.current[5]?.focus();
