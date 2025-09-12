@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Alert } from '@mui/material';
@@ -17,35 +17,6 @@ const EmailVerificationPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const [verificationToken, setVerificationToken] = useState<string | null>(null);
-  const [shouldStartTimer, setShouldStartTimer] = useState(false);
-
-  // Get initial verification token when component mounts
-  useEffect(() => {
-    const getInitialToken = async () => {
-      if (!email) return;
-      
-      try {
-        const response = await authApi.resendVerificationCode({
-          email,
-          code_type: 'email_confirm'
-        });
-        
-        if (response.token) {
-          console.log('Received verification token:', response.token);
-          setVerificationToken(response.token);
-          setShouldStartTimer(true); // Start timer after initial token fetch
-        } else {
-          console.warn('No token received in response:', response);
-        }
-      } catch (error) {
-        console.error('Failed to get initial verification token:', error);
-        // Don't show error here as user hasn't tried to submit yet
-      }
-    };
-
-    getInitialToken();
-  }, [email]);
 
   const handleSubmitCode = async (code: string) => {
     if (!email) {
@@ -53,39 +24,31 @@ const EmailVerificationPage: React.FC = () => {
       return;
     }
 
-    if (!verificationToken) {
-      setError('Verification token not available. Please try resending the code.');
-      return;
-    }
-
     setIsLoading(true);
     setError(null);
 
     try {
-      console.log('Submitting verification code:', { email, code, token: verificationToken });
+      console.log('Submitting verification code:', { email, code });
       const response = await authApi.confirmEmailByCode({
         email,
-        code,
-        token: verificationToken
+        code
       });
 
       // Store tokens and login user
       login(response);
       setSuccess(t('auth.emailConfirmation.success.title'));
       
-      // Redirect after short delay
+      // Redirect to onboarding after successful verification
       setTimeout(() => {
-        const resumeId = searchParams.get('resume_id');
-        if (resumeId) {
-          navigate(`/refine?resume_id=${resumeId}&redirect=/refine?resume_id=${resumeId}`, { replace: true });
-        } else {
-          navigate('/', { replace: true });
-        }
-      }, 1500);
+        navigate('/onboarding', { replace: true });
+      }, 2000);
 
     } catch (error: any) {
       console.error('Email verification failed:', error);
-      setError(error?.response?.data?.detail || t('auth.verification.invalidCode'));
+      setError(
+        error.response?.data?.detail || 
+        t('auth.verification.invalidCode')
+      );
     } finally {
       setIsLoading(false);
     }
@@ -93,16 +56,14 @@ const EmailVerificationPage: React.FC = () => {
 
   const handleResendCode = async () => {
     if (!email) return;
-
+    
     try {
       const response = await authApi.resendVerificationCode({
         email,
         code_type: 'email_confirm'
       });
       
-      if (response.token) {
-        setVerificationToken(response.token);
-      }
+      console.log('Verification code resent:', response.message);
       setError(null);
     } catch (error) {
       console.error('Failed to resend verification code:', error);
@@ -144,9 +105,7 @@ const EmailVerificationPage: React.FC = () => {
         isLoading={isLoading}
         error={error}
         resendCooldown={30}
-        title={t('auth.verification.title')}
-        subtitle={t('auth.verification.subtitle', { email })}
-        shouldStartTimer={shouldStartTimer}
+        shouldStartTimer={false}
       />
     </AuthLayout>
   );

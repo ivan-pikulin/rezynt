@@ -19,32 +19,6 @@ const PasswordResetVerificationPage: React.FC = () => {
   const [verifiedCode, setVerifiedCode] = useState<string>('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [verificationToken, setVerificationToken] = useState<string | null>(null);
-  const [shouldStartTimer, setShouldStartTimer] = useState(false);
-
-  // Get initial verification token when component mounts
-  useEffect(() => {
-    const getInitialToken = async () => {
-      if (!email) return;
-      
-      try {
-        const response = await authApi.resendVerificationCode({
-          email,
-          code_type: 'password_reset'
-        });
-        
-        if (response.token) {
-          setVerificationToken(response.token);
-          setShouldStartTimer(true); // Start timer after initial token fetch
-        }
-      } catch (error) {
-        console.error('Failed to get initial verification token:', error);
-        // Don't show error here as user hasn't tried to submit yet
-      }
-    };
-
-    getInitialToken();
-  }, [email]);
 
   const handleSubmitCode = async (code: string) => {
     if (!email) {
@@ -79,15 +53,9 @@ const PasswordResetVerificationPage: React.FC = () => {
     setError(null);
 
     try {
-      if (!verificationToken) {
-        setError('Verification token not available. Please try resending the code.');
-        return;
-      }
-
       await authApi.resetPasswordByCode({
         email,
         code: verifiedCode,
-        token: verificationToken,
         new_password: newPassword
       });
 
@@ -121,9 +89,7 @@ const PasswordResetVerificationPage: React.FC = () => {
         code_type: 'password_reset'
       });
       
-      if (response.token) {
-        setVerificationToken(response.token);
-      }
+      console.log('Verification code resent:', response.message);
       setError(null);
     } catch (error) {
       console.error('Failed to resend verification code:', error);
@@ -172,9 +138,7 @@ const PasswordResetVerificationPage: React.FC = () => {
           isLoading={isLoading}
           error={error}
           resendCooldown={30}
-          shouldStartTimer={shouldStartTimer}
-          title={t('auth.verification.title')}
-          subtitle={t('auth.verification.subtitle', { email })}
+          shouldStartTimer={false}
         />
       </AuthLayout>
     );

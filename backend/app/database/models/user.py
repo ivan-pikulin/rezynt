@@ -16,6 +16,10 @@ class User(Base):
     has_completed_onboarding = Column(Boolean, default=False, nullable=False)
     onboarding_responses = Column(JSON, nullable=True)
     credits = Column(Integer, default=20, nullable=False)
+    verification_token = Column(String(500), nullable=True)
+    verification_code = Column(String(10), nullable=True)
+    password_reset_token = Column(String(500), nullable=True)
+    password_reset_code = Column(String(10), nullable=True)
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 

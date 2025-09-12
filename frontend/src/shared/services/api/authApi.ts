@@ -20,13 +20,11 @@ export interface PasswordResetConfirm {
 export interface EmailVerificationByCode {
   email: string;
   code: string;
-  token: string;
 }
 
 export interface PasswordResetByCode {
   email: string;
   code: string;
-  token: string;
   new_password: string;
 }
 

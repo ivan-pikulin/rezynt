@@ -112,5 +112,33 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             await db.refresh(user)
         return user
 
+    async def set_verification_data(self, db: AsyncSession, *, user_id: int, token: str, code: str, code_type: str = 'email_confirm') -> Optional[User]:
+        """
+        Set verification token and code for user.
+        """
+        user = await self.get(db, id=user_id)
+        if user:
+            if code_type == 'email_confirm':
+                user.verification_token = token
+                user.verification_code = code
+            elif code_type == 'password_reset':
+                user.password_reset_token = token
+                user.password_reset_code = code
+            await db.commit()
+            await db.refresh(user)
+        return user
+
+    async def verify_code(self, db: AsyncSession, *, email: str, code: str, code_type: str = 'email_confirm') -> Optional[User]:
+        """
+        Verify code for user by email and code.
+        """
+        user = await self.get_by_email(db, email=email)
+        if user:
+            if code_type == 'email_confirm' and user.verification_code == code:
+                return user
+            elif code_type == 'password_reset' and user.password_reset_code == code:
+                return user
+        return None
+
 
 user_crud = CRUDUser(User)

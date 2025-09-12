@@ -79,13 +79,11 @@ class PasswordResetConfirm(BaseModel):
 class EmailVerificationByCode(BaseModel):
     email: EmailStr
     code: str
-    token: str
 
 
 class PasswordResetByCode(BaseModel):
     email: EmailStr
     code: str
-    token: str
     new_password: str
 
 

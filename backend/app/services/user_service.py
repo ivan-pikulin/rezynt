@@ -28,6 +28,9 @@ class UserService:
         # Generate token and 6-digit code
         token, code = verification_generator.generate_token_and_code(user.id, 'email-confirm')
         
+        # Store token and code in database
+        await user_crud.set_verification_data(self.db, user_id=user.id, token=token, code=code, code_type='email_confirm')
+        
         # Send email in background with both token and code
         # Try enqueueing via Celery; if broker is read-only/unavailable, fallback to direct send
         try:
@@ -94,54 +97,41 @@ class UserService:
         
         return user
 
-    async def confirm_user_by_code(self, code: str, email: str, token: str) -> User:
+    async def confirm_user_by_code(self, code: str, email: str) -> User:
         """Confirms user email by 6-digit verification code"""
-        print(f"DEBUG: confirm_user_by_code called with code={code}, email={email}, token={token[:20]}...")
+        print(f"DEBUG: confirm_user_by_code called with code={code}, email={email}")
         
-        # Verify code against token (15 minutes expiration for codes)
-        try:
-            user_id = verification_generator.verify_code(code, token, 'email-confirm', max_age=900)
-            print(f"DEBUG: Code verification successful, user_id={user_id}")
-        except ValueError as e:
-            print(f"DEBUG: Code verification failed: {e}")
-            raise ValueError("Invalid or expired verification code")
-        
-        # Double-check email matches user
-        user = await user_crud.get_by_email(self.db, email=email)
-        print(f"DEBUG: Found user by email: {user.id if user else None}, expected user_id: {user_id}")
-        if not user or user.id != user_id:
-            print(f"DEBUG: Email/user mismatch - user: {user.id if user else None}, expected: {user_id}")
+        # Verify code against stored code in database
+        user = await user_crud.verify_code(self.db, email=email, code=code, code_type='email_confirm')
+        if not user:
+            print(f"DEBUG: Code verification failed - invalid code or user not found")
             raise ValueError("Invalid verification code")
+        
+        print(f"DEBUG: Code verification successful for user {user.id}")
         
         # Check if user is already confirmed
         if user.is_verified:
-            print(f"DEBUG: User {user_id} is already verified")
+            print(f"DEBUG: User {user.id} is already verified")
             raise ValueError("Email already confirmed")
         
         # Confirm email
-        user = await user_crud.confirm_email(self.db, user_id=user_id)
+        user = await user_crud.confirm_email(self.db, user_id=user.id)
         if not user:
-            print(f"DEBUG: Failed to confirm email for user {user_id}")
+            print(f"DEBUG: Failed to confirm email for user {user.id}")
             raise ValueError("User not found")
         
-        print(f"DEBUG: Email confirmed successfully for user {user_id}")
+        print(f"DEBUG: Email confirmed successfully for user {user.id}")
         return user
 
-    async def confirm_password_reset_by_code(self, code: str, email: str, token: str, new_password: str) -> User:
+    async def confirm_password_reset_by_code(self, code: str, email: str, new_password: str) -> User:
         """Confirms password reset by 6-digit verification code and sets new password"""
-        # Verify code against token (15 minutes expiration for codes)
-        try:
-            user_id = verification_generator.verify_code(code, token, 'password-reset', max_age=900)
-        except ValueError:
-            raise ValueError("Invalid or expired verification code")
-        
-        # Double-check email matches user
-        user = await user_crud.get_by_email(self.db, email=email)
-        if not user or user.id != user_id:
+        # Verify code against stored code in database
+        user = await user_crud.verify_code(self.db, email=email, code=code, code_type='password_reset')
+        if not user:
             raise ValueError("Invalid verification code")
         
         # Update user password
-        user = await user_crud.update_password(self.db, user_id=user_id, new_password=new_password)
+        user = await user_crud.update_password(self.db, user_id=user.id, new_password=new_password)
         if not user:
             raise ValueError("User not found")
         
@@ -158,6 +148,9 @@ class UserService:
         # Generate new token and code
         salt = 'email-confirm' if code_type == 'email_confirm' else 'password-reset'
         token, code = verification_generator.generate_token_and_code(user.id, salt)
+        
+        # Store new token and code in database
+        await user_crud.set_verification_data(self.db, user_id=user.id, token=token, code=code, code_type=code_type)
         
         # Send appropriate email based on code type
         try:

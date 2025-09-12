@@ -198,8 +198,7 @@ async def confirm_email_by_code(
         service = UserService(db)
         user = await service.confirm_user_by_code(
             code=verification_request.code, 
-            email=verification_request.email,
-            token=verification_request.token
+            email=verification_request.email
         )
 
         # Issue tokens after successful confirmation
@@ -234,7 +233,6 @@ async def reset_password_by_code(
         user = await service.confirm_password_reset_by_code(
             code=reset_request.code,
             email=reset_request.email,
-            token=reset_request.token,
             new_password=reset_request.new_password
         )
         
