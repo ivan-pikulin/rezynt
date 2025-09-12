@@ -46,18 +46,25 @@ class VerificationCodeGenerator:
         Raises:
             ValueError: If code/token is invalid or expired
         """
+        print(f"DEBUG: verify_code called with code={code}, token={token[:20]}..., salt={salt}, max_age={max_age}")
+        
         # Verify token first
         try:
             user_id_str = self.serializer.loads(token, salt=salt, max_age=max_age)
             user_id = int(user_id_str)
-        except Exception:
+            print(f"DEBUG: Token decoded successfully, user_id={user_id}")
+        except Exception as e:
+            print(f"DEBUG: Token decode failed: {e}")
             raise ValueError("Invalid or expired token")
         
         # Verify code matches token
         expected_code = self._token_to_code(token)
+        print(f"DEBUG: Expected code: {expected_code}, received code: {code}")
         if code != expected_code:
+            print(f"DEBUG: Code mismatch - expected: {expected_code}, received: {code}")
             raise ValueError("Invalid verification code")
         
+        print(f"DEBUG: Code verification successful for user {user_id}")
         return user_id
     
     def _token_to_code(self, token: str) -> str:

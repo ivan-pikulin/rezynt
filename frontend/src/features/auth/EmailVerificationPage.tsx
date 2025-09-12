@@ -32,8 +32,11 @@ const EmailVerificationPage: React.FC = () => {
         });
         
         if (response.token) {
+          console.log('Received verification token:', response.token);
           setVerificationToken(response.token);
           setShouldStartTimer(true); // Start timer after initial token fetch
+        } else {
+          console.warn('No token received in response:', response);
         }
       } catch (error) {
         console.error('Failed to get initial verification token:', error);
@@ -59,6 +62,7 @@ const EmailVerificationPage: React.FC = () => {
     setError(null);
 
     try {
+      console.log('Submitting verification code:', { email, code, token: verificationToken });
       const response = await authApi.confirmEmailByCode({
         email,
         code,
@@ -107,7 +111,7 @@ const EmailVerificationPage: React.FC = () => {
   };
 
   const handleBack = () => {
-    navigate('/auth/signup', { replace: true });
+    navigate('/signup', { replace: true });
   };
 
   if (!email) {
@@ -139,7 +143,7 @@ const EmailVerificationPage: React.FC = () => {
         email={email}
         isLoading={isLoading}
         error={error}
-        resendCooldown={60}
+        resendCooldown={30}
         title={t('auth.verification.title')}
         subtitle={t('auth.verification.subtitle', { email })}
         shouldStartTimer={shouldStartTimer}

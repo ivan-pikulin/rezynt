@@ -96,22 +96,35 @@ class UserService:
 
     async def confirm_user_by_code(self, code: str, email: str, token: str) -> User:
         """Confirms user email by 6-digit verification code"""
+        print(f"DEBUG: confirm_user_by_code called with code={code}, email={email}, token={token[:20]}...")
+        
         # Verify code against token (15 minutes expiration for codes)
         try:
             user_id = verification_generator.verify_code(code, token, 'email-confirm', max_age=900)
-        except ValueError:
+            print(f"DEBUG: Code verification successful, user_id={user_id}")
+        except ValueError as e:
+            print(f"DEBUG: Code verification failed: {e}")
             raise ValueError("Invalid or expired verification code")
         
         # Double-check email matches user
         user = await user_crud.get_by_email(self.db, email=email)
+        print(f"DEBUG: Found user by email: {user.id if user else None}, expected user_id: {user_id}")
         if not user or user.id != user_id:
+            print(f"DEBUG: Email/user mismatch - user: {user.id if user else None}, expected: {user_id}")
             raise ValueError("Invalid verification code")
+        
+        # Check if user is already confirmed
+        if user.is_verified:
+            print(f"DEBUG: User {user_id} is already verified")
+            raise ValueError("Email already confirmed")
         
         # Confirm email
         user = await user_crud.confirm_email(self.db, user_id=user_id)
         if not user:
+            print(f"DEBUG: Failed to confirm email for user {user_id}")
             raise ValueError("User not found")
         
+        print(f"DEBUG: Email confirmed successfully for user {user_id}")
         return user
 
     async def confirm_password_reset_by_code(self, code: str, email: str, token: str, new_password: str) -> User:

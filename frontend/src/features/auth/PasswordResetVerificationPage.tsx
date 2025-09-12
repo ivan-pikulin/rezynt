@@ -137,7 +137,7 @@ const PasswordResetVerificationPage: React.FC = () => {
       setVerifiedCode('');
       setError(null);
     } else {
-      navigate('/auth/forgot-password', { replace: true });
+      navigate('/auth/request-password-reset', { replace: true });
     }
   };
 
@@ -171,7 +171,7 @@ const PasswordResetVerificationPage: React.FC = () => {
           email={email}
           isLoading={isLoading}
           error={error}
-          resendCooldown={60}
+          resendCooldown={30}
           shouldStartTimer={shouldStartTimer}
           title={t('auth.verification.title')}
           subtitle={t('auth.verification.subtitle', { email })}

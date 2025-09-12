@@ -60,7 +60,7 @@ interface VerificationCodeInputProps {
   email: string;
   isLoading?: boolean;
   error?: string | null;
-  resendCooldown?: number; // in seconds, default 60
+  resendCooldown?: number; // in seconds, default 30
   shouldStartTimer?: boolean; // trigger to start timer
   title?: string;
   subtitle?: string;
@@ -73,7 +73,7 @@ const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
   email,
   isLoading = false,
   error = null,
-  resendCooldown = 60,
+  resendCooldown = 30,
   shouldStartTimer = false,
   title,
   subtitle,
@@ -82,15 +82,17 @@ const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
   const [code, setCode] = useState<string[]>(new Array(6).fill(''));
   const [timeLeft, setTimeLeft] = useState(0);
   const [isResending, setIsResending] = useState(false);
+  const [timerStarted, setTimerStarted] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const errorTimeoutRef = useRef<number | null>(null);
 
-  // Start timer when shouldStartTimer becomes true
+  // Start timer when shouldStartTimer becomes true (only once)
   useEffect(() => {
-    if (shouldStartTimer && timeLeft === 0) {
+    if (shouldStartTimer && !timerStarted) {
       setTimeLeft(resendCooldown);
+      setTimerStarted(true);
     }
-  }, [shouldStartTimer, resendCooldown, timeLeft]);
+  }, [shouldStartTimer, resendCooldown, timerStarted]);
 
   // Timer effect
   useEffect(() => {
@@ -202,6 +204,7 @@ const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
     try {
       await onResendCode();
       setTimeLeft(resendCooldown);
+      setTimerStarted(true); // Mark timer as started for manual resend
       setCode(new Array(6).fill('')); // Clear the code inputs
       inputRefs.current[0]?.focus();
     } catch (error) {
