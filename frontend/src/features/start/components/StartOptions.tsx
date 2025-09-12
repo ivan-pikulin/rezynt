@@ -5,6 +5,9 @@ import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
+import Alert from '@mui/material/Alert';
+import IconButton from '@mui/material/IconButton';
+import CloseIcon from '@mui/icons-material/Close';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CreateIcon from '@mui/icons-material/Create';
 import { useNavigate } from 'react-router-dom';
@@ -19,6 +22,8 @@ interface StartOptionsProps {
   onGuardUploadResume?: () => boolean;
   isProcessingUpload?: boolean;
   uploadMessage?: string;
+  uploadError?: string | null;
+  onClearError?: () => void;
   isStartFromScratchDisabled?: boolean;
 }
 
@@ -27,6 +32,8 @@ const StartOptions: React.FC<StartOptionsProps> = ({
   onGuardUploadResume,
   isProcessingUpload: externalIsProcessingUpload = false,
   uploadMessage: externalUploadMessage = '',
+  uploadError = null,
+  onClearError,
   isStartFromScratchDisabled = false
 }) => {
   const navigate = useNavigate();
@@ -293,22 +300,47 @@ const StartOptions: React.FC<StartOptionsProps> = ({
           >
             {isProcessingUpload ? 'Processing Resume...' : 'Upload Your Resume'}
           </Typography>
-          <Typography 
-            variant="body1" 
-            color="text.secondary"
-            sx={{ 
-              mb: { xs: 1.5, sm: 2, md: 3 },
-              fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' }, // Reduce font size
-              lineHeight: { xs: 1.3, sm: 1.4, md: 1.5 }, // Reduce line height
-              minHeight: { xs: '2.6rem', sm: '2.8rem', md: '3rem' }, // Fixed height to prevent jumping
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              textAlign: 'center'
-            }}
-          >
-            {isProcessingUpload ? currentUploadMessage : 'Upload your existing resume and let AI enhance it'}
-          </Typography>
+          {uploadError ? (
+            <Alert 
+              severity="error" 
+              sx={{ 
+                mb: { xs: 1.5, sm: 2, md: 3 },
+                fontSize: { xs: '0.75rem', sm: '0.8rem', md: '0.875rem' },
+                '& .MuiAlert-message': {
+                  fontSize: 'inherit'
+                }
+              }}
+              action={
+                <IconButton
+                  aria-label="close"
+                  color="inherit"
+                  size="small"
+                  onClick={onClearError}
+                >
+                  <CloseIcon fontSize="inherit" />
+                </IconButton>
+              }
+            >
+              {uploadError}
+            </Alert>
+          ) : (
+            <Typography 
+              variant="body1" 
+              color="text.secondary"
+              sx={{ 
+                mb: { xs: 1.5, sm: 2, md: 3 },
+                fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' }, // Reduce font size
+                lineHeight: { xs: 1.3, sm: 1.4, md: 1.5 }, // Reduce line height
+                minHeight: { xs: '2.6rem', sm: '2.8rem', md: '3rem' }, // Fixed height to prevent jumping
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                textAlign: 'center'
+              }}
+            >
+              {isProcessingUpload ? currentUploadMessage : 'Upload your existing resume and let AI enhance it'}
+            </Typography>
+          )}
           <Button 
             variant="contained" 
             size="large"

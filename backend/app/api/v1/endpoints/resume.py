@@ -467,38 +467,65 @@ async def get_upload_result(
     current_user: VerifiedUser,
 ) -> Dict[str, Any]:
     """
-    Get the result of a completed resume upload processing task.
+    Get the result of a resume upload processing task.
+    Returns current task status regardless of completion state.
     Only available for users with verified email.
     """
     try:
         task = celery_app.AsyncResult(task_id)
         
-        if task.state != 'SUCCESS':
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Task is not completed. Current state: {task.state}"
-            )
-        
-        result = task.result
-        
-        if result is None:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Task completed but no result available"
-            )
-        
-        # Verify that the task belongs to the current user
-        if result.get('user_id') != current_user.id:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Access denied to this task result"
-            )
-        
-        return {
-            'status': 'completed',
-            'resume_id': result.get('resume_id'),
-            'message': 'Resume created and processed successfully'
-        }
+        if task.state == 'PENDING':
+            return {
+                'state': task.state,
+                'status': 'pending',
+                'message': 'Task is pending'
+            }
+        elif task.state == 'STARTED':
+            return {
+                'state': task.state,
+                'status': 'processing',
+                'message': 'Creating resume and processing with ParseService'
+            }
+        elif task.state == 'SUCCESS':
+            result = task.result
+            
+            if result is None:
+                return {
+                    'state': task.state,
+                    'status': 'error',
+                    'message': 'Task completed but no result available'
+                }
+            
+            # Verify that the task belongs to the current user
+            if result.get('user_id') != current_user.id:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Access denied to this task result"
+                )
+            
+            return {
+                'state': task.state,
+                'status': 'completed',
+                'resume_id': result.get('resume_id'),
+                'message': result.get('message', 'Resume created and processed successfully'),
+                'startup_message': result.get('startup_message')
+            }
+        elif task.state == 'FAILURE':
+            result = task.result
+            error_message = str(result) if result is not None else 'Unknown error occurred'
+            
+            return {
+                'state': task.state,
+                'status': 'error',
+                'message': 'Failed to process resume',
+                'error': error_message
+            }
+        else:
+            return {
+                'state': task.state,
+                'status': 'unknown',
+                'message': f'Unknown task state: {task.state}'
+            }
         
     except HTTPException:
         raise

@@ -20,6 +20,7 @@ const StartPage: React.FC = () => {
   const [isProcessingUpload, setIsProcessingUpload] = useState(false);
   const [uploadMessage, setUploadMessage] = useState('');
   const [taskId, setTaskId] = useState<string | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   const hasResumes = Array.isArray(resumes) && resumes.length > 0;
 
@@ -61,15 +62,33 @@ const StartPage: React.FC = () => {
       const pollTask = async () => {
         try {
           const result = await resumeApi.getUploadResult(taskIdParam);
+          
           if (result.status === 'completed' && result.resume_id) {
+            // Success - navigate to chat
             clearInterval(interval);
             setIsProcessingUpload(false);
+            setUploadError(null);
             navigate(`/chat?resume_id=${result.resume_id}`, { replace: true });
+          } else if (result.status === 'error' || result.state === 'FAILURE') {
+            // Error - stop processing and show error
+            clearInterval(interval);
+            setIsProcessingUpload(false);
+            setTaskId(null);
+            setUploadError(result.error || result.message || 'Failed to process resume');
+            // Clear error message from URL
+            navigate('/start', { replace: true });
+          } else if (result.status === 'pending' || result.status === 'processing') {
+            // Still processing - continue polling
+            setTimeout(pollTask, 3000);
+          } else {
+            // Unknown status - continue polling but log it
+            console.warn('Unknown task status:', result);
+            setTimeout(pollTask, 3000);
           }
         } catch (error) {
           console.error('Error polling task:', error);
-          // Continue polling on error
-          setTimeout(pollTask, 3000);
+          // On API error, continue polling but with longer delay
+          setTimeout(pollTask, 5000);
         }
       };
       
@@ -180,6 +199,8 @@ const StartPage: React.FC = () => {
           onGuardUploadResume={guardUploadResume}
           isProcessingUpload={isProcessingUpload}
           uploadMessage={uploadMessage}
+          uploadError={uploadError}
+          onClearError={() => setUploadError(null)}
           isStartFromScratchDisabled={!!taskId}
         />
       </Box>
