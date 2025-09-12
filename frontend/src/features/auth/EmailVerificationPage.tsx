@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Alert } from '@mui/material';
@@ -17,10 +17,39 @@ const EmailVerificationPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [verificationToken, setVerificationToken] = useState<string | null>(null);
+
+  // Get initial verification token when component mounts
+  useEffect(() => {
+    const getInitialToken = async () => {
+      if (!email) return;
+      
+      try {
+        const response = await authApi.resendVerificationCode({
+          email,
+          code_type: 'email_confirm'
+        });
+        
+        if (response.token) {
+          setVerificationToken(response.token);
+        }
+      } catch (error) {
+        console.error('Failed to get initial verification token:', error);
+        // Don't show error here as user hasn't tried to submit yet
+      }
+    };
+
+    getInitialToken();
+  }, [email]);
 
   const handleSubmitCode = async (code: string) => {
     if (!email) {
       setError(t('auth.verification.invalidCode'));
+      return;
+    }
+
+    if (!verificationToken) {
+      setError('Verification token not available. Please try resending the code.');
       return;
     }
 
@@ -30,7 +59,8 @@ const EmailVerificationPage: React.FC = () => {
     try {
       const response = await authApi.confirmEmailByCode({
         email,
-        code
+        code,
+        token: verificationToken
       });
 
       // Store tokens and login user
@@ -59,10 +89,14 @@ const EmailVerificationPage: React.FC = () => {
     if (!email) return;
 
     try {
-      await authApi.resendVerificationCode({
+      const response = await authApi.resendVerificationCode({
         email,
         code_type: 'email_confirm'
       });
+      
+      if (response.token) {
+        setVerificationToken(response.token);
+      }
       setError(null);
     } catch (error) {
       console.error('Failed to resend verification code:', error);

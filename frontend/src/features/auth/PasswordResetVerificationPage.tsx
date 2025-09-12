@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Alert, TextField, Button, Box, Typography } from '@mui/material';
@@ -19,6 +19,30 @@ const PasswordResetVerificationPage: React.FC = () => {
   const [verifiedCode, setVerifiedCode] = useState<string>('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [verificationToken, setVerificationToken] = useState<string | null>(null);
+
+  // Get initial verification token when component mounts
+  useEffect(() => {
+    const getInitialToken = async () => {
+      if (!email) return;
+      
+      try {
+        const response = await authApi.resendVerificationCode({
+          email,
+          code_type: 'password_reset'
+        });
+        
+        if (response.token) {
+          setVerificationToken(response.token);
+        }
+      } catch (error) {
+        console.error('Failed to get initial verification token:', error);
+        // Don't show error here as user hasn't tried to submit yet
+      }
+    };
+
+    getInitialToken();
+  }, [email]);
 
   const handleSubmitCode = async (code: string) => {
     if (!email) {
@@ -53,9 +77,15 @@ const PasswordResetVerificationPage: React.FC = () => {
     setError(null);
 
     try {
+      if (!verificationToken) {
+        setError('Verification token not available. Please try resending the code.');
+        return;
+      }
+
       await authApi.resetPasswordByCode({
         email,
         code: verifiedCode,
+        token: verificationToken,
         new_password: newPassword
       });
 
@@ -84,10 +114,14 @@ const PasswordResetVerificationPage: React.FC = () => {
     if (!email) return;
 
     try {
-      await authApi.resendVerificationCode({
+      const response = await authApi.resendVerificationCode({
         email,
         code_type: 'password_reset'
       });
+      
+      if (response.token) {
+        setVerificationToken(response.token);
+      }
       setError(null);
     } catch (error) {
       console.error('Failed to resend verification code:', error);

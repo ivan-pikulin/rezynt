@@ -20,11 +20,13 @@ export interface PasswordResetConfirm {
 export interface EmailVerificationByCode {
   email: string;
   code: string;
+  token: string;
 }
 
 export interface PasswordResetByCode {
   email: string;
   code: string;
+  token: string;
   new_password: string;
 }
 
@@ -139,8 +141,8 @@ export class AuthApi extends BaseApi {
   /**
    * Resend verification code
    */
-  async resendVerificationCode(request: ResendVerificationCode): Promise<{ message: string }> {
-    return this.post<{ message: string }>('/auth/resend-verification-code', request);
+  async resendVerificationCode(request: ResendVerificationCode): Promise<{ message: string; token?: string }> {
+    return this.post<{ message: string; token?: string }>('/auth/resend-verification-code', request);
   }
 }
 
