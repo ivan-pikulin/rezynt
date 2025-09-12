@@ -20,6 +20,8 @@ const ResumesPage = React.lazy(() => import('./features/resumes/ResumesPage'));
 const LoginPage = React.lazy(() => import('./features/auth/LoginPage'));
 const SignupPage = React.lazy(() => import('./features/auth/SignupPage'));
 const EmailConfirmationPage = React.lazy(() => import('./features/auth/EmailConfirmationPage'));
+const EmailVerificationPage = React.lazy(() => import('./features/auth/EmailVerificationPage'));
+const PasswordResetVerificationPage = React.lazy(() => import('./features/auth/PasswordResetVerificationPage'));
 const RequestPasswordResetPage = React.lazy(() => import('./features/auth/RequestPasswordResetPage'));
 const ResetPasswordPage = React.lazy(() => import('./features/auth/ResetPasswordPage'));
 const HomeRedirect = React.lazy(() => import('./shared/components/HomeRedirect'));
@@ -51,7 +53,9 @@ function AppRoutes() {
         } />
         <Route path="/auth/email-confirmed" element={<EmailConfirmationPage />} />
         <Route path="/auth/email-confirmation-error" element={<EmailConfirmationPage />} />
+        <Route path="/auth/verify-email" element={<EmailVerificationPage />} />
         <Route path="/auth/request-password-reset" element={<RequestPasswordResetPage />} />
+        <Route path="/auth/reset-password-verification" element={<PasswordResetVerificationPage />} />
         <Route path="/auth/reset-password" element={<ResetPasswordPage />} />
         
         {/* Protected routes */}

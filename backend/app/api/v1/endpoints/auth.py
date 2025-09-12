@@ -6,7 +6,7 @@ from app.core import security
 from app.core.config import settings
 from app.database.crud import user_crud
 from app.database.crud.crud_temp_resume_file import temp_resume_file_crud
-from app.schemas import RefreshRequest, Token, UserCreate, UserPublic, PasswordResetRequest, PasswordResetConfirm
+from app.schemas import RefreshRequest, Token, UserCreate, UserPublic, PasswordResetRequest, PasswordResetConfirm, EmailVerificationByCode, PasswordResetByCode, ResendVerificationCode
 from app.services.user_service import UserService
 from fastapi import APIRouter, Body, Depends, HTTPException, status, Response
 from fastapi.security import OAuth2PasswordRequestForm
@@ -183,3 +183,104 @@ async def refresh_token(
         "access_token": security.create_access_token(user_id, expires_delta=access_token_expires),
         "token_type": "bearer",
     }
+
+
+@router.post("/confirm-email-by-code", status_code=status.HTTP_200_OK)
+async def confirm_email_by_code(
+    *,
+    db: AsyncDB,
+    verification_request: EmailVerificationByCode,
+) -> dict[str, str]:
+    """
+    Confirm user registration by 6-digit verification code.
+    """
+    try:
+        service = UserService(db)
+        user = await service.confirm_user_by_code(
+            code=verification_request.code, 
+            email=verification_request.email,
+            token=verification_request.token
+        )
+
+        # Issue tokens after successful confirmation
+        access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        access_token = security.create_access_token(user.id, expires_delta=access_token_expires)
+        refresh_token = security.create_refresh_token(user.id)
+
+        return {
+            "message": "Email confirmed successfully",
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+            "token_type": "bearer"
+        }
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+
+
+@router.post("/reset-password-by-code", status_code=status.HTTP_200_OK)
+async def reset_password_by_code(
+    *,
+    db: AsyncDB,
+    reset_request: PasswordResetByCode,
+) -> dict[str, str]:
+    """
+    Reset password using 6-digit verification code.
+    """
+    try:
+        service = UserService(db)
+        user = await service.confirm_password_reset_by_code(
+            code=reset_request.code,
+            email=reset_request.email,
+            token=reset_request.token,
+            new_password=reset_request.new_password
+        )
+        
+        return {
+            "message": "Password reset successfully"
+        }
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+
+
+@router.post("/resend-verification-code", status_code=status.HTTP_200_OK)
+async def resend_verification_code(
+    *,
+    db: AsyncDB,
+    resend_request: ResendVerificationCode,
+) -> dict[str, str]:
+    """
+    Resend verification code for email confirmation or password reset.
+    """
+    if resend_request.code_type not in ['email_confirm', 'password_reset']:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid code type. Must be 'email_confirm' or 'password_reset'"
+        )
+    
+    try:
+        service = UserService(db)
+        success, token = await service.resend_verification_code(
+            email=resend_request.email,
+            code_type=resend_request.code_type
+        )
+        
+        if success:
+            return {
+                "message": "Verification code resent successfully",
+                "token": token
+            }
+        else:
+            return {
+                "message": "Failed to send verification code"
+            }
+    except Exception as e:
+        # For security, always return successful response
+        return {
+            "message": "If an account with that email exists, a verification code has been sent."
+        }

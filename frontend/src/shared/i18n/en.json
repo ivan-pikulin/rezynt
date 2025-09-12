@@ -76,6 +76,9 @@
         "confirmPasswordRequired": "Password confirmation is required",
         "errorMessage": "An error occurred while resetting your password. The link may be expired or invalid."
       },
+      "newPasswordTitle": "Set New Password",
+      "newPasswordSubtitle": "Enter your new password below",
+      "confirmNewPassword": "Confirm New Password",
       "invalidLink": {
         "title": "Invalid Link",
         "message": "The password reset link is invalid or missing."
@@ -96,6 +99,18 @@
         "homeButton": "Go Home",
         "loginButton": "Log In"
       }
+    },
+    "verification": {
+      "title": "Enter Verification Code",
+      "subtitle": "We've sent a 6-digit code to {{email}}",
+      "didntReceive": "Didn't receive the code?",
+      "resendCode": "Resend Code",
+      "resendIn": "Resend in",
+      "sending": "Sending...",
+      "changeEmail": "Change Email",
+      "expiresIn15min": "Code expires in 15 minutes",
+      "invalidCode": "Invalid or expired verification code",
+      "codeRequired": "Please enter the 6-digit code"
     }
   },
   "refine": {

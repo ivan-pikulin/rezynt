@@ -17,6 +17,9 @@
                 </endpoint>
                 <endpoint path="/auth/request-password-reset" method="POST" description="Request password reset via email"/>
                 <endpoint path="/auth/reset-password" method="POST" description="Reset password using token from email"/>
+                <endpoint path="/auth/confirm-email-by-code" method="POST" description="Confirm user email using 6-digit verification code"/>
+                <endpoint path="/auth/reset-password-by-code" method="POST" description="Reset password using 6-digit verification code"/>
+                <endpoint path="/auth/resend-verification-code" method="POST" description="Resend 6-digit verification code for email confirmation or password reset"/>
                 <endpoint path="/auth/refresh" method="POST" description="Refresh access token"/>
             </endpoints>
         </module>
@@ -161,6 +164,9 @@
             <endpoint path="/auth/confirm-email" description="No authentication required"/>
             <endpoint path="/auth/request-password-reset" description="No authentication required"/>
             <endpoint path="/auth/reset-password" description="No authentication required"/>
+            <endpoint path="/auth/confirm-email-by-code" description="No authentication required"/>
+            <endpoint path="/auth/reset-password-by-code" description="No authentication required"/>
+            <endpoint path="/auth/resend-verification-code" description="No authentication required"/>
             <endpoint path="/health" description="No authentication required"/>
             <endpoint path="/ai/{resume_id}/update" description="Requires API key authentication"/>
             <endpoint path="/ai/resume/{resume_id}/full" description="Requires API key authentication"/>

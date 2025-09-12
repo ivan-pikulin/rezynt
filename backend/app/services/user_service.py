@@ -1,8 +1,9 @@
-from typing import Optional
+from typing import Optional, Tuple
 from itsdangerous import URLSafeTimedSerializer
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
+from app.core.verification import verification_generator
 from app.database.crud import user_crud
 from app.schemas import UserCreate, User
 from logging import getLogger
@@ -24,18 +25,18 @@ class UserService:
         # Create user
         user = await user_crud.create(self.db, obj_in=user_in)
         
-        # Generate confirmation token
-        token = self.serializer.dumps(str(user.id), salt='email-confirm')
+        # Generate token and 6-digit code
+        token, code = verification_generator.generate_token_and_code(user.id, 'email-confirm')
         
-        # Send email in background
+        # Send email in background with both token and code
         # Try enqueueing via Celery; if broker is read-only/unavailable, fallback to direct send
         try:
             from app.core.tasks import send_confirmation_email_task
-            send_confirmation_email_task.delay(user.email, token)
+            send_confirmation_email_task.delay(user.email, token, code)
         except Exception as celery_error:
             self.logger.warning(f"Celery publish failed, falling back to direct email: {celery_error}")
             from app.services.email_service import EmailService
-            EmailService().send_confirmation_email(user.email, token)
+            EmailService().send_confirmation_email(user.email, token, code)
         
         return user
 
@@ -63,17 +64,17 @@ class UserService:
             # For security, don't reveal that user doesn't exist
             return True
         
-        # Generate password reset token (1 hour expiration)
-        token = self.serializer.dumps(str(user.id), salt='password-reset')
+        # Generate token and 6-digit code
+        token, code = verification_generator.generate_token_and_code(user.id, 'password-reset')
         
-        # Send email in background
+        # Send email in background with both token and code
         try:
             from app.core.tasks import send_password_reset_email_task
-            send_password_reset_email_task.delay(user.email, token)
+            send_password_reset_email_task.delay(user.email, token, code)
         except Exception as celery_error:
             self.logger.warning(f"Celery publish failed, falling back to direct email: {celery_error}")
             from app.services.email_service import EmailService
-            EmailService().send_password_reset_email(user.email, token)
+            EmailService().send_password_reset_email(user.email, token, code)
         
         return True
 
@@ -92,6 +93,75 @@ class UserService:
             raise ValueError("User not found")
         
         return user
+
+    async def confirm_user_by_code(self, code: str, email: str, token: str) -> User:
+        """Confirms user email by 6-digit verification code"""
+        # Verify code against token (15 minutes expiration for codes)
+        try:
+            user_id = verification_generator.verify_code(code, token, 'email-confirm', max_age=900)
+        except ValueError:
+            raise ValueError("Invalid or expired verification code")
+        
+        # Double-check email matches user
+        user = await user_crud.get_by_email(self.db, email=email)
+        if not user or user.id != user_id:
+            raise ValueError("Invalid verification code")
+        
+        # Confirm email
+        user = await user_crud.confirm_email(self.db, user_id=user_id)
+        if not user:
+            raise ValueError("User not found")
+        
+        return user
+
+    async def confirm_password_reset_by_code(self, code: str, email: str, token: str, new_password: str) -> User:
+        """Confirms password reset by 6-digit verification code and sets new password"""
+        # Verify code against token (15 minutes expiration for codes)
+        try:
+            user_id = verification_generator.verify_code(code, token, 'password-reset', max_age=900)
+        except ValueError:
+            raise ValueError("Invalid or expired verification code")
+        
+        # Double-check email matches user
+        user = await user_crud.get_by_email(self.db, email=email)
+        if not user or user.id != user_id:
+            raise ValueError("Invalid verification code")
+        
+        # Update user password
+        user = await user_crud.update_password(self.db, user_id=user_id, new_password=new_password)
+        if not user:
+            raise ValueError("User not found")
+        
+        return user
+
+    async def resend_verification_code(self, email: str, code_type: str) -> Tuple[bool, str]:
+        """Resend verification code for email confirmation or password reset"""
+        # Check if user exists
+        user = await user_crud.get_by_email(self.db, email=email)
+        if not user:
+            # For security, don't reveal that user doesn't exist
+            return True, ""
+        
+        # Generate new token and code
+        salt = 'email-confirm' if code_type == 'email_confirm' else 'password-reset'
+        token, code = verification_generator.generate_token_and_code(user.id, salt)
+        
+        # Send appropriate email based on code type
+        try:
+            from app.services.email_service import EmailService
+            email_service = EmailService()
+            
+            if code_type == 'email_confirm':
+                success = email_service.send_confirmation_email(email, token, code)
+            elif code_type == 'password_reset':
+                success = email_service.send_password_reset_email(email, token, code)
+            else:
+                raise ValueError("Invalid code type")
+            
+            return success, token
+        except Exception as e:
+            self.logger.error(f"Failed to resend verification code: {e}")
+            return False, ""
 
     async def get_user_by_email(self, email: str) -> Optional[User]:
         """Gets user by email"""

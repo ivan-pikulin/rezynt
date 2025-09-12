@@ -51,7 +51,9 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         return user.is_verified
 
     async def confirm_email(self, db: AsyncSession, *, user_id: int) -> Optional[User]:
-        user = await self.get(db, id=user_id)
+        """Mark user email as verified"""
+        result = await db.execute(select(self.model).where(User.id == user_id))
+        user = result.scalar_one_or_none()
         if user:
             user.is_verified = True
             await db.commit()
@@ -59,8 +61,9 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         return user
 
     async def update_password(self, db: AsyncSession, *, user_id: int, new_password: str) -> Optional[User]:
-        """Updates user password"""
-        user = await self.get(db, id=user_id)
+        """Update user password"""
+        result = await db.execute(select(self.model).where(User.id == user_id))
+        user = result.scalar_one_or_none()
         if user:
             user.password_hash = get_password_hash(new_password)
             await db.commit()

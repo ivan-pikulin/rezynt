@@ -10,6 +10,10 @@ const RequestPasswordResetPage: React.FC = () => {
     navigate('/login');
   };
 
+  const handleSuccess = (email: string) => {
+    navigate(`/auth/reset-password-verification?email=${encodeURIComponent(email)}`);
+  };
+
   return (
     <Container component="main" maxWidth="xs">
       <Box
@@ -30,7 +34,7 @@ const RequestPasswordResetPage: React.FC = () => {
             width: '100%',
           }}
         >
-          <RequestPasswordResetForm onBackToLogin={handleBackToLogin} />
+          <RequestPasswordResetForm onBackToLogin={handleBackToLogin} onSuccess={handleSuccess} />
         </Paper>
       </Box>
     </Container>

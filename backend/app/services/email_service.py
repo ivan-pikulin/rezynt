@@ -109,13 +109,14 @@ class EmailService:
             logger.error(f"Unexpected error sending email: {e}")
             return False
     
-    def send_confirmation_email(self, to_email: str, confirmation_token: str) -> bool:
+    def send_confirmation_email(self, to_email: str, confirmation_token: str, verification_code: str = None) -> bool:
         """
         Sends confirmation email for registration
         
         Args:
             to_email: User email
             confirmation_token: Confirmation token
+            verification_code: Optional 6-digit verification code
             
         Returns:
             bool: True if email sent successfully
@@ -124,8 +125,48 @@ class EmailService:
         
         subject = "Email Confirmation - Rezynt"
         
-        # HTML template for email
-        html_template = """<!DOCTYPE html>
+        # Choose template based on whether we have verification code
+        if verification_code:
+            # Modern template with code
+            html_template = """<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Email Confirmation</title>
+</head>
+<body style="font-family:Arial,sans-serif;margin:0;padding:20px;background-color:#f4f4f4">
+<div style="max-width:600px;margin:0 auto;background-color:white;padding:30px;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,0.1)">
+<h1 style="color:#4caf50;text-align:center;margin-bottom:30px">Welcome to Rezynt!</h1>
+<h2 style="color:#333;margin-bottom:20px">Confirm your email</h2>
+<p style="color:#666;line-height:1.6;margin-bottom:30px">Thank you for signing up! To complete your registration, please confirm your email address using one of the methods below:</p>
+
+<!-- Verification Code Section -->
+<div style="background-color:#f8f9fa;border:2px solid #e9ecef;border-radius:8px;padding:25px;margin:30px 0;text-align:center">
+<h3 style="color:#333;margin:0 0 15px 0;font-size:18px">Verification Code</h3>
+<div style="background-color:white;border:2px solid #4caf50;border-radius:8px;padding:20px;margin:15px 0;display:inline-block">
+<span style="font-size:32px;font-weight:bold;color:#4caf50;letter-spacing:8px;font-family:monospace">{{ code }}</span>
+</div>
+<p style="color:#666;margin:15px 0 0 0;font-size:14px">Copy this code and paste it in the verification form</p>
+</div>
+
+<div style="text-align:center;margin:30px 0">
+<p style="color:#666;margin-bottom:15px">Or click the button below:</p>
+<a href="{{ api_url }}/api/v1/auth/confirm-email?token={{ token }}" style="display:inline-block;padding:15px 30px;background-color:#4caf50;color:white;text-decoration:none;border-radius:6px;font-weight:bold;font-size:16px">Confirm Email</a>
+</div>
+
+<div style="background-color:#fff3cd;border:1px solid #ffeaa7;border-radius:4px;padding:15px;margin:30px 0">
+<p style="margin:0;color:#856404;font-size:14px"><strong>Alternative link:</strong> If the button doesn't work, copy and paste this link:</p>
+<p style="word-break:break-all;background-color:#f0f0f0;padding:10px;border-radius:4px;margin:10px 0;font-family:monospace;font-size:12px">{{ api_url }}/api/v1/auth/confirm-email?token={{ token }}</p>
+</div>
+
+<p style="color:#666;font-size:14px;line-height:1.6">The verification code is valid for 15 minutes. If you didn't sign up for our service, please ignore this email.</p>
+<p style="text-align:center;color:#999;font-size:12px;margin-top:40px;border-top:1px solid #eee;padding-top:20px">&copy; 2025 Rezynt. All rights reserved.</p>
+</div>
+</body>
+</html>"""
+        else:
+            # Original template without code
+            html_template = """<!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8">
@@ -148,23 +189,28 @@ class EmailService:
 </html>"""
         
         # Render HTML template
-        html_content = Template(html_template).render(
-            api_url=settings.API_BASE_URL,
-            token=confirmation_token
-        )
+        template_vars = {
+            'api_url': settings.API_BASE_URL,
+            'token': confirmation_token
+        }
+        if verification_code:
+            template_vars['code'] = verification_code
+            
+        html_content = Template(html_template).render(**template_vars)
         
         logger.info(f"Confirmation email HTML content generated, length: {len(html_content)}")
         result = self.send_email(to_email, subject, html_content)
         logger.info(f"Confirmation email send result: {result}")
         return result
 
-    def send_password_reset_email(self, to_email: str, reset_token: str) -> bool:
+    def send_password_reset_email(self, to_email: str, reset_token: str, verification_code: str = None) -> bool:
         """
         Sends password reset email
         
         Args:
             to_email: User email
             reset_token: Password reset token
+            verification_code: Optional 6-digit verification code
             
         Returns:
             bool: True if email sent successfully
@@ -173,8 +219,51 @@ class EmailService:
         
         subject = "Password Reset - Rezynt"
         
-        # HTML template for email
-        html_template = """<!DOCTYPE html>
+        # Choose template based on whether we have verification code
+        if verification_code:
+            # Modern template with code
+            html_template = """<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Password Reset</title>
+</head>
+<body style="font-family:Arial,sans-serif;margin:0;padding:20px;background-color:#f4f4f4">
+<div style="max-width:600px;margin:0 auto;background-color:white;padding:30px;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,0.1)">
+<h1 style="color:#4caf50;text-align:center;margin-bottom:30px">Password Reset</h1>
+<h2 style="color:#333;margin-bottom:20px">Reset your password</h2>
+<p style="color:#666;line-height:1.6;margin-bottom:30px">You received this email because a password reset was requested for your Rezynt account. Use one of the methods below to reset your password:</p>
+
+<!-- Verification Code Section -->
+<div style="background-color:#f8f9fa;border:2px solid #e9ecef;border-radius:8px;padding:25px;margin:30px 0;text-align:center">
+<h3 style="color:#333;margin:0 0 15px 0;font-size:18px">Verification Code</h3>
+<div style="background-color:white;border:2px solid #4caf50;border-radius:8px;padding:20px;margin:15px 0;display:inline-block">
+<span style="font-size:32px;font-weight:bold;color:#4caf50;letter-spacing:8px;font-family:monospace">{{ code }}</span>
+</div>
+<p style="color:#666;margin:15px 0 0 0;font-size:14px">Copy this code and paste it in the password reset form</p>
+</div>
+
+<div style="text-align:center;margin:30px 0">
+<p style="color:#666;margin-bottom:15px">Or click the button below:</p>
+<a href="{{ frontend_url }}/auth/reset-password?token={{ token }}" style="display:inline-block;padding:15px 30px;background-color:#4caf50;color:white;text-decoration:none;border-radius:6px;font-weight:bold;font-size:16px">Reset Password</a>
+</div>
+
+<div style="background-color:#fff3cd;border:1px solid #ffeaa7;border-radius:4px;padding:15px;margin:30px 0">
+<p style="margin:0;color:#856404;font-size:14px"><strong>Alternative link:</strong> If the button doesn't work, copy and paste this link:</p>
+<p style="word-break:break-all;background-color:#f0f0f0;padding:10px;border-radius:4px;margin:10px 0;font-family:monospace;font-size:12px">{{ frontend_url }}/auth/reset-password?token={{ token }}</p>
+</div>
+
+<div style="background-color:#ffe6e6;border:1px solid #ffb3b3;border-radius:4px;padding:15px;margin:30px 0">
+<p style="margin:0;color:#d63031;font-size:14px"><strong>Important:</strong> This code and link are valid for 15 minutes only. If you didn't request a password reset, please ignore this email and your account will remain secure.</p>
+</div>
+
+<p style="text-align:center;color:#999;font-size:12px;margin-top:40px;border-top:1px solid #eee;padding-top:20px">&copy; 2025 Rezynt. All rights reserved.</p>
+</div>
+</body>
+</html>"""
+        else:
+            # Original template without code
+            html_template = """<!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8">
@@ -197,10 +286,14 @@ class EmailService:
 </html>"""
         
         # Render HTML template
-        html_content = Template(html_template).render(
-            frontend_url=settings.FRONTEND_BASE_URL,
-            token=reset_token
-        )
+        template_vars = {
+            'frontend_url': settings.FRONTEND_BASE_URL,
+            'token': reset_token
+        }
+        if verification_code:
+            template_vars['code'] = verification_code
+            
+        html_content = Template(html_template).render(**template_vars)
         
         logger.info(f"Password reset email HTML content generated, length: {len(html_content)}")
         result = self.send_email(to_email, subject, html_content)

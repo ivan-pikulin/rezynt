@@ -89,12 +89,12 @@ def _generate_resume_text_from_parsed(parsed_data) -> str:
 
 
 @celery_app.task(name="send_confirmation_email_task")
-def send_confirmation_email_task(email: str, token: str):
+def send_confirmation_email_task(email: str, token: str, code: str = None):
     """Send confirmation email for registration via EmailService"""
-    return async_to_sync(_send_confirmation_email_task)(email, token)
+    return async_to_sync(_send_confirmation_email_task)(email, token, code)
 
 
-async def _send_confirmation_email_task(email: str, token: str):
+async def _send_confirmation_email_task(email: str, token: str, code: str = None):
     """Async implementation of confirmation email task"""
     logger.info(f"Starting confirmation email task for {email}")
     
@@ -102,7 +102,7 @@ async def _send_confirmation_email_task(email: str, token: str):
         email_service = EmailService()
         logger.info("EmailService initialized successfully")
         
-        success = email_service.send_confirmation_email(email, token)
+        success = email_service.send_confirmation_email(email, token, code)
         
         if success:
             logger.info(f"Confirmation email sent successfully to {email}")
@@ -117,12 +117,12 @@ async def _send_confirmation_email_task(email: str, token: str):
 
 
 @celery_app.task(name="send_password_reset_email_task")
-def send_password_reset_email_task(email: str, token: str):
+def send_password_reset_email_task(email: str, token: str, code: str = None):
     """Send password reset email with token via EmailService"""
-    return async_to_sync(_send_password_reset_email_task)(email, token)
+    return async_to_sync(_send_password_reset_email_task)(email, token, code)
 
 
-async def _send_password_reset_email_task(email: str, token: str):
+async def _send_password_reset_email_task(email: str, token: str, code: str = None):
     """Async implementation of password reset email task"""
     logger.info(f"Starting password reset email task for {email}")
     
@@ -130,7 +130,7 @@ async def _send_password_reset_email_task(email: str, token: str):
         email_service = EmailService()
         logger.info("EmailService initialized successfully")
         
-        success = email_service.send_password_reset_email(email, token)
+        success = email_service.send_password_reset_email(email, token, code)
         
         if success:
             logger.info(f"Password reset email sent successfully to {email}")

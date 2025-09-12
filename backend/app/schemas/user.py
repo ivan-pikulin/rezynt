@@ -75,6 +75,25 @@ class PasswordResetConfirm(BaseModel):
     new_password: str
 
 
+# Code-based verification schemas
+class EmailVerificationByCode(BaseModel):
+    email: EmailStr
+    code: str
+    token: str
+
+
+class PasswordResetByCode(BaseModel):
+    email: EmailStr
+    code: str
+    token: str
+    new_password: str
+
+
+class ResendVerificationCode(BaseModel):
+    email: EmailStr
+    code_type: str  # 'email_confirm' or 'password_reset'
+
+
 # Onboarding schemas
 class OnboardingResponse(BaseModel):
     experience: str

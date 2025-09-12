@@ -13,7 +13,16 @@ const SignupPage: React.FC = () => {
   const tempFileId = searchParams.get('temp_file_id');
 
   const handleSignupSuccess = (email?: string) => {
-    navigate('/login?signup_success=1');
+    if (email) {
+      // Redirect to email verification page with email parameter
+      const params = new URLSearchParams({ email });
+      if (tempFileId) {
+        params.set('resume_id', tempFileId);
+      }
+      navigate(`/auth/verify-email?${params.toString()}`);
+    } else {
+      navigate('/login?signup_success=1');
+    }
   };
 
   const handleSwitchToLogin = () => {

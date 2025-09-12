@@ -13,9 +13,10 @@ import { authApi } from '../../../shared/services/api';
 
 interface RequestPasswordResetFormProps {
   onBackToLogin: () => void;
+  onSuccess: (email: string) => void;
 }
 
-const RequestPasswordResetForm: React.FC<RequestPasswordResetFormProps> = ({ onBackToLogin }) => {
+const RequestPasswordResetForm: React.FC<RequestPasswordResetFormProps> = ({ onBackToLogin, onSuccess }) => {
   const { t } = useTranslation();
   const [error, setError] = useState<string>('');
   const [success, setSuccess] = useState<string>('');
@@ -40,11 +41,11 @@ const RequestPasswordResetForm: React.FC<RequestPasswordResetFormProps> = ({ onB
       
       try {
         await authApi.requestPasswordReset({ email: values.email });
-        setSuccess(t('auth.passwordReset.request.successMessage'));
+        // Redirect to verification page instead of showing success message
+        onSuccess(values.email);
       } catch (err: any) {
         console.error('Password reset request error:', err);
         setError(t('auth.passwordReset.request.errorMessage'));
-      } finally {
         setIsLoading(false);
       }
     },

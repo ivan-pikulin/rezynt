@@ -225,6 +225,28 @@
                     <template>HTML template with English text and green color (#4caf50)</template>
                 </method>
                 <method>
+                    <name>send_confirmation_email_with_code</name>
+                    <description>Sends modern HTML email for registration confirmation with both token link and 6-digit verification code</description>
+                    <params>
+                        <param name="to_email" type="str">User email</param>
+                        <param name="confirmation_token" type="str">Confirmation token for link</param>
+                        <param name="verification_code" type="str">6-digit verification code</param>
+                    </params>
+                    <returns type="bool">True if email sent successfully</returns>
+                    <template>Modern HTML template with large code display, copy button, and both verification options</template>
+                </method>
+                <method>
+                    <name>send_password_reset_email_with_code</name>
+                    <description>Sends modern HTML email for password reset with both token link and 6-digit verification code</description>
+                    <params>
+                        <param name="to_email" type="str">User email</param>
+                        <param name="reset_token" type="str">Password reset token for link</param>
+                        <param name="verification_code" type="str">6-digit verification code</param>
+                    </params>
+                    <returns type="bool">True if email sent successfully</returns>
+                    <template>Modern HTML template with large code display, copy button, and both verification options</template>
+                </method>
+                <method>
                     <name>_load_dkim_key</name>
                     <description>Loads DKIM private key from file</description>
                     <returns type="str">Private key content or empty string</returns>

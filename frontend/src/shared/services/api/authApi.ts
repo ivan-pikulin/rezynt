@@ -17,6 +17,22 @@ export interface PasswordResetConfirm {
   new_password: string;
 }
 
+export interface EmailVerificationByCode {
+  email: string;
+  code: string;
+}
+
+export interface PasswordResetByCode {
+  email: string;
+  code: string;
+  new_password: string;
+}
+
+export interface ResendVerificationCode {
+  email: string;
+  code_type: 'email_confirm' | 'password_reset';
+}
+
 export class AuthApi extends BaseApi {
   /**
    * User login with email and password
@@ -104,6 +120,27 @@ export class AuthApi extends BaseApi {
    */
   isAuthenticated(): boolean {
     return !!tokenService.getAccessToken();
+  }
+
+  /**
+   * Confirm email using 6-digit verification code
+   */
+  async confirmEmailByCode(request: EmailVerificationByCode): Promise<TokenResponse> {
+    return this.post<TokenResponse>('/auth/confirm-email-by-code', request);
+  }
+
+  /**
+   * Reset password using 6-digit verification code
+   */
+  async resetPasswordByCode(request: PasswordResetByCode): Promise<{ message: string }> {
+    return this.post<{ message: string }>('/auth/reset-password-by-code', request);
+  }
+
+  /**
+   * Resend verification code
+   */
+  async resendVerificationCode(request: ResendVerificationCode): Promise<{ message: string }> {
+    return this.post<{ message: string }>('/auth/resend-verification-code', request);
   }
 }
 
