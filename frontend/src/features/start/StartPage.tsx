@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import CircularProgress from '@mui/material/CircularProgress';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Header from '../../shared/components/Header/Header';
 import StartOptions from './components/StartOptions';
@@ -10,6 +9,7 @@ import { COLORS } from '../../shared/theme/theme';
 import PaywallModal from '../../shared/components/PaywallModal';
 import { useResumes } from '../resumes/hooks/useResumes';
 import { resumeApi } from '../../shared/services/api';
+import GradientSpinnerAnimation from '../../shared/components/GradientSpinnerAnimation';
 
 const StartPage: React.FC = () => {
   const navigate = useNavigate();

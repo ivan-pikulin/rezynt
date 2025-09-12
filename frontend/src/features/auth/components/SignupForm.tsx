@@ -5,7 +5,7 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Link from '@mui/material/Link';
 import Alert from '@mui/material/Alert';
-import CircularProgress from '@mui/material/CircularProgress';
+import GradientSpinnerAnimation from '../../../shared/components/GradientSpinnerAnimation';
 import InputAdornment from '@mui/material/InputAdornment';
 import IconButton from '@mui/material/IconButton';
 import Visibility from '@mui/icons-material/Visibility';
@@ -172,7 +172,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSuccess, onSwitchToLogin, tem
         sx={{ mt: 3, mb: 2, py: 1.5 }}
         disabled={isLoading}
       >
-        {isLoading ? <CircularProgress size={24} /> : t('auth.signup.submit')}
+        {isLoading ? <GradientSpinnerAnimation size={24} /> : t('auth.signup.submit')}
       </Button>
       
       <Box sx={{ textAlign: 'center' }}>

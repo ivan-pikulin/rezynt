@@ -5,7 +5,6 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Link from '@mui/material/Link';
 import Alert from '@mui/material/Alert';
-import CircularProgress from '@mui/material/CircularProgress';
 import InputAdornment from '@mui/material/InputAdornment';
 import IconButton from '@mui/material/IconButton';
 import Visibility from '@mui/icons-material/Visibility';
@@ -17,6 +16,7 @@ import { useTranslation } from 'react-i18next';
 import { authApi } from '../../../shared/services/api';
 import { LoginCredentials } from '../types/auth';
 import { useAuthContext } from '../../../shared/contexts/AuthContext';
+import GradientSpinnerAnimation from '../../../shared/components/GradientSpinnerAnimation';
 
 interface LoginFormProps {
   onSuccess: () => void;
@@ -138,7 +138,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, onSwitchToSignup, onSw
         sx={{ mt: 3, mb: 2, py: 1.5 }}
         disabled={isLoading}
       >
-        {isLoading ? <CircularProgress size={24} /> : t('auth.login.submit')}
+        {isLoading ? <GradientSpinnerAnimation size={24} /> : t('auth.login.submit')}
       </Button>
       
       <Box sx={{ textAlign: 'center' }}>

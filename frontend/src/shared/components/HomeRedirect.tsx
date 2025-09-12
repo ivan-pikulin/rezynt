@@ -1,15 +1,12 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import Box from '@mui/material/Box';
-import CircularProgress from '@mui/material/CircularProgress';
-import Typography from '@mui/material/Typography';
 import { useResumes } from '../../features/resumes/hooks/useResumes';
 import { useAuthContext } from '../contexts/AuthContext';
 import { useOnboarding } from '../hooks/useOnboarding';
+import GradientSpinnerAnimation from './GradientSpinnerAnimation';
 
 const HomeRedirect: React.FC = () => {
-  const { t } = useTranslation();
   const { isAuthenticated, isLoading: authLoading, user } = useAuthContext();
   const { shouldShowOnboarding } = useOnboarding(user);
   const { resumes, isLoading: resumesLoading } = useResumes();
@@ -20,15 +17,11 @@ const HomeRedirect: React.FC = () => {
       <Box sx={{ 
         minHeight: '100vh', 
         display: 'flex', 
-        flexDirection: 'column', 
         justifyContent: 'center',
         alignItems: 'center',
         bgcolor: '#f5f6fa'
       }}>
-        <CircularProgress size={40} />
-        <Typography variant="h6" sx={{ mt: 2, color: 'text.secondary' }}>
-          {t('common.loading')}
-        </Typography>
+        <GradientSpinnerAnimation size={40} />
       </Box>
     );
   }
@@ -49,15 +42,11 @@ const HomeRedirect: React.FC = () => {
       <Box sx={{ 
         minHeight: '100vh', 
         display: 'flex', 
-        flexDirection: 'column', 
         justifyContent: 'center',
         alignItems: 'center',
         bgcolor: '#f5f6fa'
       }}>
-        <CircularProgress size={40} />
-        <Typography variant="h6" sx={{ mt: 2, color: 'text.secondary' }}>
-          {t('common.loadingResumes')}
-        </Typography>
+        <GradientSpinnerAnimation size={40} />
       </Box>
     );
   }

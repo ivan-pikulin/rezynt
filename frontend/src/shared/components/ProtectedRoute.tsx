@@ -1,6 +1,7 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { CircularProgress, Box } from '@mui/material';
+import { Box } from '@mui/material';
+import GradientSpinnerAnimation from './GradientSpinnerAnimation';
 import { useAuthContext } from '../contexts/AuthContext';
 
 interface ProtectedRouteProps {
@@ -23,7 +24,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
         alignItems="center" 
         minHeight="100vh"
       >
-        <CircularProgress />
+        <GradientSpinnerAnimation size={40} />
       </Box>
     );
   }

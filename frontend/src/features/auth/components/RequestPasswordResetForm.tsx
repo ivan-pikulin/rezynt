@@ -5,7 +5,7 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Link from '@mui/material/Link';
 import Alert from '@mui/material/Alert';
-import CircularProgress from '@mui/material/CircularProgress';
+import GradientSpinnerAnimation from '../../../shared/components/GradientSpinnerAnimation';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import { useTranslation } from 'react-i18next';
@@ -95,7 +95,7 @@ const RequestPasswordResetForm: React.FC<RequestPasswordResetFormProps> = ({ onB
         sx={{ mt: 3, mb: 2, py: 1.5 }}
         disabled={isLoading}
       >
-        {isLoading ? <CircularProgress size={24} /> : t('auth.passwordReset.request.submit')}
+        {isLoading ? <GradientSpinnerAnimation size={24} /> : t('auth.passwordReset.request.submit')}
       </Button>
       
       <Box sx={{ textAlign: 'center' }}>

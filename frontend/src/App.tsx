@@ -1,4 +1,4 @@
-import { CssBaseline } from '@mui/material';
+import { CssBaseline, Box } from '@mui/material';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
@@ -6,6 +6,7 @@ import { AuthProvider } from './shared/contexts/AuthContext';
 import ProtectedRoute from './shared/components/ProtectedRoute';
 import OnboardingGuard from './shared/components/OnboardingGuard';
 import PublicOnboardingGuard from './shared/components/PublicOnboardingGuard';
+import GradientSpinnerAnimation from './shared/components/GradientSpinnerAnimation';
 
 // Create a client
 const queryClient = new QueryClient();
@@ -26,7 +27,16 @@ const PaymentSuccessPage = React.lazy(() => import('./features/export/PaymentSuc
 
 function AppRoutes() {
   return (
-    <React.Suspense fallback={<div>Loading...</div>}>
+    <React.Suspense fallback={
+      <Box sx={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center', 
+        minHeight: '100vh' 
+      }}>
+        <GradientSpinnerAnimation size={50} />
+      </Box>
+    }>
       <Routes>
         {/* Public routes */}
         <Route path="/login" element={

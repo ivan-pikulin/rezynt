@@ -1,24 +1,16 @@
 import React from 'react';
-import { Box, CircularProgress, Typography } from '@mui/material';
+import { Box } from '@mui/material';
+import GradientSpinnerAnimation from '../../../shared/components/GradientSpinnerAnimation';
 
-interface LoadingSpinnerProps {
-  message?: string;
-}
-
-const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ message = 'Загрузка...' }) => {
+const LoadingSpinner: React.FC = () => {
   return (
     <Box sx={{ 
       display: 'flex', 
-      flexDirection: 'column',
       alignItems: 'center', 
       justifyContent: 'center',
-      height: '100%',
-      gap: 2
+      height: '100%'
     }}>
-      <CircularProgress size={40} />
-      <Typography variant="body2" color="text.secondary">
-        {message}
-      </Typography>
+      <GradientSpinnerAnimation size={40} />
     </Box>
   );
 };

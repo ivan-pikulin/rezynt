@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { Box } from '@mui/material';
 import AuthLayout from './components/AuthLayout';
 import EmailConfirmation from './components/EmailConfirmation';
 import { EmailConfirmationParams } from './types/auth';
 import { useAuthContext } from '../../shared/contexts/AuthContext';
+import GradientSpinnerAnimation from '../../shared/components/GradientSpinnerAnimation';
 
 const EmailConfirmationPage: React.FC = () => {
   const { t } = useTranslation();
@@ -54,7 +56,14 @@ const EmailConfirmationPage: React.FC = () => {
   if (!confirmationData) {
     return (
       <AuthLayout title={t('auth.emailConfirmation.title')}>
-        <div>Loading...</div>
+        <Box sx={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          alignItems: 'center',
+          minHeight: '200px'
+        }}>
+          <GradientSpinnerAnimation size={40} />
+        </Box>
       </AuthLayout>
     );
   }

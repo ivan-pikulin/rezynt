@@ -6,7 +6,7 @@ import ViewModuleIcon from '@mui/icons-material/ViewModule';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { useMediaQuery } from '@mui/material';
 import Box from '@mui/material/Box';
-import CircularProgress from '@mui/material/CircularProgress';
+import GradientSpinnerAnimation from '../../shared/components/GradientSpinnerAnimation';
 import IconButton from '@mui/material/IconButton';
 import TextField from '@mui/material/TextField';
 import Tooltip from '@mui/material/Tooltip';
@@ -670,7 +670,7 @@ const RefinePage: React.FC = () => {
                 }}
               >
                 {isDownloading ? (
-                  <CircularProgress size={20} color="primary" />
+                  <GradientSpinnerAnimation size={20} />
                 ) : (
                   <DownloadIcon sx={{ fontSize: 20 }} />
                 )}
@@ -784,7 +784,7 @@ const RefinePage: React.FC = () => {
                 }}
               >
                 {isDownloading ? (
-                  <CircularProgress size={16} color="primary" />
+                  <GradientSpinnerAnimation size={16} />
                 ) : (
                   <DownloadIcon sx={{ fontSize: 18 }} />
                 )}

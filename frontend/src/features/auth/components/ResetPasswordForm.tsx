@@ -4,7 +4,7 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Alert from '@mui/material/Alert';
-import CircularProgress from '@mui/material/CircularProgress';
+import GradientSpinnerAnimation from '../../../shared/components/GradientSpinnerAnimation';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import { useNavigate } from 'react-router-dom';
@@ -114,7 +114,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token }) => {
         sx={{ mt: 3, mb: 2, py: 1.5 }}
         disabled={isLoading}
       >
-        {isLoading ? <CircularProgress size={24} /> : t('auth.passwordReset.reset.submit')}
+        {isLoading ? <GradientSpinnerAnimation size={24} /> : t('auth.passwordReset.reset.submit')}
       </Button>
     </Box>
   );
