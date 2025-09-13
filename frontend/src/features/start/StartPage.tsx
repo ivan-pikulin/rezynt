@@ -64,10 +64,16 @@ const StartPage: React.FC = () => {
           const result = await resumeApi.getUploadResult(taskIdParam);
           
           if (result.status === 'completed' && result.resume_id) {
-            // Success - navigate to chat
+            // Success - save startup message to localStorage and navigate to chat
             clearInterval(interval);
             setIsProcessingUpload(false);
             setUploadError(null);
+            
+            // Save startup message to localStorage for use in chat
+            if (result.startup_message) {
+              localStorage.setItem(`startup_message_${result.resume_id}`, result.startup_message);
+            }
+            
             navigate(`/chat?resume_id=${result.resume_id}`, { replace: true });
           } else if (result.status === 'error' || result.state === 'FAILURE') {
             // Error - stop processing and show error

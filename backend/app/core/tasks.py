@@ -377,6 +377,7 @@ def _create_resume_with_data(user_id: int, filename: str, parsed_data):
             # Get startup message from platform (avoid lazy DB loads; build text from parsed_data)
             try:
                 logger.info(f"Getting startup message from platform for resume {resume.id}")
+                logger.info(f"Platform settings: APP_KEY={'*' * 10 if settings.PLATFORM_UPLOAD_APP_KEY else 'None'}, APP_URL={settings.PLATFORM_APP_URL}")
 
                 # Generate full resume text using parsed_data (no DB IO)
                 resume_text = _generate_resume_text_from_parsed(parsed_data)
@@ -387,7 +388,9 @@ def _create_resume_with_data(user_id: int, filename: str, parsed_data):
                     app_url=settings.PLATFORM_APP_URL,
                     timeout=settings.PLATFORM_TIMEOUT
                 )
+                logger.info(f"PlatformChatflow initialized successfully")
 
+                logger.info(f"Calling get_startup_message with user_id={user_id}, resume_id={resume.id}")
                 startup_message, conversation_id = async_to_sync(platform_chatflow.get_startup_message)(
                     user_id=str(user_id),
                     resume_id=str(resume.id),
@@ -395,19 +398,21 @@ def _create_resume_with_data(user_id: int, filename: str, parsed_data):
                 )
 
                 logger.info(f"Received startup message from platform: {startup_message[:100]}...")
-                logger.info(f"Received conversation_id from platform: {conversation_id}")
+                logger.info(f"Received conversation_id from platform: '{conversation_id}' (type: {type(conversation_id)})")
 
                 # Store message on the in-memory object for returning via Celery result
                 resume.startup_message = startup_message
 
                 # Persist conversation_id if present
-                if conversation_id:
+                if conversation_id and conversation_id.strip():
                     resume.conversation_id = conversation_id
                     db.commit()
                     logger.info(f"Updated conversation_id for resume {resume.id}: {conversation_id}")
+                else:
+                    logger.warning(f"Empty or None conversation_id received from platform: '{conversation_id}'")
 
             except Exception as e:
-                logger.warning(f"Failed to get startup message from platform: {e}")
+                logger.error(f"Failed to get startup message from platform: {e}", exc_info=True)
                 resume.startup_message = (
                     "Welcome aboard! I'm your AI Writer, here to save you time and boost your chances. Let's start?"
                 )

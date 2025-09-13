@@ -1,4 +1,5 @@
 import json
+import logging
 from typing import Any, Dict, Optional
 
 from app.api.deps import VerifiedUser, get_db
@@ -11,6 +12,8 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -131,6 +134,7 @@ async def send_message_stream(
         
         # Update conversation_id if it changed
         if new_conversation_id and new_conversation_id != resume_obj.conversation_id:
+            logger.info(f"Updating conversation_id for resume {request.resume_id}: {resume_obj.conversation_id} -> {new_conversation_id}")
             await resume_manager.update_conversation_id(db, resume_id=request.resume_id, conversation_id=new_conversation_id)
         
         # Send end signal
@@ -181,6 +185,7 @@ async def get_messages(
     
     # If resume has no conversation_id, return empty list
     if not resume_obj.conversation_id:
+        logger.info(f"Resume {resume_id} has no conversation_id, returning empty message list")
         return ChatMessageList(
             messages=[],
             has_more=False,

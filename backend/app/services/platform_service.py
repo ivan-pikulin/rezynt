@@ -196,6 +196,8 @@ class PlatformChatflow:
         Get startup message from AI after resume processing using streaming mode.
         Returns tuple of (message, conversation_id).
         """
+        logger.info(f"get_startup_message called with user_id={user_id}, resume_id={resume_id}, resume_text_length={len(resume_text)}")
+        
         request_data = {
             "query": "Here is my resume, what do you think about it?",
             "user": user_id,
@@ -244,13 +246,17 @@ class PlatformChatflow:
                                     collected_answer_parts.append(chunk)
                                 if not current_conversation_id:
                                     current_conversation_id = data.get("conversation_id")
+                                logger.debug(f"agent_message event: chunk_length={len(chunk)}, conversation_id={data.get('conversation_id')}")
                             elif event == "message_end":
                                 current_conversation_id = data.get("conversation_id", current_conversation_id)
+                                logger.info(f"message_end event: final_conversation_id={current_conversation_id}")
                                 break
                             elif event == "error":
                                 error_msg = data.get("message", "Unknown error")
                                 logger.error(f"Streaming error: {error_msg}")
                                 raise Exception(f"Streaming error: {error_msg}")
+                            else:
+                                logger.debug(f"Unknown event: {event}, data: {data}")
                         except json.JSONDecodeError as e:
                             logger.warning(f"Failed to parse SSE data: {data_str}, error: {e}")
                             continue
@@ -258,4 +264,6 @@ class PlatformChatflow:
                 answer = "".join(collected_answer_parts).strip()
                 if not answer:
                     answer = "Welcome aboard! I'm your AI Writer, here to save you time and boost your chances. Let's start?"
+                
+                logger.info(f"get_startup_message completed. Answer length: {len(answer)}, conversation_id: '{current_conversation_id}'")
                 return answer, (current_conversation_id or "")
