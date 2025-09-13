@@ -11,8 +11,9 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled })
   const [message, setMessage] = useState('');
   
   const handleSend = () => {
-    if (message.trim() && !disabled) {
-      onSendMessage(message); // Remove .trim() to preserve line breaks
+    const currentMessage = message.trim();
+    if (currentMessage && !disabled) {
+      onSendMessage(currentMessage);
       setMessage('');
     }
   };
@@ -20,7 +21,11 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled })
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey && !disabled) {
       e.preventDefault();
-      handleSend();
+      const currentMessage = message.trim();
+      if (currentMessage) {
+        onSendMessage(currentMessage);
+        setMessage('');
+      }
     }
   };
   
