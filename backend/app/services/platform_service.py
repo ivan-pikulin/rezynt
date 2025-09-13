@@ -239,17 +239,30 @@ class PlatformChatflow:
                         try:
                             data = json.loads(data_str)
                             event = data.get("event")
+                            
+                            logger.debug(f"Received SSE event: {event}, data keys: {list(data.keys())}")
 
                             if event == "agent_message":
                                 chunk = data.get("answer", "")
                                 if chunk:
                                     collected_answer_parts.append(chunk)
                                 if not current_conversation_id:
-                                    current_conversation_id = data.get("conversation_id")
+                                    new_conversation_id = data.get("conversation_id")
+                                    if new_conversation_id and new_conversation_id.strip():
+                                        current_conversation_id = new_conversation_id
+                                        logger.info(f"Set conversation_id from agent_message: '{current_conversation_id}'")
+                                    else:
+                                        logger.debug(f"Received empty conversation_id from agent_message: '{new_conversation_id}'")
                                 logger.debug(f"agent_message event: chunk_length={len(chunk)}, conversation_id={data.get('conversation_id')}")
                             elif event == "message_end":
-                                current_conversation_id = data.get("conversation_id", current_conversation_id)
-                                logger.info(f"message_end event: final_conversation_id={current_conversation_id}")
+                                final_conversation_id = data.get("conversation_id", current_conversation_id)
+                                if final_conversation_id and final_conversation_id.strip() and final_conversation_id != current_conversation_id:
+                                    logger.info(f"Updated conversation_id in message_end: '{current_conversation_id}' -> '{final_conversation_id}'")
+                                    current_conversation_id = final_conversation_id
+                                elif not current_conversation_id and final_conversation_id and final_conversation_id.strip():
+                                    current_conversation_id = final_conversation_id
+                                    logger.info(f"Set conversation_id from message_end: '{current_conversation_id}'")
+                                logger.info(f"message_end event: final_conversation_id='{current_conversation_id}'")
                                 break
                             elif event == "error":
                                 error_msg = data.get("message", "Unknown error")

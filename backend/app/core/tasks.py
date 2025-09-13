@@ -409,7 +409,9 @@ def _create_resume_with_data(user_id: int, filename: str, parsed_data):
                     db.commit()
                     logger.info(f"Updated conversation_id for resume {resume.id}: {conversation_id}")
                 else:
-                    logger.warning(f"Empty or None conversation_id received from platform: '{conversation_id}'")
+                    logger.warning(f"Empty or None conversation_id received from platform: '{conversation_id}' (type: {type(conversation_id)})")
+                    # Don't fail the task, just log the warning
+                    # conversation_id will be created when user sends first message
 
             except Exception as e:
                 logger.error(f"Failed to get startup message from platform: {e}", exc_info=True)
