@@ -63,7 +63,7 @@ const PasswordResetVerificationPage: React.FC = () => {
       
       // Redirect to login after short delay
       setTimeout(() => {
-        navigate('/auth/login', { replace: true });
+        navigate('/login', { replace: true });
       }, 2000);
 
     } catch (error: any) {

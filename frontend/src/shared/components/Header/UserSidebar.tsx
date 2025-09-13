@@ -91,7 +91,7 @@ const UserSidebar: React.FC<UserSidebarProps> = ({
   };
 
   const handleNavigateToLogin = () => {
-    navigate('/auth/login');
+    navigate('/login');
     onClose();
   };
 
