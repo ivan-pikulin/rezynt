@@ -17,7 +17,7 @@
                 </endpoint>
                 <endpoint path="/auth/request-password-reset" method="POST" description="Request password reset via email"/>
                 <endpoint path="/auth/reset-password" method="POST" description="Reset password using token from email"/>
-                <endpoint path="/auth/confirm-email-by-code" method="POST" description="Confirm user email using 6-digit verification code"/>
+                <endpoint path="/auth/confirm-email-by-code" method="POST" description="Confirm user email using 6-digit verification code. If user has temp resume file, processes it and returns task_id"/>
                 <endpoint path="/auth/reset-password-by-code" method="POST" description="Reset password using 6-digit verification code"/>
                 <endpoint path="/auth/resend-verification-code" method="POST" description="Resend 6-digit verification code for email confirmation or password reset"/>
                 <endpoint path="/auth/refresh" method="POST" description="Refresh access token"/>
@@ -29,7 +29,7 @@
             <endpoints>
                 <endpoint path="/user/me" method="GET" description="Get current user profile"/>
                 <endpoint path="/user/me" method="PUT" description="Update current user profile"/>
-                <endpoint path="/user/onboarding/complete" method="POST" description="Complete user onboarding by saving responses"/>
+                <endpoint path="/user/onboarding/complete" method="POST" description="Complete user onboarding by saving responses (resume processing moved to email confirmation)"/>
             </endpoints>
         </module>
         

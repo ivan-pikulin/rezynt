@@ -193,7 +193,14 @@ async def confirm_email_by_code(
 ) -> dict[str, str]:
     """
     Confirm user registration by 6-digit verification code.
+    If user has a temp resume file, process it and return task_id.
     """
+    import logging
+    from app.database.crud.crud_temp_resume_file import temp_resume_file_crud
+    from app.core.tasks import process_resume_upload_task
+    
+    logger = logging.getLogger(__name__)
+    
     try:
         service = UserService(db)
         user = await service.confirm_user_by_code(
@@ -206,12 +213,46 @@ async def confirm_email_by_code(
         access_token = security.create_access_token(user.id, expires_delta=access_token_expires)
         refresh_token = security.create_refresh_token(user.id)
 
-        return {
+        # Check if user has a temp resume file
+        temp_file = await temp_resume_file_crud.get_by_user_id(db, user.id)
+        
+        response_data = {
             "message": "Email confirmed successfully",
             "access_token": access_token,
             "refresh_token": refresh_token,
             "token_type": "bearer"
         }
+        
+        if temp_file:
+            logger.info(f"Processing temp resume file {temp_file.file_id} for user {user.id}")
+            
+            try:
+                # Read file content
+                with open(temp_file.file_path, 'rb') as f:
+                    file_content = f.read()
+                
+                # Start Celery task for processing
+                task = process_resume_upload_task.delay(
+                    file_content, 
+                    temp_file.filename, 
+                    user.id
+                )
+                
+                logger.info(f"Started resume processing task {task.id} for user {user.id}")
+                
+                # Delete temp file after successful task start
+                await temp_resume_file_crud.delete_temp_file(db, temp_file)
+                
+                # Add task_id to response
+                response_data["task_id"] = task.id
+                response_data["message"] = "Email confirmed and resume processing started"
+                
+            except Exception as e:
+                logger.error(f"Failed to process temp resume for user {user.id}: {e}")
+                # Don't fail email confirmation if resume processing fails
+                response_data["message"] = "Email confirmed (resume processing failed)"
+
+        return response_data
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

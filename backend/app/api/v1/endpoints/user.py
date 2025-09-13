@@ -1,11 +1,7 @@
 from app.api.deps import AsyncDB, CurrentUser, APIKeyVerified
 from app.schemas import user as user_schemas
 from app.database.crud.crud_user import user_crud
-from app.database.crud.crud_temp_resume_file import temp_resume_file_crud
-from app.core.tasks import process_resume_upload_task
 from fastapi import APIRouter, HTTPException, status
-import logging
-import os
 
 router = APIRouter()
 
@@ -65,10 +61,7 @@ async def complete_onboarding(
 ) -> dict:
     """
     Complete user onboarding by saving responses.
-    If user has a temp resume file, process it and return task_id.
     """
-    logger = logging.getLogger(__name__)
-    
     if current_user.has_completed_onboarding:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -86,65 +79,6 @@ async def complete_onboarding(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found"
         )
-    
-    # Check if user has a temp resume file
-    temp_file = await temp_resume_file_crud.get_by_user_id(db, current_user.id)
-    
-    if temp_file:
-        logger.info(f"Processing temp resume file {temp_file.file_id} for user {current_user.id}")
-        
-        try:
-            # Read file content
-            with open(temp_file.file_path, 'rb') as f:
-                file_content = f.read()
-            
-            # Start Celery task for processing
-            task = process_resume_upload_task.delay(
-                file_content, 
-                temp_file.filename, 
-                current_user.id
-            )
-            
-            logger.info(f"Started resume processing task {task.id} for user {current_user.id}")
-            
-            # Delete temp file after successful task start
-            await temp_resume_file_crud.delete_temp_file(db, temp_file)
-            
-            return {
-                "user": {
-                    "id": user.id,
-                    "email": user.email,
-                    "is_verified": user.is_verified,
-                    "is_premium": user.is_premium,
-                    "is_registered": user.is_registered,
-                    "has_completed_onboarding": user.has_completed_onboarding,
-                    "onboarding_responses": user.onboarding_responses,
-                    "credits": user.credits,
-                    "created_at": user.created_at.isoformat(),
-                    "updated_at": user.updated_at.isoformat()
-                },
-                "task_id": task.id,
-                "message": "Onboarding completed and resume processing started"
-            }
-            
-        except Exception as e:
-            logger.error(f"Failed to process temp resume for user {current_user.id}: {e}")
-            # Don't fail onboarding if resume processing fails
-            return {
-                "user": {
-                    "id": user.id,
-                    "email": user.email,
-                    "is_verified": user.is_verified,
-                    "is_premium": user.is_premium,
-                    "is_registered": user.is_registered,
-                    "has_completed_onboarding": user.has_completed_onboarding,
-                    "onboarding_responses": user.onboarding_responses,
-                    "credits": user.credits,
-                    "created_at": user.created_at.isoformat(),
-                    "updated_at": user.updated_at.isoformat()
-                },
-                "message": "Onboarding completed (resume processing failed)"
-            }
     
     return {
         "user": {

@@ -45,8 +45,13 @@ const EmailVerificationPage: React.FC = () => {
       setSuccess(t('auth.emailConfirmation.success.title'));
       
       // Redirect to onboarding after successful verification
+      // If there's a task_id, pass it as URL parameter
+      const onboardingUrl = response.task_id 
+        ? `/onboarding?task_id=${response.task_id}`
+        : '/onboarding';
+      
       setTimeout(() => {
-        navigate('/onboarding', { replace: true });
+        navigate(onboardingUrl, { replace: true });
       }, 2000);
 
     } catch (error: any) {

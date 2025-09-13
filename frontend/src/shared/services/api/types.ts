@@ -67,6 +67,7 @@ export interface TokenResponse {
   access_token: string;
   refresh_token: string;
   token_type: string;
+  task_id?: string;
 }
 
 export interface RefreshRequest {

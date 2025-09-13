@@ -16,7 +16,7 @@ import {
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { userApi, OnboardingComplete } from '../../shared/services/api/userApi';
 import { useAuthContext } from '../../shared/contexts/AuthContext';
 import Header from '../../shared/components/Header/Header';
@@ -34,6 +34,7 @@ interface OnboardingPageProps {
 const OnboardingPage: React.FC<OnboardingPageProps> = ({ redirectUrl }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { updateUser } = useAuthContext();
   const [activeStep, setActiveStep] = useState(0);
   const [responses, setResponses] = useState<OnboardingComplete['responses']>({
@@ -44,6 +45,9 @@ const OnboardingPage: React.FC<OnboardingPageProps> = ({ redirectUrl }) => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>('');
+  
+  // Get task_id from URL parameters
+  const taskId = searchParams.get('task_id');
 
   const steps: OnboardingStep[] = [
     {
@@ -118,22 +122,21 @@ const OnboardingPage: React.FC<OnboardingPageProps> = ({ redirectUrl }) => {
       updateUser(result.user);
       
       // If there's a task_id, redirect to start page with it
-      if (result.task_id) {
-        navigate(`/start?task_id=${result.task_id}`, { replace: true });
+      if (taskId) {
+        navigate(`/start?task_id=${taskId}`, { replace: true });
+      } else if (redirectUrl) {
+        // Navigate to redirect URL if provided
+        navigate(redirectUrl, { replace: true });
       } else {
-        // Navigate to redirect URL if provided, otherwise to home
-        if (redirectUrl) {
-          navigate(redirectUrl, { replace: true });
-        } else {
-          navigate('/', { replace: true });
-        }
+        // Otherwise navigate to home
+        navigate('/', { replace: true });
       }
     } catch (err: any) {
       setError(err.response?.data?.detail || t('onboarding.error'));
     } finally {
       setIsLoading(false);
     }
-  }, [responses, updateUser, navigate, t, redirectUrl]);
+  }, [responses, updateUser, navigate, t, redirectUrl, taskId]);
 
   const currentStep = steps[activeStep];
   const isCurrentStepComplete = responses[currentStep.field] !== '';

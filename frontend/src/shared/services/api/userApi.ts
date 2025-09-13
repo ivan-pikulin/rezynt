@@ -52,8 +52,8 @@ export class UserApi extends BaseApi {
   /**
    * Complete user onboarding
    */
-  async completeOnboarding(data: OnboardingComplete): Promise<{ user: User; task_id?: string; message: string }> {
-    return this.post<{ user: User; task_id?: string; message: string }>('/user/onboarding/complete', data);
+  async completeOnboarding(data: OnboardingComplete): Promise<{ user: User; message: string }> {
+    return this.post<{ user: User; message: string }>('/user/onboarding/complete', data);
   }
 }
 

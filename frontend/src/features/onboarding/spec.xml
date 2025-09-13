@@ -70,7 +70,7 @@
   
   <api>
     <endpoint method="POST" path="/user/onboarding/complete">
-      <description>Complete user onboarding by saving responses</description>
+      <description>Complete user onboarding by saving responses (resume processing moved to email confirmation)</description>
       <request>
         <field name="responses" type="OnboardingResponse" required="true">
           <description>Object containing all onboarding question responses</description>
@@ -79,6 +79,9 @@
       <response>
         <field name="user" type="User">
           <description>Updated user object with onboarding completed</description>
+        </field>
+        <field name="message" type="string">
+          <description>Success message</description>
         </field>
       </response>
     </endpoint>
