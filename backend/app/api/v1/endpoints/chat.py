@@ -117,25 +117,28 @@ async def send_message_stream(
         new_conversation_id = None
         credit_consumed = False
         
-        async for chunk, conversation_id in platform_chatflow.chat_stream(
-            user_id=str(user.id),
-            text=request.message,
-            conversation_id=resume_obj.conversation_id,
-            inputs={"resume_id": str(request.resume_id)}
-        ):
-            new_conversation_id = conversation_id
-            # Send chunk as SSE
-            yield f"data: {json.dumps({'chunk': chunk})}\n\n"
-        
-        # Consume credit for free users after successful sending
-        if not user.is_premium and not credit_consumed:
-            await user_crud.consume_credit(db, user_id=user.id)
-            credit_consumed = True
-        
-        # Update conversation_id if it changed
-        if new_conversation_id and new_conversation_id != resume_obj.conversation_id:
-            logger.info(f"Updating conversation_id for resume {request.resume_id}: {resume_obj.conversation_id} -> {new_conversation_id}")
-            await resume_manager.update_conversation_id(db, resume_id=request.resume_id, conversation_id=new_conversation_id)
+        # Create a new database session for the streaming context
+        from app.database.session import SessionLocal
+        async with SessionLocal() as stream_db:
+            async for chunk, conversation_id in platform_chatflow.chat_stream(
+                user_id=str(user.id),
+                text=request.message,
+                conversation_id=resume_obj.conversation_id,
+                inputs={"resume_id": str(request.resume_id)}
+            ):
+                new_conversation_id = conversation_id
+                # Send chunk as SSE
+                yield f"data: {json.dumps({'chunk': chunk})}\n\n"
+            
+            # Consume credit for free users after successful sending
+            if not user.is_premium and not credit_consumed:
+                await user_crud.consume_credit(stream_db, user_id=user.id)
+                credit_consumed = True
+            
+            # Update conversation_id if it changed
+            if new_conversation_id and new_conversation_id != resume_obj.conversation_id:
+                logger.info(f"Updating conversation_id for resume {request.resume_id}: {resume_obj.conversation_id} -> {new_conversation_id}")
+                await resume_manager.update_conversation_id(stream_db, resume_id=request.resume_id, conversation_id=new_conversation_id)
         
         # Send end signal
         yield f"data: {json.dumps({'end': True})}\n\n"

@@ -117,6 +117,23 @@
         <dependency>gc</dependency>
     </dependencies>
     
+    <database_session_management>
+        <description>Proper database session handling to prevent connection leaks</description>
+        <sync_sessions>
+            <usage>Celery tasks use SyncSessionLocal for synchronous database operations</usage>
+            <context_manager>All database operations wrapped in 'with SyncSessionLocal() as db:' context manager</context_manager>
+            <auto_cleanup>Context manager ensures proper session cleanup and connection return to pool</auto_cleanup>
+        </sync_sessions>
+        <connection_pool>
+            <settings>
+                <pool_size>5 connections maintained in pool</pool_size>
+                <max_overflow>10 additional connections on demand</max_overflow>
+                <pool_recycle>3600 seconds (1 hour) connection recycling</pool_recycle>
+                <pool_pre_ping>True - validates connections before use</pool_pre_ping>
+            </settings>
+        </connection_pool>
+    </database_session_management>
+    
     <error_handling>
         <strategy>All tasks wrap operations in try-catch blocks</strategy>
         <logging>Detailed error logging with full stack trace</logging>

@@ -109,6 +109,7 @@
                         - Processes agent_message events for LLM response chunks
                         - Handles message_end and error events
                         - Updates conversation_id in resume after streaming
+                        - Uses dedicated database session for streaming context to prevent connection leaks
                     </implementation>
                 </feature>
             </features>

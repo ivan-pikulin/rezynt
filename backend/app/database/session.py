@@ -7,6 +7,9 @@ from sqlalchemy.orm import sessionmaker
 engine = create_async_engine(
     settings.async_database_url, 
     pool_pre_ping=True,
+    pool_recycle=3600,  # Recycle connections every hour
+    pool_size=10,       # Number of connections to maintain in pool
+    max_overflow=20,    # Additional connections that can be created on demand
     echo=False
 )
 SessionLocal = async_sessionmaker(
@@ -18,6 +21,9 @@ SessionLocal = async_sessionmaker(
 sync_engine = create_engine(
     settings.sync_database_url,  # Use sync database URL
     pool_pre_ping=True,
+    pool_recycle=3600,  # Recycle connections every hour
+    pool_size=5,        # Number of connections to maintain in pool
+    max_overflow=10,    # Additional connections that can be created on demand
     echo=False
 )
 SyncSessionLocal = sessionmaker(
