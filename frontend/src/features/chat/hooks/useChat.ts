@@ -132,8 +132,14 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fr
   const loadLatestMessages = useCallback(async () => {
     if (!resumeId) return;
 
+    // Prevent reloading if messages are already loaded and we're not in initial load
+    if (messages.length > 0 && lastLoadType !== 'none') {
+      return;
+    }
+
     // For unauthenticated users, show welcome message immediately without API call
-    if (!user) {
+    const currentUser = user; // Capture current user value
+    if (!currentUser) {
       const welcomeMessage = {
         id: 'welcome',
         content: "Welcome aboard! I'm your AI Resume Builder, here to save you time and boost your chances. Let's get personal: what's your name?",
@@ -193,7 +199,7 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fr
     } finally {
       setIsLoadingMessages(false);
     }
-  }, [resumeId, fromUpload, user]);
+  }, [resumeId, fromUpload, messages.length, lastLoadType]);
 
   // Управление скроллом в зависимости от типа загрузки сообщений
   useEffect(() => {
