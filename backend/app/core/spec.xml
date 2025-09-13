@@ -76,7 +76,7 @@
     <database_operations>
         <operation>
             <name>_create_resume_with_data</name>
-            <description>Creates resume in database with all data from ParseService</description>
+            <description>Creates resume in database with all data from ParseService and gets startup message from platform</description>
             <steps>
                 <step>Creating main resume record</step>
                 <step>Creating personal information (if available)</step>
@@ -84,11 +84,15 @@
                 <step>Creating skills (if available)</step>
                 <step>Creating work experience (if available)</step>
                 <step>Creating education (if available)</step>
+                <step>Getting startup message from platform via get_startup_message</step>
+                <step>Storing startup message and conversation_id in resume record</step>
             </steps>
             <data_handling>
                 <experience>Processes dictionaries with keys: job_title, company, location, start_date, end_date, responsibilities</experience>
                 <education>Processes dictionaries with keys: degree, institution, location, graduation_date</education>
                 <error_safety>Uses .get() method for safe access to dictionary keys</error_safety>
+                <platform_integration>Uses PlatformChatflow to get startup message and conversation_id</platform_integration>
+                <fallback_handling>If platform integration fails, sets fallback startup message and null conversation_id</fallback_handling>
             </data_handling>
             <logging>
                 <summary>Logs data summary before starting operations</summary>
@@ -104,6 +108,7 @@
         <dependency>redis (separate DB index for Celery via REDIS_CELERY_DB)</dependency>
         <dependency>app.services.email_service</dependency>
         <dependency>app.services.parse_service</dependency>
+        <dependency>app.services.platform_service</dependency>
         <dependency>app.database.models.resume</dependency>
         <dependency>app.database.session</dependency>
         <dependency>asgiref.sync</dependency>

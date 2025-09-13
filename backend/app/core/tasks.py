@@ -193,7 +193,7 @@ async def _process_resume_upload_task(file_content: bytes, filename: str, user_i
         
         # Create resume with all parsed data
         logger.info("Starting database operations to create resume")
-        resume = _create_resume_with_data(user_id, filename, parsed_data)
+        resume = await _create_resume_with_data(user_id, filename, parsed_data)
         logger.info(f"Database operations completed successfully, resume ID: {resume.id}")
         
         # Clean up parsed data
@@ -248,7 +248,7 @@ async def _process_resume_upload_task(file_content: bytes, filename: str, user_i
         return result
 
 
-def _create_resume_with_data(user_id: int, filename: str, parsed_data):
+async def _create_resume_with_data(user_id: int, filename: str, parsed_data):
     """Creates resume in database with all data from ParseService"""
     logger.info(f"Starting database operations for user {user_id}, filename: {filename}")
     logger.info(f"Parsed data summary: first_name={parsed_data.first_name}, last_name={parsed_data.last_name}, experience_count={len(parsed_data.experience)}, education_count={len(parsed_data.education)}, skills_count={len(parsed_data.skills)}, contacts_count={len(parsed_data.contacts)}")
@@ -383,7 +383,7 @@ def _create_resume_with_data(user_id: int, filename: str, parsed_data):
                 timeout=settings.PLATFORM_TIMEOUT
             )
             logger.info(f"Calling get_startup_message with user_id={user_id}, resume_id={resume.id}")
-            startup_message, conversation_id = async_to_sync(platform_chatflow.get_startup_message)(
+            startup_message, conversation_id = await platform_chatflow.get_startup_message(
                 user_id=str(user_id),
                 resume_id=str(resume.id),
                 resume_text=resume_text
