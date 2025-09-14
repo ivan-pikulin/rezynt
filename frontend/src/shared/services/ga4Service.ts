@@ -18,10 +18,15 @@ class GA4Service {
     try {
       ReactGA.initialize(measurementId, {
         testMode: import.meta.env.DEV,
+        gtagOptions: {
+          linker: {
+            domains: ['rezynt.com', 'app.rezynt.com']
+          }
+        }
       });
       
       this.isInitialized = true;
-      console.log('GA4 initialized with measurement ID:', measurementId);
+      console.log('GA4 initialized with measurement ID:', measurementId, 'and cross-domain tracking for rezynt.com and app.rezynt.com');
     } catch (error) {
       console.error('Failed to initialize GA4:', error);
     }
