@@ -15,6 +15,7 @@ import * as yup from 'yup';
 import { useTranslation } from 'react-i18next';
 import { authApi } from '../../../shared/services/api';
 import { SignupCredentials } from '../types/auth';
+import { ga4Service } from '../../../shared/services/ga4Service';
 
 interface SignupFormProps {
   onSuccess: (email?: string) => void;
@@ -65,6 +66,10 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSuccess, onSwitchToLogin, tem
         console.log('Sending signup request with data:', signupData);
         
         await authApi.signup(signupData);
+        
+        // Track successful signup
+        ga4Service.trackSignUp('email');
+        
         onSuccess(values.email);
       } catch (err: any) {
         console.error('Signup error:', err);

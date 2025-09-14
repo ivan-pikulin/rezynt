@@ -1,12 +1,14 @@
 import { CssBaseline, Box } from '@mui/material';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import { AuthProvider } from './shared/contexts/AuthContext';
 import ProtectedRoute from './shared/components/ProtectedRoute';
 import OnboardingGuard from './shared/components/OnboardingGuard';
 import PublicOnboardingGuard from './shared/components/PublicOnboardingGuard';
 import GradientSpinnerAnimation from './shared/components/GradientSpinnerAnimation';
+import { ga4Service } from './shared/services/ga4Service';
+import { usePageTracking } from './shared/hooks/usePageTracking';
 
 // Create a client
 const queryClient = new QueryClient();
@@ -29,6 +31,9 @@ const HomeRedirect = React.lazy(() => import('./shared/components/HomeRedirect')
 const PaymentSuccessPage = React.lazy(() => import('./features/export/PaymentSuccessPage'));
 
 function AppRoutes() {
+  // Track page views automatically
+  usePageTracking();
+  
   return (
     <React.Suspense fallback={
       <Box sx={{ 
@@ -109,6 +114,16 @@ function AppRoutes() {
 }
 
 function App() {
+  useEffect(() => {
+    // Initialize GA4 if measurement ID is provided
+    const measurementId = import.meta.env.VITE_GA4_MEASUREMENT_ID;
+    if (measurementId) {
+      ga4Service.initialize(measurementId);
+    } else {
+      console.warn('GA4_MEASUREMENT_ID not found in environment variables');
+    }
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <CssBaseline />

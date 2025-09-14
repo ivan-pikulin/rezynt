@@ -17,6 +17,7 @@ import { authApi } from '../../../shared/services/api';
 import { LoginCredentials } from '../types/auth';
 import { useAuthContext } from '../../../shared/contexts/AuthContext';
 import GradientSpinnerAnimation from '../../../shared/components/GradientSpinnerAnimation';
+import { ga4Service } from '../../../shared/services/ga4Service';
 
 interface LoginFormProps {
   onSuccess: () => void;
@@ -58,6 +59,10 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, onSwitchToSignup, onSw
       try {
         const tokens = await authApi.login(values);
         login(tokens);
+        
+        // Track successful login
+        ga4Service.trackLogin('email');
+        
         onSuccess();
       } catch (err: any) {
         console.error('Login error:', err);

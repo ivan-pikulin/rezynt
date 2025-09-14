@@ -28,6 +28,7 @@ x-backend-variables: &backend-variables
   AUTO_GENERATE_MIGRATIONS: ${AUTO_GENERATE_MIGRATIONS:-false}
   OPENAI_API_KEY: ${OPENAI_API_KEY}
   OPENAI_PROXY_URL: ${OPENAI_PROXY_URL}
+  GA4_MEASUREMENT_ID: ${GA4_MEASUREMENT_ID}
 
 services:
   nginx:
@@ -67,6 +68,7 @@ services:
       - /app/node_modules
     environment:
       VITE_API_URL: ${API_BASE_URL}
+      VITE_GA4_MEASUREMENT_ID: ${GA4_MEASUREMENT_ID}
     depends_on:
       - backend
     networks:

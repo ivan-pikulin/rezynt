@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Box, TextField, IconButton } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
+import { ga4Service } from '../../../shared/services/ga4Service';
 
 interface ChatInputProps {
   onSendMessage: (message: string) => void;
@@ -13,6 +14,11 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled })
   const handleSend = () => {
     const currentMessage = message.trim();
     if (currentMessage && !disabled) {
+      // Track chat message sent
+      ga4Service.trackChatInteraction('message_sent', {
+        message_length: currentMessage.length
+      });
+      
       onSendMessage(currentMessage);
       setMessage('');
     }
@@ -23,6 +29,11 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled })
       e.preventDefault();
       const currentMessage = message.trim();
       if (currentMessage) {
+        // Track chat message sent
+        ga4Service.trackChatInteraction('message_sent', {
+          message_length: currentMessage.length
+        });
+        
         onSendMessage(currentMessage);
         setMessage('');
       }

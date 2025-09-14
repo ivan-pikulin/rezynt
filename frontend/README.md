@@ -37,7 +37,48 @@ If you aren’t satisfied with the build tool and configuration choices, you can
 
 Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+
+## Google Analytics 4 (GA4) Setup
+
+This project includes Google Analytics 4 tracking using `react-ga4`. 
+
+### Environment Variables
+
+To enable GA4 tracking, set the following environment variable:
+
+```bash
+VITE_GA4_MEASUREMENT_ID=G-XXXXXXXXXX
+```
+
+Replace `G-XXXXXXXXXX` with your actual GA4 Measurement ID from Google Analytics.
+
+### Features Tracked
+
+The following user actions are automatically tracked:
+
+- **Page Views**: Automatic tracking of all route changes
+- **Authentication**: Login and signup events
+- **Resume Creation**: When users create new resumes
+- **Resume Export**: PDF exports (both watermarked and clean versions)
+- **Chat Interactions**: Messages sent in the chat interface
+
+### Usage
+
+The GA4 service is automatically initialized when the app starts. You can also manually track custom events:
+
+```typescript
+import { ga4Service } from './shared/services/ga4Service';
+
+// Track custom events
+ga4Service.trackEvent('custom_event', { parameter: 'value' });
+
+// Track page views
+ga4Service.trackPageView('/custom-page');
+
+// Set user properties
+ga4Service.setUserProperties({ user_type: 'premium' });
+```
 
 ## Learn More
 

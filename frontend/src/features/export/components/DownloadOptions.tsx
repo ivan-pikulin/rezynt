@@ -8,6 +8,7 @@ import DownloadIcon from '@mui/icons-material/Download';
 import CircularProgress from '@mui/material/CircularProgress';
 import PaywallModal from '../../../shared/components/PaywallModal';
 import { COLORS } from '../../../shared/theme/theme';
+import { ga4Service } from '../../../shared/services/ga4Service';
 
 interface DownloadOptionsProps {
   onExportPDF?: () => Promise<void>;
@@ -24,6 +25,8 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({ onExportPDF, isPremiu
       setIsWatermarkedExporting(true);
       if (onExportPDF) {
         await onExportPDF();
+        // Track watermarked PDF export
+        ga4Service.trackResumeExport('pdf_watermarked');
       }
     } catch (error) {
       console.error('Error downloading PDF:', error);
@@ -39,6 +42,8 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({ onExportPDF, isPremiu
         setIsCleanExporting(true);
         if (onExportPDF) {
           await onExportPDF();
+          // Track clean PDF export
+          ga4Service.trackResumeExport('pdf_clean');
         }
       } catch (error) {
         console.error('Error downloading PDF:', error);
