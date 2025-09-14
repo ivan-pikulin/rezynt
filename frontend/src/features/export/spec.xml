@@ -68,10 +68,11 @@
             </features>
         </component>
 
-        <component name="PaymentSuccessPage" desc="Standalone route displaying payment success with navigation to resumes">
+        <component name="PaymentSuccessPage" desc="Standalone route displaying payment success with navigation to resumes. Accessible at /payment/success without authentication">
             <features>
                 <feature name="user_refresh" desc="Refreshes user profile to reflect premium status"/>
                 <feature name="cta_resumes" desc="CTA to go to resumes list"/>
+                <feature name="public_access" desc="Accessible without authentication at /payment/success route"/>
             </features>
         </component>
 

@@ -100,13 +100,7 @@ function AppRoutes() {
             <ExportPage />
           </PublicOnboardingGuard>
         } />
-        <Route path="/export/success" element={
-          <ProtectedRoute requireAuth={true}>
-            <OnboardingGuard>
-              <PaymentSuccessPage />
-            </OnboardingGuard>
-          </ProtectedRoute>
-        } />
+        <Route path="/payment/success" element={<PaymentSuccessPage />} />
         <Route path="/" element={<HomeRedirect />} />
       </Routes>
     </React.Suspense>

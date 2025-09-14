@@ -62,15 +62,21 @@ const PaymentSuccessPage: React.FC = () => {
 
             <Box sx={{ display: 'flex', gap: 2, mt: 2, width: '100%', justifyContent: 'center', flexWrap: 'wrap' }}>
               <Button 
-                variant="outlined" 
+                variant="contained" 
+                size="large"
                 onClick={handleGoToResumes}
                 sx={{ 
-                  textTransform: 'none', 
-                  px: 3, 
-                  py: 1.25,
-                  borderColor: '#d0d5dd',
-                  color: '#344054',
-                  '&:hover': { borderColor: '#98a2b3', bgcolor: '#f8fafc' }
+                  borderRadius: '8px',
+                  px: { xs: 2.5, sm: 3, md: 4 },
+                  py: { xs: 1, sm: 1.25, md: 1.5 },
+                  fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' },
+                  fontWeight: 600,
+                  textTransform: 'none',
+                  bgcolor: COLORS.primary.main,
+                  minHeight: { xs: 40, sm: 44, md: 48 },
+                  '&:hover': {
+                    bgcolor: COLORS.primary.dark
+                  }
                 }}
               >
                 {t('payment.success.goToResumes')}
