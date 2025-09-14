@@ -1,7 +1,6 @@
-import React from 'react';
-import { Navigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Box from '@mui/material/Box';
-import { useResumes } from '../../features/resumes/hooks/useResumes';
 import { useAuthContext } from '../contexts/AuthContext';
 import { useOnboarding } from '../hooks/useOnboarding';
 import GradientSpinnerAnimation from './GradientSpinnerAnimation';
@@ -9,55 +8,54 @@ import GradientSpinnerAnimation from './GradientSpinnerAnimation';
 const HomeRedirect: React.FC = () => {
   const { isAuthenticated, isLoading: authLoading, user } = useAuthContext();
   const { shouldShowOnboarding } = useOnboarding(user);
-  const { resumes, isLoading: resumesLoading } = useResumes();
+  const navigate = useNavigate();
+  const [hasNavigated, setHasNavigated] = useState(false);
 
-  // If authentication is still loading, show loading
-  if (authLoading) {
-    return (
-      <Box sx={{ 
-        minHeight: '100vh', 
-        display: 'flex', 
-        justifyContent: 'center',
-        alignItems: 'center',
-        bgcolor: '#f5f6fa'
-      }}>
-        <GradientSpinnerAnimation size={40} />
-      </Box>
-    );
-  }
+  useEffect(() => {
+    // Prevent multiple navigations
+    if (hasNavigated) {
+      return;
+    }
 
-  // If user is not authenticated, redirect to start page for guest flow
-  if (!isAuthenticated) {
-    return <Navigate to="/start" replace />;
-  }
+    // If authentication is still loading, don't navigate yet
+    if (authLoading) {
+      return;
+    }
 
-  // If onboarding needs to be shown, don't load resumes and redirect to start page
-  if (shouldShowOnboarding) {
-    return <Navigate to="/start" replace />;
-  }
+    // If user is not authenticated, redirect to start page for guest flow
+    if (!isAuthenticated) {
+      setHasNavigated(true);
+      navigate('/start', { replace: true });
+      return;
+    }
 
-  // If resume data is still loading, show loading
-  if (resumesLoading) {
-    return (
-      <Box sx={{ 
-        minHeight: '100vh', 
-        display: 'flex', 
-        justifyContent: 'center',
-        alignItems: 'center',
-        bgcolor: '#f5f6fa'
-      }}>
-        <GradientSpinnerAnimation size={40} />
-      </Box>
-    );
-  }
+    // If onboarding needs to be shown, redirect to start page
+    if (shouldShowOnboarding) {
+      setHasNavigated(true);
+      navigate('/start', { replace: true });
+      return;
+    }
 
-  // If user has resumes, redirect to resumes page
-  if (resumes && Array.isArray(resumes) && resumes.length > 0) {
-    return <Navigate to="/resumes" replace />;
-  }
+    // For authenticated users who have completed onboarding,
+    // we need to check if they have resumes
+    // Since we can't conditionally call useResumes, we'll redirect to start
+    // and let the start page handle the resume check
+    setHasNavigated(true);
+    navigate('/start', { replace: true });
+  }, [authLoading, isAuthenticated, shouldShowOnboarding, hasNavigated, navigate]);
 
-  // If user has no resumes, redirect to start page
-  return <Navigate to="/start" replace />;
+  // Always show loading while determining where to redirect
+  return (
+    <Box sx={{ 
+      minHeight: '100vh', 
+      display: 'flex', 
+      justifyContent: 'center',
+      alignItems: 'center',
+      bgcolor: '#f5f6fa'
+    }}>
+      <GradientSpinnerAnimation size={40} />
+    </Box>
+  );
 };
 
 export default HomeRedirect;

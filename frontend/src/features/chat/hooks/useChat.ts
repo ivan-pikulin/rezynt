@@ -3,7 +3,7 @@ import { flushSync } from 'react-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { chatApi } from '../../../shared/services/api';
 import { SendMessageRequest, Message } from '../../../shared/services/api/types';
-import { useAuthContext } from '../../../shared/contexts/AuthContext';
+import { useUser } from '../../../shared/hooks/useUser';
 
 // Local chat message type for UI
 export interface ChatMessage {
@@ -18,7 +18,7 @@ type MessageLoadType = 'initial' | 'older' | 'new' | 'none';
 
 export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fromUpload: boolean = false, onShowPaywall?: () => void) => {
   const queryClient = useQueryClient();
-  const { user } = useAuthContext();
+  const { user } = useUser();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);

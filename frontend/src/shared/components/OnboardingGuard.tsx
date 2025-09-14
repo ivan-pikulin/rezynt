@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Navigate, useSearchParams } from 'react-router-dom';
 import { useAuthContext } from '../contexts/AuthContext';
 import { useOnboarding } from '../hooks/useOnboarding';
@@ -13,6 +13,11 @@ const OnboardingGuard: React.FC<OnboardingGuardProps> = ({ children }) => {
   const { shouldShowOnboarding } = useOnboarding(user);
   const [searchParams] = useSearchParams();
 
+  // Memoize the redirect URL to prevent unnecessary re-renders
+  const redirectUrl = useMemo(() => {
+    return searchParams.get('redirect') || undefined;
+  }, [searchParams]);
+
   // Show loading while checking authentication
   if (isLoading) {
     return null; // Or loading component
@@ -25,7 +30,7 @@ const OnboardingGuard: React.FC<OnboardingGuardProps> = ({ children }) => {
 
   // If onboarding needs to be shown, show it with redirect URL
   if (shouldShowOnboarding) {
-    return <OnboardingPage redirectUrl={searchParams.get('redirect') || undefined} />;
+    return <OnboardingPage redirectUrl={redirectUrl} />;
   }
 
   // Otherwise show child components
