@@ -15,7 +15,9 @@ COPY . .
 
 # Build the application with environment variables
 ARG VITE_API_URL
+ARG VITE_GA4_MEASUREMENT_ID
 ENV VITE_API_URL=${VITE_API_URL}
+ENV VITE_GA4_MEASUREMENT_ID=${VITE_GA4_MEASUREMENT_ID}
 RUN yarn build
 
 # Stage 2: Production

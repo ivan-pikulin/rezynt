@@ -114,7 +114,7 @@ function App() {
     if (measurementId) {
       ga4Service.initialize(measurementId);
     } else {
-      console.warn('GA4_MEASUREMENT_ID not found in environment variables');
+      console.warn('VITE_GA4_MEASUREMENT_ID not found in environment variables');
     }
   }, []);
 
