@@ -5,7 +5,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import { ChatMessage } from './ChatMessage';
 import { ChatInput } from './ChatInput';
 import { useChat } from '../hooks/useChat';
-import { useUser } from '../../../shared/hooks/useUser';
+import { useAuthContext } from '../../../shared/contexts/AuthContext';
 import { COLORS } from '../../../shared/theme/theme';
 import { useTranslation } from 'react-i18next';
 import PaywallModal from '../../../shared/components/PaywallModal';
@@ -21,7 +21,7 @@ interface ChatWindowProps {
 
 const ChatWindow: React.FC<ChatWindowProps> = ({ resumeId, onResumeUpdate, fromUpload = false, onTogglePreview }) => {
   const { t } = useTranslation();
-  const { user, refetch: refetchUser } = useUser();
+  const { user } = useAuthContext();
   const [showPaywallModal, setShowPaywallModal] = useState(false);
   const [showRegistrationModal, setShowRegistrationModal] = useState(false);
   
@@ -72,7 +72,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ resumeId, onResumeUpdate, fromU
 
   const handlePaywallSuccess = () => {
     setShowPaywallModal(false);
-    refetchUser();
+    // User data will be refreshed automatically by useAuthContext
   };
 
   const handlePaywallClose = () => {

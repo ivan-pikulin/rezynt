@@ -4,7 +4,7 @@ import Typography from '@mui/material/Typography';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Header from '../../shared/components/Header/Header';
 import StartOptions from './components/StartOptions';
-import { useUser } from '../../shared/hooks';
+import { useAuthContext } from '../../shared/contexts/AuthContext';
 import { COLORS } from '../../shared/theme/theme';
 import PaywallModal from '../../shared/components/PaywallModal';
 import { useResumes } from '../resumes/hooks/useResumes';
@@ -14,7 +14,7 @@ import GradientSpinnerAnimation from '../../shared/components/GradientSpinnerAni
 const StartPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { user } = useUser();
+  const { user } = useAuthContext();
   const { resumes, isLoading: resumesLoading } = useResumes();
   const [showPaywall, setShowPaywall] = React.useState(false);
   const [isProcessingUpload, setIsProcessingUpload] = useState(false);
@@ -125,16 +125,13 @@ const StartPage: React.FC = () => {
 
   const handleStepClick = (stepIndex: number) => {
     switch (stepIndex) {
-              case 0: // Start - already on this page
+      case 0: // Start - already on this page
         break;
-      case 1: // Generate
-        navigate('/chat');
+      case 1: // Generate - disabled for start page
         break;
-      case 2: // Refine
-        navigate('/refine');
+      case 2: // Refine - disabled for start page
         break;
-      case 3: // Export
-        navigate('/export');
+      case 3: // Export - disabled for start page
         break;
       default:
         break;
@@ -185,6 +182,7 @@ const StartPage: React.FC = () => {
         showNextButton={false}
         showLogo={true}
         onStepClick={handleStepClick}
+        allowFirstStepClick={!!user}
         isProUser={user?.is_premium}
         currentTab="resumes"
         onTabChange={handleTabChange}

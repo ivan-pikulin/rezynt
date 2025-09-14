@@ -18,8 +18,7 @@ import Header from '../../shared/components/Header/Header';
 import PaywallModal from '../../shared/components/PaywallModal';
 import RegistrationModal from '../../shared/components/RegistrationModal';
 import ResumeRenderer from '../../shared/components/ResumeRenderer';
-import { useUser } from '../../shared/hooks';
-import { useAuth } from '../../shared/hooks/useAuth';
+import { useAuthContext } from '../../shared/contexts/AuthContext';
 import { useResumeQuery } from '../../shared/hooks/useResumeQuery';
 import { useTemplate } from '../../shared/hooks/useTemplate';
 import { resumeApi } from '../../shared/services/api';
@@ -41,8 +40,7 @@ const RefinePage: React.FC = () => {
   
   const { resume, isLoading: loading, error: queryError, updateResumeInCache } = useResumeQuery(resumeId);
   const { selectedTemplate, updateTemplate } = useTemplate(resumeId, resume?.template_slug);
-  const { user } = useUser();
-  const { user: authUser, isAuthenticated, isLoading: authLoading } = useAuth();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuthContext();
   const [showPreview, setShowPreview] = useState(false);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [titleValue, setTitleValue] = useState('');
@@ -71,12 +69,12 @@ const RefinePage: React.FC = () => {
       }
       
       // Если пользователь аутентифицирован и это не его резюме
-      if (isAuthenticated && authUser && !isGuestResume && resume.user_id !== authUser.id) {
+      if (isAuthenticated && user && !isGuestResume && resume.user_id !== user.id) {
         navigate('/login');
         return;
       }
     }
-  }, [resume, authUser, isAuthenticated, authLoading, loading, resumeId, navigate]);
+  }, [resume, user, isAuthenticated, authLoading, loading, resumeId, navigate]);
 
   // Set title when loading resume
   useEffect(() => {
@@ -378,7 +376,7 @@ const RefinePage: React.FC = () => {
         height: '100vh', 
         bgcolor: COLORS.resume.section.background
       }}>
-        <LoadingSpinner message={t('refine.loading')} />
+        <GradientSpinnerAnimation size={40} />
       </Box>
     );
   }

@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import Header from '../../shared/components/Header/Header';
 import PaywallModal from '../../shared/components/PaywallModal';
 import ResumeRenderer from '../../shared/components/ResumeRenderer';
-import { useUser } from '../../shared/hooks';
+import { useAuthContext } from '../../shared/contexts/AuthContext';
 import { ResumeData } from '../../shared/types/resume';
 import { useResumes } from './hooks/useResumes';
 import { COLORS } from '../../shared/theme/theme';
@@ -16,7 +16,7 @@ import { COLORS } from '../../shared/theme/theme';
 const ResumesPage: React.FC = () => {
   const navigate = useNavigate();
   const { resumes, isLoading, error } = useResumes();
-  const { user } = useUser();
+  const { user } = useAuthContext();
   const [showPaywall, setShowPaywall] = useState(false);
 
   const handleResumeClick = (resumeId: string) => {

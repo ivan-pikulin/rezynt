@@ -9,27 +9,27 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../shared/components/Header/Header';
 import { useAuthContext } from '../../shared/contexts/AuthContext';
-import { useUser } from '../../shared/hooks';
+import { userApi } from '../../shared/services/api';
 import { COLORS } from '../../shared/theme/theme';
 
 const PaymentSuccessPage: React.FC = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { refetch: refetchUser } = useUser();
   const { updateUser, user } = useAuthContext();
 
   useEffect(() => {
     (async () => {
       try {
-        const res = await refetchUser();
-        if (res?.data) {
-          updateUser(res.data);
+        // Refresh user data after payment success
+        const res = await userApi.getCurrentUser();
+        if (res) {
+          updateUser(res);
         }
       } catch (e) {
         // Ignore refresh errors, page still usable
       }
     })();
-  }, [refetchUser, updateUser]);
+  }, [updateUser]);
 
   const handleGoToResumes = () => {
     navigate('/resumes');
