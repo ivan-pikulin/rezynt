@@ -222,7 +222,7 @@
   "payment": {
     "success": {
       "title": "Payment successful!",
-      "message": "Your premium features are now unlocked. Enjoy unlimited AI writing, unlimited resumes and clean PDF downloads.",
+      "message": "Your premium features will be unlocked within the next hour. If this doesn't happen, please contact us at team@rezynt.com.",
       "goToExport": "Go to Export",
       "goToResumes": "Go to Resumes"
     }

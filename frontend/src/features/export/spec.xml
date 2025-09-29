@@ -68,11 +68,12 @@
             </features>
         </component>
 
-        <component name="PaymentSuccessPage" desc="Standalone route displaying payment success with navigation to resumes. Accessible at /payment/success without authentication">
+        <component name="PaymentSuccessPage" desc="Standalone route displaying payment success with navigation to resumes. Accessible at /payment/success without authentication. Shows note that premium features activate within 1 hour and provides contact email for support.">
             <features>
                 <feature name="user_refresh" desc="Refreshes user profile to reflect premium status"/>
                 <feature name="cta_resumes" desc="CTA to go to resumes list"/>
                 <feature name="public_access" desc="Accessible without authentication at /payment/success route"/>
+                <feature name="activation_note" desc="Displays message that premium features will be unlocked within an hour and contact team@rezynt.com if not"/>
             </features>
         </component>
 
