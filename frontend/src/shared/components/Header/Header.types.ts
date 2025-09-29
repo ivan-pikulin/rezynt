@@ -4,6 +4,7 @@ export interface HeaderProps {
   onBack?: () => void;
   onStepClick?: (stepIndex: number) => void; // Function for navigation by clicking on step
   allowFirstStepClick?: boolean; // Allow clicking on the first step (Start)
+  disableStepsClick?: boolean; // Disable clicking on all steps (for unauthenticated users)
   nextButtonText?: string;
   previousButtonText?: string;
   showBackButton?: boolean;

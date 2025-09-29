@@ -22,6 +22,7 @@ const Header: React.FC<HeaderProps> = ({
   onBack, 
   onStepClick,
   allowFirstStepClick = false,
+  disableStepsClick = false,
   nextButtonText = 'Next',
   previousButtonText,
   showBackButton = true,
@@ -76,7 +77,7 @@ const Header: React.FC<HeaderProps> = ({
   };
 
   const handleStepClick = (stepIndex: number) => {
-    if (onStepClick) {
+    if (onStepClick && !disableStepsClick) {
       onStepClick(stepIndex);
     }
   };
@@ -257,7 +258,7 @@ const Header: React.FC<HeaderProps> = ({
                   }}
                 >
                   {steps.map((label, index) => {
-                    const canClickStep = (index === 0 ? allowFirstStepClick : true) && Boolean(onStepClick);
+                    const canClickStep = (index === 0 ? allowFirstStepClick : true) && Boolean(onStepClick) && !disableStepsClick;
                     return (
                       <Step key={label}>
                         <StepLabel 
@@ -270,7 +271,8 @@ const Header: React.FC<HeaderProps> = ({
                             } : {},
                             '& .MuiStepLabel-label': {
                               fontSize: isMobile ? 'clamp(0.6rem, 2.8vw, 0.75rem)' : '0.875rem',
-                              color: index <= activeStep ? `${COLORS.primary.main} !important` : '#999 !important',
+                              color: disableStepsClick && index > activeStep ? '#ccc !important' : 
+                                     index <= activeStep ? `${COLORS.primary.main} !important` : '#999 !important',
                               fontWeight: index === activeStep ? 600 : 400,
                               transform: index === activeStep ? (isMobile ? 'scale(1.08)' : 'scale(1.1)') : 'scale(1)',
                               transition: 'all 0.2s ease',
@@ -279,7 +281,8 @@ const Header: React.FC<HeaderProps> = ({
                               transform: index === activeStep ? (isMobile ? 'scale(1.1)' : 'scale(1.2)') : 'scale(1)',
                               transition: 'all 0.2s ease',
                               '& .MuiStepIcon-root': {
-                                color: index <= activeStep ? COLORS.primary.main : '#999',
+                                color: disableStepsClick && index > activeStep ? '#ccc' :
+                                       index <= activeStep ? COLORS.primary.main : '#999',
                               }
                             }
                           }}

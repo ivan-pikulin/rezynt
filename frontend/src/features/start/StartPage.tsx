@@ -188,6 +188,7 @@ const StartPage: React.FC = () => {
         isProUser={user?.is_premium}
         currentTab="resumes"
         onTabChange={handleTabChange}
+        disableStepsClick={!user}
       />
       
               {/* Main area */}
