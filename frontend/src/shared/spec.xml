@@ -7,6 +7,56 @@
   
   <components>
     <component>
+      <name>PaywallModal</name>
+      <description>
+        Modal dialog prompting users to upgrade. Shows a single yearly subscription option priced at $40 and triggers purchase flow mapped to 'pro' plan.
+      </description>
+      <features>
+        <feature>
+          <name>Single plan selection</name>
+          <description>Only one selectable option: Yearly $40</description>
+        </feature>
+        <feature>
+          <name>User refresh</name>
+          <description>After successful payment, refreshes user profile and updates context</description>
+        </feature>
+        <feature>
+          <name>Processing safety</name>
+          <description>Disables closing and button while request is processing</description>
+        </feature>
+      </features>
+      <props>
+        <prop>
+          <name>open</name>
+          <type>boolean</type>
+          <required>true</required>
+          <description>Modal visibility flag</description>
+        </prop>
+        <prop>
+          <name>onClose</name>
+          <type>() => void</type>
+          <required>true</required>
+          <description>Close handler (ignored while processing)</description>
+        </prop>
+        <prop>
+          <name>onSuccess</name>
+          <type>() => void</type>
+          <required>false</required>
+          <description>Callback invoked after successful purchase</description>
+        </prop>
+      </props>
+      <technical_details>
+        <detail>
+          <name>API</name>
+          <value>Uses exportApi.downloadResume('pro')</value>
+        </detail>
+        <detail>
+          <name>Libraries</name>
+          <value>Material-UI, React, AuthContext, useUser</value>
+        </detail>
+      </technical_details>
+    </component>
+    <component>
       <name>Header</name>
       <description>
         Main application header component with logo, navigation buttons, stepper and user profile.

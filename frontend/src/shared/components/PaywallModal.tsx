@@ -1,18 +1,15 @@
-import React, { useState } from 'react';
-import Box from '@mui/material/Box';
-import Modal from '@mui/material/Modal';
-import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
 import CheckIcon from '@mui/icons-material/Check';
-import InfoIcon from '@mui/icons-material/Info';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import FormControl from '@mui/material/FormControl';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Modal from '@mui/material/Modal';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import FormControl from '@mui/material/FormControl';
-import Chip from '@mui/material/Chip';
-import { exportApi } from '../../features/export/exportApi';
-import { useUser } from '../hooks';
+import Typography from '@mui/material/Typography';
+import React, { useState } from 'react';
 import { useAuthContext } from '../contexts/AuthContext';
+import { useUser } from '../hooks';
 
 interface PaywallModalProps {
   open: boolean;
@@ -21,7 +18,7 @@ interface PaywallModalProps {
 }
 
 const PaywallModal: React.FC<PaywallModalProps> = ({ open, onClose, onSuccess }) => {
-  const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'quarterly' | 'lifetime'>('monthly');
+  const [selectedPlan, setSelectedPlan] = useState<'yearly'>('yearly');
   const [isProcessing, setIsProcessing] = useState(false);
   const { refetch: refetchUser } = useUser();
   const { updateUser } = useAuthContext();
@@ -36,26 +33,8 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ open, onClose, onSuccess })
   const handleContinue = async () => {
     setIsProcessing(true);
     try {
-      let planId: 'pro' | 'lifetime';
-      if (selectedPlan === 'monthly' || selectedPlan === 'quarterly') {
-        planId = 'pro';
-      } else {
-        planId = 'lifetime';
-      }
-      await exportApi.downloadResume(planId);
-      console.log(`Successfully processed ${selectedPlan} plan`);
-      
-              // Update user data after successful payment
-      try {
-        const updatedUser = await refetchUser();
-        if (updatedUser.data) {
-          updateUser(updatedUser.data);
-        }
-      } catch (error) {
-        console.error('Failed to update user data:', error);
-      }
-      
-      onSuccess?.();
+      window.location.assign('https://buy.stripe.com/7sY28t1jrf0n1mt3g743S0K');
+      return;
     } catch (error) {
       console.error(`Failed to process ${selectedPlan} plan:`, error);
     } finally {
@@ -164,87 +143,24 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ open, onClose, onSuccess })
 
         {/* Pricing Options */}
         <FormControl component="fieldset" sx={{ width: '100%', mb: 2.5 }}>
-          <RadioGroup
-            value={selectedPlan}
-            onChange={(e) => setSelectedPlan(e.target.value as 'monthly' | 'quarterly' | 'lifetime')}
-          >
+          <RadioGroup value={selectedPlan}>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
               <Box sx={{
-                border: selectedPlan === 'monthly' ? '2px solid #673ab7' : '2px solid rgba(255,255,255,0.2)',
+                border: '2px solid #673ab7',
                 borderRadius: '8px',
                 p: 1.5,
-                bgcolor: selectedPlan === 'monthly' ? 'rgba(103, 58, 183, 0.1)' : 'transparent'
+                bgcolor: 'rgba(103, 58, 183, 0.1)'
               }}>
                 <FormControlLabel
-                  value="monthly"
-                  control={<Radio sx={{ color: '#673ab7' }} />}
+                  value="yearly"
+                  control={<Radio sx={{ color: '#673ab7' }} checked />}
                   label={
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
                       <Typography sx={{ color: 'white', fontWeight: 600 }}>
-                        Monthly
+                        Yearly
                       </Typography>
-                      <Typography sx={{ color: 'white', fontWeight: 700 }}>
-                        29,00 $/mo
-                      </Typography>
-                    </Box>
-                  }
-                  sx={{ width: '100%', m: 0 }}
-                />
-              </Box>
-
-              <Box sx={{
-                border: selectedPlan === 'quarterly' ? '2px solid #673ab7' : '2px solid rgba(255,255,255,0.2)',
-                borderRadius: '8px',
-                p: 1.5,
-                bgcolor: selectedPlan === 'quarterly' ? 'rgba(103, 58, 183, 0.1)' : 'transparent',
-                position: 'relative'
-              }}>
-                <Chip
-                  label="SAVE 34%"
-                  size="small"
-                  sx={{
-                    position: 'absolute',
-                    top: -8,
-                    right: 16,
-                    bgcolor: '#4caf50',
-                    color: 'white',
-                    fontSize: '0.7rem',
-                    height: 20
-                  }}
-                />
-                <FormControlLabel
-                  value="quarterly"
-                  control={<Radio sx={{ color: '#673ab7' }} />}
-                  label={
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-                      <Typography sx={{ color: 'white', fontWeight: 600 }}>
-                        Quarterly
-                      </Typography>
-                      <Typography sx={{ color: 'white', fontWeight: 700 }}>
-                        19,00 $/mo
-                      </Typography>
-                    </Box>
-                  }
-                  sx={{ width: '100%', m: 0 }}
-                />
-              </Box>
-
-              <Box sx={{
-                border: selectedPlan === 'lifetime' ? '2px solid #673ab7' : '2px solid rgba(255,255,255,0.2)',
-                borderRadius: '8px',
-                p: 1.5,
-                bgcolor: selectedPlan === 'lifetime' ? 'rgba(103, 58, 183, 0.1)' : 'transparent'
-              }}>
-                <FormControlLabel
-                  value="lifetime"
-                  control={<Radio sx={{ color: '#673ab7' }} />}
-                  label={
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-                      <Typography sx={{ color: 'white', fontWeight: 600 }}>
-                        Lifetime
-                      </Typography>
-                      <Typography sx={{ color: 'white', fontWeight: 700 }}>
-                        149,00 $/once
+                      <Typography sx={{ color: 'white', fontWeight: 700, ml: 1 }}>
+                        40,00 $/year
                       </Typography>
                     </Box>
                   }
