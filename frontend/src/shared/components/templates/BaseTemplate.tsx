@@ -1,5 +1,6 @@
 import { Box } from '@mui/material';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { BaseTemplateProps } from './types';
 
 /**
@@ -53,6 +54,24 @@ export abstract class BaseTemplate extends React.Component<BaseTemplateProps, {}
    */
   protected isCurrentJob(endDate?: string): boolean {
     return !endDate || new Date(endDate) > new Date();
+  }
+
+  /**
+   * Get translation for a key
+   */
+  protected t(key: string): string {
+    if (this.props.t) {
+      return this.props.t(key);
+    }
+    // Fallback to English if translation function not provided
+    const translations: Record<string, string> = {
+      'templates.sections.professionalSummary': 'Professional Summary',
+      'templates.sections.skills': 'Skills',
+      'templates.sections.experience': 'Experience',
+      'templates.sections.education': 'Education',
+      'templates.sections.notProvided': 'Professional summary not provided'
+    };
+    return translations[key] || key;
   }
 
   /**

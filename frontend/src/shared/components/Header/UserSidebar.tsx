@@ -102,8 +102,8 @@ const UserSidebar: React.FC<UserSidebarProps> = ({
   };
 
   const getPlanName = (isPremium: boolean, isAuthenticated: boolean) => {
-    if (!isAuthenticated) return 'Guest';
-    return isPremium ? 'Premium' : 'Free';
+    if (!isAuthenticated) return t('header.userSidebar.guest');
+    return isPremium ? t('header.userSidebar.premium') : t('header.userSidebar.free');
   };
 
   return (
@@ -135,7 +135,7 @@ const UserSidebar: React.FC<UserSidebarProps> = ({
           mb: 3
         }}>
           <Typography variant="h6" sx={{ fontWeight: 600, color: '#2c3e50' }}>
-            Profile
+            {t('header.userSidebar.profile')}
           </Typography>
           <IconButton onClick={onClose} size="small">
             <CloseIcon />
@@ -242,7 +242,7 @@ const UserSidebar: React.FC<UserSidebarProps> = ({
               transition: 'all 0.3s ease-in-out'
             }}
           >
-            My Resumes
+            {t('header.userSidebar.myResumes')}
             {/* Resume counter for premium users */}
             {(userData?.is_premium ?? user?.is_premium) && resumeCount > 0 && (
               <Badge
@@ -296,7 +296,7 @@ const UserSidebar: React.FC<UserSidebarProps> = ({
                   }
                 }}
               >
-                Change Password
+                {t('header.userSidebar.changePassword')}
               </Button>
 
               <Button
@@ -321,7 +321,7 @@ const UserSidebar: React.FC<UserSidebarProps> = ({
                   }
                 }}
               >
-                Sign Out
+                {t('header.userSidebar.signOut')}
               </Button>
             </>
           ) : (
@@ -345,7 +345,7 @@ const UserSidebar: React.FC<UserSidebarProps> = ({
                 }
               }}
             >
-              Login
+              {t('header.userSidebar.login')}
             </Button>
           )}
         </Box>

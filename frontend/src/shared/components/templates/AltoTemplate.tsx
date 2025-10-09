@@ -174,7 +174,7 @@ export class AltoTemplate extends BaseTemplate {
               letterSpacing: '0.5px'
             }}
           >
-            Professional Summary
+            {this.t('templates.sections.professionalSummary')}
           </Typography>
           <Typography 
             variant="body1" 
@@ -184,7 +184,7 @@ export class AltoTemplate extends BaseTemplate {
               textAlign: 'justify'
             }}
           >
-            {data.professional_summary || 'Professional summary not provided'}
+            {data.professional_summary || this.t('templates.sections.notProvided')}
           </Typography>
         </Box>
 
@@ -209,7 +209,7 @@ export class AltoTemplate extends BaseTemplate {
               letterSpacing: '0.5px'
             }}
           >
-            Skills
+            {this.t('templates.sections.skills')}
           </Typography>
           <Box sx={{ 
             display: 'grid', 
@@ -262,7 +262,7 @@ export class AltoTemplate extends BaseTemplate {
               letterSpacing: '0.5px'
             }}
           >
-            Experience
+            {this.t('templates.sections.experience')}
           </Typography>
           {data.experience?.map((exp, index) => (
             <Box key={index} sx={{ marginBottom: '20px' }}>
@@ -348,7 +348,7 @@ export class AltoTemplate extends BaseTemplate {
               letterSpacing: '0.5px'
             }}
           >
-            Education
+            {this.t('templates.sections.education')}
           </Typography>
           {data.education?.map((edu, index) => (
             <Box key={index} sx={{ marginBottom: '16px' }}>

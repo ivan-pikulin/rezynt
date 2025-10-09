@@ -328,7 +328,17 @@
       "editor": "Editor"
     },
     "profile": "Profile",
-    "guestUser": "Guest User"
+    "guestUser": "Guest User",
+    "userSidebar": {
+      "profile": "Profile",
+      "guest": "Guest",
+      "premium": "Premium",
+      "free": "Free",
+      "myResumes": "My Resumes",
+      "changePassword": "Change Password",
+      "signOut": "Sign Out",
+      "login": "Login"
+    }
   },
   "paywall": {
     "title": "Upgrade to Pro",
@@ -436,5 +446,24 @@
   },
   "defaults": {
     "resumeTitle": "My Resume"
+  },
+  "templates": {
+    "sections": {
+      "professionalSummary": "Professional Summary",
+      "skills": "Skills",
+      "experience": "Experience",
+      "education": "Education",
+      "notProvided": "Professional summary not provided"
+    },
+    "validation": {
+      "firstNameRequired": "First name is required",
+      "lastNameRequired": "Last name is required",
+      "locationRequired": "Location is required",
+      "contactsRequired": "At least one contact is required",
+      "summaryRequired": "Professional summary is required",
+      "skillsRequired": "At least one skill is required",
+      "experienceRequired": "At least one experience entry is required",
+      "educationRequired": "At least one education entry is required"
+    }
   }
 }

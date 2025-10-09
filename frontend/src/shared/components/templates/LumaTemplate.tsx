@@ -65,7 +65,7 @@ export class LumaTemplate extends BaseTemplate {
                 fontFamily: '"Source Sans Pro", Liberation Sans, Arial, sans-serif'
               }}
             >
-              Skills
+              {this.t('templates.sections.skills')}
             </Typography>
             <Box component="ul" sx={{ 
               margin: 0, 
@@ -131,7 +131,7 @@ export class LumaTemplate extends BaseTemplate {
                 fontFamily: '"Source Sans Pro", Liberation Sans, Arial, sans-serif'
               }}
             >
-              Professional Summary
+              {this.t('templates.sections.professionalSummary')}
             </Typography>
             <Typography 
               variant="body1" 
@@ -142,7 +142,7 @@ export class LumaTemplate extends BaseTemplate {
                 fontFamily: '"Source Sans Pro", Liberation Sans, Arial, sans-serif'
               }}
             >
-              {data.professional_summary || 'Professional summary not provided'}
+              {data.professional_summary || this.t('templates.sections.notProvided')}
             </Typography>
           </Box>
 
@@ -160,7 +160,7 @@ export class LumaTemplate extends BaseTemplate {
                 fontFamily: '"Source Sans Pro", Liberation Sans, Arial, sans-serif'
               }}
             >
-              Experience
+              {this.t('templates.sections.experience')}
             </Typography>
             {data.experience?.map((exp, index) => (
               <Box key={index} sx={{ marginBottom: '20px' }}>
@@ -245,7 +245,7 @@ export class LumaTemplate extends BaseTemplate {
                 fontFamily: '"Source Sans Pro", Liberation Sans, Arial, sans-serif'
               }}
             >
-              Education
+              {this.t('templates.sections.education')}
             </Typography>
             {data.education?.map((edu, index) => (
               <Box key={index} sx={{ marginBottom: '16px' }}>

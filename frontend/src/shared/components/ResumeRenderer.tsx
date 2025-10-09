@@ -1,5 +1,6 @@
 import Box from '@mui/material/Box';
 import React, { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ResumeData } from '../types/resume';
 import { createTemplate } from './templates';
 
@@ -20,6 +21,7 @@ const ResumeRenderer: React.FC<ResumeRendererProps> = ({
   scale = 1,
   fitToContainer = true,
 }) => {
+  const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
   const [calculatedScale, setCalculatedScale] = useState(scale);
 
@@ -76,7 +78,8 @@ const ResumeRenderer: React.FC<ResumeRendererProps> = ({
     data,
     isPreview,
     onExport,
-    scale: calculatedScale
+    scale: calculatedScale,
+    t
   });
 
   return (

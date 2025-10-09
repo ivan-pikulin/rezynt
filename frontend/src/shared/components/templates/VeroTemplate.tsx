@@ -91,7 +91,7 @@ export class VeroTemplate extends BaseTemplate {
                 marginRight: '10px'
               }}
             >
-              Professional Summary
+              {this.t('templates.sections.professionalSummary')}
             </Typography>
             <Box sx={{ 
               flex: 1, 
@@ -108,7 +108,7 @@ export class VeroTemplate extends BaseTemplate {
               textAlign: 'justify'
             }}
           >
-            {data.professional_summary || 'Professional summary not provided'}
+            {data.professional_summary || this.t('templates.sections.notProvided')}
           </Typography>
         </Box>
 
@@ -138,7 +138,7 @@ export class VeroTemplate extends BaseTemplate {
                 marginRight: '10px'
               }}
             >
-              Skills
+              {this.t('templates.sections.skills')}
             </Typography>
             <Box sx={{ 
               flex: 1, 
@@ -203,7 +203,7 @@ export class VeroTemplate extends BaseTemplate {
                 marginRight: '10px'
               }}
             >
-              Experience
+              {this.t('templates.sections.experience')}
             </Typography>
             <Box sx={{ 
               flex: 1, 
@@ -301,7 +301,7 @@ export class VeroTemplate extends BaseTemplate {
                 marginRight: '10px'
               }}
             >
-              Education
+              {this.t('templates.sections.education')}
             </Typography>
             <Box sx={{ 
               flex: 1, 

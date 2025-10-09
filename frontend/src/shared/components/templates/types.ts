@@ -5,4 +5,5 @@ export interface BaseTemplateProps {
   onExport?: () => void;
   isPreview?: boolean;
   scale?: number; // Add scale support
+  t?: (key: string) => string; // Translation function
 }

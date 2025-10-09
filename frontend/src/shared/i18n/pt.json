@@ -327,7 +327,17 @@
       "editor": "Editor"
     },
     "profile": "Perfil",
-    "guestUser": "Usuário Convidado"
+    "guestUser": "Usuário Convidado",
+    "userSidebar": {
+      "profile": "Perfil",
+      "guest": "Convidado",
+      "premium": "Premium",
+      "free": "Gratuito",
+      "myResumes": "Meus Currículos",
+      "changePassword": "Alterar Senha",
+      "signOut": "Sair",
+      "login": "Entrar"
+    }
   },
   "paywall": {
     "title": "Atualizar para Pro",
@@ -435,6 +445,25 @@
   },
   "defaults": {
     "resumeTitle": "Meu Currículo"
+  },
+  "templates": {
+    "sections": {
+      "professionalSummary": "Resumo Profissional",
+      "skills": "Habilidades",
+      "experience": "Experiência",
+      "education": "Educação",
+      "notProvided": "Resumo profissional não fornecido"
+    },
+    "validation": {
+      "firstNameRequired": "Nome é obrigatório",
+      "lastNameRequired": "Sobrenome é obrigatório",
+      "locationRequired": "Localização é obrigatória",
+      "contactsRequired": "Pelo menos um contato é obrigatório",
+      "summaryRequired": "Resumo profissional é obrigatório",
+      "skillsRequired": "Pelo menos uma habilidade é obrigatória",
+      "experienceRequired": "Pelo menos uma experiência é obrigatória",
+      "educationRequired": "Pelo menos uma educação é obrigatória"
+    }
   }
 }
 
