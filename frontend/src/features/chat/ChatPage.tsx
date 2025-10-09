@@ -5,6 +5,7 @@ import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import Header from '../../shared/components/Header/Header';
 import ResumeRenderer from '../../shared/components/ResumeRenderer';
 import { useUser } from '../../shared/hooks';
@@ -17,6 +18,7 @@ import { convertApiResumeToResumeData } from '../../shared/utils/resumeDataConve
 import ChatWindow from './components/ChatWindow';
 
 const ChatPage: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const resumeId = searchParams.get('resume_id');
@@ -115,8 +117,8 @@ const ChatPage: React.FC = () => {
         activeStep={1}
         onNext={handleNext}
         onBack={handleBack}
-        nextButtonText="Refine"
-        previousButtonText="Resumes"
+        nextButtonText={t('chat.buttons.refine')}
+        previousButtonText={t('chat.buttons.resumes')}
         showLogo={true} // Show logo on desktop
         showBackButton={isAuthenticated} // Only show back button for authenticated users
         onStepClick={handleStepClick}
@@ -239,7 +241,7 @@ const ChatPage: React.FC = () => {
           bgcolor: COLORS.chat.input.background
         }}>
           <Box sx={{ fontSize: '1.1rem', fontWeight: 600, color: COLORS.chat.input.text }}>
-            Resume Preview
+            {t('chat.preview')}
           </Box>
           <IconButton
             onClick={togglePreview}

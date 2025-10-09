@@ -1,0 +1,441 @@
+{
+  "common": {
+    "save": "Salvar",
+    "saving": "Salvando...",
+    "cancel": "Cancelar",
+    "loading": "Carregando...",
+    "loadingResumes": "Carregando seus currículos...",
+    "next": "Próximo",
+    "back": "Voltar",
+    "complete": "Concluir"
+  },
+  "credits": {
+    "remaining": "créditos restantes",
+    "noCredits": "Sem créditos restantes",
+    "upgradeToContinue": "Por favor, atualize para continuar",
+    "clickToUpgrade": "Clique para atualizar"
+  },
+  "auth": {
+    "login": {
+      "title": "Entrar",
+      "email": "E-mail",
+      "password": "Senha",
+      "submit": "Entrar",
+      "noAccount": "Não tem uma conta?",
+      "signup": "Cadastre-se",
+      "forgotPassword": "Esqueceu a senha?",
+      "resetPassword": "Redefinir Senha",
+      "passwordResetSuccess": "Senha alterada com sucesso! Você pode agora entrar com sua nova senha.",
+      "emailRequired": "E-mail é obrigatório",
+      "passwordRequired": "Senha é obrigatória",
+      "invalidEmail": "Por favor, insira um e-mail válido",
+      "loginError": "Erro ao fazer login. Por favor, verifique seu e-mail e senha."
+    },
+    "page": {
+      "loginTitle": "Entrar",
+      "signupTitle": "Cadastre-se",
+      "signupSuccessMessage": "Cadastro realizado com sucesso! Por favor, verifique seu e-mail para confirmar sua conta."
+    },
+    "signup": {
+      "title": "Cadastre-se",
+      "email": "E-mail",
+      "password": "Senha",
+      "confirmPassword": "Confirmar Senha",
+      "submit": "Cadastre-se",
+      "hasAccount": "Já tem uma conta?",
+      "login": "Entrar",
+      "emailRequired": "E-mail é obrigatório",
+      "passwordRequired": "Senha é obrigatória",
+      "confirmPasswordRequired": "Por favor, confirme sua senha",
+      "invalidEmail": "Por favor, insira um e-mail válido",
+      "passwordMinLength": "A senha deve ter pelo menos 8 caracteres",
+      "passwordsMatch": "As senhas devem ser iguais",
+      "signupError": "Erro no cadastro. Por favor, tente novamente.",
+      "successMessage": "Cadastro realizado com sucesso! Por favor, verifique seu e-mail para confirmar sua conta."
+    },
+    "passwordReset": {
+      "request": {
+        "title": "Redefinir Senha",
+        "description": "Digite seu e-mail e enviaremos um link para redefinir sua senha",
+        "email": "E-mail",
+        "submit": "Enviar Link de Redefinição",
+        "backToLogin": "Lembra sua senha?",
+        "backToLoginLink": "Voltar ao Login",
+        "successMessage": "Se existir uma conta com esse e-mail, um link de redefinição de senha foi enviado para seu e-mail.",
+        "errorMessage": "Ocorreu um erro ao enviar a solicitação. Por favor, tente novamente."
+      },
+      "reset": {
+        "title": "Definir Nova Senha",
+        "description": "Digite uma nova senha para sua conta",
+        "newPassword": "Nova Senha",
+        "confirmPassword": "Confirmar Senha",
+        "submit": "Definir Nova Senha",
+        "passwordMinLength": "A senha deve ter pelo menos 8 caracteres",
+        "passwordsMatch": "As senhas devem ser iguais",
+        "newPasswordRequired": "Nova senha é obrigatória",
+        "confirmPasswordRequired": "Confirmação de senha é obrigatória",
+        "errorMessage": "Ocorreu um erro ao redefinir sua senha. O link pode estar expirado ou inválido."
+      },
+      "newPasswordTitle": "Definir Nova Senha",
+      "newPasswordSubtitle": "Digite sua nova senha abaixo",
+      "confirmNewPassword": "Confirmar Nova Senha",
+      "invalidLink": {
+        "title": "Link Inválido",
+        "message": "O link de redefinição de senha é inválido ou está ausente."
+      }
+    },
+    "emailConfirmation": {
+      "title": "Confirmação de E-mail",
+      "success": {
+        "title": "Verifique seu E-mail!",
+        "message": "Enviamos um link de confirmação para seu endereço de e-mail. Por favor, verifique sua caixa de entrada e clique no link para ativar sua conta.",
+        "messageWithEmail": "Enviamos um link de confirmação para {{email}}. Por favor, verifique sua caixa de entrada e clique no link para ativar sua conta.",
+        "loginButton": "Entrar",
+        "continueButton": "Continuar"
+      },
+      "error": {
+        "title": "Erro de Confirmação",
+        "message": "Ocorreu um erro ao confirmar seu e-mail. Por favor, tente novamente.",
+        "homeButton": "Ir para Início",
+        "loginButton": "Entrar"
+      }
+    },
+    "verification": {
+      "title": "Digite o Código de Verificação",
+      "subtitle": "Enviamos um código de 6 dígitos para {{email}}",
+      "didntReceive": "Não recebeu o código?",
+      "resendCode": "Reenviar Código",
+      "resendIn": "Reenviar em",
+      "sending": "Enviando...",
+      "changeEmail": "Alterar E-mail",
+      "expiresIn15min": "O código expira em 15 minutos",
+      "invalidCode": "Código de verificação inválido ou expirado",
+      "codeRequired": "Por favor, digite o código de 6 dígitos"
+    },
+    "registration": {
+      "modal": {
+        "title": "Crie sua conta",
+        "subtitle": "Salve seu currículo na nuvem, converse com IA e exporte sem limites."
+      },
+      "tabs": {
+        "signup": "Cadastre-se",
+        "login": "Entrar"
+      }
+    }
+  },
+  "refine": {
+    "loading": "Carregando currículo...",
+    "pageTitle": "Currículo",
+    "error": {
+      "noResumeId": "ID do currículo não especificado",
+      "loadError": "Erro ao carregar currículo",
+      "notFound": "Currículo não encontrado"
+    },
+    "tooltips": {
+      "editFields": "Editar Campos do Currículo",
+      "chooseTemplate": "Escolher Modelo",
+      "previewResume": "Visualizar Currículo",
+      "generatingPdf": "Gerando PDF...",
+      "downloadPdf": "Baixar PDF",
+      "downloadResume": "Baixar Currículo"
+    },
+    "editor": {
+      "title": "Editar",
+      "basicInfo": "Informações Básicas",
+      "personalInfo": "Informações Pessoais",
+      "skills": "Habilidades",
+      "experience": "Experiência Profissional",
+      "education": "Educação",
+      "resumeTitle": "Título do Currículo",
+      "professionalSummary": "Resumo Profissional",
+      "firstName": "Nome",
+      "lastName": "Sobrenome",
+      "middleName": "Nome do Meio",
+      "email": "E-mail",
+      "phone": "Telefone",
+      "location": "Localização",
+      "notFilled": "Não preenchido",
+      "addSkill": "Adicionar Habilidade",
+      "editSkill": "Editar Habilidade",
+      "skillName": "Nome da Habilidade",
+      "addSkillPlaceholder": "Digite o nome da habilidade",
+      "contacts": "Contatos",
+      "addContactPlaceholder": "Digite o contato (e-mail, telefone, etc.)",
+      "save": "Salvar",
+      "saveChanges": "Salvar Alterações",
+      "cancel": "Cancelar",
+      "delete": "Excluir",
+      "add": "Adicionar",
+      "edit": "Editar",
+      "saving": "Salvando...",
+      "comingSoon": "Em breve na próxima atualização",
+      "addExperience": "Adicionar Experiência",
+      "editExperience": "Editar Experiência",
+      "noExperience": "Nenhuma experiência profissional adicionada ainda",
+      "addFirstExperience": "Adicione Sua Primeira Experiência",
+      "jobTitle": "Cargo",
+      "company": "Empresa",
+      "startDate": "Data de Início",
+      "endDate": "Data de Término",
+      "currentPosition": "Posição Atual",
+      "responsibilities": "Responsabilidades",
+      "addResponsibility": "Adicionar responsabilidade",
+      "present": "Presente",
+      "addEducation": "Adicionar Educação",
+      "editEducation": "Editar Educação",
+      "noEducation": "Nenhuma educação adicionada ainda",
+      "addFirstEducation": "Adicione Sua Primeira Educação",
+      "degree": "Grau",
+      "institution": "Instituição",
+      "graduationDate": "Data de Formatura",
+      "noChangesToSave": "Sem alterações para salvar",
+      "allChangesSaved": "Todas as alterações salvas",
+      "errorSavingChanges": "Erro ao salvar alterações",
+      "errorAddingContact": "Erro ao adicionar contato",
+      "errorRemovingContact": "Erro ao remover contato"
+    },
+    "preview": {
+      "title": "Visualização do Currículo"
+    }
+  },
+  "onboarding": {
+    "title": "Bem-vindo ao Rezynt!",
+    "subtitle": "Vamos conhecê-lo melhor para personalizar sua experiência",
+    "questions": {
+      "experience": "Quantos anos de experiência profissional você tem?",
+      "jobSearch": "Você está procurando emprego atualmente?",
+      "background": "Qual área melhor descreve seu histórico?",
+      "goal": "Qual é o seu objetivo com este currículo?"
+    },
+    "options": {
+      "experience": {
+        "noExperience": "sem experiência",
+        "oneToTwo": "1-2 anos",
+        "threeToFive": "3-5 anos",
+        "sixToTen": "6-10 anos",
+        "tenPlus": "10+ anos"
+      },
+      "jobSearch": {
+        "actively": "Sim, ativamente",
+        "preparing": "Em breve, preparando",
+        "exploring": "Não, apenas explorando"
+      },
+      "background": {
+        "tech": "Tecnologia / Software / Engenharia",
+        "business": "Negócios / Marketing / Finanças / Vendas",
+        "design": "Design / Conteúdo / Criativo",
+        "manual": "Entrega / Segurança / Trabalho manual",
+        "student": "Estudante",
+        "other": "Outro"
+      },
+      "goal": {
+        "betterJob": "Conseguir um emprego melhor",
+        "changeCareer": "Mudar de carreira",
+        "firstJob": "Encontrar emprego de meio período ou primeiro emprego",
+        "testing": "Apenas testando"
+      }
+    },
+    "error": "Falha ao concluir o onboarding. Por favor, tente novamente."
+  },
+  "payment": {
+    "success": {
+      "title": "Pagamento realizado com sucesso!",
+      "message": "Seus recursos premium serão desbloqueados dentro da próxima hora. Se isso não acontecer, entre em contato conosco em team@rezynt.com.",
+      "goToExport": "Ir para Exportação",
+      "goToResumes": "Ir para Currículos"
+    }
+  },
+  "start": {
+    "uploadMessages": {
+      "0": "Estamos extraindo seus pontos fortes e conquistas...",
+      "1": "Otimizando seu currículo para sistemas ATS...",
+      "2": "Analisando sua experiência com precisão de IA...",
+      "3": "Aprimorando seu resumo profissional...",
+      "4": "Identificando habilidades e competências chave...",
+      "5": "Estruturando seu currículo para máximo impacto...",
+      "6": "Aplicando melhores práticas do setor...",
+      "7": "Criando uma narrativa convincente...",
+      "8": "Otimizando conteúdo para recrutadores...",
+      "9": "Garantindo que seu currículo se destaque...",
+      "10": "Extraindo informações de contato...",
+      "11": "Organizando seu histórico profissional...",
+      "12": "Destacando suas conquistas...",
+      "13": "Preparando para aprimoramento com IA...",
+      "14": "Configurando seu currículo personalizado..."
+    },
+    "options": {
+      "fromScratch": {
+        "title": "Começar do Zero",
+        "description": "Crie seu currículo do início com assistência de IA",
+        "descriptionCreating": "Configurando seu novo currículo...",
+        "buttonCreating": "Criando Currículo...",
+        "button": "Começar"
+      },
+      "upload": {
+        "title": "Enviar Seu Currículo",
+        "titleProcessing": "Processando Currículo...",
+        "description": "Envie seu currículo existente e deixe a IA aprimorá-lo",
+        "button": "Enviar Arquivo"
+      }
+    },
+    "steps": {
+      "question": "Já tem um currículo?",
+      "result": "Obtenha uma versão polida e pronta para ATS em minutos"
+    }
+  },
+  "resumes": {
+    "title": "Meus Currículos",
+    "loading": "Carregando currículos...",
+    "error": "Erro ao carregar currículos",
+    "createNew": {
+      "title": "Criar Novo Currículo",
+      "description": "Comece a criar seu próximo currículo"
+    }
+  },
+  "chat": {
+    "title": "Editor de Currículo com IA",
+    "preview": "Visualização do Currículo",
+    "buttons": {
+      "refine": "Refinar",
+      "resumes": "Currículos"
+    },
+    "input": {
+      "placeholder": "Digite sua mensagem..."
+    },
+    "waitingMessage": {
+      "editResume": "Edite seu currículo"
+    },
+    "welcomeMessages": {
+      "guest": "Bem-vindo! Sou seu Criador de Currículo com IA, aqui para economizar seu tempo e aumentar suas chances. Vamos nos conhecer: qual é o seu nome?",
+      "fromUpload": "Bem-vindo! Sou seu Editor com IA, aqui para economizar seu tempo e aumentar suas chances. Vamos começar?",
+      "fromScratch": "Bem-vindo! Sou seu Editor com IA, aqui para economizar seu tempo e aumentar suas chances. Vamos nos conhecer: qual é o seu nome?"
+    },
+    "errors": {
+      "general": "Desculpe, encontrei um erro. Por favor, tente novamente."
+    }
+  },
+  "header": {
+    "steps": {
+      "start": "Início",
+      "generate": "Gerar",
+      "refine": "Refinar",
+      "export": "Exportar"
+    },
+    "tabs": {
+      "resumes": "Currículos",
+      "aiWriter": "Editor IA",
+      "editor": "Editor"
+    },
+    "profile": "Perfil",
+    "guestUser": "Usuário Convidado"
+  },
+  "paywall": {
+    "title": "Atualizar para Pro",
+    "subtitle": "Crie currículos ilimitados e desbloqueie todos os recursos",
+    "currency": "$ (USD)",
+    "features": {
+      "unlimitedAI": "Uso Ilimitado do Editor IA",
+      "unlimitedResumes": "Currículos Ilimitados",
+      "premiumTemplates": "Modelos Premium",
+      "cleanPDF": "Download de PDF Limpo"
+    },
+    "plans": {
+      "yearly": {
+        "label": "Anual",
+        "price": "40,00 $/ano"
+      }
+    },
+    "buttons": {
+      "continue": "CONTINUAR",
+      "processing": "PROCESSANDO..."
+    }
+  },
+  "export": {
+    "title": "Exportar",
+    "pageTitle": "Currículo",
+    "buttons": {
+      "refine": "Refinar"
+    },
+    "download": {
+      "watermarked": {
+        "title": "Download com Marca d'Água",
+        "titleProcessing": "Gerando PDF...",
+        "description": "Baixe seu currículo com marcas d'água",
+        "descriptionProcessing": "Por favor, aguarde enquanto preparamos seu currículo",
+        "button": "Baixar",
+        "buttonProcessing": "Processando..."
+      },
+      "clean": {
+        "title": "Download Limpo",
+        "titleProcessing": "Gerando PDF...",
+        "descriptionFree": "Baixe seu currículo sem marcas d'água",
+        "descriptionPremium": "Baixe seu currículo sem marcas d'água",
+        "descriptionProcessing": "Por favor, aguarde enquanto preparamos seu currículo",
+        "button": "Baixar",
+        "buttonUpgrade": "Atualizar para Pro",
+        "buttonProcessing": "Processando..."
+      }
+    },
+    "unauthenticated": {
+      "title": "Seu currículo está pronto para recrutadores",
+      "benefits": {
+        "0": "Seu currículo está pronto para recrutadores",
+        "1": "Otimizado para todos os sistemas ATS",
+        "2": "Aumente suas chances de entrevista",
+        "3": "Publique e receba mais ofertas",
+        "4": "Baixe e comece a se candidatar hoje"
+      },
+      "downloadButton": "Baixe Seu Currículo"
+    },
+    "pricing": {
+      "title": "Escolha Seu Plano",
+      "plans": {
+        "free": {
+          "title": "Grátis",
+          "buttonText": "Baixar com Marcas d'Água"
+        },
+        "pro": {
+          "title": "Pro",
+          "buttonText": "Baixar Limpo"
+        },
+        "mostPopular": "Mais Popular",
+        "free": "Grátis",
+        "perMonth": "por mês"
+      },
+      "features": {
+        "pdfExport": "Exportação PDF",
+        "wordExport": "Exportação Word",
+        "pngExport": "Exportação PNG",
+        "multipleTemplates": "Múltiplos Modelos",
+        "aiSuggestions": "Sugestões de IA",
+        "prioritySupport": "Suporte Prioritário",
+        "noWatermarks": "Sem Marcas d'Água",
+        "unlimitedDownloads": "Downloads Ilimitados"
+      }
+    }
+  },
+  "errors": {
+    "uploadFailed": "Falha ao processar currículo",
+    "uploadFailedGeneric": "Falha no envio",
+    "noResumeId": "Falha ao obter ID do currículo do resultado do envio"
+  },
+  "thinking": {
+    "phrases": {
+      "0": "Pensando",
+      "1": "Analisando seu currículo",
+      "2": "Processando sua solicitação",
+      "3": "Gerando resposta",
+      "4": "Trabalhando nisso",
+      "5": "Quase pronto",
+      "6": "Preparando resposta",
+      "7": "Pesando cada palavra",
+      "8": "Colocando os pensamentos em ordem",
+      "9": "Polindo a redação",
+      "10": "Estruturando a informação"
+    }
+  },
+  "defaults": {
+    "resumeTitle": "Meu Currículo"
+  }
+}
+

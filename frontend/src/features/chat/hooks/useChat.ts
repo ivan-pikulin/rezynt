@@ -4,6 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { chatApi } from '../../../shared/services/api';
 import { SendMessageRequest, Message } from '../../../shared/services/api/types';
 import { useUser } from '../../../shared/hooks/useUser';
+import i18n from '../../../shared/i18n';
 
 // Local chat message type for UI
 export interface ChatMessage {
@@ -25,25 +26,26 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fr
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
   const [hasMoreMessages, setHasMoreMessages] = useState(true);
+  const { t } = useTranslation();
   const [lastLoadType, setLastLoadType] = useState<MessageLoadType>('none');
   const [pendingScrollRestore, setPendingScrollRestore] = useState<any>(null);
-  const [currentThinkingPhrase, setCurrentThinkingPhrase] = useState<string>('Thinking');
+  const [currentThinkingPhrase, setCurrentThinkingPhrase] = useState<string>('');
   const [shuffledPhrases, setShuffledPhrases] = useState<string[]>([]);
   const [currentPhraseIndex, setCurrentPhraseIndex] = useState<number>(0);
 
   // Список фраз для показа во время ожидания
   const thinkingPhrases = [
-    'Thinking',
-    'Analyzing your resume',
-    'Processing your request',
-    'Generating response',
-    'Working on it',
-    'Almost ready',
-    'Preparing answer',
-    'Weighing every word',
-    'Putting thoughts in order',
-    'Polishing the phrasing',
-    'Structuring the information'
+    t('thinking.phrases.0'),
+    t('thinking.phrases.1'),
+    t('thinking.phrases.2'),
+    t('thinking.phrases.3'),
+    t('thinking.phrases.4'),
+    t('thinking.phrases.5'),
+    t('thinking.phrases.6'),
+    t('thinking.phrases.7'),
+    t('thinking.phrases.8'),
+    t('thinking.phrases.9'),
+    t('thinking.phrases.10')
   ];
 
   // Функция для перемешивания массива (алгоритм Fisher-Yates)
@@ -142,7 +144,7 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fr
     if (!currentUser) {
       const welcomeMessage = {
         id: 'welcome',
-        content: "Welcome aboard! I'm your AI Resume Builder, here to save you time and boost your chances. Let's get personal: what's your name?",
+        content: i18n.t('chat.welcomeMessages.guest'),
         sender: 'assistant' as const,
         timestamp: new Date()
       };
@@ -179,8 +181,8 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fr
         } else {
           // Используем стандартное приветствие для авторизованных пользователей
           welcomeContent = fromUpload 
-            ? "Welcome aboard! I'm your AI Writer, here to save you time and boost your chances. Let's start?"
-            : "Welcome aboard! I'm your AI Writer, here to save you time and boost your chances. Let's get personal: what's your name?";
+            ? i18n.t('chat.welcomeMessages.fromUpload')
+            : i18n.t('chat.welcomeMessages.fromScratch');
         }
         
         const welcomeMessage = {
@@ -318,7 +320,7 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fr
     const newShuffledPhrases = shuffleArray(thinkingPhrases);
     setShuffledPhrases(newShuffledPhrases);
     setCurrentPhraseIndex(0);
-    setCurrentThinkingPhrase(newShuffledPhrases[0] || 'Thinking');
+    setCurrentThinkingPhrase(newShuffledPhrases[0] || t('thinking.phrases.0'));
     
     // Таймер для смены фраз каждые 4 секунды
     const phraseTimer = setInterval(() => {
@@ -383,7 +385,7 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fr
             setMessages(prev => 
               prev.map(msg => 
                 msg.id === assistantMessageId 
-                  ? { ...msg, content: 'Sorry, I encountered an error. Please try again.' }
+                  ? { ...msg, content: i18n.t('chat.errors.general') }
                   : msg
               )
             );
@@ -419,7 +421,7 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fr
         setMessages(prev => 
           prev.map(msg => 
             msg.id === assistantMessageId 
-              ? { ...msg, content: 'Sorry, I encountered an error. Please try again.' }
+              ? { ...msg, content: i18n.t('chat.errors.general') }
               : msg
           )
         );

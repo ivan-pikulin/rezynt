@@ -6,6 +6,7 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import DownloadIcon from '@mui/icons-material/Download';
 import CircularProgress from '@mui/material/CircularProgress';
+import { useTranslation } from 'react-i18next';
 import PaywallModal from '../../../shared/components/PaywallModal';
 import { COLORS } from '../../../shared/theme/theme';
 import { ga4Service } from '../../../shared/services/ga4Service';
@@ -16,6 +17,7 @@ interface DownloadOptionsProps {
 }
 
 const DownloadOptions: React.FC<DownloadOptionsProps> = ({ onExportPDF, isPremium = false }) => {
+  const { t } = useTranslation();
   const [isPaywallModalOpen, setIsPaywallModalOpen] = useState(false);
   const [isWatermarkedExporting, setIsWatermarkedExporting] = useState(false);
   const [isCleanExporting, setIsCleanExporting] = useState(false);
@@ -131,7 +133,7 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({ onExportPDF, isPremiu
                 fontSize: { xs: '1.1rem', sm: '1.25rem', md: '1.5rem' } // Адаптивный размер шрифта
               }}
             >
-              {isWatermarkedExporting ? 'Generating PDF...' : 'Watermarked Download'}
+              {isWatermarkedExporting ? t('export.download.watermarked.titleProcessing') : t('export.download.watermarked.title')}
             </Typography>
             <Typography 
               variant="body1" 
@@ -141,7 +143,7 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({ onExportPDF, isPremiu
                 fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' } // Адаптивный размер шрифта
               }}
             >
-              {isWatermarkedExporting ? 'Please wait while we prepare your resume' : 'Download your resume with watermarks'}
+              {isWatermarkedExporting ? t('export.download.watermarked.descriptionProcessing') : t('export.download.watermarked.description')}
             </Typography>
             <Button 
               variant="outlined" 
@@ -167,7 +169,7 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({ onExportPDF, isPremiu
                 }
               }}
             >
-              {isWatermarkedExporting ? 'Processing...' : 'Download'}
+              {isWatermarkedExporting ? t('export.download.watermarked.buttonProcessing') : t('export.download.watermarked.button')}
             </Button>
           </CardContent>
         </Card>
@@ -226,7 +228,7 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({ onExportPDF, isPremiu
                 fontSize: { xs: '1.1rem', sm: '1.25rem', md: '1.5rem' } // Адаптивный размер шрифта
               }}
             >
-              {isCleanExporting ? 'Generating PDF...' : 'Clean Download'}
+              {isCleanExporting ? t('export.download.clean.titleProcessing') : t('export.download.clean.title')}
             </Typography>
             <Typography 
               variant="body1" 
@@ -236,9 +238,9 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({ onExportPDF, isPremiu
                 fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' } // Адаптивный размер шрифта
               }}
             >
-              {isCleanExporting ? 'Please wait while we prepare your resume' : 
-               isPremium ? 'Download your resume without watermarks' : 
-               'Download without watermarks (Pro feature)'}
+              {isCleanExporting ? t('export.download.clean.descriptionProcessing') : 
+               isPremium ? t('export.download.clean.descriptionPremium') : 
+               t('export.download.clean.descriptionFree')}
             </Typography>
             <Button 
               variant="contained" 
@@ -262,7 +264,7 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({ onExportPDF, isPremiu
                 }
               }}
             >
-              {isCleanExporting ? 'Processing...' : (isPremium ? 'Download' : 'Upgrade to Pro')}
+              {isCleanExporting ? t('export.download.clean.buttonProcessing') : (isPremium ? t('export.download.clean.button') : t('export.download.clean.buttonUpgrade'))}
             </Button>
           </CardContent>
         </Card>

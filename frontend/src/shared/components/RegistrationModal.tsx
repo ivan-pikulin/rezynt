@@ -7,6 +7,7 @@ import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import Typography from '@mui/material/Typography';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import LoginForm from '../../features/auth/components/LoginForm';
 import SignupForm from '../../features/auth/components/SignupForm';
 import EmailConfirmationModal from './EmailConfirmationModal';
@@ -19,6 +20,7 @@ interface RegistrationModalProps {
 }
 
 const RegistrationModal: React.FC<RegistrationModalProps> = ({ open, onClose, onSuccess, onSignupSuccess }) => {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<'login' | 'signup'>('signup');
   const [isProcessing, setIsProcessing] = useState(false);
   const [showEmailConfirmation, setShowEmailConfirmation] = useState(false);
@@ -74,10 +76,10 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({ open, onClose, on
           <CloseIcon fontSize="small" />
         </IconButton>
         <Typography id="registration-modal-title" variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>
-          Create your account
+          {t('auth.registration.modal.title')}
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-          Save your resume in the cloud, chat with AI, and export without limits.
+          {t('auth.registration.modal.subtitle')}
         </Typography>
 
         <Tabs
@@ -86,8 +88,8 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({ open, onClose, on
           aria-label="registration-tabs"
           sx={{ mb: 2 }}
         >
-          <Tab label="Sign up" value="signup" />
-          <Tab label="Log in" value="login" />
+          <Tab label={t('auth.registration.tabs.signup')} value="signup" />
+          <Tab label={t('auth.registration.tabs.login')} value="login" />
         </Tabs>
 
         <Divider sx={{ mb: 2 }} />

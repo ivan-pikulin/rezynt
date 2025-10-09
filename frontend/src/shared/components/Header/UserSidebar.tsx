@@ -19,6 +19,7 @@ import {
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { resumeApi, userApi } from '../../services/api';
 import { User } from '../../services/api/types';
@@ -35,6 +36,7 @@ const UserSidebar: React.FC<UserSidebarProps> = ({
   onClose, 
   anchor = 'right' 
 }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { logout, user, updateUser } = useAuthContext();
   const [userData, setUserData] = useState<User | null>(null);
@@ -161,7 +163,7 @@ const UserSidebar: React.FC<UserSidebarProps> = ({
           </Avatar>
           
           <Typography variant="h6" sx={{ fontWeight: 600, color: '#2c3e50', mb: 1 }}>
-            {userData?.email || user?.email || 'Guest User'}
+            {userData?.email || user?.email || t('header.guestUser')}
           </Typography>
           
           <Chip

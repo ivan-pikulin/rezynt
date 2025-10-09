@@ -296,7 +296,7 @@ const RefinePage: React.FC = () => {
         <head>
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Resume</title>
+          <title>${t('refine.pageTitle')}</title>
           <style>
             ${styles}
             
@@ -495,7 +495,7 @@ const RefinePage: React.FC = () => {
                 
                 {/* Toggle buttons for left panel */}
                 <Box sx={{ display: 'flex', gap: 0.5, ml: 1 }}>
-                  <Tooltip title="Edit Resume Fields">
+                  <Tooltip title={t('refine.tooltips.editFields')}>
                     <IconButton 
                       size="small" 
                       onClick={() => toggleLeftPanel('editor')}
@@ -513,7 +513,7 @@ const RefinePage: React.FC = () => {
                       <PersonIcon />
                     </IconButton>
                   </Tooltip>
-                  <Tooltip title="Choose Template">
+                  <Tooltip title={t('refine.tooltips.chooseTemplate')}>
                     <IconButton 
                       size="small" 
                       onClick={() => toggleLeftPanel('templates')}
@@ -533,7 +533,7 @@ const RefinePage: React.FC = () => {
                   </Tooltip>
                   {/* Eye button for mobile */}
                   {isMobile && (
-                    <Tooltip title="Preview Resume">
+                    <Tooltip title={t('refine.tooltips.previewResume')}>
                       <IconButton 
                         size="small" 
                         onClick={togglePreview}
@@ -647,8 +647,8 @@ const RefinePage: React.FC = () => {
             {/* Circular download button in top-right corner */}
             <Tooltip 
               title={isDownloading 
-                ? 'Generating PDF...' 
-                : (user?.is_premium ? 'Download PDF' : 'Download Resume')
+                ? t('refine.tooltips.generatingPdf')
+                : (user?.is_premium ? t('refine.tooltips.downloadPdf') : t('refine.tooltips.downloadResume'))
               }
               placement="left"
             >
@@ -761,8 +761,8 @@ const RefinePage: React.FC = () => {
             {/* Circular download button for mobile */}
             <Tooltip 
               title={isDownloading 
-                ? 'Generating PDF...' 
-                : (user?.is_premium ? 'Download PDF' : 'Download Resume')
+                ? t('refine.tooltips.generatingPdf')
+                : (user?.is_premium ? t('refine.tooltips.downloadPdf') : t('refine.tooltips.downloadResume'))
               }
               placement="left"
             >

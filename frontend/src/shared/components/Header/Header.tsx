@@ -10,6 +10,7 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { HeaderProps } from './Header.types';
 import UserSidebar from './UserSidebar';
@@ -33,12 +34,13 @@ const Header: React.FC<HeaderProps> = ({
   currentTab = 'resumes',
   onTabChange,
   isOnboarding = false,
-  onboardingTitle = 'Welcome to Rezynt!'
+  onboardingTitle
 }) => {
+  const { t } = useTranslation();
   const { user } = useAuthContext();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const steps = ['Start', 'Generate', 'Refine', 'Export'];
+  const steps = [t('header.steps.start'), t('header.steps.generate'), t('header.steps.refine'), t('header.steps.export')];
   
   // Define mobile mode for screens up to 768px
   const isMobile = useMediaQuery('(max-width: 768px)');
@@ -66,11 +68,11 @@ const Header: React.FC<HeaderProps> = ({
     
     switch (step) {
       case 1:
-        return 'Start';
+        return t('header.steps.start');
       case 2:
-        return 'Generate';
+        return t('header.steps.generate');
       case 3:
-        return 'Refine';
+        return t('header.steps.refine');
       default:
         return '';
     }
@@ -150,7 +152,7 @@ const Header: React.FC<HeaderProps> = ({
                 mb: 1
               }}
             >
-              {onboardingTitle}
+              {onboardingTitle || t('onboarding.title')}
             </Typography>
             <Typography 
               variant="body2" 
@@ -159,12 +161,12 @@ const Header: React.FC<HeaderProps> = ({
                 fontWeight: 400,
                 color: 'text.secondary',
                 opacity: 0.7,
-                fontSize: isMobile ? '0.875rem' : '1rem',
-                textAlign: 'center'
-              }}
-            >
-              Let's get to know you better to personalize your experience
-            </Typography>
+              fontSize: isMobile ? '0.875rem' : '1rem',
+              textAlign: 'center'
+            }}
+          >
+            {t('onboarding.subtitle')}
+          </Typography>
           </Box>
         ) : isPro ? (
           /* Tabs for pro users */
@@ -196,9 +198,9 @@ const Header: React.FC<HeaderProps> = ({
                 }
               }}
             >
-              <Tab label="Resumes" value="resumes" />
-              <Tab label="AI Writer" value="ai-writer" />
-              <Tab label="Editor" value="editor" />
+              <Tab label={t('header.tabs.resumes')} value="resumes" />
+              <Tab label={t('header.tabs.aiWriter')} value="ai-writer" />
+              <Tab label={t('header.tabs.editor')} value="editor" />
             </Tabs>
           </Box>
         ) : (
@@ -332,7 +334,7 @@ const Header: React.FC<HeaderProps> = ({
           alignItems: 'center',
           justifyContent: 'flex-end'
         }}>
-          <Tooltip title="Profile">
+          <Tooltip title={t('header.profile')}>
             <IconButton
               onClick={handleAvatarClick}
               sx={{

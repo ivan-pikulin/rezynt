@@ -1,18 +1,20 @@
 import React from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
+import { useTranslation } from 'react-i18next';
 import PricingCard from './PricingCard';
 
 const PricingTable: React.FC = () => {
+  const { t } = useTranslation();
   const features = [
-    'PDF Export',
-    'Word Export', 
-    'PNG Export',
-    'Multiple Templates',
-    'AI Suggestions',
-    'Priority Support',
-    'No Watermarks',
-    'Unlimited Downloads'
+    t('export.pricing.features.pdfExport'),
+    t('export.pricing.features.wordExport'), 
+    t('export.pricing.features.pngExport'),
+    t('export.pricing.features.multipleTemplates'),
+    t('export.pricing.features.aiSuggestions'),
+    t('export.pricing.features.prioritySupport'),
+    t('export.pricing.features.noWatermarks'),
+    t('export.pricing.features.unlimitedDownloads')
   ];
 
   const freeFeatures = [true, false, false, false, false, false, false, false];
@@ -33,7 +35,7 @@ const PricingTable: React.FC = () => {
           textAlign: 'center'
         }}
       >
-        Choose Your Plan
+        {t('export.pricing.title')}
       </Typography>
       
               {/* Pricing table */}
@@ -43,23 +45,23 @@ const PricingTable: React.FC = () => {
         justifyContent: 'center'
       }}>
         <PricingCard
-          title="Free"
+          title={t('export.pricing.plans.free.title')}
           price={0}
           currency="USD"
           features={features}
           featureValues={freeFeatures}
-          buttonText="Download with Watermarks"
+          buttonText={t('export.pricing.plans.free.buttonText')}
           buttonVariant="outlined"
           isPopular={false}
         />
         
         <PricingCard
-          title="Pro"
+          title={t('export.pricing.plans.pro.title')}
           price={9.99}
           currency="USD"
           features={features}
           featureValues={proFeatures}
-          buttonText="Clean Download"
+          buttonText={t('export.pricing.plans.pro.buttonText')}
           buttonVariant="contained"
           isPopular={true}
         />

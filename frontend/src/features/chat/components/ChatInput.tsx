@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Box, TextField, IconButton } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
+import { useTranslation } from 'react-i18next';
 import { ga4Service } from '../../../shared/services/ga4Service';
 
 interface ChatInputProps {
@@ -9,6 +10,7 @@ interface ChatInputProps {
 }
 
 export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled }) => {
+  const { t } = useTranslation();
   const [message, setMessage] = useState('');
   
   const handleSend = () => {
@@ -58,7 +60,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled })
         value={message}
         onChange={(e) => setMessage(e.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder="Type your message..."
+        placeholder={t('chat.input.placeholder')}
         autoFocus
         sx={{
           '& .MuiOutlinedInput-root': {

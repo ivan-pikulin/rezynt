@@ -111,14 +111,33 @@
       "expiresIn15min": "Code expires in 15 minutes",
       "invalidCode": "Invalid or expired verification code",
       "codeRequired": "Please enter the 6-digit code"
+    },
+    "registration": {
+      "modal": {
+        "title": "Create your account",
+        "subtitle": "Save your resume in the cloud, chat with AI, and export without limits."
+      },
+      "tabs": {
+        "signup": "Sign up",
+        "login": "Log in"
+      }
     }
   },
   "refine": {
     "loading": "Loading resume...",
+    "pageTitle": "Resume",
     "error": {
       "noResumeId": "Resume ID not specified",
       "loadError": "Error loading resume",
       "notFound": "Resume not found"
+    },
+    "tooltips": {
+      "editFields": "Edit Resume Fields",
+      "chooseTemplate": "Choose Template",
+      "previewResume": "Preview Resume",
+      "generatingPdf": "Generating PDF...",
+      "downloadPdf": "Download PDF",
+      "downloadResume": "Download Resume"
     },
     "editor": {
       "title": "Edit",
@@ -226,5 +245,197 @@
       "goToExport": "Go to Export",
       "goToResumes": "Go to Resumes"
     }
+  },
+  "start": {
+    "uploadMessages": {
+      "0": "We are extracting your strengths and achievements...",
+      "1": "Optimizing your resume for ATS systems...",
+      "2": "Analyzing your experience with AI precision...",
+      "3": "Enhancing your professional summary...",
+      "4": "Identifying key skills and competencies...",
+      "5": "Structuring your resume for maximum impact...",
+      "6": "Applying industry best practices...",
+      "7": "Creating a compelling narrative...",
+      "8": "Optimizing content for recruiters...",
+      "9": "Ensuring your resume stands out...",
+      "10": "Extracting contact information...",
+      "11": "Organizing your work history...",
+      "12": "Highlighting your achievements...",
+      "13": "Preparing for AI-powered enhancement...",
+      "14": "Setting up your personalized resume..."
+    },
+    "options": {
+      "fromScratch": {
+        "title": "Start from Scratch",
+        "description": "Create your resume from the beginning with AI assistance",
+        "descriptionCreating": "Setting up your new resume...",
+        "buttonCreating": "Creating Resume...",
+        "button": "Get Started"
+      },
+      "upload": {
+        "title": "Upload Your Resume",
+        "titleProcessing": "Processing Resume...",
+        "description": "Upload your existing resume and let AI enhance it",
+        "button": "Upload File"
+      }
+    },
+    "steps": {
+      "question": "Already have a resume?",
+      "result": "Get a polished, ATS-ready version in minutes"
+    }
+  },
+  "resumes": {
+    "title": "My Resumes",
+    "loading": "Loading resumes...",
+    "error": "Error loading resumes",
+    "createNew": {
+      "title": "Create New Resume",
+      "description": "Start building your next resume"
+    }
+  },
+  "chat": {
+    "title": "AI Resume Writer",
+    "preview": "Resume Preview",
+    "buttons": {
+      "refine": "Refine",
+      "resumes": "Resumes"
+    },
+    "input": {
+      "placeholder": "Type your message..."
+    },
+    "waitingMessage": {
+      "editResume": "Edit your resume"
+    },
+    "welcomeMessages": {
+      "guest": "Welcome aboard! I'm your AI Resume Builder, here to save you time and boost your chances. Let's get personal: what's your name?",
+      "fromUpload": "Welcome aboard! I'm your AI Writer, here to save you time and boost your chances. Let's start?",
+      "fromScratch": "Welcome aboard! I'm your AI Writer, here to save you time and boost your chances. Let's get personal: what's your name?"
+    },
+    "errors": {
+      "general": "Sorry, I encountered an error. Please try again."
+    }
+  },
+  "header": {
+    "steps": {
+      "start": "Start",
+      "generate": "Generate",
+      "refine": "Refine",
+      "export": "Export"
+    },
+    "tabs": {
+      "resumes": "Resumes",
+      "aiWriter": "AI Writer",
+      "editor": "Editor"
+    },
+    "profile": "Profile",
+    "guestUser": "Guest User"
+  },
+  "paywall": {
+    "title": "Upgrade to Pro",
+    "subtitle": "Create unlimited resumes and unlock all features",
+    "currency": "$ (USD)",
+    "features": {
+      "unlimitedAI": "Unlimited AI Writer Use",
+      "unlimitedResumes": "Unlimited Resumes",
+      "premiumTemplates": "Premium Templates",
+      "cleanPDF": "Clean PDF Download"
+    },
+    "plans": {
+      "yearly": {
+        "label": "Yearly",
+        "price": "40,00 $/year"
+      }
+    },
+    "buttons": {
+      "continue": "CONTINUE",
+      "processing": "PROCESSING..."
+    }
+  },
+  "export": {
+    "title": "Export",
+    "pageTitle": "Resume",
+    "buttons": {
+      "refine": "Refine"
+    },
+    "download": {
+      "watermarked": {
+        "title": "Watermarked Download",
+        "titleProcessing": "Generating PDF...",
+        "description": "Download your resume with watermarks",
+        "descriptionProcessing": "Please wait while we prepare your resume",
+        "button": "Download",
+        "buttonProcessing": "Processing..."
+      },
+      "clean": {
+        "title": "Clean Download",
+        "titleProcessing": "Generating PDF...",
+        "descriptionFree": "Download your resume without watermarks",
+        "descriptionPremium": "Download your resume without watermarks",
+        "descriptionProcessing": "Please wait while we prepare your resume",
+        "button": "Download",
+        "buttonUpgrade": "Upgrade to Pro",
+        "buttonProcessing": "Processing..."
+      }
+    },
+    "unauthenticated": {
+      "title": "Your resume is recruiter-ready",
+      "benefits": {
+        "0": "Your resume is recruiter-ready",
+        "1": "Optimized for all ATS systems",
+        "2": "Boost your interview chances",
+        "3": "Publish and get more offers",
+        "4": "Download and start applying today"
+      },
+      "downloadButton": "Download Your Resume"
+    },
+    "pricing": {
+      "title": "Choose Your Plan",
+      "plans": {
+        "free": {
+          "title": "Free",
+          "buttonText": "Download with Watermarks"
+        },
+        "pro": {
+          "title": "Pro",
+          "buttonText": "Clean Download"
+        },
+        "mostPopular": "Most Popular",
+        "free": "Free",
+        "perMonth": "per month"
+      },
+      "features": {
+        "pdfExport": "PDF Export",
+        "wordExport": "Word Export",
+        "pngExport": "PNG Export",
+        "multipleTemplates": "Multiple Templates",
+        "aiSuggestions": "AI Suggestions",
+        "prioritySupport": "Priority Support",
+        "noWatermarks": "No Watermarks",
+        "unlimitedDownloads": "Unlimited Downloads"
+      }
+    }
+  },
+  "errors": {
+    "uploadFailed": "Failed to process resume",
+    "uploadFailedGeneric": "Upload failed",
+    "noResumeId": "Failed to get resume ID from upload result"
+  },
+  "thinking": {
+    "phrases": {
+      "0": "Thinking",
+      "1": "Analyzing your resume",
+      "2": "Processing your request",
+      "3": "Generating response",
+      "4": "Working on it",
+      "5": "Almost ready",
+      "6": "Preparing answer",
+      "7": "Weighing every word",
+      "8": "Putting thoughts in order",
+      "9": "Polishing the phrasing",
+      "10": "Structuring the information"
+    }
+  },
+  "defaults": {
+    "resumeTitle": "My Resume"
   }
 }

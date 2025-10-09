@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import Header from '../../shared/components/Header/Header';
 import StartOptions from './components/StartOptions';
 import { useUser } from '../../shared/hooks';
@@ -12,6 +13,7 @@ import { resumeApi } from '../../shared/services/api';
 import GradientSpinnerAnimation from '../../shared/components/GradientSpinnerAnimation';
 
 const StartPage: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user } = useUser();
@@ -26,21 +28,21 @@ const StartPage: React.FC = () => {
 
   // List of messages to display during upload processing
   const uploadMessages = [
-    "We are extracting your strengths and achievements...",
-    "Optimizing your resume for ATS systems...",
-    "Analyzing your experience with AI precision...",
-    "Enhancing your professional summary...",
-    "Identifying key skills and competencies...",
-    "Structuring your resume for maximum impact...",
-    "Applying industry best practices...",
-    "Creating a compelling narrative...",
-    "Optimizing content for recruiters...",
-    "Ensuring your resume stands out...",
-    "Extracting contact information...",
-    "Organizing your work history...",
-    "Highlighting your achievements...",
-    "Preparing for AI-powered enhancement...",
-    "Setting up your personalized resume..."
+    t('start.uploadMessages.0'),
+    t('start.uploadMessages.1'),
+    t('start.uploadMessages.2'),
+    t('start.uploadMessages.3'),
+    t('start.uploadMessages.4'),
+    t('start.uploadMessages.5'),
+    t('start.uploadMessages.6'),
+    t('start.uploadMessages.7'),
+    t('start.uploadMessages.8'),
+    t('start.uploadMessages.9'),
+    t('start.uploadMessages.10'),
+    t('start.uploadMessages.11'),
+    t('start.uploadMessages.12'),
+    t('start.uploadMessages.13'),
+    t('start.uploadMessages.14')
   ];
 
   // Handle task_id parameter for processing uploaded resume
@@ -80,7 +82,7 @@ const StartPage: React.FC = () => {
             clearInterval(interval);
             setIsProcessingUpload(false);
             setTaskId(null);
-            setUploadError(result.error || result.message || 'Failed to process resume');
+            setUploadError(result.error || result.message || t('errors.uploadFailed'));
             // Clear error message from URL
             navigate('/start', { replace: true });
           } else if (result.status === 'pending' || result.status === 'processing') {

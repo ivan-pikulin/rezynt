@@ -7,6 +7,7 @@ import Divider from '@mui/material/Divider';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { useMediaQuery } from '@mui/material';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import ResumeRenderer from '../../../shared/components/ResumeRenderer';
 import { COLORS } from '../../../shared/theme/theme';
 import { convertApiResumeToDisplayData } from '../../refine/utils/resumeDataConverter';
@@ -23,15 +24,16 @@ const UnauthenticatedExportView: React.FC<UnauthenticatedExportViewProps> = ({
   selectedTemplateId,
   onDownloadClick
 }) => {
+  const { t } = useTranslation();
   const isMobile = useMediaQuery('(max-width: 768px)');
   const displayData = convertApiResumeToDisplayData(resume);
 
   const benefits = [
-    'Your resume is recruiter-ready',
-    'Optimized for all ATS systems',
-    'Boost your interview chances',
-    'Publish and get more offers',
-    'Download and start applying today'
+    t('export.unauthenticated.benefits.0'),
+    t('export.unauthenticated.benefits.1'),
+    t('export.unauthenticated.benefits.2'),
+    t('export.unauthenticated.benefits.3'),
+    t('export.unauthenticated.benefits.4')
   ];
 
   const mobileBenefits = [benefits[0], benefits[1], benefits[4]]; // 1, 2, 5 пункты
@@ -193,7 +195,7 @@ const UnauthenticatedExportView: React.FC<UnauthenticatedExportViewProps> = ({
               transition: isMobile ? 'all 0.2s ease' : 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
             }}
           >
-            Download Your Resume
+            {t('export.unauthenticated.downloadButton')}
           </Button>
         </Box>
       </CardContent>

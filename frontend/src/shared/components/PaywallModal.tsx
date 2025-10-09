@@ -8,6 +8,7 @@ import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import Typography from '@mui/material/Typography';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuthContext } from '../contexts/AuthContext';
 import { useUser } from '../hooks';
 
@@ -18,16 +19,17 @@ interface PaywallModalProps {
 }
 
 const PaywallModal: React.FC<PaywallModalProps> = ({ open, onClose, onSuccess }) => {
+  const { t } = useTranslation();
   const [selectedPlan, setSelectedPlan] = useState<'yearly'>('yearly');
   const [isProcessing, setIsProcessing] = useState(false);
   const { refetch: refetchUser } = useUser();
   const { updateUser } = useAuthContext();
 
   const features = [
-    'Unlimited AI Writer Use',
-    'Unlimited Resumes',
-    'Premium Templates',
-    'Clean PDF Download'
+    t('paywall.features.unlimitedAI'),
+    t('paywall.features.unlimitedResumes'),
+    t('paywall.features.premiumTemplates'),
+    t('paywall.features.cleanPDF')
   ];
 
   const handleContinue = async () => {
@@ -86,7 +88,7 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ open, onClose, onSuccess })
               fontWeight: 700
             }}
           >
-            Upgrade to Pro
+            {t('paywall.title')}
           </Typography>
           <Typography 
             variant="body2" 
@@ -95,7 +97,7 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ open, onClose, onSuccess })
               opacity: 0.8
             }}
           >
-            $ (USD)
+            {t('paywall.currency')}
           </Typography>
         </Box>
 
@@ -108,7 +110,7 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ open, onClose, onSuccess })
             fontSize: '0.9rem'
           }}
         >
-          Create unlimited resumes and unlock all features
+          {t('paywall.subtitle')}
         </Typography>
 
         {/* Features */}
@@ -157,10 +159,10 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ open, onClose, onSuccess })
                   label={
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
                       <Typography sx={{ color: 'white', fontWeight: 600 }}>
-                        Yearly
+                        {t('paywall.plans.yearly.label')}
                       </Typography>
                       <Typography sx={{ color: 'white', fontWeight: 700, ml: 1 }}>
-                        40,00 $/year
+                        {t('paywall.plans.yearly.price')}
                       </Typography>
                     </Box>
                   }
@@ -196,7 +198,7 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ open, onClose, onSuccess })
             }
           }}
         >
-          {isProcessing ? 'PROCESSING...' : 'CONTINUE'}
+          {isProcessing ? t('paywall.buttons.processing') : t('paywall.buttons.continue')}
         </Button>
 
 

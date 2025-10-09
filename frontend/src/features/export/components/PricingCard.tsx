@@ -7,6 +7,7 @@ import Button from '@mui/material/Button';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import Chip from '@mui/material/Chip';
+import { useTranslation } from 'react-i18next';
 import { exportApi } from '../exportApi';
 import { COLORS } from '../../../shared/theme/theme';
 
@@ -31,6 +32,8 @@ const PricingCard: React.FC<PricingCardProps> = ({
   buttonVariant,
   isPopular
 }) => {
+  const { t } = useTranslation();
+  
   const handleDownload = async () => {
     try {
       // Map plan names to API expected values
@@ -63,7 +66,7 @@ const PricingCard: React.FC<PricingCardProps> = ({
     >
       {isPopular && (
         <Chip
-          label="Most Popular"
+          label={t('export.pricing.plans.mostPopular')}
           color="primary"
           sx={{
             position: 'absolute',
@@ -95,14 +98,14 @@ const PricingCard: React.FC<PricingCardProps> = ({
               color: COLORS.primary.main
             }}
           >
-            {price === 0 ? 'Free' : `$${price}`}
+            {price === 0 ? t('export.pricing.plans.free') : `$${price}`}
           </Typography>
           {price > 0 && (
             <Typography 
               variant="body2" 
               color="text.secondary"
             >
-              per month
+              {t('export.pricing.plans.perMonth')}
             </Typography>
           )}
         </Box>

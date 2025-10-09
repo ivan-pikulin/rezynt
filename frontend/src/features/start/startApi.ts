@@ -1,5 +1,6 @@
 import { resumeApi } from '../../shared/services/api';
 import { Resume } from '../../shared/services/api/types';
+import i18n from '../../shared/i18n';
 
 export const startApi = {
   /**
@@ -22,12 +23,12 @@ export const startApi = {
         result = await resumeApi.getUploadResult(uploadResult.task_id);
         break;
       } else if (status === 'FAILURE') {
-        throw new Error(statusResult.error || 'Upload failed');
+        throw new Error(statusResult.error || i18n.t('errors.uploadFailedGeneric'));
       }
     }
     
     if (!result || !result.resume_id) {
-      throw new Error('Failed to get resume ID from upload result');
+      throw new Error(i18n.t('errors.noResumeId'));
     }
     
     // Получаем созданное резюме
@@ -46,7 +47,7 @@ export const startApi = {
   startFromScratch: async (): Promise<Resume> => {
     // Создаем резюме с template_slug (используем первый доступный темплейт)
     const resume = await resumeApi.createResume({
-      title: 'My Resume',
+      title: i18n.t('defaults.resumeTitle'),
       template_slug: 'nume', // Default template
       professional_summary: ''
     });

@@ -5,6 +5,7 @@ import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import Header from '../../shared/components/Header/Header';
 import PaywallModal from '../../shared/components/PaywallModal';
 import ResumeRenderer from '../../shared/components/ResumeRenderer';
@@ -14,6 +15,7 @@ import { useResumes } from './hooks/useResumes';
 import { COLORS } from '../../shared/theme/theme';
 
 const ResumesPage: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { resumes, isLoading, error } = useResumes();
   const { user } = useUser();
@@ -109,7 +111,7 @@ const ResumesPage: React.FC = () => {
           onTabChange={handleTabChange}
         />
         <Typography variant="h6" color="text.secondary">
-          Loading resumes...
+          {t('resumes.loading')}
         </Typography>
       </Box>
     );
@@ -133,7 +135,7 @@ const ResumesPage: React.FC = () => {
           onTabChange={handleTabChange}
         />
         <Typography variant="h6" color="error">
-          Error loading resumes: {error}
+          {t('resumes.error')}: {error}
         </Typography>
       </Box>
     );
@@ -171,7 +173,7 @@ const ResumesPage: React.FC = () => {
             color: COLORS.resume.text.primary
           }}
         >
-          My Resumes
+          {t('resumes.title')}
         </Typography>
         
         <Box sx={{ 
@@ -286,14 +288,14 @@ const ResumesPage: React.FC = () => {
                     fontSize: '0.9rem'
                   }}
                 >
-                  Create New Resume
+                  {t('resumes.createNew.title')}
                 </Typography>
                 <Typography 
                   variant="body2" 
                   color="text.secondary"
                   sx={{ textAlign: 'center', mt: 1, fontSize: '0.75rem' }}
                 >
-                  Start building your next resume
+                  {t('resumes.createNew.description')}
                 </Typography>
                              </CardContent>
              </Card>

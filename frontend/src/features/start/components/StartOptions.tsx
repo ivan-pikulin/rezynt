@@ -11,6 +11,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CreateIcon from '@mui/icons-material/Create';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { startApi } from '../startApi';
 import { COLORS } from '../../../shared/theme/theme';
 import { useAuthContext } from '../../../shared/contexts/AuthContext';
@@ -36,6 +37,7 @@ const StartOptions: React.FC<StartOptionsProps> = ({
   onClearError,
   isStartFromScratchDisabled = false
 }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuthContext();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -50,21 +52,21 @@ const StartOptions: React.FC<StartOptionsProps> = ({
   
   // List of messages to display during loading
   const uploadMessages = [
-    "We are extracting your strengths and achievements...",
-    "Optimizing your resume for ATS systems...",
-    "Analyzing your experience with AI precision...",
-    "Enhancing your professional summary...",
-    "Identifying key skills and competencies...",
-    "Structuring your resume for maximum impact...",
-    "Applying industry best practices...",
-    "Creating a compelling narrative...",
-    "Optimizing content for recruiters...",
-    "Ensuring your resume stands out...",
-    "Extracting contact information...",
-    "Organizing your work history...",
-    "Highlighting your achievements...",
-    "Preparing for AI-powered enhancement...",
-    "Setting up your personalized resume..."
+    t('start.uploadMessages.0'),
+    t('start.uploadMessages.1'),
+    t('start.uploadMessages.2'),
+    t('start.uploadMessages.3'),
+    t('start.uploadMessages.4'),
+    t('start.uploadMessages.5'),
+    t('start.uploadMessages.6'),
+    t('start.uploadMessages.7'),
+    t('start.uploadMessages.8'),
+    t('start.uploadMessages.9'),
+    t('start.uploadMessages.10'),
+    t('start.uploadMessages.11'),
+    t('start.uploadMessages.12'),
+    t('start.uploadMessages.13'),
+    t('start.uploadMessages.14')
   ];
   
       // Simple effect for message switching
@@ -215,7 +217,7 @@ const StartOptions: React.FC<StartOptionsProps> = ({
               fontSize: { xs: '1.1rem', sm: '1.25rem', md: '1.5rem' } // Reduce font size
             }}
           >
-            {isCreating ? 'Creating Resume...' : 'Start from Scratch'}
+            {isCreating ? t('start.options.fromScratch.buttonCreating') : t('start.options.fromScratch.title')}
           </Typography>
           <Typography 
             variant="body1" 
@@ -226,7 +228,7 @@ const StartOptions: React.FC<StartOptionsProps> = ({
               lineHeight: { xs: 1.3, sm: 1.4, md: 1.5 } // Reduce line height
             }}
           >
-            {isCreating ? 'Setting up your new resume...' : 'Create your resume from the beginning with AI assistance'}
+            {isCreating ? t('start.options.fromScratch.descriptionCreating') : t('start.options.fromScratch.description')}
           </Typography>
           <Button 
             variant="contained" 
@@ -249,7 +251,7 @@ const StartOptions: React.FC<StartOptionsProps> = ({
             {isCreating ? (
               <CircularProgress size={20} color="inherit" />
             ) : (
-              'Get Started'
+              t('start.options.fromScratch.button')
             )}
           </Button>
         </CardContent>
@@ -298,7 +300,7 @@ const StartOptions: React.FC<StartOptionsProps> = ({
               fontSize: { xs: '1.1rem', sm: '1.25rem', md: '1.5rem' } // Reduce font size
             }}
           >
-            {isProcessingUpload ? 'Processing Resume...' : 'Upload Your Resume'}
+            {isProcessingUpload ? t('start.options.upload.titleProcessing') : t('start.options.upload.title')}
           </Typography>
           {uploadError ? (
             <Alert 
@@ -338,7 +340,7 @@ const StartOptions: React.FC<StartOptionsProps> = ({
                 textAlign: 'center'
               }}
             >
-              {isProcessingUpload ? currentUploadMessage : 'Upload your existing resume and let AI enhance it'}
+              {isProcessingUpload ? currentUploadMessage : t('start.options.upload.description')}
             </Typography>
           )}
           <Button 
@@ -362,7 +364,7 @@ const StartOptions: React.FC<StartOptionsProps> = ({
             {isProcessingUpload ? (
               <CircularProgress size={20} color="inherit" />
             ) : (
-              'Upload File'
+              t('start.options.upload.button')
             )}
           </Button>
         </CardContent>
