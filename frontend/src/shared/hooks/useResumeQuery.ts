@@ -28,7 +28,7 @@ export const useResumeQuery = (resumeId: string | null) => {
     refetchOnMount: false,
   });
 
-  // Функция для принудительного обновления данных
+  // Function to force data refresh
   const refreshResume = async () => {
     if (!resumeId) return;
     if (isGuest) {
@@ -38,7 +38,7 @@ export const useResumeQuery = (resumeId: string | null) => {
     await refetch();
   };
 
-  // Функция для обновления данных резюме в кеше
+  // Function to update resume data in cache
   const updateResumeInCache = (updatedResume: Resume) => {
     if (!resumeId) return;
     if (isGuest) {
@@ -47,7 +47,7 @@ export const useResumeQuery = (resumeId: string | null) => {
     queryClient.setQueryData(['resume', resumeId], updatedResume);
   };
 
-  // Функция для инвалидации кеша
+  // Function to invalidate cache
   const invalidateResume = () => {
     if (resumeId) {
       queryClient.invalidateQueries({ queryKey: ['resume', resumeId] });

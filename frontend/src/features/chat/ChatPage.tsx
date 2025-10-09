@@ -32,20 +32,20 @@ const ChatPage: React.FC = () => {
   // Define mobile mode for screens up to 768px
   const isMobile = useMediaQuery('(max-width: 768px)');
 
-  // Проверяем принадлежность резюме пользователю
+  // Check if resume belongs to user
   useEffect(() => {
-    if (authLoading || resumeLoading) return; // Ждем загрузки аутентификации и резюме
+    if (authLoading || resumeLoading) return; // Wait for authentication and resume loading
     
     if (resumeData) {
       const isGuestResume = !resumeId || resumeId === 'guest' || resumeData.id === -1;
       
-      // Если это не гостевое резюме и пользователь не аутентифицирован
+      // If this is not a guest resume and user is not authenticated
       if (!isGuestResume && !isAuthenticated) {
         navigate('/login');
         return;
       }
       
-      // Если пользователь аутентифицирован и это не его резюме
+      // If user is authenticated and this is not their resume
       if (isAuthenticated && authUser && !isGuestResume && resumeData.user_id !== authUser.id) {
         navigate('/login');
         return;

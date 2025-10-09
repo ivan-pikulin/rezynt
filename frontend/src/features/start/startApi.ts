@@ -10,12 +10,12 @@ export const startApi = {
           // Upload file and get task_id
     const uploadResult = await resumeApi.uploadResume(file);
     
-    // Ждем завершения обработки
+    // Wait for processing to complete
     let status = 'PENDING';
     let result = null;
     
     while (status === 'PENDING' || status === 'STARTED') {
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Ждем 1 секунду
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second
       const statusResult = await resumeApi.getUploadStatus(uploadResult.task_id);
       status = statusResult.state;
       
@@ -31,10 +31,10 @@ export const startApi = {
       throw new Error(i18n.t('errors.noResumeId'));
     }
     
-    // Получаем созданное резюме
+    // Get created resume
     const resume = await resumeApi.getResume(result.resume_id);
     
-    // Возвращаем резюме и стартовое сообщение
+    // Return resume and startup message
     return {
       resume,
       startupMessage: result.startup_message
@@ -42,10 +42,10 @@ export const startApi = {
   },
 
   /**
-   * Начать создание резюме с нуля
+   * Start creating resume from scratch
    */
   startFromScratch: async (): Promise<Resume> => {
-    // Создаем резюме с template_slug (используем первый доступный темплейт)
+    // Create resume with template_slug (use first available template)
     const resume = await resumeApi.createResume({
       title: i18n.t('defaults.resumeTitle'),
       template_slug: 'nume', // Default template

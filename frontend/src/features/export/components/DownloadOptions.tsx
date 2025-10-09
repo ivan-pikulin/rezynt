@@ -39,7 +39,7 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({ onExportPDF, isPremiu
 
   const handleCleanDownload = async () => {
     if (isPremium) {
-      // Для premium пользователей напрямую экспортируем
+      // For premium users, export directly
       try {
         setIsCleanExporting(true);
         if (onExportPDF) {
@@ -53,7 +53,7 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({ onExportPDF, isPremiu
         setIsCleanExporting(false);
       }
     } else {
-      // Для обычных пользователей показываем paywall
+      // For regular users, show paywall
       setIsPaywallModalOpen(true);
     }
   };
@@ -64,21 +64,21 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({ onExportPDF, isPremiu
 
   const handlePaywallSuccess = () => {
     setIsPaywallModalOpen(false);
-    // После успешной оплаты можно выполнить дополнительную логику
+    // After successful payment, additional logic can be executed here
   };
 
   return (
     <>
       <Box sx={{ 
         display: 'flex', 
-        flexDirection: { xs: 'column', md: isPremium ? 'column' : 'row' }, // Для premium показываем только одну карточку
-        gap: { xs: 2, sm: 3, md: 4 }, // Адаптивные отступы между карточками
-        maxWidth: { xs: '100%', sm: isPremium ? 500 : 700, md: isPremium ? 600 : 800 }, // Уменьшаем ширину для premium
+        flexDirection: { xs: 'column', md: isPremium ? 'column' : 'row' }, // For premium, show only one card
+        gap: { xs: 2, sm: 3, md: 4 }, // Responsive gaps between cards
+        maxWidth: { xs: '100%', sm: isPremium ? 500 : 700, md: isPremium ? 600 : 800 }, // Reduce width for premium
         width: '100%',
         justifyContent: 'center',
         alignItems: 'center'
       }}>
-        {/* Watermarked Download - показываем только для не-premium пользователей */}
+        {/* Watermarked Download - show only for non-premium users */}
         {!isPremium && (
           <Card 
           sx={{ 
@@ -86,14 +86,14 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({ onExportPDF, isPremiu
             cursor: isWatermarkedExporting ? 'not-allowed' : 'pointer',
             transition: 'all 0.3s ease',
             opacity: isWatermarkedExporting ? 0.7 : 0.6,
-            minHeight: { xs: 200, sm: 250, md: 300 }, // Адаптивная высота
+            minHeight: { xs: 200, sm: 250, md: 300 }, // Responsive height
             '&:hover': {
-              transform: { xs: 'none', md: isWatermarkedExporting ? 'none' : 'translateY(-4px)' }, // Отключаем hover на мобильных
+              transform: { xs: 'none', md: isWatermarkedExporting ? 'none' : 'translateY(-4px)' }, // Disable hover on mobile
               boxShadow: { xs: '0 2px 8px rgba(0,0,0,0.1)', md: isWatermarkedExporting ? '0 2px 8px rgba(0,0,0,0.1)' : '0 8px 25px rgba(0,0,0,0.15)' },
               opacity: { xs: 0.6, md: isWatermarkedExporting ? 0.7 : 0.8 }
             },
             '&:active': {
-              transform: { xs: 'scale(0.98)', md: isWatermarkedExporting ? 'none' : 'translateY(-4px)' }, // Touch feedback на мобильных
+              transform: { xs: 'scale(0.98)', md: isWatermarkedExporting ? 'none' : 'translateY(-4px)' }, // Touch feedback on mobile
               boxShadow: { xs: '0 1px 4px rgba(0,0,0,0.1)', md: isWatermarkedExporting ? '0 2px 8px rgba(0,0,0,0.1)' : '0 8px 25px rgba(0,0,0,0.15)' }
             }
           }}
@@ -130,7 +130,7 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({ onExportPDF, isPremiu
                 mb: { xs: 1.5, sm: 2 },
                 fontWeight: 600,
                 color: COLORS.grey[600],
-                fontSize: { xs: '1.1rem', sm: '1.25rem', md: '1.5rem' } // Адаптивный размер шрифта
+                fontSize: { xs: '1.1rem', sm: '1.25rem', md: '1.5rem' } // Responsive font size
               }}
             >
               {isWatermarkedExporting ? t('export.download.watermarked.titleProcessing') : t('export.download.watermarked.title')}
@@ -140,7 +140,7 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({ onExportPDF, isPremiu
               sx={{ 
                 mb: { xs: 2, sm: 3 },
                 color: COLORS.grey[600],
-                fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' } // Адаптивный размер шрифта
+                fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' } // Responsive font size
               }}
             >
               {isWatermarkedExporting ? t('export.download.watermarked.descriptionProcessing') : t('export.download.watermarked.description')}
@@ -151,14 +151,14 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({ onExportPDF, isPremiu
               disabled={isWatermarkedExporting}
               sx={{
                 borderRadius: '8px',
-                px: { xs: 2.5, sm: 3, md: 4 }, // Адаптивные горизонтальные отступы
-                py: { xs: 1, sm: 1.25, md: 1.5 }, // Адаптивные вертикальные отступы
+                px: { xs: 2.5, sm: 3, md: 4 }, // Responsive horizontal padding
+                py: { xs: 1, sm: 1.25, md: 1.5 }, // Responsive vertical padding
                 fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' },
                 fontWeight: 600,
                 textTransform: 'none',
                 borderColor: COLORS.grey[600],
                 color: COLORS.grey[600],
-                minHeight: { xs: 40, sm: 44, md: 48 }, // Минимальная высота для touch
+                minHeight: { xs: 40, sm: 44, md: 48 }, // Minimum height for touch
                 '&:hover': {
                   borderColor: COLORS.grey[700],
                   color: COLORS.grey[700]
@@ -182,13 +182,13 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({ onExportPDF, isPremiu
             cursor: 'pointer',
             transition: 'all 0.3s ease',
             border: `2px solid ${COLORS.primary.main}`,
-            minHeight: { xs: 200, sm: 250, md: 300 }, // Адаптивная высота
+            minHeight: { xs: 200, sm: 250, md: 300 }, // Responsive height
             '&:hover': {
-              transform: { xs: 'none', md: 'translateY(-4px)' }, // Отключаем hover на мобильных
+              transform: { xs: 'none', md: 'translateY(-4px)' }, // Disable hover on mobile
               boxShadow: { xs: '0 2px 8px rgba(25, 118, 210, 0.2)', md: '0 8px 25px rgba(25, 118, 210, 0.3)' }
             },
             '&:active': {
-              transform: { xs: 'scale(0.98)', md: 'translateY(-4px)' }, // Touch feedback на мобильных
+              transform: { xs: 'scale(0.98)', md: 'translateY(-4px)' }, // Touch feedback on mobile
               boxShadow: { xs: '0 1px 4px rgba(25, 118, 210, 0.2)', md: '0 8px 25px rgba(25, 118, 210, 0.3)' }
             }
           }}
@@ -196,7 +196,7 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({ onExportPDF, isPremiu
         >
           <CardContent sx={{ 
             textAlign: 'center', 
-            p: { xs: 2.5, sm: 3, md: 4 }, // Адаптивные отступы
+            p: { xs: 2.5, sm: 3, md: 4 }, // Responsive padding
             height: '100%',
             display: 'flex',
             flexDirection: 'column',
@@ -213,7 +213,7 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({ onExportPDF, isPremiu
               />
             ) : (
               <DownloadIcon sx={{ 
-                fontSize: { xs: 48, sm: 56, md: 64 }, // Адаптивный размер иконки
+                fontSize: { xs: 48, sm: 56, md: 64 }, // Responsive icon size
                 color: COLORS.primary.main,
                 mb: { xs: 1.5, sm: 2 }
               }} />
@@ -225,7 +225,7 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({ onExportPDF, isPremiu
                 mb: { xs: 1.5, sm: 2 },
                 fontWeight: 600,
                 color: COLORS.primary.main,
-                fontSize: { xs: '1.1rem', sm: '1.25rem', md: '1.5rem' } // Адаптивный размер шрифта
+                fontSize: { xs: '1.1rem', sm: '1.25rem', md: '1.5rem' } // Responsive font size
               }}
             >
               {isCleanExporting ? t('export.download.clean.titleProcessing') : t('export.download.clean.title')}
@@ -235,7 +235,7 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({ onExportPDF, isPremiu
               sx={{ 
                 mb: { xs: 2, sm: 3 },
                 color: COLORS.primary.main,
-                fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' } // Адаптивный размер шрифта
+                fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' } // Responsive font size
               }}
             >
               {isCleanExporting ? t('export.download.clean.descriptionProcessing') : 
@@ -248,13 +248,13 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({ onExportPDF, isPremiu
               disabled={isCleanExporting}
               sx={{
                 borderRadius: '8px',
-                px: { xs: 2.5, sm: 3, md: 4 }, // Адаптивные горизонтальные отступы
-                py: { xs: 1, sm: 1.25, md: 1.5 }, // Адаптивные вертикальные отступы
+                px: { xs: 2.5, sm: 3, md: 4 }, // Responsive horizontal padding
+                py: { xs: 1, sm: 1.25, md: 1.5 }, // Responsive vertical padding
                 fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' },
                 fontWeight: 600,
                 textTransform: 'none',
                 bgcolor: COLORS.primary.main,
-                minHeight: { xs: 40, sm: 44, md: 48 }, // Минимальная высота для touch
+                minHeight: { xs: 40, sm: 44, md: 48 }, // Minimum height for touch
                 '&:hover': {
                   bgcolor: COLORS.primary.dark
                 },

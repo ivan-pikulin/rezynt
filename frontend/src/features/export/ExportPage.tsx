@@ -31,20 +31,20 @@ const ExportPage: React.FC = () => {
   const { user, isAuthenticated } = useAuthContext();
   const { user: authUser, isAuthenticated: authAuthenticated, isLoading: authLoading } = useAuth();
 
-  // Проверяем принадлежность резюме пользователю
+  // Check if resume belongs to user
   useEffect(() => {
-    if (authLoading || loading) return; // Ждем загрузки аутентификации и резюме
+    if (authLoading || loading) return; // Wait for authentication and resume loading
     
     if (resume) {
       const isGuestResume = !resumeId || resumeId === 'guest' || resume.id === -1;
       
-      // Если это не гостевое резюме и пользователь не аутентифицирован
+      // If this is not a guest resume and user is not authenticated
       if (!isGuestResume && !authAuthenticated) {
         navigate('/login');
         return;
       }
       
-      // Если пользователь аутентифицирован и это не его резюме
+      // If user is authenticated and this is not their resume
       if (authAuthenticated && authUser && !isGuestResume && resume.user_id !== authUser.id) {
         navigate('/login');
         return;
@@ -249,7 +249,7 @@ const ExportPage: React.FC = () => {
         height: '100vh', 
         bgcolor: '#f5f6fa'
       }}>
-        <LoadingSpinner message={t('refine.loading')} />
+        <LoadingSpinner />
       </Box>
     );
   }

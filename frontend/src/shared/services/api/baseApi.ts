@@ -73,7 +73,7 @@ baseApi.interceptors.response.use(
           const newTokens = await tokenService.refreshToken(refreshToken);
           tokenService.storeTokens(newTokens);
           
-          // Повторяем оригинальный запрос с новым токеном
+          // Retry original request with new token
           originalRequest.headers.Authorization = `Bearer ${newTokens.access_token}`;
           return baseApi(originalRequest);
         }
@@ -146,7 +146,7 @@ export class BaseApi {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,
-        // Оптимизация для стриминга
+        // Optimization for streaming
         'Cache-Control': 'no-cache',
         'Connection': 'keep-alive',
       },

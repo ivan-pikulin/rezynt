@@ -5,9 +5,9 @@ export const useOnboarding = (user: User | null) => {
   const shouldShowOnboarding = useMemo(() => {
     if (!user) return false;
     
-    // Показываем онбординг только если:
-    // 1. Пользователь верифицирован (подтвердил email)
-    // 2. Онбординг еще не завершен
+    // Show onboarding only if:
+    // 1. User is verified (confirmed email)
+    // 2. Onboarding is not yet completed
     return user.is_verified && !user.has_completed_onboarding;
   }, [user]);
 

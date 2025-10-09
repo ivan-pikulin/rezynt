@@ -36,7 +36,7 @@ const UnauthenticatedExportView: React.FC<UnauthenticatedExportViewProps> = ({
     t('export.unauthenticated.benefits.4')
   ];
 
-  const mobileBenefits = [benefits[0], benefits[1], benefits[4]]; // 1, 2, 5 пункты
+  const mobileBenefits = [benefits[0], benefits[1], benefits[4]]; // Items 1, 2, 5
   const displayBenefits = isMobile ? mobileBenefits : benefits;
 
   return (

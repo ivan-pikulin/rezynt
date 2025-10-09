@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect, useLayoutEffect } from 'react';
 import { flushSync } from 'react-dom';
 import { useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { chatApi } from '../../../shared/services/api';
 import { SendMessageRequest, Message } from '../../../shared/services/api/types';
 import { useUser } from '../../../shared/hooks/useUser';
@@ -14,7 +15,7 @@ export interface ChatMessage {
   timestamp: Date;
 }
 
-// Типы загрузки сообщений для управления скроллом
+// Message load types for scroll management
 type MessageLoadType = 'initial' | 'older' | 'new' | 'none';
 
 export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fromUpload: boolean = false, onShowPaywall?: () => void) => {
@@ -33,7 +34,7 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fr
   const [shuffledPhrases, setShuffledPhrases] = useState<string[]>([]);
   const [currentPhraseIndex, setCurrentPhraseIndex] = useState<number>(0);
 
-  // Список фраз для показа во время ожидания
+  // List of phrases to show while waiting
   const thinkingPhrases = [
     t('thinking.phrases.0'),
     t('thinking.phrases.1'),
@@ -48,7 +49,7 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fr
     t('thinking.phrases.10')
   ];
 
-  // Функция для перемешивания массива (алгоритм Fisher-Yates)
+  // Function to shuffle array (Fisher-Yates algorithm)
   const shuffleArray = (array: string[]): string[] => {
     const shuffled = [...array];
     for (let i = shuffled.length - 1; i > 0; i--) {
@@ -62,7 +63,7 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fr
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, []);
 
-  // Функция для сохранения позиции скролла
+  // Function to save scroll position
   const saveScrollPosition = useCallback(() => {
     if (chatContainerRef.current) {
       const container = chatContainerRef.current;
@@ -70,7 +71,7 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fr
       const scrollTop = container.scrollTop;
       const clientHeight = container.clientHeight;
       
-      // Находим первое видимое сообщение
+      // Find first visible message
       const messageElements = container.querySelectorAll('[data-message-id]');
       let firstVisibleMessage = null;
       let firstVisibleMessageOffset = 0;
@@ -79,7 +80,7 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fr
         const rect = element.getBoundingClientRect();
         const containerRect = container.getBoundingClientRect();
         
-        // Если сообщение видимо (пересекается с видимой областью)
+        // If message is visible (intersects with visible area)
         if (rect.bottom > containerRect.top && rect.top < containerRect.bottom) {
           firstVisibleMessage = element.getAttribute('data-message-id');
           firstVisibleMessageOffset = rect.top - containerRect.top;
@@ -89,9 +90,9 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fr
       
       return {
         clientHeight,
-        // Сохраняем позицию относительно конца - это более стабильно
+        // Save position relative to bottom - this is more stable
         distanceFromBottom: scrollHeight - scrollTop - clientHeight,
-        // Сохраняем информацию о первом видимом сообщении
+        // Save information about first visible message
         firstVisibleMessage,
         firstVisibleMessageOffset
       };
@@ -99,12 +100,12 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fr
     return null;
   }, []);
 
-  // Функция для восстановления позиции скролла
+  // Function to restore scroll position
   const restoreScrollPosition = useCallback((savedPosition: any) => {
     if (chatContainerRef.current && savedPosition) {
       const container = chatContainerRef.current;
       
-      // Пробуем восстановить позицию относительно первого видимого сообщения
+      // Try to restore position relative to first visible message
       if (savedPosition.firstVisibleMessage) {
         const targetElement = container.querySelector(`[data-message-id="${savedPosition.firstVisibleMessage}"]`);
         if (targetElement) {
@@ -112,7 +113,7 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fr
           const targetRect = targetElement.getBoundingClientRect();
           const newOffset = targetRect.top - containerRect.top;
           
-          // Корректируем позицию с учетом сохраненного смещения
+          // Adjust position with saved offset
           const correctedScrollTop = container.scrollTop + (newOffset - savedPosition.firstVisibleMessageOffset);
           
           container.scrollTop = Math.max(0, correctedScrollTop);
@@ -120,11 +121,11 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fr
         }
       }
       
-      // Fallback: используем расстояние от низа
+      // Fallback: use distance from bottom
       const newScrollTop = container.scrollHeight - savedPosition.distanceFromBottom - savedPosition.clientHeight;
       const finalScrollTop = Math.max(0, newScrollTop);
       
-      // Проверяем, нужно ли вообще менять позицию
+      // Check if position needs to be changed at all
       if (Math.abs(container.scrollTop - finalScrollTop) > 5) {
         container.scrollTop = finalScrollTop;
       }
@@ -169,17 +170,17 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fr
       
       // Add welcome message if no messages exist
       if (finalMessages.length === 0) {
-        // Проверяем, есть ли стартовое сообщение в localStorage для загруженного резюме
+        // Check if there's a startup message in localStorage for uploaded resume
         const startupMessage = localStorage.getItem(`startup_message_${resumeId}`);
         let welcomeContent;
         
         if (startupMessage && fromUpload) {
-          // Используем стартовое сообщение от AI для загруженного резюме
+          // Use startup message from AI for uploaded resume
           welcomeContent = startupMessage;
-          // Удаляем сообщение из localStorage после использования
+          // Remove message from localStorage after use
           localStorage.removeItem(`startup_message_${resumeId}`);
         } else {
-          // Используем стандартное приветствие для авторизованных пользователей
+          // Use standard greeting for authenticated users
           welcomeContent = fromUpload 
             ? i18n.t('chat.welcomeMessages.fromUpload')
             : i18n.t('chat.welcomeMessages.fromScratch');
@@ -203,17 +204,17 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fr
     }
   }, [resumeId, fromUpload, messages.length, lastLoadType]);
 
-  // Управление скроллом в зависимости от типа загрузки сообщений
+  // Scroll management depending on message load type
   useEffect(() => {
-    // Прокручиваем вниз только при первой загрузке или отправке нового сообщения
+    // Scroll down only on initial load or sending new message
     if (lastLoadType === 'initial' || lastLoadType === 'new') {
       scrollToBottom();
     }
-    // При загрузке старых сообщений (lastLoadType === 'older') ничего не делаем
-    // позиция уже восстановлена в loadOlderMessages
+    // When loading older messages (lastLoadType === 'older') do nothing
+    // position is already restored in loadOlderMessages
   }, [messages, lastLoadType, scrollToBottom]);
 
-  // useLayoutEffect для синхронного восстановления позиции скролла
+  // useLayoutEffect for synchronous scroll position restoration
   useLayoutEffect(() => {
     if (pendingScrollRestore) {
       restoreScrollPosition(pendingScrollRestore);
@@ -246,14 +247,14 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fr
         timestamp: new Date(msg.created_at)
       }));
       
-      // Сохраняем позицию скролла ПОСЛЕ получения ответа, но ДО обновления сообщений
+      // Save scroll position AFTER receiving response, but BEFORE updating messages
       const savedPosition = saveScrollPosition();
       
       // Add older messages to the beginning
       setMessages(prev => [...chatMessages.reverse(), ...prev]);
       setHasMoreMessages(response.has_more);
       
-      // Устанавливаем флаг для восстановления позиции в useLayoutEffect
+      // Set flag to restore position in useLayoutEffect
       setPendingScrollRestore(savedPosition);
     } catch (error) {
       console.error('Error loading older messages:', error);
@@ -274,16 +275,16 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fr
       return;
     }
 
-    // Проверяем кредиты для free пользователей
+    // Check credits for free users
     if (!user?.is_premium && user?.credits === 0) {
       onShowPaywall?.();
       return;
     }
 
-    // Устанавливаем тип загрузки для нового сообщения
+    // Set load type for new message
     setLastLoadType('new');
 
-    // Оптимистично уменьшаем кредиты на фронте для free пользователей
+    // Optimistically decrement credits on frontend for free users
     let didOptimisticDecrement = false;
     if (!user?.is_premium && (user?.credits ?? 0) > 0) {
       queryClient.setQueryData(['user'], (prev: any) => {
@@ -294,7 +295,7 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fr
       });
     }
 
-    // Добавляем сообщение пользователя
+    // Add user message
     const userMessage: ChatMessage = {
       id: `user-${Date.now()}`,
       content,
@@ -304,7 +305,7 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fr
     
     setMessages(prev => [...prev, userMessage]);
     
-    // Добавляем placeholder сообщение ассистента
+    // Add placeholder assistant message
     const assistantMessageId = `assistant-${Date.now()}`;
     const assistantMessage: ChatMessage = {
       id: assistantMessageId,
@@ -316,13 +317,13 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fr
     setMessages(prev => [...prev, assistantMessage]);
     setIsLoading(true);
     
-    // Перемешиваем фразы и сбрасываем индекс
+    // Shuffle phrases and reset index
     const newShuffledPhrases = shuffleArray(thinkingPhrases);
     setShuffledPhrases(newShuffledPhrases);
     setCurrentPhraseIndex(0);
     setCurrentThinkingPhrase(newShuffledPhrases[0] || t('thinking.phrases.0'));
     
-    // Таймер для смены фраз каждые 4 секунды
+    // Timer to change phrases every 4 seconds
     const phraseTimer = setInterval(() => {
       setCurrentPhraseIndex(prevIndex => {
         const nextIndex = (prevIndex + 1) % newShuffledPhrases.length;
@@ -332,7 +333,7 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fr
     }, 4000);
     
     try {
-      // Отправляем запрос на API с streaming
+      // Send request to API with streaming
       const request: SendMessageRequest = {
         message: content,
         resume_id: resumeId
@@ -340,9 +341,9 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fr
       
       await chatApi.sendMessageStream(
         request,
-        // onChunk callback - добавляем чанк к сообщению ассистента
+        // onChunk callback - add chunk to assistant message
         (chunk: string) => {
-          // Очищаем таймер смены фраз при получении первого чанка
+          // Clear phrase timer when first chunk is received
           clearInterval(phraseTimer);
           
           flushSync(() => {
@@ -355,31 +356,31 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fr
             );
           });
         },
-        // onEnd callback - завершение стрима
+        // onEnd callback - stream completion
         () => {
           clearInterval(phraseTimer);
           setIsLoading(false);
           
-          // Обновляем кеш резюме после ответа AI
+          // Update resume cache after AI response
           if (resumeId) {
-            // Инвалидируем кеш резюме, чтобы получить свежие данные
+            // Invalidate resume cache to get fresh data
             queryClient.invalidateQueries({ queryKey: ['resume', resumeId] });
           }
           
-          // Вызываем callback для обновления UI
+          // Call callback to update UI
           if (onResumeUpdate) {
             onResumeUpdate();
           }
         },
-        // onError callback - обработка ошибок
+        // onError callback - error handling
         (error: string) => {
           clearInterval(phraseTimer);
           console.error('Chat streaming error:', error);
           
-          // Проверяем, является ли ошибка связанной с кредитами
+          // Check if error is related to credits
           if (error.includes('No credits remaining') || error.includes('402')) {
             onShowPaywall?.();
-            // Удаляем сообщение пользователя и placeholder ассистента
+            // Remove user message and placeholder assistant message
             setMessages(prev => prev.filter(msg => msg.id !== userMessage.id && msg.id !== assistantMessageId));
           } else {
             setMessages(prev => 
@@ -391,7 +392,7 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fr
             );
           }
 
-          // Откатываем оптимистичное уменьшение в случае ошибки
+          // Rollback optimistic decrement in case of error
           if (didOptimisticDecrement) {
             queryClient.setQueryData(['user'], (prev: any) => {
               if (!prev) return prev;
@@ -406,7 +407,7 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fr
       clearInterval(phraseTimer);
       console.error('Chat API error:', error);
       
-      // Проверяем, является ли ошибка связанной с кредитами
+      // Check if error is related to credits
       const errorMessage = error instanceof Error ? error.message : String(error);
       if (
         errorMessage.includes('No credits remaining') ||
@@ -414,10 +415,10 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fr
         errorMessage.includes('401')
       ) {
         onShowPaywall?.();
-        // Удаляем сообщение пользователя и placeholder ассистента
+        // Remove user message and placeholder assistant message
         setMessages(prev => prev.filter(msg => msg.id !== userMessage.id && msg.id !== assistantMessageId));
       } else {
-        // В случае ошибки показываем сообщение об ошибке
+        // In case of error show error message
         setMessages(prev => 
           prev.map(msg => 
             msg.id === assistantMessageId 
@@ -427,7 +428,7 @@ export const useChat = (resumeId: string | null, onResumeUpdate?: () => void, fr
         );
       }
 
-      // Откатываем оптимистичное уменьшение в случае ошибки
+      // Rollback optimistic decrement in case of error
       if (didOptimisticDecrement) {
         queryClient.setQueryData(['user'], (prev: any) => {
           if (!prev) return prev;

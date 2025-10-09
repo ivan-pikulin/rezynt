@@ -6,7 +6,7 @@ const TEMPLATE_STORAGE_KEY = 'selected_resume_template';
 
 export const useTemplate = (resumeId?: string | null, resumeTemplateSlug?: string | null) => {
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateConfig | null>(() => {
-    // Инициализируем из localStorage или используем template_slug из резюме или дефолтный шаблон
+    // Initialize from localStorage or use template_slug from resume or default template
     if (resumeId) {
       const stored = localStorage.getItem(`${TEMPLATE_STORAGE_KEY}_${resumeId}`);
       
@@ -21,7 +21,7 @@ export const useTemplate = (resumeId?: string | null, resumeTemplateSlug?: strin
       }
     }
     
-    // Если есть template_slug из резюме, используем его
+    // If there's template_slug from resume, use it
     if (resumeTemplateSlug) {
       const template = TemplateService.getTemplateById(resumeTemplateSlug);
       if (template) {
@@ -32,7 +32,7 @@ export const useTemplate = (resumeId?: string | null, resumeTemplateSlug?: strin
     return TemplateService.getTemplates()[0];
   });
 
-  // Обновляем шаблон при изменении template_slug из резюме
+  // Update template when template_slug from resume changes
   useEffect(() => {
     if (resumeTemplateSlug && resumeTemplateSlug !== selectedTemplate?.id) {
       const template = TemplateService.getTemplateById(resumeTemplateSlug);
@@ -45,19 +45,19 @@ export const useTemplate = (resumeId?: string | null, resumeTemplateSlug?: strin
     }
   }, [resumeTemplateSlug, selectedTemplate?.id]);
 
-  // Сохраняем в localStorage при изменении
+  // Save to localStorage when changed
   useEffect(() => {
     if (resumeId && selectedTemplate) {
       localStorage.setItem(`${TEMPLATE_STORAGE_KEY}_${resumeId}`, JSON.stringify(selectedTemplate));
     }
   }, [selectedTemplate, resumeId]);
 
-  // Функция для обновления шаблона
+  // Function to update template
   const updateTemplate = (template: TemplateConfig) => {
     setSelectedTemplate(template);
   };
 
-  // Функция для сброса к дефолтному шаблону
+  // Function to reset to default template
   const resetTemplate = () => {
     const defaultTemplate = TemplateService.getTemplates()[0];
     setSelectedTemplate(defaultTemplate);

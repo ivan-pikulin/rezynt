@@ -2,18 +2,18 @@ import { TEMPLATE_CONFIGS, TemplateConfig } from '../components/templates';
 import { ResumeData } from '../types/resume';
 
 /**
- * Сервис для работы с шаблонами резюме
+ * Service for working with resume templates
  */
 export class TemplateService {
   /**
-   * Получить все доступные шаблоны
+   * Get all available templates
    */
   static getTemplates(): TemplateConfig[] {
     return Object.values(TEMPLATE_CONFIGS);
   }
 
   /**
-   * Получить шаблон по ID
+   * Get template by ID
    */
   static getTemplateById(id: string): TemplateConfig | undefined {
     const template = TEMPLATE_CONFIGS[id];
@@ -24,7 +24,7 @@ export class TemplateService {
   }
 
   /**
-   * Получить шаблоны по категории
+   * Get templates by category
    */
   static getTemplatesByCategory(category: string): TemplateConfig[] {
     return Object.values(TEMPLATE_CONFIGS).filter(template => template.category === category);
@@ -33,7 +33,7 @@ export class TemplateService {
 
 
   /**
-   * Валидация данных резюме
+   * Resume data validation
    */
   static validateResumeData(data: ResumeData): { isValid: boolean; errors: string[] } {
     const errors: string[] = [];

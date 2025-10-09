@@ -133,7 +133,7 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate, res
     return () => clearTimeout(timeoutId);
   }, [formData, isGuestUser, resume, onResumeUpdate]);
 
-  // Функция для проверки наличия несохраненных изменений
+  // Function to check for unsaved changes
   const hasUnsavedChanges = () => {
     const originalData = {
       title: resume.title,
@@ -148,26 +148,26 @@ const ResumeEditor: React.FC<ResumeEditorProps> = ({ resume, onResumeUpdate, res
     );
   };
 
-  // Проверяем принадлежность резюме пользователю
+  // Check if resume belongs to user
   useEffect(() => {
-    if (authLoading) return; // Ждем загрузки аутентификации
+    if (authLoading) return; // Wait for authentication loading
     
     const isGuestResume = !resumeId || resumeId === 'guest' || resume.id === -1;
     
-    // Если это не гостевое резюме и пользователь не аутентифицирован
+    // If this is not a guest resume and user is not authenticated
     if (!isGuestResume && !isAuthenticated) {
       navigate('/login');
       return;
     }
     
-    // Если пользователь аутентифицирован и это не его резюме
+    // If user is authenticated and this is not their resume
     if (isAuthenticated && user && !isGuestResume && resume.user_id !== user.id) {
       navigate('/login');
       return;
     }
   }, [resume, user, isAuthenticated, authLoading, resumeId, navigate]);
 
-  // Обновляем локальное состояние при изменении резюме
+  // Update local state when resume changes
   useEffect(() => {
     setLocalResume(resume);
     setFormData({
