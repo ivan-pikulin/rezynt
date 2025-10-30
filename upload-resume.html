@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Envio de Currículo - Rezynt</title>
+    <title>Resume Upload - Rezynt</title>
     <style>
         /* CSS Variables for consistent theming */
         :root {
@@ -86,7 +86,7 @@
             <div class="resume-steps__container">
                 <!-- Step 1: Question -->
                 <div class="step step--side">
-                    <p class="step-text" id="resume-upload-title">Já tem um currículo?</p>
+                    <p class="step-text" id="resume-upload-title">Already have a resume?</p>
                 </div>
 
                 <!-- Arrow -->
@@ -99,8 +99,8 @@
                 <!-- Step 2: Upload -->
                 <div class="step step--upload">
                     <label class="upload-area" id="resume-drop-area" for="resume-upload" tabindex="0" role="button" aria-describedby="resume-upload-hint">
-                        <span class="upload-area__title">Solte aqui — nós fazemos o trabalho pesado</span>
-                        <span class="upload-area__subtitle" id="resume-upload-hint">Clique ou solte seu currículo para começar</span>
+                        <span class="upload-area__title">Drop it in — we'll do the hard part</span>
+                        <span class="upload-area__subtitle" id="resume-upload-hint">Click or drop your resume to get started</span>
                         <input type="file" id="resume-upload" class="upload-area__input" accept=".txt,.md,.doc,.docx,.pdf" aria-describedby="resume-upload-hint" />
                         <div class="upload-area__filename" id="resume-file-name" aria-live="polite"></div>
                         <div class="upload-area__spinner" id="upload-spinner" aria-hidden="true"></div>
@@ -116,7 +116,7 @@
 
                 <!-- Step 3: AI Analysis -->
                 <div class="step step--side">
-                    <p class="step-text">Obtenha uma versão polida e pronta para ATS em minutos</p>
+                    <p class="step-text">Get a polished, ATS-ready version in minutes</p>
                 </div>
             </div>
         </div>
@@ -161,7 +161,7 @@
                     elements.spinner.classList.toggle('upload-area__spinner--visible', isLoading);
 
                     if (isLoading) {
-                        utils.showMessage('Processando seu currículo...');
+                        utils.showMessage('Processing your resume...');
                     } else {
                         utils.showMessage('');
                     }
@@ -188,7 +188,7 @@
                         });
 
                         if (!response.ok) {
-                            let errText = 'Falha no envio. Por favor, tente novamente.';
+                            let errText = 'Upload failed. Please try again.';
                             try {
                                 const data = await response.json();
                                 if (data && (data.message || data.error)) {
@@ -200,12 +200,12 @@
 
                         const json = await response.json();
                         if (!json || !json.file_id) {
-                            return utils.onUploadError('Envio bem-sucedido, mas o file_id está ausente.');
+                            return utils.onUploadError('Upload successful, but file_id is missing.');
                         }
 
                         utils.onUploadSuccess(json.file_id);
                     } catch (e) {
-                        utils.onUploadError('Erro de rede durante o envio.');
+                        utils.onUploadError('Network error during upload.');
                     }
                 }
             };
@@ -220,7 +220,7 @@
 
             utils.onUploadError = (message) => {
                 isProcessing = false;
-                utils.showMessage(message || 'Falha no envio. Por favor, tente novamente.', true);
+                utils.showMessage(message || 'Upload failed. Please try again.', true);
                 utils.setLoadingState(false);
             };
 
@@ -229,12 +229,12 @@
                 beginUploadFlow: (file) => {
                     if (!file) return;
                     if (!utils.isAllowedFile(file)) {
-                        utils.showMessage('Formatos permitidos: pdf, docx, doc', true);
+                        utils.showMessage('Allowed formats: pdf, docx, doc', true);
                         return;
                     }
                     if (isProcessing) return;
                     isProcessing = true;
-                    utils.showMessage(`Enviando ${file.name}...`);
+                    utils.showMessage(`Uploading ${file.name}...`);
                     utils.setLoadingState(true); // show spinner while waiting for API
                     upload.startUpload(file);
                 },
