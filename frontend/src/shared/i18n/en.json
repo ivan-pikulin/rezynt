@@ -365,7 +365,11 @@
     "title": "Export",
     "pageTitle": "Resume",
     "buttons": {
-      "refine": "Refine"
+      "refine": "Refine",
+      "downloadTxt": "Download TXT",
+      "downloadPdf": "Download PDF",
+      "downloadTxtFree": "Download TXT (Free)",
+      "upgradeToPdf": "Upgrade to Download PDF"
     },
     "download": {
       "watermarked": {

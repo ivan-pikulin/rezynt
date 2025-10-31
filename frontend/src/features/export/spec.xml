@@ -22,25 +22,40 @@
     </folder_structure>
 
     <components>
-        <component name="ExportPage" desc="Main export page with download options and success page integration. Loads real resume data from API to ensure current user data is exported. Shows different layouts for authenticated vs unauthenticated users.">
+        <component name="ExportPage" desc="Export page with template selection and two download actions: TXT (direct) and PDF (opens paywall). Uses real resume data and selected template for preview and export.">
             <props>
                 <prop name="resumeId" type="string" desc="Resume ID from URL parameters"/>
                 <prop name="resume" type="Resume" desc="Loaded resume data from API"/>
                 <prop name="selectedTemplate" type="TemplateConfig" desc="Template configuration for resume rendering"/>
                 <prop name="loading" type="boolean" desc="Loading state while fetching resume data"/>
                 <prop name="error" type="string" desc="Error message if resume loading fails"/>
-                <prop name="isExporting" type="boolean" desc="Export process state"/>
+                <prop name="isExporting" type="boolean" desc="Export process state (TXT only)"/>
                 <prop name="showSuccess" type="boolean" desc="Success page visibility"/>
                 <prop name="isAuthenticated" type="boolean" desc="User authentication status"/>
             </props>
             <features>
                 <feature name="resume_loading" desc="Loads real resume data from API using resumeId parameter"/>
-                <feature name="template_selection" desc="Automatically selects template based on resume.template_id"/>
-                <feature name="pdf_export" desc="Exports resume to PDF using real user data"/>
+                <feature name="template_selection" desc="Displays template selector allowing user to choose template"/>
+                <feature name="txt_export" desc="Exports resume content as plain TXT on the client side"/>
+                <feature name="pdf_paywall" desc="PDF button opens paywall modal rather than exporting directly"/>
                 <feature name="success_page" desc="Shows success page after successful export"/>
                 <feature name="error_handling" desc="Handles loading and export errors with user-friendly messages"/>
                 <feature name="responsive_design" desc="Mobile-optimized layout with adaptive padding and spacing"/>
-                <feature name="auth_based_layout" desc="Shows DownloadOptions for authenticated users, UnauthenticatedExportView for guests"/>
+                <feature name="auth_based_layout" desc="Unified layout for both guests and authenticated users"/>
+                <feature name="hero_header" desc="Top header with headline and subtext guiding the user"/>
+            </features>
+        </component>
+
+        <component name="TemplateSelectionCards" desc="Three-card template chooser with thumbnail, description bullets, radio, and select action.">
+            <props>
+                <prop name="selectedTemplateId" type="string" desc="Currently selected template ID"/>
+                <prop name="onSelect" type="(TemplateConfig) => void" desc="Handler when a template is chosen"/>
+                <prop name="resumeData" type="ResumeDisplay" desc="Real resume data to render thumbnails"/>
+            </props>
+            <features>
+                <feature name="thumbnails" desc="Shows live preview thumbnails of each template"/>
+                <feature name="descriptions" desc="Static descriptive text and bullet points per template"/>
+                <feature name="selection" desc="Radio + button to select a template"/>
             </features>
         </component>
         

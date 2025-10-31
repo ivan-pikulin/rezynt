@@ -11,11 +11,15 @@ import { useTemplate } from '../../shared/hooks/useTemplate';
 import ErrorMessage from '../refine/components/ErrorMessage';
 import LoadingSpinner from '../refine/components/LoadingSpinner';
 import { convertApiResumeToDisplayData } from '../refine/utils/resumeDataConverter';
-import DownloadOptions from './components/DownloadOptions';
 import SuccessPage from './components/SuccessPage';
-import UnauthenticatedExportView from './components/UnauthenticatedExportView';
 import { exportApi } from './exportApi';
 import RegistrationModal from '../../shared/components/RegistrationModal';
+import TemplateSelector from '../refine/components/TemplateSelector';
+import Button from '@mui/material/Button';
+import { COLORS } from '../../shared/theme/theme';
+import PaywallModal from '../../shared/components/PaywallModal';
+import Typography from '@mui/material/Typography';
+import TemplateSelectionCards from './components/TemplateSelectionCards';
 
 const ExportPage: React.FC = () => {
   const { t } = useTranslation();
@@ -24,7 +28,7 @@ const ExportPage: React.FC = () => {
   const resumeId = searchParams.get('resume_id');
   const templateContainerRef = useRef<HTMLDivElement>(null);
   const { resume, isLoading: loading, error: queryError, refreshResume } = useResumeQuery(resumeId);
-  const { selectedTemplate } = useTemplate(resumeId, resume?.template_slug);
+  const { selectedTemplate, updateTemplate } = useTemplate(resumeId, resume?.template_slug);
 
   const [showSuccess, setShowSuccess] = useState(false);
   const [showRegistration, setShowRegistration] = useState(false);
@@ -92,37 +96,67 @@ const ExportPage: React.FC = () => {
     setShowRegistration(true);
   };
 
-  const handleExportPDF = async () => {
-    if (!user) {
-      setShowRegistration(true);
-      return;
+  const [isPaywallOpen, setIsPaywallOpen] = useState(false);
+
+  const handleExportPDF = () => {
+    // Always show paywall for PDF
+    setIsPaywallOpen(true);
+  };
+
+  const buildTxtFromDisplayData = (data: any): string => {
+    const lines: string[] = [];
+    const fullName = [data.first_name, data.middle_name, data.last_name].filter(Boolean).join(' ');
+    if (fullName) lines.push(fullName);
+    if (data.location) lines.push(data.location);
+    if (Array.isArray(data.contacts) && data.contacts.length) {
+      lines.push('Contacts:');
+      data.contacts.forEach((c: string) => lines.push(`- ${c}`));
     }
-    if (!templateContainerRef.current || !resume) return;
-    
-    try {
-      // Request fresh data before export
-      await refreshResume();
-      
-      // Get full HTML with CSS styles
-      const fullHtml = getFullHTMLWithStyles(templateContainerRef.current);
-      
-      // Log the final HTML for debugging
-      console.log('Final HTML for export:', fullHtml);
-      
-      // Use real data for filename
-      const displayData = convertApiResumeToDisplayData(resume);
-      const fullName = `${displayData.first_name || ''} ${displayData.last_name || ''}`.trim();
-      const filename = `${fullName.replace(/\s+/g, '_')}_resume.pdf`;
-      
-      // Send request to backend for PDF generation
-      const pdfBlob = await exportApi.exportToPDF(resumeId!, {
-        html_content: fullHtml,
-        filename: filename,
-        template_slug: selectedTemplate?.id
+    if (data.professional_summary) {
+      lines.push('');
+      lines.push('Professional Summary');
+      lines.push(data.professional_summary);
+    }
+    if (Array.isArray(data.skills) && data.skills.length) {
+      lines.push('');
+      lines.push('Skills');
+      data.skills.forEach((s: string) => lines.push(`- ${s}`));
+    }
+    if (Array.isArray(data.experience) && data.experience.length) {
+      lines.push('');
+      lines.push('Experience');
+      data.experience.forEach((exp: any) => {
+        const header = [exp.job_title, exp.company].filter(Boolean).join(' — ');
+        if (header) lines.push(`- ${header}`);
+        const dates = [exp.start_date, exp.end_date || 'Present'].filter(Boolean).join(' - ');
+        if (dates) lines.push(`  ${dates}`);
+        if (Array.isArray(exp.responsibilities)) {
+          exp.responsibilities.forEach((r: string) => lines.push(`  • ${r}`));
+        }
       });
-      
-      // Create download link
-      const url = window.URL.createObjectURL(pdfBlob);
+    }
+    if (Array.isArray(data.education) && data.education.length) {
+      lines.push('');
+      lines.push('Education');
+      data.education.forEach((edu: any) => {
+        const header = [edu.degree, edu.institution].filter(Boolean).join(' — ');
+        if (header) lines.push(`- ${header}`);
+        if (edu.graduation_date) lines.push(`  ${edu.graduation_date}`);
+      });
+    }
+    return lines.join('\n');
+  };
+
+  const handleExportTXT = async () => {
+    if (!resume) return;
+    try {
+      await refreshResume();
+      const displayData = convertApiResumeToDisplayData(resume);
+      const txtContent = buildTxtFromDisplayData(displayData);
+      const fullName = `${displayData.first_name || ''} ${displayData.last_name || ''}`.trim();
+      const filename = `${(fullName || 'resume').replace(/\s+/g, '_')}.txt`;
+      const blob = new Blob([txtContent], { type: 'text/plain;charset=utf-8' });
+      const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
       link.download = filename;
@@ -130,12 +164,8 @@ const ExportPage: React.FC = () => {
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
-      
-      // Show success page after successful download
-      setShowSuccess(true);
     } catch (error) {
-      console.error('Error exporting to PDF:', error);
-      throw error;
+      console.error('Error exporting to TXT:', error);
     }
   };
 
@@ -302,23 +332,58 @@ const ExportPage: React.FC = () => {
       <Box sx={{ 
         flex: 1, 
         display: 'flex', 
-        justifyContent: 'center',
+        flexDirection: 'column',
         alignItems: 'center',
-        p: { xs: 2, sm: 3, md: 4 }, // Responsive padding
-        py: { xs: 3, sm: 4, md: 6 } // Additional vertical padding
+        p: { xs: 2, sm: 3, md: 4 },
+        py: { xs: 3, sm: 4, md: 6 },
+        gap: { xs: 2, sm: 3, md: 4 }
       }}>
-        {!isAuthenticated ? (
-          <UnauthenticatedExportView
-            resume={resume}
-            selectedTemplateId={selectedTemplate?.id}
-            onDownloadClick={handleUnauthenticatedDownload}
-          />
-        ) : (
-          <DownloadOptions 
-            onExportPDF={handleExportPDF} 
-            isPremium={user?.is_premium || false}
-          />
-        )}
+        {/* Header */}
+        <Box sx={{ width: '100%', maxWidth: 1100, textAlign: 'center' }}>
+          <Typography variant="h5" sx={{ fontWeight: 700, mb: 0.5, fontSize: { xs: '1.1rem', sm: '1.25rem' } }}>
+            We tested thousands of CV templates — these three perform the best.
+          </Typography>
+        </Box>
+
+        {/* Template selection cards */}
+        <Box sx={{ width: '100%', maxWidth: 1100 }}>
+          {displayData && (
+            <TemplateSelectionCards
+              selectedTemplateId={selectedTemplate?.id}
+              onSelect={(tpl) => updateTemplate(tpl)}
+              resumeData={displayData}
+            />
+          )}
+        </Box>
+
+        <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
+          <Button 
+            variant="outlined"
+            onClick={handleExportTXT}
+            sx={{
+              borderColor: COLORS.grey[600],
+              color: COLORS.grey[700],
+              textTransform: 'none',
+              px: { xs: 2.5, sm: 3 },
+              py: { xs: 1, sm: 1.25 }
+            }}
+          >
+            {t('export.buttons.downloadTxtFree', 'Download TXT (Free)')}
+          </Button>
+          <Button 
+            variant="contained"
+            onClick={handleExportPDF}
+            sx={{
+              bgcolor: COLORS.primary.main,
+              textTransform: 'none',
+              px: { xs: 2.5, sm: 3 },
+              py: { xs: 1, sm: 1.25 },
+              '&:hover': { bgcolor: COLORS.primary.dark }
+            }}
+          >
+            {t('export.buttons.upgradeToPdf', 'Upgrade to Download PDF')}
+          </Button>
+        </Box>
       </Box>
 
       {/* Hidden template for export */}
@@ -337,6 +402,11 @@ const ExportPage: React.FC = () => {
         open={showRegistration}
         onClose={() => setShowRegistration(false)}
         onSuccess={() => setShowRegistration(false)}
+      />
+      <PaywallModal 
+        open={isPaywallOpen}
+        onClose={() => setIsPaywallOpen(false)}
+        onSuccess={() => setIsPaywallOpen(false)}
       />
     </Box>
   );
