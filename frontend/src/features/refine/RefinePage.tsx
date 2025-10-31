@@ -1,10 +1,6 @@
-import EditIcon from '@mui/icons-material/Edit';
-import { useMediaQuery } from '@mui/material';
 import Box from '@mui/material/Box';
-import IconButton from '@mui/material/IconButton';
-import TextField from '@mui/material/TextField';
-import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -13,7 +9,6 @@ import { useUser } from '../../shared/hooks';
 import { useAuth } from '../../shared/hooks/useAuth';
 import { useResumeQuery } from '../../shared/hooks/useResumeQuery';
 // import { useTemplate } from '../../shared/hooks/useTemplate';
-import { resumeApi } from '../../shared/services/api';
 import { Resume } from '../../shared/services/api/types';
 import { COLORS } from '../../shared/theme/theme';
 // import { TemplateConfig } from '../../shared/types/resume';
@@ -34,12 +29,9 @@ const RefinePage: React.FC = () => {
   // Templates not used in the new layout
   const { user } = useUser();
   const { user: authUser, isAuthenticated, isLoading: authLoading } = useAuth();
-  const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [titleValue, setTitleValue] = useState('');
   const [analysis, setAnalysis] = useState<{ score: number; label: string; subtitle: string; sections: any[] } | null>(null);
-  
-  // Define mobile mode for screens up to 768px
-  const isMobile = useMediaQuery('(max-width:768px)');
+  const [showSaveNotification, setShowSaveNotification] = useState(true);
+  const [lastSaveTime, setLastSaveTime] = useState('');
   
   // Check if resume belongs to user
   useEffect(() => {
@@ -62,52 +54,32 @@ const RefinePage: React.FC = () => {
     }
   }, [resume, authUser, isAuthenticated, authLoading, loading, resumeId, navigate]);
 
-  // Set title when loading resume
-  useEffect(() => {
-    if (resume) {
-      setTitleValue(resume.title);
-    }
-  }, [resume]);
-
   // Resume update handler
   const handleResumeUpdate = (updatedResume: Resume) => {
     updateResumeInCache(updatedResume);
-    setTitleValue(updatedResume.title);
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    setLastSaveTime(`${hours}:${minutes}:${seconds}`);
   };
+
+  // Set initial save time
+  useEffect(() => {
+    if (resume && !lastSaveTime) {
+      const now = new Date();
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+      setLastSaveTime(`${hours}:${minutes}:${seconds}`);
+    }
+  }, [resume, lastSaveTime]);
 
   // Load analysis (mocked)
   useEffect(() => {
     if (!resumeId) return;
     getResumeAnalysis(resumeId).then(setAnalysis).catch(() => setAnalysis(null));
   }, [resumeId]);
-
-  // Title editing handler
-  const handleTitleEdit = () => {
-    setIsEditingTitle(true);
-  };
-
-  // Title save handler
-  const handleTitleSave = async () => {
-    if (!resume || !resumeId) return;
-    
-    // Close editing immediately
-    setIsEditingTitle(false);
-    
-    try {
-      const updatedResume = await resumeApi.updateResumePartial(parseInt(resumeId), { title: titleValue });
-      updateResumeInCache(updatedResume);
-    } catch (err) {
-      // In case of error, return to original value
-      setTitleValue(resume.title);
-      console.error('Error saving title:', err);
-    }
-  };
-  
-  // Title cancel handler
-  const handleTitleCancel = () => {
-    setTitleValue(resume?.title || '');
-    setIsEditingTitle(false);
-  };
 
   const handleNext = () => {
     navigate(`/export?resume_id=${resumeId}`);
@@ -219,72 +191,80 @@ const RefinePage: React.FC = () => {
         onTabChange={handleTabChange}
       />
 
-      {/* Score bar */}
-      {analysis && (
-        <ScoreBar
-          score={analysis.score}
-          label={analysis.label}
-          subtitle={analysis.subtitle}
-          marketingText={marketingText}
-        />
-      )}
-      
       {/* Main area */}
       <Box sx={{ 
         flex: 1, 
         display: 'flex', 
         flexDirection: { xs: 'column', md: 'row' },
         gap: 0,
-        overflow: 'hidden'
+        overflow: 'hidden',
+        bgcolor: '#F5F7FA'
       }}>
-        {/* Left column: Improvement sections */}
-        <Box sx={{ width: { xs: '100%', md: '40%' }, borderRight: { md: `1px solid ${COLORS.resume.section.border}` }, bgcolor: COLORS.resume.header.background }}>
-          <Box sx={{ p: 1, borderBottom: `1px solid ${COLORS.resume.section.border}`, display: 'flex', alignItems: 'center', gap: 1 }}>
-            {isEditingTitle ? (
-              <TextField
-                value={titleValue}
-                onChange={(e) => setTitleValue(e.target.value)}
-                variant="outlined"
-                size="small"
-                sx={{ flex: 1 }}
-                autoFocus
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    handleTitleSave();
-                  } else if (e.key === 'Escape') {
-                    handleTitleCancel();
-                  }
-                }}
-                onBlur={handleTitleSave}
+        {/* Left column: Score and Improvement sections */}
+        <Box sx={{ width: { xs: '100%', md: '40%' }, borderRight: { md: `1px solid ${COLORS.resume.section.border}` }, bgcolor: '#F5F7FA' }}>
+          {/* Score bar */}
+          {analysis && (
+            <Box sx={{ p: 2 }}>
+              <ScoreBar
+                score={analysis.score}
+                label={analysis.label}
+                subtitle={analysis.subtitle}
+                marketingText={marketingText}
               />
-            ) : (
-              <>
-                <IconButton 
-                  size="small" 
-                  onClick={handleTitleEdit}
-                  sx={{ 
-                    opacity: 0.6, 
-                    p: 0.5,
-                    minWidth: 'auto',
-                    width: 24,
-                    height: 24,
-                    '&:hover': { opacity: 1 },
-                    transition: 'opacity 0.2s'
-                  }}
-                >
-                  <EditIcon sx={{ fontSize: 16 }} />
-                </IconButton>
-                <Typography variant="h6" sx={{ flex: 1, fontWeight: 600 }}>
-                  {titleValue}
-                </Typography>
-              </>
-            )}
-          </Box>
+            </Box>
+          )}
+          
           <ImprovementSections sections={analysis?.sections || []} />
         </Box>
         {/* Right column: Editor accordions */}
-        <Box sx={{ flex: 1, minWidth: 0, bgcolor: COLORS.resume.header.background }}>
+        <Box sx={{ flex: 1, minWidth: 0, position: 'relative' }}>
           <EditorAccordion resume={resume} onResumeUpdate={handleResumeUpdate} resumeId={resumeId} />
+          
+          {/* Save Notification */}
+          {showSaveNotification && (
+            <Box sx={{
+              position: 'absolute',
+              bottom: '16px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              backgroundColor: 'white',
+              borderRadius: '8px',
+              padding: '8px 12px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.15), 0 2px 4px -1px rgba(0, 0, 0, 0.1)',
+              border: '1px solid #e5e7eb',
+              zIndex: 1000,
+            }}>
+              <CheckCircleIcon sx={{ width: '14px', height: '14px', color: '#10b981' }} />
+              <Typography sx={{ fontSize: '11px', color: '#6b7280' }}>
+                All changes saved at {lastSaveTime}
+              </Typography>
+              <button 
+                onClick={() => {
+                  const now = new Date();
+                  const hours = String(now.getHours()).padStart(2, '0');
+                  const minutes = String(now.getMinutes()).padStart(2, '0');
+                  const seconds = String(now.getSeconds()).padStart(2, '0');
+                  setLastSaveTime(`${hours}:${minutes}:${seconds}`);
+                }}
+                style={{
+                  backgroundColor: '#dbeafe',
+                  color: '#2563eb',
+                  fontSize: '11px',
+                  fontWeight: 500,
+                  padding: '4px 8px',
+                  borderRadius: '6px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  textTransform: 'none',
+                }}
+              >
+                Save now
+              </button>
+            </Box>
+          )}
         </Box>
       </Box>
       {/* End 2-column layout */}

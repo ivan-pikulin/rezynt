@@ -5,21 +5,15 @@ import {
   TextField,
   Typography,
   Button,
-  IconButton,
-  Card,
-  CardContent,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Divider
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  IconButton
 } from '@mui/material';
 import {
   Add as AddIcon,
-  Edit as EditIcon,
-  Delete as DeleteIcon,
-  Save as SaveIcon,
-  Cancel as CancelIcon
+  ExpandMore as ExpandMoreIcon,
+  DeleteOutline as DeleteIcon
 } from '@mui/icons-material';
 import { UnifiedResumeEducation } from '../../../shared/services/api/types';
 import { resumeApi } from '../../../shared/services/api';
@@ -45,49 +39,40 @@ const EducationEditor: React.FC<EducationEditorProps> = ({
 }) => {
   const { t } = useTranslation();
   const [localEducation, setLocalEducation] = useState<UnifiedResumeEducation[]>(education);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingEducationIndex, setEditingEducationIndex] = useState<number | null>(null);
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   
-  const [formData, setFormData] = useState<EducationFormData>({
-    degree: '',
-    institution: '',
-    location: '',
-    graduation_date: ''
-  });
-
-  const resetForm = () => {
-    setFormData({
-      degree: '',
-      institution: '',
-      location: '',
-      graduation_date: ''
-    });
-    setEditingEducationIndex(null);
-  };
-
-  const handleOpenDialog = (edu?: UnifiedResumeEducation, index?: number) => {
-    if (edu && index !== undefined) {
-      setEditingEducationIndex(index);
-      setFormData({
+  const [formDataArray, setFormDataArray] = useState<Record<number, EducationFormData>>(() => {
+    const initial: Record<number, EducationFormData> = {};
+    education.forEach((edu, idx) => {
+      initial[idx] = {
         degree: edu.degree,
         institution: edu.institution,
         location: edu.location || '',
         graduation_date: edu.graduation_date || ''
-      });
-    } else {
-      resetForm();
+      };
+    });
+    return initial;
+  });
+
+  const handleExpandChange = async (index: number | false) => {
+    // Auto-save when collapsing the currently expanded item
+    if (expandedIndex !== null && index === false) {
+      await handleSaveEducation(expandedIndex);
     }
-    setIsDialogOpen(true);
+    setExpandedIndex(index === false ? null : index);
   };
 
-  const handleCloseDialog = () => {
-    setIsDialogOpen(false);
-    resetForm();
+  const handleFieldChange = (index: number, field: keyof EducationFormData, value: any) => {
+    setFormDataArray(prev => ({
+      ...prev,
+      [index]: { ...prev[index], [field]: value }
+    }));
   };
 
-  const handleSaveEducation = async () => {
-    if (!formData.degree.trim() || !formData.institution.trim()) {
+  const handleSaveEducation = async (index: number) => {
+    const formData = formDataArray[index];
+    if (!formData?.degree.trim() || !formData?.institution.trim()) {
       return;
     }
 
@@ -100,21 +85,10 @@ const EducationEditor: React.FC<EducationEditorProps> = ({
         graduation_date: formData.graduation_date || undefined
       };
 
-      let updatedEducation: UnifiedResumeEducation[];
-      
-      if (editingEducationIndex !== null) {
-        // Update existing education
-        updatedEducation = [...localEducation];
-        updatedEducation[editingEducationIndex] = educationData;
-      } else {
-        // Add new education
-        updatedEducation = [...localEducation, educationData];
-      }
+      const updatedEducation = [...localEducation];
+      updatedEducation[index] = educationData;
 
-      // Update the resume with new education data
-      const resumeUpdate = {
-        education: updatedEducation
-      };
+      const resumeUpdate = { education: updatedEducation };
       
       if (resumeId === 'guest' || resumeId === '-1') {
         guestResumeService.update({ education: updatedEducation as any });
@@ -124,7 +98,7 @@ const EducationEditor: React.FC<EducationEditorProps> = ({
       
       setLocalEducation(updatedEducation);
       onEducationUpdate(updatedEducation);
-      handleCloseDialog();
+      setExpandedIndex(null);
     } catch (error) {
       console.error('Error saving education:', error);
     } finally {
@@ -136,10 +110,7 @@ const EducationEditor: React.FC<EducationEditorProps> = ({
     setIsSaving(true);
     try {
       const updatedEducation = localEducation.filter((_, i) => i !== index);
-      
-      const resumeUpdate = {
-        education: updatedEducation
-      };
+      const resumeUpdate = { education: updatedEducation };
       
       if (resumeId === 'guest' || resumeId === '-1') {
         guestResumeService.update({ education: updatedEducation as any });
@@ -149,6 +120,18 @@ const EducationEditor: React.FC<EducationEditorProps> = ({
       
       setLocalEducation(updatedEducation);
       onEducationUpdate(updatedEducation);
+      
+      // Update form data indices
+      const newFormData: Record<number, EducationFormData> = {};
+      updatedEducation.forEach((edu, idx) => {
+        newFormData[idx] = {
+          degree: edu.degree,
+          institution: edu.institution,
+          location: edu.location || '',
+          graduation_date: edu.graduation_date || ''
+        };
+      });
+      setFormDataArray(newFormData);
     } catch (error) {
       console.error('Error deleting education:', error);
     } finally {
@@ -156,112 +139,182 @@ const EducationEditor: React.FC<EducationEditorProps> = ({
     }
   };
 
+  const handleAddEducation = async () => {
+    setIsSaving(true);
+    try {
+      const newEducation: UnifiedResumeEducation = {
+        degree: '',
+        institution: '',
+        location: undefined,
+        graduation_date: undefined
+      };
+
+      const updatedEducation = [...localEducation, newEducation];
+      const newIndex = updatedEducation.length - 1;
+      
+      setFormDataArray(prev => ({
+        ...prev,
+        [newIndex]: {
+          degree: '',
+          institution: '',
+          location: '',
+          graduation_date: ''
+        }
+      }));
+      
+      setLocalEducation(updatedEducation);
+      onEducationUpdate(updatedEducation);
+      setExpandedIndex(newIndex);
+    } catch (error) {
+      console.error('Error adding education:', error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const accordionStyles = {
+    '&:before': { display: 'none' },
+    borderRadius: '8px',
+    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+    mb: 2,
+    backgroundColor: 'white',
+    '& .MuiAccordionSummary-root': { 
+      minHeight: '48px',
+      padding: '12px 16px',
+      '&.Mui-expanded': { minHeight: '48px', padding: '12px 16px' }
+    },
+    '& .MuiAccordionSummary-content': { margin: 0 },
+    '& .MuiAccordionDetails-root': { padding: '16px' }
+  };
+
+  const inputStyles = {
+    '& .MuiOutlinedInput-root': {
+      borderRadius: '6px',
+      backgroundColor: '#F9FAFB',
+      '& fieldset': {
+        borderColor: '#e5e7eb',
+        borderWidth: '1px',
+      },
+      '&:hover fieldset': {
+        borderColor: '#e5e7eb',
+      },
+      '&.Mui-focused fieldset': {
+        borderColor: '#e5e7eb',
+        borderWidth: '1px',
+      },
+    },
+    '& .MuiInputBase-input': {
+      fontSize: '12px',
+      padding: '8px 12px',
+    },
+  };
+
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h6" sx={{ fontWeight: 600, color: '#2c3e50' }}>
-          {t('refine.editor.education')}
-        </Typography>
+      {/* Education list */}
+      {localEducation.map((edu, index) => {
+        const formData = formDataArray[index] || {
+          degree: edu.degree,
+          institution: edu.institution,
+          location: edu.location || '',
+          graduation_date: edu.graduation_date || ''
+        };
+
+        return (
+          <Accordion
+            key={index}
+            expanded={expandedIndex === index}
+            onChange={(_, isExpanded) => handleExpandChange(isExpanded ? index : false)}
+            sx={accordionStyles}
+          >
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <Box sx={{ flex: 1 }}>
+                <Typography variant="h6" sx={{ fontWeight: 600, color: '#2c3e50' }}>
+                  {formData.degree || '(New Education)'}
+                </Typography>
+                <Typography variant="body2" sx={{ color: '#7f8c8d' }}>
+                  {formData.institution}
+                  {formData.location && ` • ${formData.location}`}
+                </Typography>
+              </Box>
+            </AccordionSummary>
+            <AccordionDetails>
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  label={t('refine.editor.degree')}
+                  value={formData.degree}
+                  onChange={(e) => handleFieldChange(index, 'degree', e.target.value)}
+                  required
+                  sx={inputStyles}
+                />
+                <TextField
+                  fullWidth
+                  size="small"
+                  label={t('refine.editor.institution')}
+                  value={formData.institution}
+                  onChange={(e) => handleFieldChange(index, 'institution', e.target.value)}
+                  required
+                  sx={inputStyles}
+                />
+                <TextField
+                  fullWidth
+                  size="small"
+                  label={t('refine.editor.location')}
+                  value={formData.location}
+                  onChange={(e) => handleFieldChange(index, 'location', e.target.value)}
+                  sx={inputStyles}
+                />
+                <TextField
+                  fullWidth
+                  size="small"
+                  label={t('refine.editor.graduationDate')}
+                  type="date"
+                  value={formData.graduation_date}
+                  onChange={(e) => handleFieldChange(index, 'graduation_date', e.target.value)}
+                  InputLabelProps={{ shrink: true }}
+                  sx={inputStyles}
+                />
+              </Box>
+
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
+                <Button
+                  startIcon={<DeleteIcon />}
+                  onClick={() => handleDeleteEducation(index)}
+                  disabled={isSaving}
+                  sx={{
+                    padding: '4px 12px',
+                    color: '#1f2937',
+                    backgroundColor: 'transparent',
+                    fontSize: '12px',
+                    textTransform: 'none',
+                    minWidth: 'auto',
+                    '&:hover': {
+                      color: '#1f2937',
+                      backgroundColor: '#e8f0f5'
+                    }
+                  }}
+                >
+                  Remove
+                </Button>
+              </Box>
+            </AccordionDetails>
+          </Accordion>
+        );
+      })}
+
+      {/* Add button */}
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
         <Button
           variant="contained"
           startIcon={<AddIcon />}
-          onClick={() => handleOpenDialog()}
+          onClick={handleAddEducation}
           disabled={isSaving}
         >
           {t('refine.editor.addEducation')}
         </Button>
       </Box>
-
-      {/* Education list */}
-      {localEducation.map((edu, index) => (
-        <Card key={index} sx={{ mb: 2, border: '1px solid #e0e0e0' }}>
-          <CardContent>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <Box sx={{ flex: 1 }}>
-                <Typography variant="h6" sx={{ fontWeight: 600, color: '#2c3e50' }}>
-                  {edu.degree}
-                </Typography>
-                <Typography variant="subtitle1" sx={{ color: '#7f8c8d', mb: 1 }}>
-                  {edu.institution}
-                  {edu.location && ` • ${edu.location}`}
-                </Typography>
-                <Typography variant="body2" sx={{ color: '#95a5a6' }}>
-                  {edu.graduation_date && new Date(edu.graduation_date).toLocaleDateString()}
-                </Typography>
-              </Box>
-              <Box sx={{ display: 'flex', gap: 1 }}>
-                <IconButton
-                  size="small"
-                  onClick={() => handleOpenDialog(edu, index)}
-                  disabled={isSaving}
-                >
-                  <EditIcon />
-                </IconButton>
-                <IconButton
-                  size="small"
-                  onClick={() => handleDeleteEducation(index)}
-                  disabled={isSaving}
-                  color="error"
-                >
-                  <DeleteIcon />
-                </IconButton>
-              </Box>
-            </Box>
-          </CardContent>
-        </Card>
-      ))}
-
-      {/* Add/Edit dialog */}
-      <Dialog open={isDialogOpen} onClose={handleCloseDialog} maxWidth="md" fullWidth>
-        <DialogTitle>
-          {editingEducationIndex !== null ? t('refine.editor.editEducation') : t('refine.editor.addEducation')}
-        </DialogTitle>
-        <DialogContent>
-          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2, mt: 1 }}>
-            <TextField
-              fullWidth
-              label={t('refine.editor.degree')}
-              value={formData.degree}
-              onChange={(e) => setFormData(prev => ({ ...prev, degree: e.target.value }))}
-              required
-            />
-            <TextField
-              fullWidth
-              label={t('refine.editor.institution')}
-              value={formData.institution}
-              onChange={(e) => setFormData(prev => ({ ...prev, institution: e.target.value }))}
-              required
-            />
-            <TextField
-              fullWidth
-              label={t('refine.editor.location')}
-              value={formData.location}
-              onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
-            />
-            <TextField
-              fullWidth
-              label={t('refine.editor.graduationDate')}
-              type="date"
-              value={formData.graduation_date}
-              onChange={(e) => setFormData(prev => ({ ...prev, graduation_date: e.target.value }))}
-              InputLabelProps={{ shrink: true }}
-            />
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDialog}>
-            {t('refine.editor.cancel')}
-          </Button>
-          <Button
-            onClick={handleSaveEducation}
-            variant="contained"
-            disabled={!formData.degree.trim() || !formData.institution.trim() || isSaving}
-            startIcon={<SaveIcon />}
-          >
-            {isSaving ? t('refine.editor.saving') : t('refine.editor.save')}
-          </Button>
-        </DialogActions>
-      </Dialog>
     </Box>
   );
 };

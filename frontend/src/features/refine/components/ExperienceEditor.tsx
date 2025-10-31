@@ -5,24 +5,18 @@ import {
   TextField,
   Typography,
   Button,
-  IconButton,
-  Card,
-  CardContent,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
   FormControlLabel,
   Switch,
-  Chip,
+  IconButton,
   Divider
 } from '@mui/material';
 import {
   Add as AddIcon,
-  Edit as EditIcon,
-  Delete as DeleteIcon,
-  Save as SaveIcon,
-  Cancel as CancelIcon
+  ExpandMore as ExpandMoreIcon,
+  DeleteOutline as DeleteIcon
 } from '@mui/icons-material';
 import { UnifiedResumeExperience } from '../../../shared/services/api/types';
 import { resumeApi } from '../../../shared/services/api';
@@ -51,39 +45,13 @@ const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
 }) => {
   const { t } = useTranslation();
   const [localExperience, setLocalExperience] = useState<UnifiedResumeExperience[]>(experience);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingExperienceIndex, setEditingExperienceIndex] = useState<number | null>(null);
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [newResponsibility, setNewResponsibility] = useState('');
   
-  const [formData, setFormData] = useState<ExperienceFormData>({
-    job_title: '',
-    company: '',
-    location: '',
-    start_date: '',
-    end_date: '',
-    is_current: false,
-    responsibilities: []
-  });
-
-  const resetForm = () => {
-    setFormData({
-      job_title: '',
-      company: '',
-      location: '',
-      start_date: '',
-      end_date: '',
-      is_current: false,
-      responsibilities: []
-    });
-    setNewResponsibility('');
-    setEditingExperienceIndex(null);
-  };
-
-  const handleOpenDialog = (exp?: UnifiedResumeExperience, index?: number) => {
-    if (exp && index !== undefined) {
-      setEditingExperienceIndex(index);
-      setFormData({
+  const [formDataArray, setFormDataArray] = useState<Record<number, ExperienceFormData>>(() => {
+    const initial: Record<number, ExperienceFormData> = {};
+    experience.forEach((exp, idx) => {
+      initial[idx] = {
         job_title: exp.job_title,
         company: exp.company,
         location: exp.location || '',
@@ -91,20 +59,29 @@ const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
         end_date: exp.end_date || '',
         is_current: !exp.end_date,
         responsibilities: [...exp.responsibilities]
-      });
-    } else {
-      resetForm();
+      };
+    });
+    return initial;
+  });
+
+  const handleExpandChange = async (index: number | false) => {
+    // Auto-save when collapsing the currently expanded item
+    if (expandedIndex !== null && index === false) {
+      await handleSaveExperience(expandedIndex);
     }
-    setIsDialogOpen(true);
+    setExpandedIndex(index === false ? null : index);
   };
 
-  const handleCloseDialog = () => {
-    setIsDialogOpen(false);
-    resetForm();
+  const handleFieldChange = (index: number, field: keyof ExperienceFormData, value: any) => {
+    setFormDataArray(prev => ({
+      ...prev,
+      [index]: { ...prev[index], [field]: value }
+    }));
   };
 
-  const handleSaveExperience = async () => {
-    if (!formData.job_title.trim() || !formData.company.trim()) {
+  const handleSaveExperience = async (index: number) => {
+    const formData = formDataArray[index];
+    if (!formData?.job_title.trim() || !formData?.company.trim()) {
       return;
     }
 
@@ -119,21 +96,10 @@ const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
         responsibilities: formData.responsibilities.filter(r => r.trim())
       };
 
-      let updatedExperience: UnifiedResumeExperience[];
-      
-      if (editingExperienceIndex !== null) {
-        // Update existing experience
-        updatedExperience = [...localExperience];
-        updatedExperience[editingExperienceIndex] = experienceData;
-      } else {
-        // Add new experience
-        updatedExperience = [...localExperience, experienceData];
-      }
+      const updatedExperience = [...localExperience];
+      updatedExperience[index] = experienceData;
 
-      // Update the resume with new experience data
-      const resumeUpdate = {
-        experience: updatedExperience
-      };
+      const resumeUpdate = { experience: updatedExperience };
       
       if (resumeId === 'guest' || resumeId === '-1') {
         guestResumeService.update({ experience: updatedExperience as any });
@@ -143,7 +109,7 @@ const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
       
       setLocalExperience(updatedExperience);
       onExperienceUpdate(updatedExperience);
-      handleCloseDialog();
+      setExpandedIndex(null);
     } catch (error) {
       console.error('Error saving experience:', error);
     } finally {
@@ -155,10 +121,7 @@ const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
     setIsSaving(true);
     try {
       const updatedExperience = localExperience.filter((_, i) => i !== index);
-      
-      const resumeUpdate = {
-        experience: updatedExperience
-      };
+      const resumeUpdate = { experience: updatedExperience };
       
       if (resumeId === 'guest' || resumeId === '-1') {
         guestResumeService.update({ experience: updatedExperience as any });
@@ -168,6 +131,21 @@ const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
       
       setLocalExperience(updatedExperience);
       onExperienceUpdate(updatedExperience);
+      
+      // Update form data indices
+      const newFormData: Record<number, ExperienceFormData> = {};
+      updatedExperience.forEach((exp, idx) => {
+        newFormData[idx] = {
+          job_title: exp.job_title,
+          company: exp.company,
+          location: exp.location || '',
+          start_date: exp.start_date || '',
+          end_date: exp.end_date || '',
+          is_current: !exp.end_date,
+          responsibilities: [...exp.responsibilities]
+        };
+      });
+      setFormDataArray(newFormData);
     } catch (error) {
       console.error('Error deleting experience:', error);
     } finally {
@@ -175,207 +153,311 @@ const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
     }
   };
 
-  const addResponsibility = () => {
-    if (newResponsibility.trim()) {
-      setFormData(prev => ({
+  const handleAddExperience = async () => {
+    setIsSaving(true);
+    try {
+      const newExperience: UnifiedResumeExperience = {
+        job_title: '',
+        company: '',
+        location: undefined,
+        start_date: undefined,
+        end_date: undefined,
+        responsibilities: []
+      };
+
+      const updatedExperience = [...localExperience, newExperience];
+      const newIndex = updatedExperience.length - 1;
+      
+      setFormDataArray(prev => ({
         ...prev,
-        responsibilities: [...prev.responsibilities, newResponsibility.trim()]
+        [newIndex]: {
+          job_title: '',
+          company: '',
+          location: '',
+          start_date: '',
+          end_date: '',
+          is_current: false,
+          responsibilities: []
+        }
       }));
-      setNewResponsibility('');
+      
+      setLocalExperience(updatedExperience);
+      onExperienceUpdate(updatedExperience);
+      setExpandedIndex(newIndex);
+    } catch (error) {
+      console.error('Error adding experience:', error);
+    } finally {
+      setIsSaving(false);
     }
   };
 
-  const removeResponsibility = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      responsibilities: prev.responsibilities.filter((_, i) => i !== index)
-    }));
+  const addResponsibility = (index: number, responsibility: string) => {
+    if (responsibility.trim()) {
+      handleFieldChange(index, 'responsibilities', [...formDataArray[index].responsibilities, responsibility.trim()]);
+    }
+  };
+
+  const removeResponsibility = (index: number, respIndex: number) => {
+    handleFieldChange(index, 'responsibilities', 
+      formDataArray[index].responsibilities.filter((_, i) => i !== respIndex)
+    );
+  };
+
+  const accordionStyles = {
+    '&:before': { display: 'none' },
+    borderRadius: '8px',
+    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+    mb: 2,
+    backgroundColor: 'white',
+    '& .MuiAccordionSummary-root': { 
+      minHeight: '48px',
+      padding: '12px 16px',
+      '&.Mui-expanded': { minHeight: '48px', padding: '12px 16px' }
+    },
+    '& .MuiAccordionSummary-content': { margin: 0 },
+    '& .MuiAccordionDetails-root': { padding: '16px' }
+  };
+
+  const inputStyles = {
+    '& .MuiOutlinedInput-root': {
+      borderRadius: '6px',
+      backgroundColor: '#F9FAFB',
+      '& fieldset': {
+        borderColor: '#e5e7eb',
+        borderWidth: '1px',
+      },
+      '&:hover fieldset': {
+        borderColor: '#e5e7eb',
+      },
+      '&.Mui-focused fieldset': {
+        borderColor: '#e5e7eb',
+        borderWidth: '1px',
+      },
+    },
+    '& .MuiInputBase-input': {
+      fontSize: '12px',
+      padding: '8px 12px',
+    },
   };
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h6" sx={{ fontWeight: 600, color: '#2c3e50' }}>
-          {t('refine.editor.experience')}
-        </Typography>
+      {/* Experience list */}
+      {localExperience.map((exp, index) => {
+        const formData = formDataArray[index] || {
+          job_title: exp.job_title,
+          company: exp.company,
+          location: exp.location || '',
+          start_date: exp.start_date || '',
+          end_date: exp.end_date || '',
+          is_current: !exp.end_date,
+          responsibilities: [...exp.responsibilities]
+        };
+
+        return (
+          <Accordion
+            key={index}
+            expanded={expandedIndex === index}
+            onChange={(_, isExpanded) => handleExpandChange(isExpanded ? index : false)}
+            sx={accordionStyles}
+          >
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <Box sx={{ flex: 1 }}>
+                <Typography variant="h6" sx={{ fontWeight: 600, color: '#2c3e50' }}>
+                  {formData.job_title || '(New Experience)'}
+                </Typography>
+                <Typography variant="body2" sx={{ color: '#7f8c8d' }}>
+                  {formData.company}
+                  {formData.location && ` • ${formData.location}`}
+                </Typography>
+              </Box>
+            </AccordionSummary>
+            <AccordionDetails>
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  label={t('refine.editor.jobTitle')}
+                  value={formData.job_title}
+                  onChange={(e) => handleFieldChange(index, 'job_title', e.target.value)}
+                  required
+                  sx={inputStyles}
+                />
+                <TextField
+                  fullWidth
+                  size="small"
+                  label={t('refine.editor.company')}
+                  value={formData.company}
+                  onChange={(e) => handleFieldChange(index, 'company', e.target.value)}
+                  required
+                  sx={inputStyles}
+                />
+                <TextField
+                  fullWidth
+                  size="small"
+                  label={t('refine.editor.location')}
+                  value={formData.location}
+                  onChange={(e) => handleFieldChange(index, 'location', e.target.value)}
+                  sx={inputStyles}
+                />
+                <TextField
+                  fullWidth
+                  size="small"
+                  label={t('refine.editor.startDate')}
+                  type="date"
+                  value={formData.start_date}
+                  onChange={(e) => handleFieldChange(index, 'start_date', e.target.value)}
+                  InputLabelProps={{ shrink: true }}
+                  sx={inputStyles}
+                />
+                <TextField
+                  fullWidth
+                  size="small"
+                  label={t('refine.editor.endDate')}
+                  type="date"
+                  value={formData.end_date}
+                  onChange={(e) => handleFieldChange(index, 'end_date', e.target.value)}
+                  InputLabelProps={{ shrink: true }}
+                  disabled={formData.is_current}
+                  sx={inputStyles}
+                />
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={formData.is_current}
+                      onChange={(e) => handleFieldChange(index, 'is_current', e.target.checked)}
+                    />
+                  }
+                  label={t('refine.editor.currentPosition')}
+                />
+              </Box>
+
+              <Divider sx={{ my: 2 }} />
+
+              <Typography variant="h6" sx={{ mb: 2 }}>
+                {t('refine.editor.responsibilities')}
+              </Typography>
+
+              <ResponsibilityEditor
+                responsibilities={formData.responsibilities}
+                onAdd={(resp) => addResponsibility(index, resp)}
+                onRemove={(respIndex) => removeResponsibility(index, respIndex)}
+                inputStyles={inputStyles}
+              />
+
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
+                <Button
+                  startIcon={<DeleteIcon />}
+                  onClick={() => handleDeleteExperience(index)}
+                  disabled={isSaving}
+                  sx={{
+                    padding: '4px 12px',
+                    color: '#1f2937',
+                    backgroundColor: 'transparent',
+                    fontSize: '12px',
+                    textTransform: 'none',
+                    minWidth: 'auto',
+                    '&:hover': {
+                      color: '#1f2937',
+                      backgroundColor: '#e8f0f5'
+                    }
+                  }}
+                >
+                  Remove
+                </Button>
+              </Box>
+            </AccordionDetails>
+          </Accordion>
+        );
+      })}
+
+      {/* Add button */}
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
         <Button
           variant="contained"
           startIcon={<AddIcon />}
-          onClick={() => handleOpenDialog()}
+          onClick={handleAddExperience}
           disabled={isSaving}
         >
           {t('refine.editor.addExperience')}
         </Button>
       </Box>
+    </Box>
+  );
+};
 
-      {/* Work experience list */}
-      {localExperience.map((exp, index) => (
-        <Card key={index} sx={{ mb: 2, border: '1px solid #e0e0e0' }}>
-          <CardContent>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-              <Box sx={{ flex: 1 }}>
-                <Typography variant="h6" sx={{ fontWeight: 600, color: '#2c3e50' }}>
-                  {exp.job_title}
-                </Typography>
-                <Typography variant="subtitle1" sx={{ color: '#7f8c8d', mb: 1 }}>
-                  {exp.company}
-                  {exp.location && ` • ${exp.location}`}
-                </Typography>
-                <Typography variant="body2" sx={{ color: '#95a5a6' }}>
-                  {exp.start_date && new Date(exp.start_date).toLocaleDateString()}
-                  {exp.end_date && ` - ${new Date(exp.end_date).toLocaleDateString()}`}
-                  {!exp.end_date && exp.start_date && ' - Present'}
-                </Typography>
-              </Box>
-              <Box sx={{ display: 'flex', gap: 1 }}>
-                <IconButton
-                  size="small"
-                  onClick={() => handleOpenDialog(exp, index)}
-                  disabled={isSaving}
-                >
-                  <EditIcon />
-                </IconButton>
-                <IconButton
-                  size="small"
-                  onClick={() => handleDeleteExperience(index)}
-                  disabled={isSaving}
-                  color="error"
-                >
-                  <DeleteIcon />
-                </IconButton>
-              </Box>
-            </Box>
-            
-            {exp.responsibilities && exp.responsibilities.length > 0 && (
-              <Box>
-                <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1, color: '#34495e' }}>
-                  {t('refine.editor.responsibilities')}:
-                </Typography>
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                  {exp.responsibilities.map((resp, respIndex) => (
-                    <Chip
-                      key={respIndex}
-                      label={resp}
-                      size="small"
-                      variant="outlined"
-                      sx={{ fontSize: '0.75rem' }}
-                    />
-                  ))}
-                </Box>
-              </Box>
-            )}
-          </CardContent>
-        </Card>
-      ))}
+const ResponsibilityEditor: React.FC<{
+  responsibilities: string[];
+  onAdd: (resp: string) => void;
+  onRemove: (index: number) => void;
+  inputStyles?: any;
+}> = ({ responsibilities, onAdd, onRemove, inputStyles }) => {
+  const { t } = useTranslation();
+  const [localResponsibilities, setLocalResponsibilities] = React.useState<string[]>(responsibilities);
+  const [newResponsibility, setNewResponsibility] = React.useState('');
 
-      {/* Add/Edit dialog */}
-      <Dialog open={isDialogOpen} onClose={handleCloseDialog} maxWidth="md" fullWidth>
-        <DialogTitle>
-          {editingExperienceIndex !== null ? t('refine.editor.editExperience') : t('refine.editor.addExperience')}
-        </DialogTitle>
-        <DialogContent>
-          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2, mt: 1 }}>
-            <TextField
-              fullWidth
-              label={t('refine.editor.jobTitle')}
-              value={formData.job_title}
-              onChange={(e) => setFormData(prev => ({ ...prev, job_title: e.target.value }))}
-              required
-            />
-            <TextField
-              fullWidth
-              label={t('refine.editor.company')}
-              value={formData.company}
-              onChange={(e) => setFormData(prev => ({ ...prev, company: e.target.value }))}
-              required
-            />
-            <TextField
-              fullWidth
-              label={t('refine.editor.location')}
-              value={formData.location}
-              onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
-            />
-            <TextField
-              fullWidth
-              label={t('refine.editor.startDate')}
-              type="date"
-              value={formData.start_date}
-              onChange={(e) => setFormData(prev => ({ ...prev, start_date: e.target.value }))}
-              InputLabelProps={{ shrink: true }}
-            />
-            <TextField
-              fullWidth
-              label={t('refine.editor.endDate')}
-              type="date"
-              value={formData.end_date}
-              onChange={(e) => setFormData(prev => ({ ...prev, end_date: e.target.value }))}
-              InputLabelProps={{ shrink: true }}
-              disabled={formData.is_current}
-            />
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={formData.is_current}
-                  onChange={(e) => setFormData(prev => ({ 
-                    ...prev, 
-                    is_current: e.target.checked,
-                    end_date: e.target.checked ? '' : prev.end_date
-                  }))}
-                />
-              }
-              label={t('refine.editor.currentPosition')}
-            />
-          </Box>
+  React.useEffect(() => {
+    setLocalResponsibilities(responsibilities);
+  }, [responsibilities]);
 
-          <Divider sx={{ my: 3 }} />
+  const handleResponsibilityChange = (index: number, value: string) => {
+    const updated = [...localResponsibilities];
+    updated[index] = value;
+    setLocalResponsibilities(updated);
+  };
 
-          <Typography variant="h6" sx={{ mb: 2 }}>
-            {t('refine.editor.responsibilities')}
-          </Typography>
+  const handleResponsibilityBlur = (index: number) => {
+    const value = localResponsibilities[index];
+    if (!value.trim()) {
+      const updated = localResponsibilities.filter((_, i) => i !== index);
+      setLocalResponsibilities(updated);
+      onRemove(index);
+    }
+  };
 
-          <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-            <TextField
-              fullWidth
-              size="small"
-              placeholder={t('refine.editor.addResponsibility')}
-              value={newResponsibility}
-              onChange={(e) => setNewResponsibility(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && addResponsibility()}
-            />
-            <Button
-              variant="outlined"
-              onClick={addResponsibility}
-              disabled={!newResponsibility.trim()}
-            >
-              {t('refine.editor.add')}
-            </Button>
-          </Box>
+  const handleNewResponsibilityBlur = () => {
+    if (newResponsibility.trim()) {
+      const updated = [...localResponsibilities, newResponsibility.trim()];
+      setLocalResponsibilities(updated);
+      onAdd(newResponsibility.trim());
+      setNewResponsibility('');
+    }
+  };
 
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-            {formData.responsibilities.map((resp, index) => (
-              <Chip
-                key={index}
-                label={resp}
-                onDelete={() => removeResponsibility(index)}
-                variant="outlined"
-              />
-            ))}
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDialog}>
-            {t('refine.editor.cancel')}
-          </Button>
-          <Button
-            onClick={handleSaveExperience}
-            variant="contained"
-            disabled={!formData.job_title.trim() || !formData.company.trim() || isSaving}
-            startIcon={<SaveIcon />}
-          >
-            {isSaving ? t('refine.editor.saving') : t('refine.editor.save')}
-          </Button>
-        </DialogActions>
-      </Dialog>
+  const handleNewResponsibilityKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && newResponsibility.trim()) {
+      const updated = [...localResponsibilities, newResponsibility.trim()];
+      setLocalResponsibilities(updated);
+      onAdd(newResponsibility.trim());
+      setNewResponsibility('');
+    }
+  };
+
+  return (
+    <Box>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 2 }}>
+        {localResponsibilities.map((resp, index) => (
+          <TextField
+            key={index}
+            fullWidth
+            size="small"
+            value={resp}
+            onChange={(e) => handleResponsibilityChange(index, e.target.value)}
+            onBlur={() => handleResponsibilityBlur(index)}
+            sx={inputStyles}
+          />
+        ))}
+        <TextField
+          fullWidth
+          size="small"
+          value={newResponsibility}
+          onChange={(e) => setNewResponsibility(e.target.value)}
+          onBlur={handleNewResponsibilityBlur}
+          onKeyPress={handleNewResponsibilityKeyPress}
+          placeholder={t('refine.editor.addResponsibility')}
+          sx={inputStyles}
+        />
+      </Box>
     </Box>
   );
 };

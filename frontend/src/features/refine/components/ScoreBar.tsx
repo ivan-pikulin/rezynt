@@ -2,7 +2,6 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import CircularProgress from '@mui/material/CircularProgress';
 import React from 'react';
-import { COLORS } from '../../../shared/theme/theme';
 
 type ScoreBarProps = {
   score: number; // 0-100
@@ -16,81 +15,114 @@ const clamp = (value: number, min: number, max: number) => {
   return Math.min(max, Math.max(min, value));
 };
 
+const getScoreColor = (score: number) => {
+  if (score < 40) return '#ef4444'; // red
+  if (score < 70) return '#f97316'; // orange
+  return '#22c55e'; // green
+};
+
 const ScoreBar: React.FC<ScoreBarProps> = ({ score, label, subtitle, marketingText }) => {
   const normalized = clamp(score, 0, 100);
+  const scoreColor = getScoreColor(normalized);
+
+  const styles = {
+    scoreCard: {
+      backgroundColor: 'white',
+      borderRadius: '8px',
+      boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+      padding: '16px',
+      display: 'flex',
+      flexDirection: 'column' as const,
+      alignItems: 'center',
+    },
+    circularScore: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '16px',
+      width: '100%',
+    },
+    scoreCircle: {
+      position: 'relative' as const,
+      width: '120px',
+      height: '120px',
+    },
+    scoreNumber: {
+      fontSize: '26px',
+      fontWeight: 600,
+      color: scoreColor,
+      lineHeight: 1,
+    },
+    scoreLabel: {
+      fontSize: '14px',
+      color: '#6b7280',
+      lineHeight: 1,
+    },
+    scoreStatus: {
+      display: 'flex',
+      flexDirection: 'column' as const,
+      alignItems: 'flex-start',
+    },
+    statusText: {
+      fontSize: '20px',
+      fontWeight: 600,
+      color: '#1f2937',
+    },
+    statusSubtext: {
+      fontSize: '14px',
+      color: '#6b7280',
+    },
+  };
 
   return (
-    <Box
-      sx={{
-        width: '100%',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: 2,
-        p: { xs: 2, md: 3 },
-        bgcolor: COLORS.resume.header.background,
-        borderBottom: `1px solid ${COLORS.resume.section.border}`,
-      }}
-    >
-      {/* Left: circular score */}
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-        <Box sx={{ position: 'relative', display: 'inline-flex' }}>
+    <Box sx={styles.scoreCard}>
+      <Box sx={styles.circularScore}>
+        <Box sx={styles.scoreCircle}>
+          {/* Background gray ring */}
           <CircularProgress
             variant="determinate"
             value={100}
-            size={64}
-            thickness={4}
-            sx={{ color: COLORS.grey[200] }}
+            size={120}
+            thickness={6}
+            sx={{
+              position: 'absolute',
+              color: '#e5e7eb',
+              '& .MuiCircularProgress-circle': {
+                strokeLinecap: 'round',
+              },
+            }}
           />
+          {/* Progress ring */}
           <CircularProgress
             variant="determinate"
             value={normalized}
-            size={64}
-            thickness={4}
+            size={120}
+            thickness={6}
             sx={{
               position: 'absolute',
-              left: 0,
-              top: 0,
-              color: COLORS.primary.main,
+              color: scoreColor,
+              '& .MuiCircularProgress-circle': {
+                strokeLinecap: 'round',
+              },
             }}
           />
-          <Box
-            sx={{
-              top: 0,
-              left: 0,
-              bottom: 0,
-              right: 0,
-              position: 'absolute',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexDirection: 'column',
-            }}
-          >
-            <Typography component="div" variant="subtitle1" sx={{ fontWeight: 700, lineHeight: 1 }}>
-              {Math.round(normalized)}
-            </Typography>
-            <Typography component="div" variant="caption" sx={{ opacity: 0.7, lineHeight: 1 }}>
-              Score
-            </Typography>
+          <Box sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '2px',
+          }}>
+            <Typography sx={styles.scoreNumber}>{Math.round(normalized)}</Typography>
+            <Typography sx={styles.scoreLabel}>Score</Typography>
           </Box>
         </Box>
-
-        <Box>
-          <Typography variant="h6" sx={{ m: 0, fontWeight: 700 }}>
-            {label}
-          </Typography>
-          <Typography variant="body2" sx={{ color: COLORS.grey[600] }}>
-            {subtitle}
-          </Typography>
+        <Box sx={styles.scoreStatus}>
+          <Typography sx={styles.statusText}>{label}</Typography>
+          <Typography sx={styles.statusSubtext}>{subtitle}</Typography>
         </Box>
-      </Box>
-
-      {/* Right: marketing text */}
-      <Box sx={{ maxWidth: 700, ml: 'auto' }}>
-        <Typography variant="body1" sx={{ fontWeight: 500 }}>
-          {marketingText}
-        </Typography>
       </Box>
     </Box>
   );

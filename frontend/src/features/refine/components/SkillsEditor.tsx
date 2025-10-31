@@ -1,28 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Box,
-  TextField,
-  Typography,
-  IconButton,
-  Chip,
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemSecondaryAction,
-  Paper
+  TextField
 } from '@mui/material';
-import {
-  Add as AddIcon,
-  Delete as DeleteIcon,
-  DragIndicator as DragIcon,
-  Edit as EditIcon
-} from '@mui/icons-material';
 import { resumeApi } from '../../../shared/services/api';
 import { guestResumeService } from '../../../shared/services/guestResumeService';
 
@@ -30,159 +11,105 @@ interface SkillsEditorProps {
   skills: string[];
   resumeId: string | null;
   onSkillsUpdate: (skills: string[]) => void;
+  inputStyles?: any;
 }
 
-const SkillsEditor: React.FC<SkillsEditorProps> = ({ skills, resumeId, onSkillsUpdate }) => {
+const SkillsEditor: React.FC<SkillsEditorProps> = ({ skills, resumeId, onSkillsUpdate, inputStyles }) => {
   const { t } = useTranslation();
-  const [newSkillName, setNewSkillName] = useState('');
-  const [editingSkillIndex, setEditingSkillIndex] = useState<number | null>(null);
-  const [editingSkillName, setEditingSkillName] = useState('');
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [localSkills, setLocalSkills] = useState<string[]>(skills);
   const [isSaving, setIsSaving] = useState(false);
+  const [newSkill, setNewSkill] = useState('');
 
-  const handleAddSkill = async () => {
-    if (!newSkillName.trim()) return;
+  useEffect(() => {
+    setLocalSkills(skills);
+  }, [skills]);
 
-    setIsSaving(true);
-    try {
-      const updatedSkills = [...skills, newSkillName.trim()];
-      if (resumeId === 'guest' || resumeId === '-1') {
-        guestResumeService.update({ skills: updatedSkills as any });
-      } else {
-        await resumeApi.updateSkills(parseInt(resumeId!), updatedSkills);
-      }
-      onSkillsUpdate(updatedSkills);
-      setNewSkillName('');
-    } catch (error) {
-      console.error('Error adding skill:', error);
-    } finally {
-      setIsSaving(false);
+  const handleSkillChange = (index: number, value: string) => {
+    const updatedSkills = [...localSkills];
+    updatedSkills[index] = value;
+    setLocalSkills(updatedSkills);
+  };
+
+  const handleSkillBlur = async (index: number) => {
+    const value = localSkills[index];
+    if (!value.trim()) {
+      // Remove empty skills
+      const updatedSkills = localSkills.filter((_, i) => i !== index);
+      setLocalSkills(updatedSkills);
+      await saveSkills(updatedSkills);
+    } else {
+      await saveSkills(localSkills);
     }
   };
 
-  const handleDeleteSkill = async (skillIndex: number) => {
-    setIsSaving(true);
-    try {
-      const updatedSkills = skills.filter((_, index) => index !== skillIndex);
-      if (resumeId === 'guest' || resumeId === '-1') {
-        guestResumeService.update({ skills: updatedSkills as any });
-      } else {
-        await resumeApi.updateSkills(parseInt(resumeId!), updatedSkills);
-      }
-      onSkillsUpdate(updatedSkills);
-    } catch (error) {
-      console.error('Error deleting skill:', error);
-    } finally {
-      setIsSaving(false);
+  const handleNewSkillChange = (value: string) => {
+    setNewSkill(value);
+  };
+
+  const handleNewSkillBlur = async () => {
+    if (newSkill.trim()) {
+      const updatedSkills = [...localSkills, newSkill.trim()];
+      setLocalSkills(updatedSkills);
+      setNewSkill('');
+      await saveSkills(updatedSkills);
     }
   };
 
-  const handleEditSkill = async () => {
-    if (editingSkillIndex === null || !editingSkillName.trim()) return;
-
-    setIsSaving(true);
-    try {
-      const updatedSkills = [...skills];
-      updatedSkills[editingSkillIndex] = editingSkillName.trim();
-      if (resumeId === 'guest' || resumeId === '-1') {
-        guestResumeService.update({ skills: updatedSkills as any });
-      } else {
-        await resumeApi.updateSkills(parseInt(resumeId!), updatedSkills);
-      }
-      onSkillsUpdate(updatedSkills);
-      setEditDialogOpen(false);
-      setEditingSkillIndex(null);
-      setEditingSkillName('');
-    } catch (error) {
-      console.error('Error updating skill:', error);
-    } finally {
-      setIsSaving(false);
+  const handleNewSkillKeyPress = async (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && newSkill.trim()) {
+      const updatedSkills = [...localSkills, newSkill.trim()];
+      setLocalSkills(updatedSkills);
+      setNewSkill('');
+      await saveSkills(updatedSkills);
     }
   };
 
-  const openEditDialog = (skillIndex: number, skillName: string) => {
-    setEditingSkillIndex(skillIndex);
-    setEditingSkillName(skillName);
-    setEditDialogOpen(true);
-  };
-
-  const closeEditDialog = () => {
-    setEditDialogOpen(false);
-    setEditingSkillIndex(null);
-    setEditingSkillName('');
+  const saveSkills = async (updatedSkills: string[]) => {
+    setIsSaving(true);
+    try {
+      const cleanedSkills = updatedSkills.filter(skill => skill.trim());
+      
+      if (resumeId === 'guest' || resumeId === '-1') {
+        guestResumeService.update({ skills: cleanedSkills as any });
+      } else {
+        await resumeApi.updateSkills(parseInt(resumeId!), cleanedSkills);
+      }
+      onSkillsUpdate(cleanedSkills);
+    } catch (error) {
+      console.error('Error saving skills:', error);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
     <Box>
-      {/* Добавление нового навыка */}
-      <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+      {/* Skills list */}
+      <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 1, mb: 2 }}>
+        {localSkills.map((skill, index) => (
+          <TextField
+            key={index}
+            fullWidth
+            size="small"
+            value={skill}
+            onChange={(e) => handleSkillChange(index, e.target.value)}
+            onBlur={() => handleSkillBlur(index)}
+            disabled={isSaving}
+            sx={inputStyles}
+          />
+        ))}
         <TextField
           fullWidth
           size="small"
+          value={newSkill}
+          onChange={(e) => handleNewSkillChange(e.target.value)}
+          onBlur={handleNewSkillBlur}
+          onKeyPress={handleNewSkillKeyPress}
           placeholder={t('refine.editor.addSkillPlaceholder')}
-          value={newSkillName}
-          onChange={(e) => setNewSkillName(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && handleAddSkill()}
           disabled={isSaving}
+          sx={inputStyles}
         />
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={handleAddSkill}
-          disabled={!newSkillName.trim() || isSaving}
-          size="small"
-        >
-          {t('refine.editor.add')}
-        </Button>
       </Box>
-
-      {/* Список навыков */}
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-        {skills.map((skill, index) => (
-          <Chip
-            key={index}
-            label={skill}
-            onDelete={() => handleDeleteSkill(index)}
-            deleteIcon={<DeleteIcon />}
-            variant="outlined"
-            sx={{
-              '& .MuiChip-deleteIcon': {
-                color: 'error.main',
-                '&:hover': {
-                  color: 'error.dark'
-                }
-              }
-            }}
-          />
-        ))}
-      </Box>
-
-      {/* Диалог редактирования */}
-      <Dialog open={editDialogOpen} onClose={closeEditDialog} maxWidth="sm" fullWidth>
-        <DialogTitle>{t('refine.editor.editSkill')}</DialogTitle>
-        <DialogContent>
-          <TextField
-            fullWidth
-            label={t('refine.editor.skillName')}
-            value={editingSkillName}
-            onChange={(e) => setEditingSkillName(e.target.value)}
-            margin="normal"
-            autoFocus
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={closeEditDialog}>
-            {t('refine.editor.cancel')}
-          </Button>
-          <Button 
-            onClick={handleEditSkill} 
-            variant="contained"
-            disabled={!editingSkillName.trim() || isSaving}
-          >
-            {t('refine.editor.save')}
-          </Button>
-        </DialogActions>
-      </Dialog>
     </Box>
   );
 };
