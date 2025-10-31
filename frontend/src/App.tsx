@@ -29,6 +29,7 @@ const ResetPasswordPage = React.lazy(() => import('./features/auth/ResetPassword
 const OnboardingPage = React.lazy(() => import('./features/onboarding/OnboardingPage'));
 const HomeRedirect = React.lazy(() => import('./shared/components/HomeRedirect'));
 const PaymentSuccessPage = React.lazy(() => import('./features/export/PaymentSuccessPage'));
+const CVUpgradeMainPage = React.lazy(() => import('./features/cvupgrade/CVUpgradeMainPage'));
 
 function AppRoutes() {
   // Track page views automatically
@@ -101,6 +102,7 @@ function AppRoutes() {
           </PublicOnboardingGuard>
         } />
         <Route path="/payment/success" element={<PaymentSuccessPage />} />
+        <Route path="/cvupgrade-main" element={<CVUpgradeMainPage />} />
         <Route path="/" element={<HomeRedirect />} />
       </Routes>
     </React.Suspense>
