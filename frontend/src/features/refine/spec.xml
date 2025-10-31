@@ -9,40 +9,40 @@
     <folder_structure>
         /features/refine
         ├── components/
-        │   ├── ResumeEditor.tsx        # Main resume editor with form-based fields
+        │   ├── ResumeEditor.tsx        # Legacy tabbed editor (still used internally)
         │   ├── SkillsEditor.tsx        # Skills management component
         │   ├── ExperienceEditor.tsx    # Work experience management component
         │   ├── EducationEditor.tsx     # Education management component
         │   ├── LoadingSpinner.tsx      # Loading indicator component
         │   ├── ErrorMessage.tsx        # Error display component
-        │   ├── TemplateSelector.tsx    # Template selection component
-        │   └── TemplateThumbnail.tsx   # Template thumbnail component
+        │   ├── TemplateSelector.tsx    # Template selection component (not used on new layout)
+        │   ├── TemplateThumbnail.tsx   # Template thumbnail component
+        │   ├── ScoreBar.tsx            # Top scoring and marketing strip
+        │   ├── ImprovementSections.tsx # Left list with improvement categories
+        │   └── EditorAccordion.tsx     # Right editor composed as expandable sections
         ├── utils/
         │   └── resumeDataConverter.ts  # Data conversion utilities
         ├── RefinePage.tsx              # Main refine page component
+        ├── analysisApi.ts              # Mocked analysis data provider (to be replaced by real API)
         └── spec.xml                    # This file
     </folder_structure>
 
     <components>
-        <component name="RefinePage" desc="Main refine page with template selection, editor, and preview. Uses persistent template storage.">
+        <component name="RefinePage" desc="Main refine page with top score bar, left improvement list, and right editor accordions.">
             <props>
                 <prop name="resumeId" type="string" desc="Resume ID from URL parameters"/>
                 <prop name="resume" type="Resume" desc="Loaded resume data from API"/>
-                <prop name="selectedTemplate" type="TemplateConfig" desc="Template from useTemplate hook"/>
                 <prop name="loading" type="boolean" desc="Loading state while fetching resume data"/>
                 <prop name="error" type="string" desc="Error message if resume loading fails"/>
             </props>
             <features>
-                <feature name="template_persistence" desc="Uses useTemplate hook for persistent template selection via localStorage"/>
-                <feature name="template_synchronization" desc="Syncs template selection with server and localStorage"/>
+                <feature name="score_bar" desc="Displays circular score and marketing text encouraging 95%+"/>
+                <feature name="improvement_sections" desc="Shows Content, ATS, Tone categories with progress/status"/>
+                <feature name="editor_accordions" desc="Right column editor composed of expandable sections"/>
                 <feature name="resume_loading" desc="Loads resume data from API using resumeId parameter"/>
-                <feature name="template_assignment" desc="Automatically assigns template from resume data or localStorage"/>
                 <feature name="real_time_updates" desc="Updates resume data in real-time as user edits"/>
                 <feature name="error_handling" desc="Displays loading states and error messages"/>
-                <feature name="download_button" desc="Download button positioned below resume preview"/>
-                <feature name="mobile_preview_button" desc="Eye button for mobile preview - shows preview panel only when clicked"/>
                 <feature name="responsive_layout" desc="Mobile-first responsive design with custom 768px breakpoint"/>
-                <feature name="mobile_template_grid" desc="Mobile version uses 2x2 grid layout for templates, no horizontal strip"/>
                 <feature name="i18n_support" desc="Full internationalization support for English and Russian languages"/>
             </features>
         </component>
@@ -122,13 +122,10 @@
         </component>
     </components>
 
-    <template_management>
-        <feature name="persistent_storage" desc="Template selection is stored in localStorage per resume"/>
-        <feature name="cross_page_consistency" desc="Template selection persists across ChatPage, RefinePage, and ExportPage"/>
-        <feature name="server_synchronization" desc="Template changes are saved to server and synced with localStorage"/>
-        <feature name="fallback_handling" desc="Uses default template if no template is stored or found"/>
-        <feature name="resume_specific" desc="Each resume has its own template selection stored separately"/>
-    </template_management>
+    <analysis>
+        <feature name="mock_provider" desc="analysisApi.ts returns mocked analysis data for score and sections"/>
+        <future desc="Replace with real backend endpoint using BaseApi pattern"/>
+    </analysis>
 
     <editing_features>
         <feature name="personal_info_editing" desc="Edit personal information fields matching database model">
@@ -214,11 +211,8 @@
     </form_management>
 
     <ui_features>
-        <feature name="tabbed_interface" desc="Organized tabs for different resume sections"/>
         <feature name="responsive_design" desc="Adaptive layout for different screen sizes with custom 768px breakpoint"/>
-        <feature name="mobile_preview_panel" desc="Full-screen preview panel for mobile devices with eye button toggle"/>
-        <feature name="desktop_split_view" desc="Split view with editor on left and preview on right for desktop"/>
-        <feature name="mobile_template_selection" desc="Mobile template selection uses 2x2 grid layout only, no horizontal strip"/>
+        <feature name="desktop_two_columns" desc="Left improvement list, right editor accordions"/>
         <feature name="loading_indicators" desc="Visual feedback during operations"/>
         <feature name="error_messages" desc="User-friendly error display"/>
         <feature name="success_notifications" desc="Confirmation of successful operations"/>

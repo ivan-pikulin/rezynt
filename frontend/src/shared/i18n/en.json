@@ -126,6 +126,9 @@
   "refine": {
     "loading": "Loading resume...",
     "pageTitle": "Resume",
+    "marketing": {
+      "hook": "Reach 95%+ and watch job offers come to you."
+    },
     "error": {
       "noResumeId": "Resume ID not specified",
       "loadError": "Error loading resume",
