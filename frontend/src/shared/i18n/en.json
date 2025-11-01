@@ -538,8 +538,8 @@
   },
   "builder": {
     "steps": {
-      "contact-info": "Contact Info",
-      "work-experience": "Work Experience",
+      "contact-info": "Contacts",
+      "work-experience": "Experience",
       "education": "Education",
       "skills": "Skills",
       "summary": "Summary"

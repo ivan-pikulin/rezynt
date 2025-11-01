@@ -13,6 +13,28 @@ interface ContactInfoStepProps {
 export const ContactInfoStep: React.FC<ContactInfoStepProps> = ({ state, onUpdate }) => {
   const { t } = useTranslation();
   
+  const inputStyles = {
+    '& .MuiOutlinedInput-root': {
+      borderRadius: '6px',
+      backgroundColor: '#F9FAFB',
+      '& fieldset': {
+        borderColor: '#e5e7eb',
+        borderWidth: '1px',
+      },
+      '&:hover fieldset': {
+        borderColor: '#e5e7eb',
+      },
+      '&.Mui-focused fieldset': {
+        borderColor: '#e5e7eb',
+        borderWidth: '1px',
+      },
+    },
+    '& .MuiInputBase-input': {
+      fontSize: '12px',
+      padding: '8px 12px',
+    },
+  };
+
   const handlePersonalInfoChange = (field: string, value: string) => {
     onUpdate('personal_info', {
       ...state.personal_info,
@@ -45,35 +67,26 @@ export const ContactInfoStep: React.FC<ContactInfoStepProps> = ({ state, onUpdat
   return (
     <Box sx={{ maxWidth: 800, margin: '0 auto' }}>
       <Typography 
-        variant="h4" 
+        variant="h5" 
         sx={{ 
           fontWeight: 600, 
           mb: 1,
           color: COLORS.resume.text.primary,
+          fontSize: '1.5rem',
         }}
       >
         {t('builder.contactInfo.title')}
       </Typography>
       
       <Typography 
-        variant="body1" 
+        variant="body2" 
         sx={{ 
-          mb: 1,
+          mb: 3,
           color: COLORS.resume.text.secondary,
+          fontSize: '14px',
         }}
       >
         {t('builder.contactInfo.description')}
-      </Typography>
-
-      <Typography 
-        variant="caption" 
-        sx={{ 
-          mb: 3,
-          display: 'block',
-          color: COLORS.resume.text.secondary,
-        }}
-      >
-        {t('builder.contactInfo.requiredIndicator')}
       </Typography>
 
       <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
@@ -106,12 +119,7 @@ export const ContactInfoStep: React.FC<ContactInfoStepProps> = ({ state, onUpdat
                 handlePersonalInfoChange('last_name', lastName);
               }}
               size="small"
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  backgroundColor: 'white',
-                  borderRadius: '8px',
-                },
-              }}
+              sx={inputStyles}
             />
           </Box>
         </Box>
@@ -141,12 +149,7 @@ export const ContactInfoStep: React.FC<ContactInfoStepProps> = ({ state, onUpdat
               onChange={(e) => handleContactChange('email', e.target.value)}
               size="small"
               required
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  backgroundColor: 'white',
-                  borderRadius: '8px',
-                },
-              }}
+              sx={inputStyles}
             />
           </Box>
         </Box>
@@ -175,12 +178,7 @@ export const ContactInfoStep: React.FC<ContactInfoStepProps> = ({ state, onUpdat
               value={getContactValue('phone')}
               onChange={(e) => handleContactChange('phone', e.target.value)}
               size="small"
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  backgroundColor: 'white',
-                  borderRadius: '8px',
-                },
-              }}
+              sx={inputStyles}
             />
           </Box>
         </Box>
@@ -208,12 +206,7 @@ export const ContactInfoStep: React.FC<ContactInfoStepProps> = ({ state, onUpdat
               value={getFieldValue('city')}
               onChange={(e) => handlePersonalInfoChange('city', e.target.value)}
               size="small"
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  backgroundColor: 'white',
-                  borderRadius: '8px',
-                },
-              }}
+              sx={inputStyles}
             />
           </Box>
         </Box>
@@ -241,12 +234,7 @@ export const ContactInfoStep: React.FC<ContactInfoStepProps> = ({ state, onUpdat
               value={getFieldValue('country')}
               onChange={(e) => handlePersonalInfoChange('country', e.target.value)}
               size="small"
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  backgroundColor: 'white',
-                  borderRadius: '8px',
-                },
-              }}
+              sx={inputStyles}
             />
           </Box>
         </Box>

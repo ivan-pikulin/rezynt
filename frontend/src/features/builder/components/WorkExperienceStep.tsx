@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Box, 
   Typography, 
@@ -24,6 +24,44 @@ interface WorkExperienceStepProps {
 export const WorkExperienceStep: React.FC<WorkExperienceStepProps> = ({ state, onUpdate }) => {
   const { t } = useTranslation();
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
+
+  const inputStyles = {
+    '& .MuiOutlinedInput-root': {
+      borderRadius: '6px',
+      backgroundColor: '#F9FAFB',
+      '& fieldset': {
+        borderColor: '#e5e7eb',
+        borderWidth: '1px',
+      },
+      '&:hover fieldset': {
+        borderColor: '#e5e7eb',
+      },
+      '&.Mui-focused fieldset': {
+        borderColor: '#e5e7eb',
+        borderWidth: '1px',
+      },
+    },
+    '& .MuiInputBase-input': {
+      fontSize: '12px',
+      padding: '8px 12px',
+    },
+  };
+
+  // Automatically add first empty experience if none exist
+  useEffect(() => {
+    if (!state.work_experience || state.work_experience.length === 0) {
+      const newExperience: WorkExperience = {
+        job_title: '',
+        company: '',
+        city: '',
+        country: '',
+        start_date: '',
+        end_date: '',
+        responsibilities: [],
+      };
+      onUpdate('work_experience', [newExperience]);
+    }
+  }, []);
 
   const handleAddExperience = () => {
     const newExperience: WorkExperience = {
@@ -83,21 +121,23 @@ export const WorkExperienceStep: React.FC<WorkExperienceStepProps> = ({ state, o
   return (
     <Box sx={{ maxWidth: 800, margin: '0 auto' }}>
       <Typography 
-        variant="h4" 
+        variant="h5" 
         sx={{ 
           fontWeight: 600, 
           mb: 1,
           color: COLORS.resume.text.primary,
+          fontSize: '1.5rem',
         }}
       >
         {t('builder.workExperience.title')}
       </Typography>
       
       <Typography 
-        variant="body1" 
+        variant="body2" 
         sx={{ 
           mb: 3,
           color: COLORS.resume.text.secondary,
+          fontSize: '14px',
         }}
       >
         {t('builder.workExperience.description')}
@@ -138,7 +178,7 @@ export const WorkExperienceStep: React.FC<WorkExperienceStepProps> = ({ state, o
                   value={exp.job_title || ''}
                   onChange={(e) => handleUpdateExperience(index, 'job_title', e.target.value)}
                   size="small"
-                  sx={{ '& .MuiOutlinedInput-root': { backgroundColor: 'white', borderRadius: '8px' } }}
+                  sx={inputStyles}
                 />
               </Box>
 
@@ -152,7 +192,7 @@ export const WorkExperienceStep: React.FC<WorkExperienceStepProps> = ({ state, o
                   value={exp.company || ''}
                   onChange={(e) => handleUpdateExperience(index, 'company', e.target.value)}
                   size="small"
-                  sx={{ '& .MuiOutlinedInput-root': { backgroundColor: 'white', borderRadius: '8px' } }}
+                  sx={inputStyles}
                 />
               </Box>
 
@@ -166,7 +206,7 @@ export const WorkExperienceStep: React.FC<WorkExperienceStepProps> = ({ state, o
                   value={exp.city || ''}
                   onChange={(e) => handleUpdateExperience(index, 'city', e.target.value)}
                   size="small"
-                  sx={{ '& .MuiOutlinedInput-root': { backgroundColor: 'white', borderRadius: '8px' } }}
+                  sx={inputStyles}
                 />
               </Box>
 
@@ -180,7 +220,7 @@ export const WorkExperienceStep: React.FC<WorkExperienceStepProps> = ({ state, o
                   value={exp.country || ''}
                   onChange={(e) => handleUpdateExperience(index, 'country', e.target.value)}
                   size="small"
-                  sx={{ '& .MuiOutlinedInput-root': { backgroundColor: 'white', borderRadius: '8px' } }}
+                  sx={inputStyles}
                 />
               </Box>
 
@@ -194,7 +234,7 @@ export const WorkExperienceStep: React.FC<WorkExperienceStepProps> = ({ state, o
                   value={exp.start_date || ''}
                   onChange={(e) => handleUpdateExperience(index, 'start_date', e.target.value)}
                   size="small"
-                  sx={{ '& .MuiOutlinedInput-root': { backgroundColor: 'white', borderRadius: '8px' } }}
+                  sx={inputStyles}
                 />
               </Box>
 
@@ -209,7 +249,7 @@ export const WorkExperienceStep: React.FC<WorkExperienceStepProps> = ({ state, o
                   onChange={(e) => handleUpdateExperience(index, 'end_date', e.target.value)}
                   disabled={exp.end_date === null}
                   size="small"
-                  sx={{ '& .MuiOutlinedInput-root': { backgroundColor: 'white', borderRadius: '8px' } }}
+                  sx={inputStyles}
                 />
                 <FormControlLabel
                   control={
@@ -238,7 +278,7 @@ export const WorkExperienceStep: React.FC<WorkExperienceStepProps> = ({ state, o
                       size="small"
                       multiline
                       rows={2}
-                      sx={{ '& .MuiOutlinedInput-root': { backgroundColor: 'white', borderRadius: '8px' } }}
+                      sx={inputStyles}
                     />
                     <IconButton 
                       size="small"

@@ -23,11 +23,14 @@
           Main page component that orchestrates the resume building process.
           Features:
           - Step-by-step navigation with visual progress indicator in Header
+          - Sticky Header (position: sticky, top: 0, zIndex: 1000)
+          - Step names hidden on mobile devices (only numbered circles shown)
           - Real-time resume preview (on desktop)
           - Responsive layout (2-column on desktop, single column on mobile)
           - Progress bar showing completion percentage
           - Auto-save to localStorage
           - Uses shared Header component with custom builder steps
+          - Compact input fields with RefinePage styling (12px font, #F9FAFB background)
         </description>
       </main_page>
 
@@ -42,6 +45,8 @@
             - Phone number
             - City/Country
             - Visual validation with checkmarks
+            - Compact input styling (12px font, #F9FAFB background, 6px border-radius)
+            - H5 title (1.5rem), body2 description (14px)
           </description>
         </component>
         <component>
@@ -49,10 +54,13 @@
           <location>frontend/src/features/builder/components/WorkExperienceStep.tsx</location>
           <description>
             Dynamic form for adding multiple work experiences:
+            - Automatically creates first empty experience entry on load
             - Job title, company, location
             - Start/end dates with "current position" option
             - Multiple responsibilities per position
             - Add/delete functionality
+            - Compact input styling (12px font, #F9FAFB background)
+            - H5 title (1.5rem), body2 description (14px)
           </description>
         </component>
         <component>
@@ -60,10 +68,13 @@
           <location>frontend/src/features/builder/components/EducationStep.tsx</location>
           <description>
             Form for adding educational background:
+            - Automatically creates first empty education entry on load
             - Degree, institution, field of study
             - Location (city, country)
             - Start/end dates
             - Add/delete multiple entries
+            - Compact input styling (12px font, #F9FAFB background)
+            - H5 title (1.5rem), body2 description (14px)
           </description>
         </component>
         <component>
@@ -142,23 +153,28 @@
 
   <user_flow>
     <step order="1">
-      <name>Contact Info</name>
+      <name>Contacts</name>
+      <display_name>Contacts (desktop), Circle only (mobile)</display_name>
       <description>User enters personal and contact information (starting step)</description>
     </step>
     <step order="2">
-      <name>Work Experience</name>
-      <description>User adds work history with responsibilities</description>
+      <name>Experience</name>
+      <display_name>Experience (desktop), Circle only (mobile)</display_name>
+      <description>User adds work history with responsibilities. First empty entry is automatically created.</description>
     </step>
     <step order="3">
       <name>Education</name>
-      <description>User adds educational background</description>
+      <display_name>Education (desktop), Circle only (mobile)</display_name>
+      <description>User adds educational background. First empty entry is automatically created.</description>
     </step>
     <step order="4">
       <name>Skills</name>
+      <display_name>Skills (desktop), Circle only (mobile)</display_name>
       <description>User lists relevant skills</description>
     </step>
     <step order="5">
       <name>Summary</name>
+      <display_name>Summary (desktop), Circle only (mobile)</display_name>
       <description>User writes professional summary</description>
     </step>
     <step order="6">
@@ -204,7 +220,29 @@
     </feature>
     <feature>
       <name>Responsive Design</name>
-      <description>Optimized for mobile, tablet, and desktop screens</description>
+      <description>
+        Optimized for mobile, tablet, and desktop screens.
+        Mobile: Step labels hidden, only numbered circles shown.
+        Desktop: Full step names displayed.
+      </description>
+    </feature>
+    <feature>
+      <name>Compact Input Fields</name>
+      <description>
+        All input fields use compact RefinePage styling:
+        - Font size: 12px
+        - Padding: 8px 12px
+        - Background: #F9FAFB
+        - Border: 1px solid #e5e7eb
+        - Border radius: 6px
+      </description>
+    </feature>
+    <feature>
+      <name>Auto-initialization</name>
+      <description>
+        Work Experience and Education steps automatically create first empty entry on mount.
+        User sees form fields immediately instead of "Add" button.
+      </description>
     </feature>
     <feature>
       <name>Navigation</name>

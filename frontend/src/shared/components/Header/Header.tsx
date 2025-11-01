@@ -8,12 +8,11 @@ import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { HeaderProps } from './Header.types';
-import UserSidebar from './UserSidebar';
 import { COLORS } from '../../theme/theme';
 import { useMediaQuery } from '@mui/material';
 
@@ -41,7 +40,6 @@ const Header: React.FC<HeaderProps> = ({
   const { t } = useTranslation();
   const { user } = useAuthContext();
   const navigate = useNavigate();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const defaultSteps = [t('header.steps.start'), t('header.steps.builder'), t('header.steps.refine'), t('header.steps.export')];
   const steps = customSteps || defaultSteps;
   
@@ -53,11 +51,7 @@ const Header: React.FC<HeaderProps> = ({
   };
 
   const handleAvatarClick = () => {
-    setSidebarOpen(true);
-  };
-
-  const handleSidebarClose = () => {
-    setSidebarOpen(false);
+    navigate('/profile-settings');
   };
 
   const handleLogoClick = () => {
@@ -100,11 +94,14 @@ const Header: React.FC<HeaderProps> = ({
     <Box sx={{ 
       bgcolor: 'white', 
       borderBottom: '1px solid #eee',
-              px: isMobile ? 2 : 4, // Adaptive padding
+      px: isMobile ? 2 : 4,
       py: 1,
       display: 'flex',
       alignItems: 'center',
-      justifyContent: 'space-between'
+      justifyContent: 'space-between',
+      position: 'sticky',
+      top: 0,
+      zIndex: 1000
     }}>
               {/* Logo */}
       {showLogo && (
@@ -281,6 +278,7 @@ const Header: React.FC<HeaderProps> = ({
                               fontWeight: index === activeStep ? 600 : 400,
                               transform: index === activeStep ? (isMobile ? 'scale(1.08)' : 'scale(1.1)') : 'scale(1)',
                               transition: 'all 0.2s ease',
+                              display: isMobile ? 'none' : 'block',
                             },
                             '& .MuiStepLabel-iconContainer': {
                               transform: index === activeStep ? (isMobile ? 'scale(1.1)' : 'scale(1.2)') : 'scale(1)',
@@ -362,13 +360,6 @@ const Header: React.FC<HeaderProps> = ({
           </Tooltip>
         </Box>
       )}
-      
-              {/* User sidebar */}
-      <UserSidebar 
-        open={sidebarOpen} 
-        onClose={handleSidebarClose} 
-        anchor="right"
-      />
     </Box>
   );
 };

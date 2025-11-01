@@ -19,8 +19,8 @@ export interface BuilderState extends ResumeData {
 }
 
 export const BUILDER_STEPS: BuilderStepConfig[] = [
-  { id: 'contact-info', label: 'Contact Info', order: 0 },
-  { id: 'work-experience', label: 'Work Experience', order: 1 },
+  { id: 'contact-info', label: 'Contacts', order: 0 },
+  { id: 'work-experience', label: 'Experience', order: 1 },
   { id: 'education', label: 'Education', order: 2 },
   { id: 'skills', label: 'Skills', order: 3 },
   { id: 'summary', label: 'Summary', order: 4 },

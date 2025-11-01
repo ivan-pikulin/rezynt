@@ -1,5 +1,24 @@
 # Header Component Changelog
 
+## Profile Settings Navigation Update (November 2025)
+
+### Breaking Changes
+- **UserSidebar Removed**: UserSidebar component has been completely removed
+- **Avatar Click Behavior**: Clicking on user avatar now directly navigates to `/profile-settings` instead of opening sidebar
+- **Sticky Header**: Header is now sticky (position: sticky, top: 0, zIndex: 1000) and doesn't scroll with page content
+
+### Navigation Changes
+- Removed UserSidebar component and all related state management
+- Avatar click handler simplified to direct navigation
+- All user settings (profile, password, subscription, account deletion) now on dedicated settings page
+
+### UI Updates
+- Mobile: Step labels hidden (only numbered circles visible)
+- Desktop: Full step names displayed
+- Header remains fixed at top when scrolling
+
+---
+
 ## Builder Mode Support (November 2025)
 
 ### Breaking Changes

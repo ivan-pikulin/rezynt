@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { 
   Box, 
   Typography, 
@@ -21,6 +21,44 @@ interface EducationStepProps {
 
 export const EducationStep: React.FC<EducationStepProps> = ({ state, onUpdate }) => {
   const { t } = useTranslation();
+
+  const inputStyles = {
+    '& .MuiOutlinedInput-root': {
+      borderRadius: '6px',
+      backgroundColor: '#F9FAFB',
+      '& fieldset': {
+        borderColor: '#e5e7eb',
+        borderWidth: '1px',
+      },
+      '&:hover fieldset': {
+        borderColor: '#e5e7eb',
+      },
+      '&.Mui-focused fieldset': {
+        borderColor: '#e5e7eb',
+        borderWidth: '1px',
+      },
+    },
+    '& .MuiInputBase-input': {
+      fontSize: '12px',
+      padding: '8px 12px',
+    },
+  };
+
+  // Automatically add first empty education if none exist
+  useEffect(() => {
+    if (!state.education || state.education.length === 0) {
+      const newEducation: Education = {
+        institution: '',
+        degree: '',
+        field_of_study: '',
+        city: '',
+        country: '',
+        start_date: '',
+        end_date: '',
+      };
+      onUpdate('education', [newEducation]);
+    }
+  }, []);
 
   const handleAddEducation = () => {
     const newEducation: Education = {
@@ -50,21 +88,23 @@ export const EducationStep: React.FC<EducationStepProps> = ({ state, onUpdate })
   return (
     <Box sx={{ maxWidth: 800, margin: '0 auto' }}>
       <Typography 
-        variant="h4" 
+        variant="h5" 
         sx={{ 
           fontWeight: 600, 
           mb: 1,
           color: COLORS.resume.text.primary,
+          fontSize: '1.5rem',
         }}
       >
         {t('builder.education.title')}
       </Typography>
       
       <Typography 
-        variant="body1" 
+        variant="body2" 
         sx={{ 
           mb: 3,
           color: COLORS.resume.text.secondary,
+          fontSize: '14px',
         }}
       >
         {t('builder.education.description')}
@@ -105,7 +145,7 @@ export const EducationStep: React.FC<EducationStepProps> = ({ state, onUpdate })
                   value={edu.degree || ''}
                   onChange={(e) => handleUpdateEducation(index, 'degree', e.target.value)}
                   size="small"
-                  sx={{ '& .MuiOutlinedInput-root': { backgroundColor: 'white', borderRadius: '8px' } }}
+                  sx={inputStyles}
                 />
               </Box>
 
@@ -119,7 +159,7 @@ export const EducationStep: React.FC<EducationStepProps> = ({ state, onUpdate })
                   value={edu.institution || ''}
                   onChange={(e) => handleUpdateEducation(index, 'institution', e.target.value)}
                   size="small"
-                  sx={{ '& .MuiOutlinedInput-root': { backgroundColor: 'white', borderRadius: '8px' } }}
+                  sx={inputStyles}
                 />
               </Box>
 
@@ -133,7 +173,7 @@ export const EducationStep: React.FC<EducationStepProps> = ({ state, onUpdate })
                   value={edu.field_of_study || ''}
                   onChange={(e) => handleUpdateEducation(index, 'field_of_study', e.target.value)}
                   size="small"
-                  sx={{ '& .MuiOutlinedInput-root': { backgroundColor: 'white', borderRadius: '8px' } }}
+                  sx={inputStyles}
                 />
               </Box>
 
@@ -147,7 +187,7 @@ export const EducationStep: React.FC<EducationStepProps> = ({ state, onUpdate })
                   value={edu.city || ''}
                   onChange={(e) => handleUpdateEducation(index, 'city', e.target.value)}
                   size="small"
-                  sx={{ '& .MuiOutlinedInput-root': { backgroundColor: 'white', borderRadius: '8px' } }}
+                  sx={inputStyles}
                 />
               </Box>
 
@@ -161,7 +201,7 @@ export const EducationStep: React.FC<EducationStepProps> = ({ state, onUpdate })
                   value={edu.country || ''}
                   onChange={(e) => handleUpdateEducation(index, 'country', e.target.value)}
                   size="small"
-                  sx={{ '& .MuiOutlinedInput-root': { backgroundColor: 'white', borderRadius: '8px' } }}
+                  sx={inputStyles}
                 />
               </Box>
 
@@ -175,7 +215,7 @@ export const EducationStep: React.FC<EducationStepProps> = ({ state, onUpdate })
                   value={edu.start_date || ''}
                   onChange={(e) => handleUpdateEducation(index, 'start_date', e.target.value)}
                   size="small"
-                  sx={{ '& .MuiOutlinedInput-root': { backgroundColor: 'white', borderRadius: '8px' } }}
+                  sx={inputStyles}
                 />
               </Box>
 
@@ -189,7 +229,7 @@ export const EducationStep: React.FC<EducationStepProps> = ({ state, onUpdate })
                   value={edu.end_date || ''}
                   onChange={(e) => handleUpdateEducation(index, 'end_date', e.target.value)}
                   size="small"
-                  sx={{ '& .MuiOutlinedInput-root': { backgroundColor: 'white', borderRadius: '8px' } }}
+                  sx={inputStyles}
                 />
               </Box>
             </Box>

@@ -526,6 +526,40 @@
       "experienceRequired": "Pelo menos uma experiência é obrigatória",
       "educationRequired": "Pelo menos uma educação é obrigatória"
     }
+  },
+  "builder": {
+    "steps": {
+      "contact-info": "Contatos",
+      "work-experience": "Experiência",
+      "education": "Educação",
+      "skills": "Habilidades",
+      "summary": "Resumo"
+    },
+    "contactInfo": {
+      "title": "Como os empregadores podem entrar em contato com você?",
+      "description": "Para o cabeçalho do seu currículo, inclua (no mínimo) seu nome e e-mail para que os empregadores possam contatá-lo.",
+      "requiredIndicator": "* indica um campo obrigatório",
+      "fullName": "Nome completo",
+      "fullNamePlaceholder": "Digite seu nome completo",
+      "email": "E-mail",
+      "emailPlaceholder": "seu.email@exemplo.com",
+      "phone": "Número de telefone",
+      "phonePlaceholder": "+1 (555) 000-0000",
+      "city": "Cidade",
+      "cityPlaceholder": "Digite sua cidade",
+      "country": "Estado/Território",
+      "countryPlaceholder": "Digite seu estado ou país"
+    },
+    "navigation": {
+      "back": "Voltar",
+      "next": "Próximo",
+      "finish": "Finalizar e Visualizar"
+    },
+    "preview": {
+      "tips": "Dicas",
+      "preview": "Visualizar",
+      "progress": "Progresso"
+    }
   }
 }
 
