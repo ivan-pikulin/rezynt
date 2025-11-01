@@ -347,7 +347,63 @@
       "myResumes": "My Resumes",
       "changePassword": "Change Password",
       "signOut": "Sign Out",
-      "login": "Login"
+      "login": "Login",
+      "profileSettings": "Profile Settings"
+    }
+  },
+  "profileSettings": {
+    "title": "Profile Settings",
+    "accountInfo": {
+      "title": "Account Information",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email",
+      "saveChanges": "Save Changes",
+      "success": "Profile updated successfully",
+      "error": "Failed to update profile"
+    },
+    "emailConfirmation": {
+      "title": "Email Confirmation",
+      "warning": "Email not confirmed: Please confirm your email address to ensure you receive important notifications and can reset your password if needed.",
+      "resendButton": "Resend Confirmation Email",
+      "success": "Confirmation email sent successfully",
+      "error": "Failed to send confirmation email"
+    },
+    "subscription": {
+      "title": "Subscription",
+      "currentPlan": "You are currently on the {plan} plan.",
+      "upgradeText": "Upgrade to access premium features.",
+      "upgradeButton": "Upgrade Plan",
+      "plan": "Plan"
+    },
+    "passwordSecurity": {
+      "title": "Password Security",
+      "currentPassword": "Current Password",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm New Password",
+      "requirements": {
+        "title": "Password Requirements",
+        "minLength": "At least 8 characters",
+        "uppercase": "One uppercase letter (A-Z)",
+        "lowercase": "One lowercase letter (a-z)",
+        "number": "One number (0-9)"
+      },
+      "updateButton": "Update Password",
+      "success": "Password updated successfully",
+      "error": "Failed to update password",
+      "mismatch": "Passwords do not match"
+    },
+    "deleteAccount": {
+      "title": "Delete Account",
+      "warning": "Warning: Account deletion will anonymize your data and prevent you from logging in again. Your data will be anonymized for analytics purposes but you will no longer have access to your account.",
+      "confirmPassword": "Confirm Password",
+      "deleteButton": "Delete Account",
+      "modalTitle": "Are you sure?",
+      "modalText": "This action cannot be undone. Your account will be permanently deleted.",
+      "modalConfirm": "Yes, Delete Account",
+      "modalCancel": "Cancel",
+      "success": "Account deleted successfully",
+      "error": "Failed to delete account"
     }
   },
   "paywall": {

@@ -17,6 +17,73 @@ async def read_user_me(
     return current_user
 
 
+@router.patch("/me", response_model=user_schemas.UserPublic)
+async def update_user_me(
+    user_update: user_schemas.UserUpdate,
+    db: AsyncDB,
+    current_user: CurrentUser,
+) -> user_schemas.UserPublic:
+    """
+    Update current user profile (first_name, last_name, etc).
+    """
+    user = await user_crud.update(db, db_obj=current_user, obj_in=user_update)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    return user
+
+
+@router.post("/change-password", response_model=dict)
+async def change_password(
+    password_data: user_schemas.ChangePasswordRequest,
+    db: AsyncDB,
+    current_user: CurrentUser,
+) -> dict:
+    """
+    Change user password after verifying current password.
+    """
+    user = await user_crud.change_password(
+        db,
+        user_id=current_user.id,
+        current_password=password_data.current_password,
+        new_password=password_data.new_password
+    )
+    
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Current password is incorrect"
+        )
+    
+    return {"message": "Password changed successfully"}
+
+
+@router.delete("/me", response_model=dict)
+async def delete_user_me(
+    delete_data: user_schemas.DeleteAccountRequest,
+    db: AsyncDB,
+    current_user: CurrentUser,
+) -> dict:
+    """
+    Delete/anonymize current user account after password verification.
+    """
+    user = await user_crud.delete_account(
+        db,
+        user_id=current_user.id,
+        password=delete_data.password
+    )
+    
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Password is incorrect"
+        )
+    
+    return {"message": "Account deleted successfully"}
+
+
 @router.patch("/{user_id}/premium/enable", response_model=user_schemas.UserPublic)
 async def enable_premium(
     user_id: int,

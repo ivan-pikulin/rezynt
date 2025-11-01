@@ -31,6 +31,7 @@ const HomeRedirect = React.lazy(() => import('./shared/components/HomeRedirect')
 const PaymentSuccessPage = React.lazy(() => import('./features/export/PaymentSuccessPage'));
 const CVUpgradeMainPage = React.lazy(() => import('./features/cvupgrade/CVUpgradeMainPage'));
 const BuilderPage = React.lazy(() => import('./features/builder/BuilderPage'));
+const ProfileSettingsPage = React.lazy(() => import('./features/profile/ProfileSettingsPage'));
 
 function AppRoutes() {
   // Track page views automatically
@@ -101,6 +102,16 @@ function AppRoutes() {
             <BuilderPage />
           </PublicOnboardingGuard>
         } />
+        
+        {/* Profile Settings - Protected route */}
+        <Route path="/profile-settings" element={
+          <ProtectedRoute requireAuth={true}>
+            <OnboardingGuard>
+              <ProfileSettingsPage />
+            </OnboardingGuard>
+          </ProtectedRoute>
+        } />
+        
         <Route path="/" element={<HomeRedirect />} />
       </Routes>
     </React.Suspense>

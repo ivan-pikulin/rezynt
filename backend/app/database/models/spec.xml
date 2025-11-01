@@ -13,6 +13,8 @@
                 <field name="id" type="Integer" primary_key="true" autoincrement="true"/>
                 <field name="email" type="String" unique="true" nullable="false"/>
                 <field name="password_hash" type="String" nullable="false"/>
+                <field name="first_name" type="String" nullable="true"/>
+                <field name="last_name" type="String" nullable="true"/>
                 <field name="is_verified" type="Boolean" default="false"/>
                 <field name="is_premium" type="Boolean" default="true"/>
                 <field name="is_registered" type="Boolean" default="true"/>

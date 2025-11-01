@@ -6,6 +6,8 @@ from pydantic import BaseModel, EmailStr
 
 class UserBase(BaseModel):
     email: EmailStr
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
 
 
 class UserCreate(BaseModel):
@@ -17,6 +19,8 @@ class UserCreate(BaseModel):
 class UserUpdate(BaseModel):
     email: Optional[EmailStr] = None
     password: Optional[str] = None
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
 
 
 class UserInDBBase(UserBase):
@@ -102,3 +106,13 @@ class OnboardingResponse(BaseModel):
 
 class OnboardingComplete(BaseModel):
     responses: OnboardingResponse
+
+
+# Profile management schemas
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str
+
+
+class DeleteAccountRequest(BaseModel):
+    password: str

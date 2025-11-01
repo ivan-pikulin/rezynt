@@ -20,6 +20,8 @@ export interface PaginatedResponse<T> {
 export interface User {
   id: number;
   email: string;
+  first_name?: string;
+  last_name?: string;
   is_verified: boolean;
   is_premium: boolean;
   is_registered: boolean;
@@ -44,6 +46,8 @@ export interface UserCreate {
 export interface UserUpdate {
   email?: string;
   password?: string;
+  first_name?: string;
+  last_name?: string;
 }
 
 export interface UserPremiumUpdate {

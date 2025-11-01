@@ -1,9 +1,9 @@
 import {
   Close as CloseIcon,
   Description as DescriptionIcon,
-  Lock as LockIcon,
   Login as LoginIcon,
   Logout as LogoutIcon,
+  Settings as SettingsIcon,
   Star as StarIcon
 } from '@mui/icons-material';
 import {
@@ -76,8 +76,8 @@ const UserSidebar: React.FC<UserSidebarProps> = ({
     onClose();
   };
 
-  const handleNavigateToPasswordReset = () => {
-    navigate('/auth/request-password-reset');
+  const handleNavigateToProfileSettings = () => {
+    navigate('/profile-settings');
     onClose();
   };
 
@@ -244,8 +244,8 @@ const UserSidebar: React.FC<UserSidebarProps> = ({
             <>
               <Button
                 variant="text"
-                startIcon={<LockIcon />}
-                onClick={handleNavigateToPasswordReset}
+                startIcon={<SettingsIcon />}
+                onClick={handleNavigateToProfileSettings}
                 fullWidth
                 sx={{
                   justifyContent: 'flex-start',
@@ -263,7 +263,7 @@ const UserSidebar: React.FC<UserSidebarProps> = ({
                   }
                 }}
               >
-                {t('header.userSidebar.changePassword')}
+                {t('header.userSidebar.profileSettings')}
               </Button>
 
               <Button

@@ -23,8 +23,37 @@ export class UserApi extends BaseApi {
   /**
    * Update current user profile
    */
-  async updateCurrentUser(data: Partial<User>): Promise<User> {
-    return this.patch<User>('/users/me', data);
+  async updateCurrentUser(data: { first_name?: string; last_name?: string }): Promise<User> {
+    return this.patch<User>('/user/me', data);
+  }
+
+  /**
+   * Change user password
+   */
+  async changePassword(currentPassword: string, newPassword: string): Promise<{ message: string }> {
+    return this.post<{ message: string }>('/user/change-password', {
+      current_password: currentPassword,
+      new_password: newPassword
+    });
+  }
+
+  /**
+   * Delete current user account
+   */
+  async deleteAccount(password: string): Promise<{ message: string }> {
+    return this.delete<{ message: string }>('/user/me', {
+      password
+    });
+  }
+
+  /**
+   * Resend email confirmation
+   */
+  async resendEmailConfirmation(email: string): Promise<{ message: string; token?: string }> {
+    return this.post<{ message: string; token?: string }>('/auth/resend-verification-code', {
+      email,
+      code_type: 'email_confirm'
+    });
   }
 
   /**

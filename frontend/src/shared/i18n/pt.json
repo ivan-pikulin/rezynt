@@ -342,7 +342,63 @@
       "myResumes": "Meus Currículos",
       "changePassword": "Alterar Senha",
       "signOut": "Sair",
-      "login": "Entrar"
+      "login": "Entrar",
+      "profileSettings": "Configurações de Perfil"
+    }
+  },
+  "profileSettings": {
+    "title": "Configurações de Perfil",
+    "accountInfo": {
+      "title": "Informações da Conta",
+      "firstName": "Nome",
+      "lastName": "Sobrenome",
+      "email": "E-mail",
+      "saveChanges": "Salvar Alterações",
+      "success": "Perfil atualizado com sucesso",
+      "error": "Falha ao atualizar perfil"
+    },
+    "emailConfirmation": {
+      "title": "Confirmação de E-mail",
+      "warning": "E-mail não confirmado: Confirme seu endereço de e-mail para garantir que você receba notificações importantes e possa redefinir sua senha, se necessário.",
+      "resendButton": "Reenviar E-mail de Confirmação",
+      "success": "E-mail de confirmação enviado com sucesso",
+      "error": "Falha ao enviar e-mail de confirmação"
+    },
+    "subscription": {
+      "title": "Assinatura",
+      "currentPlan": "Você está atualmente no plano {plan}.",
+      "upgradeText": "Atualize para acessar recursos premium.",
+      "upgradeButton": "Atualizar Plano",
+      "plan": "Plano"
+    },
+    "passwordSecurity": {
+      "title": "Segurança da Senha",
+      "currentPassword": "Senha Atual",
+      "newPassword": "Nova Senha",
+      "confirmPassword": "Confirmar Nova Senha",
+      "requirements": {
+        "title": "Requisitos da Senha",
+        "minLength": "Pelo menos 8 caracteres",
+        "uppercase": "Uma letra maiúscula (A-Z)",
+        "lowercase": "Uma letra minúscula (a-z)",
+        "number": "Um número (0-9)"
+      },
+      "updateButton": "Atualizar Senha",
+      "success": "Senha atualizada com sucesso",
+      "error": "Falha ao atualizar senha",
+      "mismatch": "As senhas não coincidem"
+    },
+    "deleteAccount": {
+      "title": "Excluir Conta",
+      "warning": "Atenção: A exclusão da conta anonimizará seus dados e impedirá que você faça login novamente. Seus dados serão anonimizados para fins analíticos, mas você não terá mais acesso à sua conta.",
+      "confirmPassword": "Confirmar Senha",
+      "deleteButton": "Excluir Conta",
+      "modalTitle": "Você tem certeza?",
+      "modalText": "Esta ação não pode ser desfeita. Sua conta será excluída permanentemente.",
+      "modalConfirm": "Sim, Excluir Conta",
+      "modalCancel": "Cancelar",
+      "success": "Conta excluída com sucesso",
+      "error": "Falha ao excluir conta"
     }
   },
   "paywall": {

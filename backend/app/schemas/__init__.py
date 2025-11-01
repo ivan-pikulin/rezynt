@@ -15,11 +15,11 @@ from .resume import (
 )
 
 from .token import RefreshRequest, Token, TokenPayload
-from .user import (EmailVerificationByCode, OnboardingComplete, OnboardingResponse, 
-                   PasswordResetByCode, PasswordResetConfirm, PasswordResetRequest, 
-                   ResendVerificationCode, User, UserBase, UserCreate, UserInDB, 
-                   UserInDBBase, UserPremiumUpdate, UserPublic, UserRoleUpdate, 
-                   UserUpdate)
+from .user import (ChangePasswordRequest, DeleteAccountRequest, EmailVerificationByCode, 
+                   OnboardingComplete, OnboardingResponse, PasswordResetByCode, 
+                   PasswordResetConfirm, PasswordResetRequest, ResendVerificationCode, 
+                   User, UserBase, UserCreate, UserInDB, UserInDBBase, UserPremiumUpdate, 
+                   UserPublic, UserRoleUpdate, UserUpdate)
 
 __all__ = [
     # User schemas
@@ -34,6 +34,8 @@ __all__ = [
     "UserRoleUpdate",
     "OnboardingResponse",
     "OnboardingComplete",
+    "ChangePasswordRequest",
+    "DeleteAccountRequest",
     # Token schemas
     "Token",
     "TokenPayload",

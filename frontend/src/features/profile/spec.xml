@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<spec>
+    <title>Profile Settings Feature</title>
+    <description>
+        User profile management page with settings for account information, email confirmation, 
+        subscription details, password security, and account deletion.
+    </description>
+
+    <structure>
+        <file name="ProfileSettingsPage.tsx">
+            <description>Main profile settings page that combines all sections</description>
+            <features>
+                - Header with back navigation
+                - User data fetching on load
+                - Five distinct settings sections displayed vertically
+            </features>
+        </file>
+
+        <directory name="components">
+            <file name="AccountInformationSection.tsx">
+                <description>Edit user profile information</description>
+                <features>
+                    - First name and last name input fields
+                    - Email display (read-only)
+                    - Form submission with success/error handling
+                    - Updates user context on successful save
+                </features>
+            </file>
+
+            <file name="EmailConfirmationSection.tsx">
+                <description>Email verification status and resend functionality</description>
+                <features>
+                    - Warning banner for unverified emails
+                    - Resend confirmation email button
+                    - Only visible if email is not verified
+                    - Success/error feedback
+                </features>
+            </file>
+
+            <file name="SubscriptionSection.tsx">
+                <description>Subscription plan display and upgrade option</description>
+                <features>
+                    - Current plan display (Free/Premium)
+                    - Plan description card
+                    - Upgrade button for free users
+                    - Premium badge for premium users
+                </features>
+            </file>
+
+            <file name="PasswordSecuritySection.tsx">
+                <description>Password change with validation</description>
+                <features>
+                    - Current password verification
+                    - New password input with confirmation
+                    - Real-time password requirements validation:
+                      * Minimum 8 characters
+                      * One uppercase letter (A-Z)
+                      * One lowercase letter (a-z)
+                      * One number (0-9)
+                    - Visual indicators (checkmarks/x) for each requirement
+                    - Password mismatch detection
+                    - Success/error feedback
+                </features>
+            </file>
+
+            <file name="DeleteAccountSection.tsx">
+                <description>Account deletion with confirmation</description>
+                <features>
+                    - Warning banner about consequences
+                    - Password confirmation field
+                    - Confirmation modal dialog
+                    - Account anonymization on delete
+                    - Automatic logout after deletion
+                    - Redirect to home page
+                </features>
+            </file>
+        </directory>
+    </structure>
+
+    <api_integration>
+        <endpoint method="GET" path="/user/me">
+            <description>Fetch current user data</description>
+        </endpoint>
+        <endpoint method="PATCH" path="/user/me">
+            <description>Update user profile (first_name, last_name)</description>
+        </endpoint>
+        <endpoint method="POST" path="/user/change-password">
+            <description>Change user password with current password verification</description>
+        </endpoint>
+        <endpoint method="DELETE" path="/user/me">
+            <description>Delete/anonymize user account</description>
+        </endpoint>
+        <endpoint method="POST" path="/auth/resend-verification-code">
+            <description>Resend email confirmation code</description>
+        </endpoint>
+    </api_integration>
+
+    <routing>
+        <route path="/profile-settings">
+            <description>Profile settings page</description>
+            <protection>
+                - Requires authentication (ProtectedRoute)
+                - Requires completed onboarding (OnboardingGuard)
+            </protection>
+        </route>
+    </routing>
+
+    <navigation>
+        <access_point location="UserSidebar">
+            <description>Profile Settings button replaces Change Password button</description>
+            <icon>SettingsIcon</icon>
+        </access_point>
+    </navigation>
+
+    <styling>
+        <theme>Light grey background (#fafafa)</theme>
+        <cards>White cards with subtle shadows and rounded corners</cards>
+        <layout>Vertical stack with consistent spacing</layout>
+        <responsive>Centered container with max-width</responsive>
+    </styling>
+
+    <translations>
+        <location>shared/i18n/en.json, shared/i18n/pt.json</location>
+        <namespace>profileSettings</namespace>
+        <sections>
+            - accountInfo (title, fields, buttons, messages)
+            - emailConfirmation (title, warning, button, messages)
+            - subscription (title, plan details, button)
+            - passwordSecurity (title, fields, requirements, messages)
+            - deleteAccount (title, warning, modal, messages)
+        </sections>
+    </translations>
+</spec>
+

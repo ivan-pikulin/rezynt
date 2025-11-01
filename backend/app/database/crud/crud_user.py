@@ -172,5 +172,56 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             await db.refresh(user)
         return user
 
+    async def change_password(self, db: AsyncSession, *, user_id: int, current_password: str, new_password: str) -> Optional[User]:
+        """
+        Change user password after verifying current password.
+        Returns user if successful, None if current password is incorrect.
+        """
+        user = await self.get(db, id=user_id)
+        if not user:
+            return None
+        
+        # Verify current password
+        if not verify_password(current_password, user.password_hash):
+            return None
+        
+        # Set new password
+        user.password_hash = get_password_hash(new_password)
+        await db.commit()
+        await db.refresh(user)
+        return user
+
+    async def delete_account(self, db: AsyncSession, *, user_id: int, password: str) -> Optional[User]:
+        """
+        Delete/anonymize user account after verifying password.
+        Anonymizes email and clears sensitive data but keeps record for analytics.
+        Returns user if successful, None if password is incorrect.
+        """
+        user = await self.get(db, id=user_id)
+        if not user:
+            return None
+        
+        # Verify password
+        if not verify_password(password, user.password_hash):
+            return None
+        
+        # Anonymize user data
+        user.email = f"deleted_user_{user.id}@anonymous.local"
+        user.password_hash = get_password_hash("DELETED_ACCOUNT")
+        user.first_name = None
+        user.last_name = None
+        user.is_verified = False
+        user.is_registered = False
+        user.verification_token = None
+        user.verification_code = None
+        user.password_reset_token = None
+        user.password_reset_code = None
+        user.resume_data = {}
+        user.onboarding_responses = None
+        
+        await db.commit()
+        await db.refresh(user)
+        return user
+
 
 user_crud = CRUDUser(User)
