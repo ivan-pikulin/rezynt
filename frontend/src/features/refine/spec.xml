@@ -39,6 +39,7 @@
                 <feature name="score_bar" desc="Displays circular score and marketing text encouraging 95%+"/>
                 <feature name="improvement_sections" desc="Shows Content, ATS, Tone categories with progress/status"/>
                 <feature name="editor_accordions" desc="Right column editor composed of expandable sections"/>
+                <feature name="mobile_tabs" desc="Mobile-only tabs (Analysis/Editor) for switching between content sections on small screens"/>
                 <feature name="resume_loading" desc="Loads resume data from API using resumeId parameter"/>
                 <feature name="real_time_updates" desc="Updates resume data in real-time as user edits"/>
                 <feature name="error_handling" desc="Displays loading states and error messages"/>
@@ -193,6 +194,8 @@
     <ui_features>
         <feature name="responsive_design" desc="Adaptive layout for different screen sizes with custom 768px breakpoint"/>
         <feature name="desktop_two_columns" desc="Left improvement list, right editor accordions"/>
+        <feature name="mobile_tabs" desc="On mobile (xs breakpoint), displays Analysis and Editor tabs for switching between improvement sections and editor"/>
+        <feature name="conditional_rendering" desc="Content sections are conditionally shown/hidden based on active mobile tab"/>
         <feature name="loading_indicators" desc="Visual feedback during operations"/>
         <feature name="error_messages" desc="User-friendly error display"/>
         <feature name="success_notifications" desc="Confirmation of successful operations"/>

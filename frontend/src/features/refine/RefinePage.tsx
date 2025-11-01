@@ -4,6 +4,8 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CircularProgress from '@mui/material/CircularProgress';
 import Fade from '@mui/material/Fade';
 import Zoom from '@mui/material/Zoom';
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -47,6 +49,7 @@ const RefinePage: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
   const [localResume, setLocalResume] = useState<Resume | null>(resume || null);
+  const [mobileTab, setMobileTab] = useState<'analysis' | 'editor'>('analysis');
 
   // Update local resume when fetched resume changes
   useEffect(() => {
@@ -208,30 +211,67 @@ const RefinePage: React.FC = () => {
       <Box sx={{ 
         flex: 1, 
         display: 'flex', 
-        flexDirection: { xs: 'column', md: 'row' },
+        flexDirection: 'column',
         gap: 0,
         overflow: 'hidden',
         bgcolor: '#F5F7FA'
       }}>
-        {/* Left column: Score and Improvement sections */}
-        <Box sx={{ width: { xs: '100%', md: '40%' }, borderRight: { md: `1px solid ${COLORS.resume.section.border}` }, bgcolor: '#F5F7FA' }}>
-          {/* Score bar */}
-          {analysis && (
-            <Box sx={{ p: 2 }}>
-              <ScoreBar
-                score={analysis.score}
-                label={analysis.label}
-                subtitle={analysis.subtitle}
-                marketingText={marketingText}
-              />
-            </Box>
-          )}
-          
-          <ImprovementSections sections={analysis?.sections || []} />
+        {/* Mobile tabs (xs only) */}
+        <Box sx={{ display: { xs: 'block', md: 'none' }, borderBottom: `1px solid ${COLORS.resume.section.border}`, bgcolor: 'white' }}>
+          <Tabs 
+            value={mobileTab} 
+            onChange={(e, newValue) => setMobileTab(newValue)}
+            variant="fullWidth"
+            sx={{
+              '& .MuiTab-root': {
+                textTransform: 'none',
+                fontWeight: 500,
+                fontSize: '14px',
+              }
+            }}
+          >
+            <Tab label={t('refine.mobileTabs.analysis')} value="analysis" />
+            <Tab label={t('refine.mobileTabs.editor')} value="editor" />
+          </Tabs>
         </Box>
-        {/* Right column: Editor accordions */}
-        <Box sx={{ flex: 1, minWidth: 0, position: 'relative' }}>
-          <EditorAccordion resume={localResume || resume} onResumeUpdate={handleResumeUpdate} />
+
+        {/* Content area */}
+        <Box sx={{ 
+          flex: 1,
+          display: 'flex', 
+          flexDirection: { xs: 'column', md: 'row' },
+          overflow: 'hidden',
+        }}>
+          {/* Left column: Score and Improvement sections */}
+          <Box sx={{ 
+            width: { xs: '100%', md: '40%' }, 
+            borderRight: { md: `1px solid ${COLORS.resume.section.border}` }, 
+            bgcolor: '#F5F7FA',
+            display: { xs: mobileTab === 'analysis' ? 'block' : 'none', md: 'block' },
+            overflow: 'auto'
+          }}>
+            {/* Score bar */}
+            {analysis && (
+              <Box sx={{ p: 2 }}>
+                <ScoreBar
+                  score={analysis.score}
+                  label={analysis.label}
+                  subtitle={analysis.subtitle}
+                  marketingText={marketingText}
+                />
+              </Box>
+            )}
+            
+            <ImprovementSections sections={analysis?.sections || []} />
+          </Box>
+          {/* Right column: Editor accordions */}
+          <Box sx={{ 
+            flex: 1, 
+            minWidth: 0, 
+            position: 'relative',
+            display: { xs: mobileTab === 'editor' ? 'block' : 'none', md: 'block' }
+          }}>
+            <EditorAccordion resume={localResume || resume} onResumeUpdate={handleResumeUpdate} />
           
           {/* Save Notification */}
           {showSaveNotification && (
@@ -297,6 +337,7 @@ const RefinePage: React.FC = () => {
               </button>
             </Box>
           )}
+          </Box>
         </Box>
       </Box>
       {/* End 2-column layout */}

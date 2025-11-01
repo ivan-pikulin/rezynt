@@ -129,6 +129,10 @@
     "marketing": {
       "hook": "Reach 95%+ and watch job offers come to you."
     },
+    "mobileTabs": {
+      "analysis": "Analysis",
+      "editor": "Editor"
+    },
     "error": {
       "noResumeId": "Resume ID not specified",
       "loadError": "Error loading resume",

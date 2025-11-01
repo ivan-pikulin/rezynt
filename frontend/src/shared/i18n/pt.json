@@ -126,6 +126,10 @@
   "refine": {
     "loading": "Carregando currículo...",
     "pageTitle": "Currículo",
+    "mobileTabs": {
+      "analysis": "Análise",
+      "editor": "Editor"
+    },
     "error": {
       "noResumeId": "ID do currículo não especificado",
       "loadError": "Erro ao carregar currículo",
