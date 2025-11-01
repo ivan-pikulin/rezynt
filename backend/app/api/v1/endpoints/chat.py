@@ -3,11 +3,8 @@ import logging
 from typing import Any, Dict, Optional
 
 from app.api.deps import VerifiedUser, get_db
-from app.core.config import settings
-from app.database.crud.crud_user import user_crud
-from app.schemas.resume import ChatMessage, ChatMessageList
-from fastapi import APIRouter, HTTPException, Query
-from fastapi.responses import StreamingResponse
+from app.schemas.resume import ChatMessageList
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -30,7 +27,7 @@ async def send_message(
     Send message to chat.
     Note: Platform integration removed. This endpoint needs to be reimplemented based on new requirements.
     """
-            raise HTTPException(
+    raise HTTPException(
         status_code=501,
         detail="Chat functionality needs to be reimplemented for new resume structure"
     )
@@ -46,7 +43,7 @@ async def send_message_stream(
     Send message to chat with streaming response.
     Note: Platform integration removed. This endpoint needs to be reimplemented based on new requirements.
     """
-            raise HTTPException(
+    raise HTTPException(
         status_code=501,
         detail="Chat streaming functionality needs to be reimplemented for new resume structure"
     )
