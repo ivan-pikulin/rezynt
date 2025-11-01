@@ -1,4 +1,4 @@
-import { CssBaseline, Box } from '@mui/material';
+import { CssBaseline, Box, ThemeProvider } from '@mui/material';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React, { useEffect } from 'react';
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
@@ -9,6 +9,7 @@ import PublicOnboardingGuard from './shared/components/PublicOnboardingGuard';
 import GradientSpinnerAnimation from './shared/components/GradientSpinnerAnimation';
 import { ga4Service } from './shared/services/ga4Service';
 import { usePageTracking } from './shared/hooks/usePageTracking';
+import { theme } from './shared/theme/theme';
 
 // Create a client
 const queryClient = new QueryClient();
@@ -18,7 +19,6 @@ const StartPage = React.lazy(() => import('./features/start/StartPage'));
 const ChatPage = React.lazy(() => import('./features/chat/ChatPage'));
 const RefinePage = React.lazy(() => import('./features/refine/RefinePage'));
 const ExportPage = React.lazy(() => import('./features/export/ExportPage'));
-const ResumesPage = React.lazy(() => import('./features/resumes/ResumesPage'));
 const LoginPage = React.lazy(() => import('./features/auth/LoginPage'));
 const SignupPage = React.lazy(() => import('./features/auth/SignupPage'));
 const EmailConfirmationPage = React.lazy(() => import('./features/auth/EmailConfirmationPage'));
@@ -72,14 +72,6 @@ function AppRoutes() {
           </ProtectedRoute>
         } />
         
-        {/* Protected routes */}
-        <Route path="/resumes" element={
-          <ProtectedRoute requireAuth={true}>
-            <OnboardingGuard>
-              <ResumesPage />
-            </OnboardingGuard>
-          </ProtectedRoute>
-        } />
         {/* Publicly accessible creation flow for guests */}
         <Route path="/start" element={
           <PublicOnboardingGuard>
@@ -122,12 +114,14 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <CssBaseline />
-      <Router>
-        <AuthProvider>
-          <AppRoutes />
-        </AuthProvider>
-      </Router>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Router>
+          <AuthProvider>
+            <AppRoutes />
+          </AuthProvider>
+        </Router>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }

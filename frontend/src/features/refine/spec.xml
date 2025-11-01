@@ -151,41 +151,21 @@
     </editing_features>
 
     <api>
-        <endpoint name="updateResumePartial" method="PUT" path="/resumes/{resume_id}">
-            <desc>Update basic resume fields (title, professional_summary)</desc>
+        <endpoint name="getResume" method="GET" path="/resume/">
+            <desc>Get current user's resume from User.resume_data JSONB field</desc>
         </endpoint>
-        <endpoint name="updatePersonalInfo" method="PUT" path="/resumes/{resume_id}/personal-info">
-            <desc>Update personal information fields</desc>
+        <endpoint name="updateResume" method="PUT" path="/resume/">
+            <desc>Full update of current user's resume data (triggered by "Save now" button)</desc>
+            <note>All editors update local state, save happens only on button click</note>
         </endpoint>
-        <endpoint name="addSkill" method="POST" path="/resumes/{resume_id}/skills">
-            <desc>Add new skill to resume</desc>
+        <endpoint name="deleteResume" method="DELETE" path="/resume/">
+            <desc>Delete current user's resume (sets User.resume_data to empty object)</desc>
         </endpoint>
-        <endpoint name="updateSkill" method="PUT" path="/resumes/{resume_id}/skills/{skill_id}">
-            <desc>Update existing skill</desc>
+        <endpoint name="uploadResume" method="POST" path="/resume/upload">
+            <desc>Upload resume file for parsing and auto-fill</desc>
         </endpoint>
-        <endpoint name="removeSkill" method="DELETE" path="/resumes/{resume_id}/skills/{skill_id}">
-            <desc>Remove skill from resume</desc>
-        </endpoint>
-        <endpoint name="addExperience" method="POST" path="/resumes/{resume_id}/experience">
-            <desc>Add new work experience</desc>
-        </endpoint>
-        <endpoint name="updateExperience" method="PUT" path="/resumes/{resume_id}/experience/{experience_id}">
-            <desc>Update existing work experience</desc>
-        </endpoint>
-        <endpoint name="removeExperience" method="DELETE" path="/resumes/{resume_id}/experience/{experience_id}">
-            <desc>Remove work experience</desc>
-        </endpoint>
-        <endpoint name="addEducation" method="POST" path="/resumes/{resume_id}/education">
-            <desc>Add new education entry</desc>
-        </endpoint>
-        <endpoint name="updateEducation" method="PUT" path="/resumes/{resume_id}/education/{education_id}">
-            <desc>Update existing education entry</desc>
-        </endpoint>
-        <endpoint name="removeEducation" method="DELETE" path="/resumes/{resume_id}/education/{education_id}">
-            <desc>Remove education entry</desc>
-        </endpoint>
-        <endpoint name="assignTemplate" method="PUT" path="/resumes/{resume_id}/template/{template_id}">
-            <desc>Assign template to resume</desc>
+        <endpoint name="exportPDF" method="POST" path="/resume/export-pdf">
+            <desc>Export resume to PDF with template_slug in request body</desc>
         </endpoint>
     </api>
 

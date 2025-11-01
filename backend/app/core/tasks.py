@@ -4,88 +4,15 @@ import tempfile
 import gc
 
 from app.core.celery_app import celery_app
-from app.core.config import settings
-from app.database.models.resume import Resume
 from app.database.session import SyncSessionLocal
 from app.services.email_service import EmailService
 from app.services.parse_service import ParseService
-from app.services.platform_service import PlatformChatflow
 from asgiref.sync import async_to_sync
 
 # Set up logging
 logger = logging.getLogger(__name__)
 
 
-def _generate_resume_text_from_parsed(parsed_data) -> str:
-    """Generate full text representation of resume using parsed_data to avoid DB IO."""
-    text_parts = []
-
-    # Name and location
-    name_parts = []
-    if getattr(parsed_data, 'first_name', None):
-        name_parts.append(parsed_data.first_name)
-    if getattr(parsed_data, 'last_name', None):
-        name_parts.append(parsed_data.last_name)
-    if name_parts:
-        text_parts.append(f"Name: {' '.join(name_parts)}")
-
-    if getattr(parsed_data, 'location', None):
-        text_parts.append(f"Location: {parsed_data.location}")
-
-    # Professional summary
-    if getattr(parsed_data, 'professional_summary', None):
-        text_parts.append(f"Professional Summary: {parsed_data.professional_summary}")
-
-    # Contacts
-    contacts = getattr(parsed_data, 'contacts', None) or []
-    if contacts:
-        text_parts.append(f"Contacts: {', '.join(contacts)}")
-
-    # Skills
-    skills = getattr(parsed_data, 'skills', None) or []
-    if skills:
-        text_parts.append(f"Skills: {', '.join(skills)}")
-
-    # Experience
-    experience = getattr(parsed_data, 'experience', None) or []
-    if experience:
-        text_parts.append("Experience:")
-        for exp in experience:
-            job_title = exp.get('job_title', '')
-            company = exp.get('company', '')
-            location = exp.get('location', '')
-            start_date = exp.get('start_date')
-            end_date = exp.get('end_date')
-            responsibilities = exp.get('responsibilities', []) or []
-
-            header = f"  - {job_title} at {company}".strip()
-            if location:
-                header += f" ({location})"
-            if start_date:
-                header += f" from {start_date}"
-            if end_date:
-                header += f" to {end_date}"
-            text_parts.append(header)
-            for resp in responsibilities:
-                text_parts.append(f"    * {resp}")
-
-    # Education
-    education = getattr(parsed_data, 'education', None) or []
-    if education:
-        text_parts.append("Education:")
-        for edu in education:
-            degree = edu.get('degree', '')
-            institution = edu.get('institution', '')
-            location = edu.get('location', '')
-            graduation_date = edu.get('graduation_date')
-            header = f"  - {degree} from {institution}".strip()
-            if location:
-                header += f" ({location})"
-            if graduation_date:
-                header += f" - {graduation_date}"
-            text_parts.append(header)
-
-    return "\n".join(text_parts)
 
 
 @celery_app.task(name="send_confirmation_email_task")
@@ -191,10 +118,10 @@ async def _process_resume_upload_task(file_content: bytes, filename: str, user_i
         del parse_service
         gc.collect()
         
-        # Create resume with all parsed data
-        logger.info("Starting database operations to create resume")
-        resume = await _create_resume_with_data(user_id, filename, parsed_data)
-        logger.info(f"Database operations completed successfully, resume ID: {resume.id}")
+        # Update user's resume_data with parsed data
+        logger.info("Starting database operations to update resume_data")
+        await _update_user_resume_data(user_id, parsed_data)
+        logger.info(f"Database operations completed successfully for user {user_id}")
         
         # Clean up parsed data
         del parsed_data
@@ -207,13 +134,11 @@ async def _process_resume_upload_task(file_content: bytes, filename: str, user_i
         except Exception as e:
             logger.warning(f"Failed to remove temporary file {temp_file_path}: {e}")
         
-        logger.info(f"Resume processing completed for user {user_id}, resume {resume.id}")
+        logger.info(f"Resume processing completed for user {user_id}")
         result = {
             'status': 'completed',
             'user_id': user_id,
-            'resume_id': resume.id,
-            'message': 'Resume created and processed successfully',
-            'startup_message': getattr(resume, 'startup_message', 'Welcome aboard! I\'m your AI Writer, here to save you time and boost your chances. Let\'s start?')
+            'message': 'Resume processed and updated successfully'
         }
         logger.info(f"Returning task result: {result}")
         return result
@@ -248,16 +173,17 @@ async def _process_resume_upload_task(file_content: bytes, filename: str, user_i
         return result
 
 
-async def _create_resume_with_data(user_id: int, filename: str, parsed_data):
-    """Creates resume in database with all data from ParseService"""
-    logger.info(f"Starting database operations for user {user_id}, filename: {filename}")
-    logger.info(f"Parsed data summary: first_name={parsed_data.first_name}, last_name={parsed_data.last_name}, experience_count={len(parsed_data.experience)}, education_count={len(parsed_data.education)}, skills_count={len(parsed_data.skills)}, contacts_count={len(parsed_data.contacts)}")
+async def _update_user_resume_data(user_id: int, parsed_data):
+    """Updates user's resume_data JSONB field with parsed data from ParseService"""
+    logger.info(f"Starting database operations for user {user_id}")
+    
+    # Convert parsed_data to dictionary matching our JSONB structure
+    resume_dict = parsed_data.model_dump()
+    logger.info(f"Converted parsed data to dict, keys: {list(resume_dict.keys())}")
     
     with SyncSessionLocal() as db:
         try:
-            # Check user's plan and existing resumes
             from app.database.models.user import User
-            from app.database.models.resume import Resume as ResumeModel
             from sqlalchemy import select
             
             # Get user
@@ -266,143 +192,16 @@ async def _create_resume_with_data(user_id: int, filename: str, parsed_data):
             if not user:
                 raise ValueError(f"User {user_id} not found")
             
-            # Get user's existing resumes count
-            resumes_result = db.execute(select(ResumeModel).where(ResumeModel.user_id == user_id))
-            existing_resumes = resumes_result.scalars().all()
-            
-            # Check if user is on free plan and already has a resume
-            if not user.is_premium and len(existing_resumes) >= 1:
-                raise ValueError("Free plan users can only create one resume. Please upgrade to premium to create additional resumes.")
-            
-            logger.info(f"Creating resume record for user {user_id}")
-            # Extract name from filename without extension
-            name_without_extension = os.path.splitext(filename)[0]
-            
-            # Create resume with parsed data
-            resume = Resume(
-                title=name_without_extension,
-                template_slug=settings.VALID_TEMPLATE_SLUGS[0],  # Use first template as default
-                professional_summary=parsed_data.professional_summary or "",
-                user_id=user_id,
-                from_upload=True
-            )
-            
-            db.add(resume)
-            db.commit()
-            db.refresh(resume)
-            logger.info(f"Resume record created with ID: {resume.id}")
-            
-            # Create personal info if available
-            if parsed_data.first_name or parsed_data.last_name or parsed_data.location:
-                from app.database.models.resume import ResumePersonalInfo
-                
-                logger.info(f"Creating personal info: first_name={parsed_data.first_name}, last_name={parsed_data.last_name}, location={parsed_data.location}")
-                personal_info = ResumePersonalInfo(
-                    resume_id=resume.id,
-                    first_name=parsed_data.first_name,
-                    last_name=parsed_data.last_name,
-                    location=parsed_data.location
-                )
-                db.add(personal_info)
-                logger.info("Personal info added to database")
-            
-            # Create contacts if available
-            if parsed_data.contacts:
-                from app.database.models.resume import ResumeContact
-                
-                logger.info(f"Creating {len(parsed_data.contacts)} contact entries")
-                for i, contact_value in enumerate(parsed_data.contacts):
-                    logger.info(f"Adding contact {i+1}: {contact_value}")
-                    contact = ResumeContact(
-                        resume_id=resume.id,
-                        value=contact_value
-                    )
-                    db.add(contact)
-                logger.info("All contacts added to database")
-            
-            # Create skills if available
-            if parsed_data.skills:
-                from app.database.models.resume import ResumeSkill
-                
-                logger.info(f"Creating {len(parsed_data.skills)} skill entries")
-                for i, skill_name in enumerate(parsed_data.skills):
-                    logger.info(f"Adding skill {i+1}: {skill_name}")
-                    skill = ResumeSkill(
-                        resume_id=resume.id,
-                        name=skill_name
-                    )
-                    db.add(skill)
-                logger.info("All skills added to database")
-            
-            # Create experience if available
-            if parsed_data.experience:
-                from app.database.models.resume import ResumeExperience
-                
-                logger.info(f"Creating {len(parsed_data.experience)} experience entries")
-                for i, exp_data in enumerate(parsed_data.experience):
-                    logger.info(f"Processing experience {i+1}: {exp_data.get('job_title', 'N/A')} at {exp_data.get('company', 'N/A')}")
-                    experience = ResumeExperience(
-                        resume_id=resume.id,
-                        job_title=exp_data.get("job_title", ""),
-                        company=exp_data.get("company", ""),
-                        location=exp_data.get("location", ""),
-                        start_date=exp_data.get("start_date"),
-                        end_date=exp_data.get("end_date"),
-                        responsibilities=exp_data.get("responsibilities", [])
-                    )
-                    db.add(experience)
-                    logger.info(f"Experience entry {i+1} added to database")
-            
-            # Create education if available
-            if parsed_data.education:
-                from app.database.models.resume import ResumeEducation
-                
-                logger.info(f"Creating {len(parsed_data.education)} education entries")
-                for i, edu_data in enumerate(parsed_data.education):
-                    logger.info(f"Processing education {i+1}: {edu_data.get('degree', 'N/A')} at {edu_data.get('institution', 'N/A')}")
-                    education = ResumeEducation(
-                        resume_id=resume.id,
-                        degree=edu_data.get("degree", ""),
-                        institution=edu_data.get("institution", ""),
-                        location=edu_data.get("location", ""),
-                        graduation_date=edu_data.get("graduation_date")
-                    )
-                    db.add(education)
-                    logger.info(f"Education entry {i+1} added to database")
+            logger.info(f"Updating resume_data for user {user_id}")
+            # Update user's resume_data
+            user.resume_data = resume_dict
             
             db.commit()
-            logger.info(f"Resume {resume.id} created successfully with all data for user {user_id}")
-            logger.info(f"Getting startup message from platform for resume {resume.id}")
-
-            resume_text = _generate_resume_text_from_parsed(parsed_data)
-            logger.info(f"Generated resume text for platform, length: {len(resume_text)} characters")
-
-            platform_chatflow = PlatformChatflow(
-                app_key=settings.PLATFORM_UPLOAD_APP_KEY,
-                app_url=settings.PLATFORM_APP_URL,
-                timeout=settings.PLATFORM_TIMEOUT
-            )
-            logger.info(f"Calling get_startup_message with user_id={user_id}, resume_id={resume.id}")
-            startup_message, conversation_id = await platform_chatflow.get_startup_message(
-                user_id=str(user_id),
-                resume_id=str(resume.id),
-                resume_text=resume_text
-            )
-
-            logger.info(f"Received startup message from platform: {startup_message[:100]}...")
-            logger.info(f"Received conversation_id from platform: '{conversation_id}' (type: {type(conversation_id)})")
-
-            # Store message on the in-memory object for returning via Celery result
-            resume.startup_message = startup_message
-            resume.conversation_id = conversation_id
-            db.commit()
-            logger.info(f"Updated conversation_id for resume {resume.id}: {conversation_id}")
+            logger.info(f"Resume data updated successfully for user {user_id}")
 
             gc.collect()
             
-            return resume
-            
         except Exception as e:
-            logger.error(f"Error creating resume with data in database: {e}", exc_info=True)
+            logger.error(f"Error updating resume data in database: {e}", exc_info=True)
             db.rollback()
             raise e

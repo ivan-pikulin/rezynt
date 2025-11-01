@@ -41,11 +41,11 @@ const EmailConfirmationPage: React.FC = () => {
     if (status === 'success' && accessToken && refreshToken) {
       login({ access_token: accessToken, refresh_token: refreshToken, token_type: tokenType });
       
-      // Check if there's a resume_id parameter for redirect to RefinePage
+      // Check if there's a redirect parameter (legacy resume_id removed)
       const resumeId = searchParams.get('resume_id');
       if (resumeId) {
-        // Redirect to RefinePage with resume_id, but add redirect parameter for onboarding
-        navigate(`/refine?resume_id=${resumeId}&redirect=/refine?resume_id=${resumeId}`, { replace: true });
+        // Redirect to RefinePage (user has one resume now)
+        navigate('/refine?redirect=/refine', { replace: true });
       } else {
         // Replace to avoid keeping tokens in history
         navigate('/', { replace: true });

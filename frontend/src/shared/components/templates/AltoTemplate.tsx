@@ -73,7 +73,7 @@ export class AltoTemplate extends BaseTemplate {
                 fontWeight: 'bold',
                 color: '#8B4513'
               }}>
-                {data.first_name?.charAt(0) || ''}
+                {data.personal_info?.first_name?.charAt(0) || ''}
               </Box>
               <Box sx={{
                 position: 'absolute',
@@ -92,7 +92,7 @@ export class AltoTemplate extends BaseTemplate {
                 fontWeight: 'bold',
                 color: '#8B4513'
               }}>
-                {data.last_name?.charAt(0) || ''}
+                {data.personal_info?.last_name?.charAt(0) || ''}
               </Box>
             </Box>
             
@@ -114,7 +114,7 @@ export class AltoTemplate extends BaseTemplate {
                   marginBottom: '4px'
                 }}
               >
-                {data.first_name?.toUpperCase() || ''}
+                {data.personal_info?.first_name?.toUpperCase() || ''}
               </Typography>
               <Typography 
                 variant="h1" 
@@ -125,7 +125,7 @@ export class AltoTemplate extends BaseTemplate {
                   lineHeight: 1.1
                 }}
               >
-                {data.last_name?.toUpperCase() || ''}
+                {data.personal_info?.last_name?.toUpperCase() || ''}
               </Typography>
             </Box>
           </Box>
@@ -140,19 +140,21 @@ export class AltoTemplate extends BaseTemplate {
               overflow: 'hidden'
             }
           }}>
-            {data.contacts?.map((contact, index) => (
-              <Typography 
-                key={index}
-                variant="body1" 
-                sx={{ 
-                  fontSize: '14px',
-                  marginBottom: '4px',
-                  color: '#333'
-                }}
-              >
-                {contact}
+            {data.personal_info?.contacts?.email && (
+              <Typography variant="body1" sx={{ fontSize: '14px', marginBottom: '4px', color: '#333' }}>
+                {data.personal_info.contacts.email}
               </Typography>
-            ))}
+            )}
+            {data.personal_info?.contacts?.phone && (
+              <Typography variant="body1" sx={{ fontSize: '14px', marginBottom: '4px', color: '#333' }}>
+                {data.personal_info.contacts.phone}
+              </Typography>
+            )}
+            {data.personal_info?.contacts?.linkedin && (
+              <Typography variant="body1" sx={{ fontSize: '14px', marginBottom: '4px', color: '#333' }}>
+                {data.personal_info.contacts.linkedin}
+              </Typography>
+            )}
           </Box>
         </Box>
 
@@ -264,7 +266,7 @@ export class AltoTemplate extends BaseTemplate {
           >
             {this.t('templates.sections.experience')}
           </Typography>
-          {data.experience?.map((exp, index) => (
+          {data.work_experience?.map((exp: any, index: number) => (
             <Box key={index} sx={{ marginBottom: '20px' }}>
               <Box sx={{ 
                 display: 'flex', 
@@ -309,7 +311,7 @@ export class AltoTemplate extends BaseTemplate {
                 paddingLeft: '20px',
                 listStyleType: 'disc'
               }}>
-                {exp.responsibilities?.map((responsibility, respIndex) => (
+                {exp.responsibilities?.map((responsibility: string, respIndex: number) => (
                   <Typography 
                     key={respIndex}
                     component="li"
@@ -376,7 +378,7 @@ export class AltoTemplate extends BaseTemplate {
                     fontStyle: 'italic'
                   }}
                 >
-                  {this.formatDate(edu.graduation_date || '')}
+                  {this.formatDate(edu.end_date || '')}
                 </Typography>
               </Box>
               <Typography 
@@ -387,7 +389,7 @@ export class AltoTemplate extends BaseTemplate {
                   fontWeight: '500'
                 }}
               >
-                {edu.institution} {edu.location ? `, ${edu.location}` : ''}
+                {edu.institution} {(edu.city || edu.country) ? `, ${[edu.city, edu.country].filter(Boolean).join(', ')}` : ''}
               </Typography>
             </Box>
           ))}

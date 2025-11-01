@@ -13,25 +13,63 @@ export abstract class BaseTemplate extends React.Component<BaseTemplateProps, {}
    * Get full name from resume data
    */
   protected getFullName(): string {
-    const { first_name, last_name } = this.props.data;
-    return `${first_name || ''} ${last_name || ''}`.trim();
+    const personal_info = this.props.data.personal_info;
+    if (!personal_info) return '';
+    return `${personal_info.first_name || ''} ${personal_info.last_name || ''}`.trim();
+  }
+
+  /**
+   * Get current role
+   */
+  protected getCurrentRole(): string {
+    return this.props.data.personal_info?.current_role || '';
+  }
+
+  /**
+   * Get location (city, country)
+   */
+  protected getLocation(): string {
+    const personal_info = this.props.data.personal_info;
+    if (!personal_info) return '';
+    const parts = [];
+    if (personal_info.city) parts.push(personal_info.city);
+    if (personal_info.country) parts.push(personal_info.country);
+    return parts.join(', ');
   }
 
   /**
    * Get contact information
    */
   protected getContactInfo(): string {
-    const { contacts, location } = this.props.data;
-    const contactStr = contacts.join(' | ');
-    return location ? `${contactStr} | ${location}` : contactStr;
+    const personal_info = this.props.data.personal_info;
+    if (!personal_info?.contacts) return '';
+    
+    const contacts = personal_info.contacts;
+    const contactParts: string[] = [];
+    
+    if (contacts.email) contactParts.push(contacts.email);
+    if (contacts.phone) contactParts.push(contacts.phone);
+    if (contacts.linkedin) contactParts.push(contacts.linkedin);
+    if (contacts.website) contactParts.push(contacts.website);
+    
+    return contactParts.join(' | ');
   }
 
   /**
-   * Format date
+   * Format date - handles both "Month YYYY" and "YYYY-MM-DD" formats
    */
   protected formatDate(dateString: string): string {
     if (!dateString) return '';
+    
+    // If already in "Month YYYY" format, return as is
+    if (dateString.match(/^[A-Za-z]+ \d{4}$/)) {
+      return dateString;
+    }
+    
+    // Try to parse as ISO date
     const date = new Date(dateString);
+    if (isNaN(date.getTime())) return dateString; // Return original if invalid
+    
     return date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long'
@@ -69,6 +107,8 @@ export abstract class BaseTemplate extends React.Component<BaseTemplateProps, {}
       'templates.sections.skills': 'Skills',
       'templates.sections.experience': 'Experience',
       'templates.sections.education': 'Education',
+      'templates.sections.languages': 'Languages',
+      'templates.sections.awards': 'Awards',
       'templates.sections.notProvided': 'Professional summary not provided'
     };
     return translations[key] || key;

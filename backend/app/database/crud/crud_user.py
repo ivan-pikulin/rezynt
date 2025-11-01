@@ -140,5 +140,37 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
                 return user
         return None
 
+    async def get_resume_data(self, db: AsyncSession, *, user_id: int) -> Optional[Dict[str, Any]]:
+        """
+        Get resume data from user's resume_data JSONB field.
+        Returns None if user not found, empty dict if no resume data.
+        """
+        user = await self.get(db, id=user_id)
+        if not user:
+            return None
+        return user.resume_data or {}
+
+    async def update_resume_data(self, db: AsyncSession, *, user_id: int, resume_data: Dict[str, Any]) -> Optional[User]:
+        """
+        Update user's resume data in resume_data JSONB field.
+        """
+        user = await self.get(db, id=user_id)
+        if user:
+            user.resume_data = resume_data
+            await db.commit()
+            await db.refresh(user)
+        return user
+
+    async def delete_resume_data(self, db: AsyncSession, *, user_id: int) -> Optional[User]:
+        """
+        Delete user's resume data by setting resume_data to empty dict.
+        """
+        user = await self.get(db, id=user_id)
+        if user:
+            user.resume_data = {}
+            await db.commit()
+            await db.refresh(user)
+        return user
+
 
 user_crud = CRUDUser(User)

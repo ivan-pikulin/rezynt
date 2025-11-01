@@ -5,7 +5,7 @@ export * from './api';
 export { ga4Service } from './ga4Service';
 
 // Other Services
-export { migrateGuestResumeIfAny } from './guestResumeMigration';
+export { guestResumeMigration } from './guestResumeMigration';
 export { guestResumeService } from './guestResumeService';
 export { resumeCacheService } from './resumeCacheService';
 export { TemplateService } from './templateService';

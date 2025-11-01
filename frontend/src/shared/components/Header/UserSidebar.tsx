@@ -41,7 +41,6 @@ const UserSidebar: React.FC<UserSidebarProps> = ({
   const { logout, user, updateUser } = useAuthContext();
   const [userData, setUserData] = useState<User | null>(null);
   const [loading, setLoading] = useState(false);
-  const [resumeCount, setResumeCount] = useState<number>(0);
 
   useEffect(() => {
     if (open && !userData && user) {
@@ -60,16 +59,6 @@ const UserSidebar: React.FC<UserSidebarProps> = ({
       const data = await userApi.getCurrentUser();
       setUserData(data);
               updateUser(data); // Update user in context
-      
-              // Load resume count for premium users
-      if (data.is_premium) {
-        try {
-          const resumes = await resumeApi.getUserResumes();
-          setResumeCount(resumes.length);
-        } catch (error) {
-          console.error('Error fetching resume count:', error);
-        }
-      }
     } catch (error) {
       console.error('Error fetching user data:', error);
     } finally {
@@ -82,8 +71,8 @@ const UserSidebar: React.FC<UserSidebarProps> = ({
     onClose();
   };
 
-  const handleNavigateToResumes = () => {
-    navigate('/resumes');
+  const handleNavigateToEditor = () => {
+    navigate('/refine');
     onClose();
   };
 
@@ -209,7 +198,7 @@ const UserSidebar: React.FC<UserSidebarProps> = ({
           <Button
             variant="contained"
             startIcon={<DescriptionIcon />}
-            onClick={handleNavigateToResumes}
+            onClick={handleNavigateToEditor}
             fullWidth
             sx={{
               justifyContent: 'flex-start',
@@ -242,29 +231,7 @@ const UserSidebar: React.FC<UserSidebarProps> = ({
               transition: 'all 0.3s ease-in-out'
             }}
           >
-            {t('header.userSidebar.myResumes')}
-            {/* Resume counter for premium users */}
-            {(userData?.is_premium ?? user?.is_premium) && resumeCount > 0 && (
-              <Badge
-                badgeContent={resumeCount}
-                sx={{
-                  position: 'absolute',
-                  top: 8,
-                  right: 8,
-                  '& .MuiBadge-badge': {
-                    backgroundColor: COLORS.credits.star,
-                    color: 'white',
-                    fontSize: '0.75rem',
-                    fontWeight: 700,
-                    minWidth: '20px',
-                    height: '20px',
-                    borderRadius: '10px',
-                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
-                    border: '2px solid white'
-                  }
-                }}
-              />
-            )}
+            {t('header.userSidebar.myResume', 'My Resume')}
           </Button>
         </Box>
 

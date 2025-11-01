@@ -32,7 +32,8 @@ const PaymentSuccessPage: React.FC = () => {
   }, [refetchUser, updateUser]);
 
   const handleGoToResumes = () => {
-    navigate('/resumes');
+    // Navigate to editor (user has one resume)
+    navigate('/refine');
   };
 
   return (

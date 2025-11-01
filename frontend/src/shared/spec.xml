@@ -199,8 +199,8 @@
       <description>
         Component for smart redirection of users to the main page.
         Checks if user has resumes and redirects to appropriate page:
-        - If user has resumes → /resumes
-        - If user has no resumes → /start
+        - If user is authenticated → /refine (user has one resume)
+        - If user is not authenticated → /start
         - If user is not authenticated → /auth
       </description>
       

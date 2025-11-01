@@ -74,548 +74,119 @@ export interface RefreshRequest {
   refresh_token: string;
 }
 
-// Unified Resume types (new structure)
-export interface UnifiedResume {
-  id: number;
-  user_id: number;
-  title: string;
-  template_slug?: string;
-  professional_summary?: string;
-  conversation_id?: string;
-  from_upload?: boolean;
-  created_at: string;
-  updated_at: string;
-  
-  // Personal info (flattened)
+// Resume types (new JSONB structure)
+export interface Contacts {
+  email?: string;
+  phone?: string;
+  telegram?: string;
+  whatsapp?: string;
+  linkedin?: string;
+  github?: string;
+  website?: string;
+  twitter?: string;
+  instagram?: string;
+}
+
+export interface PersonalInfo {
   first_name?: string;
   last_name?: string;
-  location?: string;
-  
-  // Contacts and skills (simplified arrays)
-  contacts: string[];
-  skills: string[];
-  
-  // Experience and education (simplified)
-  experience: UnifiedResumeExperience[];
-  education: UnifiedResumeEducation[];
+  current_role?: string;
+  city?: string;
+  country?: string;
+  photo_url?: string;
+  contacts?: Contacts;
 }
 
-export interface UnifiedResumeExperience {
-  job_title: string;
-  company: string;
-  location?: string;
-  start_date?: string;
-  end_date?: string;
-  responsibilities: string[];
+export interface WorkExperience {
+  job_title?: string;
+  company?: string;
+  short_description?: string;
+  city?: string;
+  country?: string;
+  start_date?: string; // Format: "Month YYYY" or "YYYY-MM-DD"
+  end_date?: string; // Format: "Month YYYY" or "YYYY-MM-DD" or null for current
+  responsibilities?: string[];
+  achievements?: string[];
+  technologies_tools?: string[];
 }
 
-export interface UnifiedResumeEducation {
-  degree: string;
-  institution: string;
-  location?: string;
-  graduation_date?: string;
+export interface Education {
+  institution?: string;
+  degree?: string;
+  field_of_study?: string;
+  city?: string;
+  country?: string;
+  start_date?: string; // Format: "Month YYYY"
+  end_date?: string; // Format: "Month YYYY"
+  relevant_courses?: string[];
 }
 
-// Resume types (using UnifiedResume as base)
-export interface Resume extends UnifiedResume {}
-
-export interface ResumeList {
-  id: number;
-  title: string;
-  template_slug?: string;
-  user_id: number;
-  created_at: string;
-  updated_at: string;
+export interface Language {
+  language?: string;
+  proficiency?: string; // e.g., "Native", "Fluent", "Intermediate", "Basic"
 }
 
-export interface ResumeCreate {
-  title: string;
-  template_slug?: string;
+export interface Award {
+  title?: string;
+  issuer?: string;
+  date?: string; // Format: "Month YYYY"
+  description?: string;
+}
+
+export interface Resume {
+  personal_info?: PersonalInfo;
   professional_summary?: string;
+  skills?: string[];
+  work_experience?: WorkExperience[];
+  education?: Education[];
+  languages_spoken?: Language[];
+  awards?: Award[];
 }
 
 export interface ResumeUpdate {
-  title?: string;
-  template_slug?: string;
+  personal_info?: PersonalInfo;
   professional_summary?: string;
-  conversation_id?: string;
-}
-
-export interface ResumePartialUpdate {
-  title?: string;
-  template_slug?: string;
-  professional_summary?: string;
-  conversation_id?: string;
-  
-  // UnifiedResume fields
-  first_name?: string;
-  last_name?: string;
-  location?: string;
-  contacts?: string[];
   skills?: string[];
-  experience?: UnifiedResumeExperience[];
-  education?: UnifiedResumeEducation[];
+  work_experience?: WorkExperience[];
+  education?: Education[];
+  languages_spoken?: Language[];
+  awards?: Award[];
 }
 
-// Legacy types for API compatibility (simplified)
-export interface ResumePersonalInfo {
-  id: number;
-  resume_id: number;
-  first_name: string;
-  last_name: string;
-  location?: string;
+// PDF Export types
+export interface PDFExportRequest {
+  html_content?: string;
+  filename?: string;
+  template_slug?: string; // Options: nume, luma, alto, vero
 }
-
-export interface ResumePersonalInfoUpdate {
-  first_name?: string;
-  last_name?: string;
-  location?: string;
-}
-
-export interface ResumeContact {
-  id: number;
-  resume_id: number;
-  value: string;
-}
-
-export interface ResumeContactCreate {
-  value: string;
-}
-
-export interface ResumeContactUpdate {
-  value?: string;
-}
-
-export interface ResumeSkill {
-  id: number;
-  resume_id: number;
-  name: string;
-}
-
-export interface ResumeSkillCreate {
-  name: string;
-}
-
-export interface ResumeSkillUpdate {
-  name?: string;
-}
-
-export interface ResumeExperience {
-  id: number;
-  resume_id: number;
-  job_title: string;
-  company: string;
-  location?: string;
-  start_date: string;
-  end_date?: string;
-  responsibilities: string[];
-}
-
-export interface ResumeExperienceCreate {
-  job_title: string;
-  company: string;
-  location?: string;
-  start_date: string;
-  end_date?: string;
-  responsibilities: string[];
-}
-
-export interface ResumeExperienceUpdate {
-  job_title?: string;
-  company?: string;
-  location?: string;
-  start_date?: string;
-  end_date?: string;
-  responsibilities?: string[];
-}
-
-export interface ResumeEducation {
-  id: number;
-  resume_id: number;
-  degree: string;
-  institution: string;
-  location?: string;
-  graduation_date?: string;
-  gpa?: number;
-}
-
-export interface ResumeEducationCreate {
-  degree: string;
-  institution: string;
-  location?: string;
-  graduation_date?: string;
-  gpa?: number;
-}
-
-export interface ResumeEducationUpdate {
-  degree?: string;
-  institution?: string;
-  location?: string;
-  graduation_date?: string;
-  gpa?: number;
-}
-
-// Project types
-export interface ResumeProject {
-  id: number;
-  resume_id: number;
-  title: string;
-  description: string;
-  url?: string;
-  technologies: string[];
-  start_date?: string;
-  end_date?: string;
-}
-
-export interface ResumeProjectCreate {
-  title: string;
-  description: string;
-  url?: string;
-  technologies: string[];
-  start_date?: string;
-  end_date?: string;
-}
-
-export interface ResumeProjectUpdate {
-  title?: string;
-  description?: string;
-  url?: string;
-  technologies?: string[];
-  start_date?: string;
-  end_date?: string;
-}
-
-// Certification types
-export interface ResumeCertification {
-  id: number;
-  resume_id: number;
-  name: string;
-  issuing_organization: string;
-  issue_date?: string;
-  expiry_date?: string;
-  credential_id?: string;
-  credential_url?: string;
-}
-
-export interface ResumeCertificationCreate {
-  name: string;
-  issuing_organization: string;
-  issue_date?: string;
-  expiry_date?: string;
-  credential_id?: string;
-  credential_url?: string;
-}
-
-export interface ResumeCertificationUpdate {
-  name?: string;
-  issuing_organization?: string;
-  issue_date?: string;
-  expiry_date?: string;
-  credential_id?: string;
-  credential_url?: string;
-}
-
-// Language types
-export interface ResumeLanguage {
-  id: number;
-  resume_id: number;
-  language: string;
-  proficiency: string;
-}
-
-export interface ResumeLanguageCreate {
-  language: string;
-  proficiency: string;
-}
-
-export interface ResumeLanguageUpdate {
-  language?: string;
-  proficiency?: string;
-}
-
-// Reference types
-export interface ResumeReference {
-  id: number;
-  resume_id: number;
-  name: string;
-  title: string;
-  company: string;
-  email?: string;
-  phone?: string;
-}
-
-export interface ResumeReferenceCreate {
-  name: string;
-  title: string;
-  company: string;
-  email?: string;
-  phone?: string;
-}
-
-export interface ResumeReferenceUpdate {
-  name?: string;
-  title?: string;
-  company?: string;
-  email?: string;
-  phone?: string;
-}
-
-// Volunteer types
-export interface ResumeVolunteer {
-  id: number;
-  resume_id: number;
-  organization: string;
-  role: string;
-  description: string;
-  start_date?: string;
-  end_date?: string;
-}
-
-export interface ResumeVolunteerCreate {
-  organization: string;
-  role: string;
-  description: string;
-  start_date?: string;
-  end_date?: string;
-}
-
-export interface ResumeVolunteerUpdate {
-  organization?: string;
-  role?: string;
-  description?: string;
-  start_date?: string;
-  end_date?: string;
-}
-
-// Award types
-export interface ResumeAward {
-  id: number;
-  resume_id: number;
-  title: string;
-  issuer: string;
-  date?: string;
-  description?: string;
-}
-
-export interface ResumeAwardCreate {
-  title: string;
-  issuer: string;
-  date?: string;
-  description?: string;
-}
-
-export interface ResumeAwardUpdate {
-  title?: string;
-  issuer?: string;
-  date?: string;
-  description?: string;
-}
-
-// Publication types
-export interface ResumePublication {
-  id: number;
-  resume_id: number;
-  title: string;
-  authors: string[];
-  journal?: string;
-  publication_date?: string;
-  url?: string;
-}
-
-export interface ResumePublicationCreate {
-  title: string;
-  authors: string[];
-  journal?: string;
-  publication_date?: string;
-  url?: string;
-}
-
-export interface ResumePublicationUpdate {
-  title?: string;
-  authors?: string[];
-  journal?: string;
-  publication_date?: string;
-  url?: string;
-}
-
-// Patent types
-export interface ResumePatent {
-  id: number;
-  resume_id: number;
-  title: string;
-  patent_number: string;
-  issue_date?: string;
-  description?: string;
-}
-
-export interface ResumePatentCreate {
-  title: string;
-  patent_number: string;
-  issue_date?: string;
-  description?: string;
-}
-
-export interface ResumePatentUpdate {
-  title?: string;
-  patent_number?: string;
-  issue_date?: string;
-  description?: string;
-}
-
-// Course types
-export interface ResumeCourse {
-  id: number;
-  resume_id: number;
-  name: string;
-  institution: string;
-  completion_date?: string;
-  description?: string;
-}
-
-export interface ResumeCourseCreate {
-  name: string;
-  institution: string;
-  completion_date?: string;
-  description?: string;
-}
-
-export interface ResumeCourseUpdate {
-  name?: string;
-  institution?: string;
-  completion_date?: string;
-  description?: string;
-}
-
-// Test Score types
-export interface ResumeTestScore {
-  id: number;
-  resume_id: number;
-  test_name: string;
-  score: string;
-  test_date?: string;
-  description?: string;
-}
-
-export interface ResumeTestScoreCreate {
-  test_name: string;
-  score: string;
-  test_date?: string;
-  description?: string;
-}
-
-export interface ResumeTestScoreUpdate {
-  test_name?: string;
-  score?: string;
-  test_date?: string;
-  description?: string;
-}
-
-// Hobby types
-export interface ResumeHobby {
-  id: number;
-  resume_id: number;
-  name: string;
-  description?: string;
-}
-
-export interface ResumeHobbyCreate {
-  name: string;
-  description?: string;
-}
-
-export interface ResumeHobbyUpdate {
-  name?: string;
-  description?: string;
-}
-
-// Custom Section types
-export interface ResumeCustomSection {
-  id: number;
-  resume_id: number;
-  title: string;
-  content: string;
-  order: number;
-}
-
-export interface ResumeCustomSectionCreate {
-  title: string;
-  content: string;
-  order: number;
-}
-
-export interface ResumeCustomSectionUpdate {
-  title?: string;
-  content?: string;
-  order?: number;
-}
-
-// Export types
-export interface ResumeExport {
-  id: number;
-  resume_id: number;
-  format: string;
-  status: string;
-  file_path?: string;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface ResumeExportCreate {
-  format: string;
-  status: string;
-  file_path?: string;
-}
-
-export interface ResumeExportUpdate {
-  format?: string;
-  status?: string;
-  file_path?: string;
-}
-
-
 
 // Chat types
 export interface ChatMessage {
   id: string;
-  role: 'user' | 'assistant';
+  role: string; // "user" or "assistant"
   content: string;
-  timestamp: string;
-}
-
-export interface ChatRequest {
-  message: string;
-  resume_id: number;
+  created_at: number; // timestamp
   conversation_id?: string;
 }
 
-export interface ChatResponse {
-  message: string;
-  conversation_id: string;
-  download_url?: string;
-}
-
-// Chat API types
-export interface SendMessageRequest {
-  message: string;
-  resume_id: string;
-}
-
-export interface SendMessageResponse {
-  response: string;
-  conversation_id?: string;
-}
-
-// Message types
-export interface Message {
-  id: number;
-  resume_id: number;
-  role: 'user' | 'assistant' | 'system';
-  content: string;
-  created_at: string;
-}
-
-export interface MessageList {
-  messages: Message[];
-  total: number;
+export interface ChatMessageList {
+  messages: ChatMessage[];
   has_more: boolean;
-} 
+  limit: number;
+}
+
+// Onboarding types
+export interface OnboardingResponse {
+  experience: string;
+  job_search_status: string;
+  background_field: string;
+  resume_goal: string;
+}
+
+// Task status types (for file upload)
+export interface TaskStatus {
+  state: string;
+  status: string;
+  message: string;
+  error?: string;
+}

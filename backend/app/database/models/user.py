@@ -1,4 +1,5 @@
 from sqlalchemy import Column, String, TIMESTAMP, Boolean, Integer, JSON
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from .base import Base
@@ -20,9 +21,9 @@ class User(Base):
     verification_code = Column(String(10), nullable=True)
     password_reset_token = Column(String(500), nullable=True)
     password_reset_code = Column(String(10), nullable=True)
+    resume_data = Column(JSONB, nullable=False, server_default='{}')
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     # Relationships
-    resumes = relationship("Resume", back_populates="user", cascade="all, delete-orphan", lazy="select")
     temp_resume_files = relationship("TempResumeFile", back_populates="user", cascade="all, delete-orphan", lazy="select")

@@ -1,6 +1,9 @@
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CircularProgress from '@mui/material/CircularProgress';
+import Fade from '@mui/material/Fade';
+import Zoom from '@mui/material/Zoom';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -22,46 +25,71 @@ import { getResumeAnalysis } from './analysisApi';
 const RefinePage: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const resumeId = searchParams.get('resume_id');
-  
-  const { resume, isLoading: loading, error: queryError, updateResumeInCache } = useResumeQuery(resumeId);
-  // Templates not used in the new layout
   const { user } = useUser();
   const { user: authUser, isAuthenticated, isLoading: authLoading } = useAuth();
+  
+  // No more resume_id in URL - each user has one resume
+  const { resume, isLoading: loading, error: queryError, updateResumeInCache } = useResumeQuery(false);
   const [analysis, setAnalysis] = useState<{ score: number; label: string; subtitle: string; sections: any[] } | null>(null);
   const [showSaveNotification, setShowSaveNotification] = useState(true);
   const [lastSaveTime, setLastSaveTime] = useState('');
   
-  // Check if resume belongs to user
+  // Check if user is authenticated
   useEffect(() => {
-    if (authLoading || loading) return; // Wait for authentication and resume loading
+    if (authLoading) return;
     
-    if (resume) {
-      const isGuestResume = !resumeId || resumeId === 'guest' || resume.id === -1;
-      
-      // If this is not a guest resume and user is not authenticated
-      if (!isGuestResume && !isAuthenticated) {
-        navigate('/login');
-        return;
-      }
-      
-      // If user is authenticated and this is not their resume
-      if (isAuthenticated && authUser && !isGuestResume && resume.user_id !== authUser.id) {
-        navigate('/login');
-        return;
-      }
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
     }
-  }, [resume, authUser, isAuthenticated, authLoading, loading, resumeId, navigate]);
+  }, [authUser, isAuthenticated, authLoading, navigate]);
 
-  // Resume update handler
+  const [isSaving, setIsSaving] = useState(false);
+  const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
+  const [localResume, setLocalResume] = useState<Resume | null>(resume || null);
+
+  // Update local resume when fetched resume changes
+  useEffect(() => {
+    if (resume) {
+      setLocalResume(resume);
+    }
+  }, [resume]);
+
+  // Resume update handler - just updates local state
   const handleResumeUpdate = (updatedResume: Resume) => {
-    updateResumeInCache(updatedResume);
-    const now = new Date();
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    const seconds = String(now.getSeconds()).padStart(2, '0');
-    setLastSaveTime(`${hours}:${minutes}:${seconds}`);
+    setLocalResume(updatedResume);
+  };
+
+  // Save now handler - calls PUT /resume/ API
+  const handleSaveNow = async () => {
+    if (!localResume || !isAuthenticated) return;
+    
+    setIsSaving(true);
+    setShowSuccessAnimation(false);
+    
+    try {
+      const { resumeApi } = await import('../../shared/services/api');
+      await resumeApi.updateResume(localResume);
+      
+      // Update cache and timestamp
+      updateResumeInCache(localResume);
+      const now = new Date();
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+      setLastSaveTime(`${hours}:${minutes}:${seconds}`);
+      
+      // Show success animation
+      setShowSuccessAnimation(true);
+      setTimeout(() => {
+        setShowSuccessAnimation(false);
+      }, 2000);
+    } catch (error) {
+      console.error('Error saving resume:', error);
+      // TODO: Show error notification
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   // Set initial save time
@@ -75,18 +103,19 @@ const RefinePage: React.FC = () => {
     }
   }, [resume, lastSaveTime]);
 
-  // Load analysis (mocked)
+  // Load analysis (mocked) - no resume_id needed
   useEffect(() => {
-    if (!resumeId) return;
-    getResumeAnalysis(resumeId).then(setAnalysis).catch(() => setAnalysis(null));
-  }, [resumeId]);
+    if (resume) {
+      getResumeAnalysis('user').then(setAnalysis).catch(() => setAnalysis(null));
+    }
+  }, [resume]);
 
   const handleNext = () => {
-    navigate(`/export?resume_id=${resumeId}`);
+    navigate('/export');
   };
 
   const handleBack = () => {
-    navigate(`/chat?resume_id=${resumeId}`);
+    navigate('/chat');
   };
 
   const handleStepClick = (stepIndex: number) => {
@@ -95,12 +124,12 @@ const RefinePage: React.FC = () => {
         // Do nothing - step is not clickable
         break;
       case 1: // Generate
-        navigate(`/chat?resume_id=${resumeId}`);
+        navigate('/chat');
         break;
       case 2: // Refine - already on this page
         break;
       case 3: // Export
-        navigate(`/export?resume_id=${resumeId}`);
+        navigate('/export');
         break;
       default:
         break;
@@ -110,33 +139,17 @@ const RefinePage: React.FC = () => {
   const handleTabChange = (tab: 'resumes' | 'ai-writer' | 'editor') => {
     switch (tab) {
       case 'resumes':
-        navigate('/resumes');
+        // Navigate to editor (user has one resume)
+        navigate('/refine');
         break;
       case 'ai-writer':
-        navigate(`/chat?resume_id=${resumeId}`);
+        navigate('/chat');
         break;
       case 'editor':
         // Already on editor page
         break;
     }
   };
-
-  // Removed preview/export logic for the new 2-column layout
-
-  // If no resumeId, show error
-  if (!resumeId) {
-    return (
-      <Box sx={{ 
-        height: '100vh', 
-        bgcolor: COLORS.resume.section.background
-      }}>
-        <ErrorMessage 
-          message={t('refine.error.noResumeId')} 
-          onRetry={() => window.location.reload()}
-        />
-      </Box>
-    );
-  }
 
   // If loading, show indicator
   if (loading) {
@@ -218,7 +231,7 @@ const RefinePage: React.FC = () => {
         </Box>
         {/* Right column: Editor accordions */}
         <Box sx={{ flex: 1, minWidth: 0, position: 'relative' }}>
-          <EditorAccordion resume={resume} onResumeUpdate={handleResumeUpdate} resumeId={resumeId} />
+          <EditorAccordion resume={localResume || resume} onResumeUpdate={handleResumeUpdate} />
           
           {/* Save Notification */}
           {showSaveNotification && (
@@ -237,31 +250,50 @@ const RefinePage: React.FC = () => {
               border: '1px solid #e5e7eb',
               zIndex: 1000,
             }}>
-              <CheckCircleIcon sx={{ width: '14px', height: '14px', color: '#10b981' }} />
+              {/* Icon with animation */}
+              <Box sx={{ width: '14px', height: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                {isSaving ? (
+                  <Fade in={true} timeout={300}>
+                    <CircularProgress size={14} thickness={4} sx={{ color: '#2563eb' }} />
+                  </Fade>
+                ) : (
+                  <Zoom in={!isSaving} timeout={400} style={{ transitionDelay: showSuccessAnimation ? '0ms' : '0ms' }}>
+                    <CheckCircleIcon 
+                      sx={{ 
+                        width: '14px', 
+                        height: '14px', 
+                        color: showSuccessAnimation ? '#10b981' : '#10b981',
+                        animation: showSuccessAnimation ? 'pulse 0.5s ease-in-out' : 'none',
+                        '@keyframes pulse': {
+                          '0%': { transform: 'scale(1)' },
+                          '50%': { transform: 'scale(1.2)' },
+                          '100%': { transform: 'scale(1)' },
+                        }
+                      }} 
+                    />
+                  </Zoom>
+                )}
+              </Box>
+              
               <Typography sx={{ fontSize: '11px', color: '#6b7280' }}>
                 All changes saved at {lastSaveTime}
               </Typography>
               <button 
-                onClick={() => {
-                  const now = new Date();
-                  const hours = String(now.getHours()).padStart(2, '0');
-                  const minutes = String(now.getMinutes()).padStart(2, '0');
-                  const seconds = String(now.getSeconds()).padStart(2, '0');
-                  setLastSaveTime(`${hours}:${minutes}:${seconds}`);
-                }}
+                onClick={handleSaveNow}
+                disabled={isSaving}
                 style={{
-                  backgroundColor: '#dbeafe',
-                  color: '#2563eb',
+                  backgroundColor: isSaving ? '#e5e7eb' : '#dbeafe',
+                  color: isSaving ? '#9ca3af' : '#2563eb',
                   fontSize: '11px',
                   fontWeight: 500,
                   padding: '4px 8px',
                   borderRadius: '6px',
                   border: 'none',
-                  cursor: 'pointer',
+                  cursor: isSaving ? 'not-allowed' : 'pointer',
                   textTransform: 'none',
                 }}
               >
-                Save now
+                {isSaving ? 'Saving...' : 'Save now'}
               </button>
             </Box>
           )}

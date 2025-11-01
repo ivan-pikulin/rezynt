@@ -33,47 +33,29 @@ export class TemplateService {
 
 
   /**
-   * Resume data validation
+   * Resume data validation (soft check - returns warnings, not blocking)
    */
   static validateResumeData(data: ResumeData, t?: (key: string) => string): { isValid: boolean; errors: string[] } {
-    const errors: string[] = [];
+    const warnings: string[] = [];
 
-    // Helper function to get translated error message
-    const getError = (key: string, fallback: string): string => {
+    // Helper function to get translated warning message
+    const getWarning = (key: string, fallback: string): string => {
       return t ? t(key) : fallback;
     };
 
-    // Check personal information
-    if (!data.first_name) errors.push(getError('templates.validation.firstNameRequired', 'First name is required'));
-    if (!data.last_name) errors.push(getError('templates.validation.lastNameRequired', 'Last name is required'));
-    if (!data.location) errors.push(getError('templates.validation.locationRequired', 'Location is required'));
-
-    // Check contacts
-    if (!data.contacts || data.contacts.length === 0) {
-      errors.push(getError('templates.validation.contactsRequired', 'At least one contact is required'));
+    // Soft checks for better user experience
+    if (!data.personal_info?.first_name && !data.personal_info?.last_name) {
+      warnings.push(getWarning('templates.validation.nameRecommended', 'Name is recommended for better resume'));
     }
 
-    // Check professional summary
-    if (!data.professional_summary) errors.push(getError('templates.validation.summaryRequired', 'Professional summary is required'));
-
-    // Check skills
-    if (!data.skills || data.skills.length === 0) {
-      errors.push(getError('templates.validation.skillsRequired', 'At least one skill is required'));
+    if (!data.professional_summary) {
+      warnings.push(getWarning('templates.validation.summaryRecommended', 'Professional summary is recommended'));
     }
 
-    // Check experience
-    if (!data.experience || data.experience.length === 0) {
-      errors.push(getError('templates.validation.experienceRequired', 'At least one experience entry is required'));
-    }
-
-    // Check education
-    if (!data.education || data.education.length === 0) {
-      errors.push(getError('templates.validation.educationRequired', 'At least one education entry is required'));
-    }
-
+    // All fields are optional now - always valid
     return {
-      isValid: errors.length === 0,
-      errors
+      isValid: true,
+      errors: warnings
     };
   }
 } 

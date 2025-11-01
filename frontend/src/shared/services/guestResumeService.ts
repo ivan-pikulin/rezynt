@@ -1,6 +1,6 @@
 import { Resume } from './api/types';
 
-const STORAGE_KEY = 'guest_resume_v1';
+const STORAGE_KEY = 'guest_resume_v2';
 
 export const guestResumeService = {
   createOrGet(): Resume {
@@ -8,24 +8,13 @@ export const guestResumeService = {
     if (existing) {
       return JSON.parse(existing);
     }
-    const now = new Date().toISOString();
     const resume: Resume = {
-      id: -1,
-      user_id: -1,
-      title: 'My Resume',
-      template_slug: 'nume',
       professional_summary: '',
-      conversation_id: undefined,
-      from_upload: false,
-      created_at: now,
-      updated_at: now,
-      first_name: '',
-      last_name: '',
-      location: '',
-      contacts: [],
       skills: [],
-      experience: [],
-      education: []
+      work_experience: [],
+      education: [],
+      languages_spoken: [],
+      awards: []
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(resume));
     return resume;
@@ -38,7 +27,7 @@ export const guestResumeService = {
 
   update(patch: Partial<Resume>): Resume {
     const current = this.createOrGet();
-    const updated = { ...current, ...patch, updated_at: new Date().toISOString() } as Resume;
+    const updated = { ...current, ...patch } as Resume;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
     return updated;
   },
@@ -47,5 +36,3 @@ export const guestResumeService = {
     localStorage.removeItem(STORAGE_KEY);
   }
 };
-
-

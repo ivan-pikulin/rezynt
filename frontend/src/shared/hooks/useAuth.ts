@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { TokenResponse } from '../../features/auth/types/auth';
 import { tokenService } from '../services/api/tokenService';
 import { userApi } from '../services/api';
-import { migrateGuestResumeIfAny } from '../services/guestResumeMigration';
 import { User } from '../services/api/types';
 
 interface UseAuthReturn {
@@ -118,14 +117,6 @@ export const useAuth = (): UseAuthReturn => {
     try {
       const userData = await userApi.getCurrentUser();
       setUser(userData);
-      
-      // Try to migrate guest resume if exists (non-blocking)
-      try {
-        await migrateGuestResumeIfAny();
-      } catch (migrationError) {
-        console.error('Guest resume migration failed, but login continues:', migrationError);
-        // Don't interrupt login process for migration errors
-      }
     } catch (error) {
       console.error('Error loading user data after login:', error);
       tokenService.clearTokens();

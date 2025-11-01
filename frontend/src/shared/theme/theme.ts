@@ -1,6 +1,6 @@
 import { createTheme, Theme } from '@mui/material/styles';
 
-// Create custom theme with modified breakpoints
+// Create custom theme with modified breakpoints and components
 const theme = createTheme({
   breakpoints: {
     values: {
@@ -9,6 +9,26 @@ const theme = createTheme({
       md: 900,
       lg: 1200,
       xl: 1536,
+    },
+  },
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          textTransform: 'none',
+          fontSize: '12px',
+          fontWeight: 500,
+          borderRadius: '6px',
+        },
+      },
+    },
+    MuiFormControlLabel: {
+      styleOverrides: {
+        label: {
+          fontSize: '12px',
+          fontWeight: 500,
+        },
+      },
     },
   },
 });

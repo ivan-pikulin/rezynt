@@ -104,10 +104,10 @@ const StartOptions: React.FC<StartOptionsProps> = ({
       if (!isAuthenticated) {
         // Guest flow: create local resume and go to refine/chat
         guestResumeService.createOrGet();
-        navigate(`/refine?resume_id=guest`);
+        navigate('/refine');
       } else {
-        const result = await startApi.startFromScratch();
-        navigate(`/chat?resume_id=${result.id}`);
+        // User authenticated - just go to chat (user has one resume)
+        navigate('/chat');
       }
     } catch (error) {
       console.error('Failed to start from scratch:', error);
@@ -142,7 +142,7 @@ const StartOptions: React.FC<StartOptionsProps> = ({
           localStorage.setItem(`startup_message_${result.resume.id}`, result.startupMessage);
         }
         
-        navigate(`/chat?resume_id=${result.resume.id}`);
+        navigate('/chat');
       } catch (error) {
         console.error('Failed to upload resume:', error);
         // Can add user notification about error

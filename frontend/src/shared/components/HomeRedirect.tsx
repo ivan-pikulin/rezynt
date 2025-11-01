@@ -37,11 +37,9 @@ const HomeRedirect: React.FC = () => {
     }
 
     // For authenticated users who have completed onboarding,
-    // we need to check if they have resumes
-    // Since we can't conditionally call useResumes, we'll redirect to start
-    // and let the start page handle the resume check
+    // redirect to their resume editor (each user has one resume)
     setHasNavigated(true);
-    navigate('/start', { replace: true });
+    navigate('/refine', { replace: true });
   }, [authLoading, isAuthenticated, shouldShowOnboarding, hasNavigated, navigate]);
 
   // Always show loading while determining where to redirect

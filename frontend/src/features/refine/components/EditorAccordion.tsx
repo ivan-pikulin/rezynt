@@ -1,21 +1,13 @@
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import AddIcon from '@mui/icons-material/Add';
-import DeleteIcon from '@mui/icons-material/Delete';
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Chip from '@mui/material/Chip';
 import Divider from '@mui/material/Divider';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
-import { resumeApi } from '../../../shared/services/api';
-import { guestResumeService } from '../../../shared/services/guestResumeService';
-import { useAuth } from '../../../shared/hooks/useAuth';
 import { Resume } from '../../../shared/services/api/types';
 import EducationEditor from './EducationEditor';
 import ExperienceEditor from './ExperienceEditor';
@@ -24,52 +16,81 @@ import SkillsEditor from './SkillsEditor';
 type Props = {
   resume: Resume;
   onResumeUpdate: (resume: Resume) => void;
-  resumeId?: string | null;
 };
 
-const EditorAccordion: React.FC<Props> = ({ resume, onResumeUpdate, resumeId }) => {
+const EditorAccordion: React.FC<Props> = ({ resume, onResumeUpdate }) => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
-  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
 
   const [localResume, setLocalResume] = useState<Resume>(resume);
-  const [newContact, setNewContact] = useState('');
 
   const [formData, setFormData] = useState({
-    title: resume.title,
     professional_summary: resume.professional_summary || '',
-    first_name: resume.first_name || '',
-    last_name: resume.last_name || '',
-    location: resume.location || ''
+    first_name: resume.personal_info?.first_name || '',
+    last_name: resume.personal_info?.last_name || '',
+    current_role: resume.personal_info?.current_role || '',
+    city: resume.personal_info?.city || '',
+    country: resume.personal_info?.country || '',
+    // Contacts
+    email: resume.personal_info?.contacts?.email || '',
+    phone: resume.personal_info?.contacts?.phone || '',
+    telegram: resume.personal_info?.contacts?.telegram || '',
+    whatsapp: resume.personal_info?.contacts?.whatsapp || '',
+    linkedin: resume.personal_info?.contacts?.linkedin || '',
+    github: resume.personal_info?.contacts?.github || '',
+    website: resume.personal_info?.contacts?.website || '',
+    twitter: resume.personal_info?.contacts?.twitter || '',
+    instagram: resume.personal_info?.contacts?.instagram || ''
   });
-
-  const isGuestResume = useMemo(() => !resumeId || resumeId === 'guest' || resume.id === -1, [resumeId, resume.id]);
-
-  useEffect(() => {
-    if (authLoading) return;
-    if (!isGuestResume && !isAuthenticated) {
-      navigate('/login');
-      return;
-    }
-    if (isAuthenticated && user && !isGuestResume && resume.user_id !== user.id) {
-      navigate('/login');
-      return;
-    }
-  }, [authLoading, isAuthenticated, isGuestResume, navigate, resume.user_id, user]);
 
   useEffect(() => {
     setLocalResume(resume);
     setFormData({
-      title: resume.title,
       professional_summary: resume.professional_summary || '',
-      first_name: resume.first_name || '',
-      last_name: resume.last_name || '',
-      location: resume.location || ''
+      first_name: resume.personal_info?.first_name || '',
+      last_name: resume.personal_info?.last_name || '',
+      current_role: resume.personal_info?.current_role || '',
+      city: resume.personal_info?.city || '',
+      country: resume.personal_info?.country || '',
+      // Contacts
+      email: resume.personal_info?.contacts?.email || '',
+      phone: resume.personal_info?.contacts?.phone || '',
+      telegram: resume.personal_info?.contacts?.telegram || '',
+      whatsapp: resume.personal_info?.contacts?.whatsapp || '',
+      linkedin: resume.personal_info?.contacts?.linkedin || '',
+      github: resume.personal_info?.contacts?.github || '',
+      website: resume.personal_info?.contacts?.website || '',
+      twitter: resume.personal_info?.contacts?.twitter || '',
+      instagram: resume.personal_info?.contacts?.instagram || ''
     });
   }, [resume]);
 
   const handleFieldChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    
+    // Update local resume immediately
+    const updated = { ...localResume };
+    if (!updated.personal_info) {
+      updated.personal_info = {};
+    }
+    
+    // Contact fields
+    const contactFields = ['email', 'phone', 'telegram', 'whatsapp', 'linkedin', 'github', 'website', 'twitter', 'instagram'];
+    
+    if (field === 'professional_summary') {
+      updated.professional_summary = value;
+    } else if (contactFields.includes(field)) {
+      // Update contacts
+      if (!updated.personal_info.contacts) {
+        updated.personal_info.contacts = {};
+      }
+      (updated.personal_info.contacts as any)[field] = value;
+    } else {
+      // Update personal info fields
+      (updated.personal_info as any)[field] = value;
+    }
+    
+    setLocalResume(updated);
+    onResumeUpdate(updated);
   };
 
   const accordionStyles = {
@@ -118,29 +139,120 @@ const EditorAccordion: React.FC<Props> = ({ resume, onResumeUpdate, resumeId }) 
   return (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <Box sx={{ flex: 1, overflow: 'auto', p: 2, bgcolor: '#F5F7FA' }}>
-        {/* Personal */}
+        {/* Personal Info */}
         <Accordion disableGutters defaultExpanded sx={accordionStyles}>
           <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color: '#6b7280' }} />}>
             <Typography sx={sectionNameStyles}>{t('refine.editor.personalInfo')}</Typography>
           </AccordionSummary>
           <AccordionDetails>
             <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2, mb: 2 }}>
-              <TextField size="small" label={t('refine.editor.firstName')} value={formData.first_name} onChange={(e) => handleFieldChange('first_name', e.target.value)} sx={inputStyles} />
-              <TextField size="small" label={t('refine.editor.lastName')} value={formData.last_name} onChange={(e) => handleFieldChange('last_name', e.target.value)} sx={inputStyles} />
-              <TextField size="small" fullWidth label={t('refine.editor.location')} value={formData.location} onChange={(e) => handleFieldChange('location', e.target.value)} sx={inputStyles} />
+              <TextField 
+                size="small" 
+                placeholder={t('refine.editor.firstName')} 
+                value={formData.first_name} 
+                onChange={(e) => handleFieldChange('first_name', e.target.value)} 
+                sx={inputStyles} 
+              />
+              <TextField 
+                size="small" 
+                placeholder={t('refine.editor.lastName')} 
+                value={formData.last_name} 
+                onChange={(e) => handleFieldChange('last_name', e.target.value)} 
+                sx={inputStyles} 
+              />
+              <TextField 
+                size="small" 
+                fullWidth 
+                placeholder={t('refine.editor.currentRole', 'Current Role')} 
+                value={formData.current_role} 
+                onChange={(e) => handleFieldChange('current_role', e.target.value)} 
+                sx={inputStyles} 
+              />
+            </Box>
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2, mb: 2 }}>
+              <TextField 
+                size="small" 
+                placeholder={t('refine.editor.city', 'City')} 
+                value={formData.city} 
+                onChange={(e) => handleFieldChange('city', e.target.value)} 
+                sx={inputStyles} 
+              />
+              <TextField 
+                size="small" 
+                placeholder={t('refine.editor.country', 'Country')} 
+                value={formData.country} 
+                onChange={(e) => handleFieldChange('country', e.target.value)} 
+                sx={inputStyles} 
+              />
             </Box>
             <Divider sx={{ my: 2 }} />
-            <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 600 }}>{t('refine.editor.contacts')}</Typography>
-            <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
-              <TextField fullWidth size="small" placeholder={t('refine.editor.addContactPlaceholder')} value={newContact} onChange={(e) => setNewContact(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && newContact.trim() && setNewContact('')} sx={inputStyles} />
-              <Button size="small" variant="contained" startIcon={<AddIcon />} disabled={!newContact.trim()} onClick={() => setNewContact('')}>
-                {t('refine.editor.add')}
-              </Button>
-            </Box>
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-              {localResume.contacts?.map((c, i) => (
-                <Chip key={i} label={c} onDelete={() => { /* managed in full editor; keep readonly removal to avoid scope creep */ }} deleteIcon={<DeleteIcon />} variant="outlined" />
-              ))}
+            <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 600 }}>
+              {t('refine.editor.contacts')}
+            </Typography>
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+              <TextField 
+                size="small" 
+                placeholder={t('refine.editor.email')} 
+                value={formData.email} 
+                onChange={(e) => handleFieldChange('email', e.target.value)} 
+                sx={inputStyles} 
+              />
+              <TextField 
+                size="small" 
+                placeholder={t('refine.editor.phone')} 
+                value={formData.phone} 
+                onChange={(e) => handleFieldChange('phone', e.target.value)} 
+                sx={inputStyles} 
+              />
+              <TextField 
+                size="small" 
+                placeholder="Telegram" 
+                value={formData.telegram} 
+                onChange={(e) => handleFieldChange('telegram', e.target.value)} 
+                sx={inputStyles} 
+              />
+              <TextField 
+                size="small" 
+                placeholder="WhatsApp" 
+                value={formData.whatsapp} 
+                onChange={(e) => handleFieldChange('whatsapp', e.target.value)} 
+                sx={inputStyles} 
+              />
+              <TextField 
+                size="small" 
+                placeholder="LinkedIn" 
+                value={formData.linkedin} 
+                onChange={(e) => handleFieldChange('linkedin', e.target.value)} 
+                sx={inputStyles} 
+              />
+              <TextField 
+                size="small" 
+                placeholder="GitHub" 
+                value={formData.github} 
+                onChange={(e) => handleFieldChange('github', e.target.value)} 
+                sx={inputStyles} 
+              />
+              <TextField 
+                size="small" 
+                placeholder="Website" 
+                value={formData.website} 
+                onChange={(e) => handleFieldChange('website', e.target.value)} 
+                sx={inputStyles} 
+              />
+              <TextField 
+                size="small" 
+                placeholder="Twitter" 
+                value={formData.twitter} 
+                onChange={(e) => handleFieldChange('twitter', e.target.value)} 
+                sx={inputStyles} 
+              />
+              <TextField 
+                size="small" 
+                placeholder="Instagram" 
+                value={formData.instagram} 
+                onChange={(e) => handleFieldChange('instagram', e.target.value)} 
+                sx={inputStyles} 
+              />
             </Box>
           </AccordionDetails>
         </Accordion>
@@ -151,7 +263,15 @@ const EditorAccordion: React.FC<Props> = ({ resume, onResumeUpdate, resumeId }) 
             <Typography sx={sectionNameStyles}>{t('refine.editor.professionalSummary')}</Typography>
           </AccordionSummary>
           <AccordionDetails>
-            <TextField fullWidth size="small" multiline rows={4} sx={inputStyles} value={formData.professional_summary} onChange={(e) => handleFieldChange('professional_summary', e.target.value)} />
+            <TextField 
+              fullWidth 
+              size="small" 
+              multiline 
+              rows={4} 
+              sx={inputStyles} 
+              value={formData.professional_summary} 
+              onChange={(e) => handleFieldChange('professional_summary', e.target.value)} 
+            />
           </AccordionDetails>
         </Accordion>
 
@@ -163,13 +283,10 @@ const EditorAccordion: React.FC<Props> = ({ resume, onResumeUpdate, resumeId }) 
           <AccordionDetails>
             <SkillsEditor
               skills={localResume.skills || []}
-              resumeId={resumeId || null}
               onSkillsUpdate={(updatedSkills) => {
-                setLocalResume((prev) => {
-                  const updated = { ...prev, skills: updatedSkills };
+                const updated = { ...localResume, skills: updatedSkills };
+                setLocalResume(updated);
                   onResumeUpdate(updated);
-                  return updated;
-                });
               }}
               inputStyles={inputStyles}
             />
@@ -183,14 +300,11 @@ const EditorAccordion: React.FC<Props> = ({ resume, onResumeUpdate, resumeId }) 
           </AccordionSummary>
           <AccordionDetails>
             <ExperienceEditor
-              experience={localResume.experience || []}
-              resumeId={resumeId || null}
+              experience={localResume.work_experience || []}
               onExperienceUpdate={(updatedExperience) => {
-                setLocalResume((prev) => {
-                  const updated = { ...prev, experience: updatedExperience };
+                const updated = { ...localResume, work_experience: updatedExperience };
+                setLocalResume(updated);
                   onResumeUpdate(updated);
-                  return updated;
-                });
               }}
             />
           </AccordionDetails>
@@ -204,13 +318,10 @@ const EditorAccordion: React.FC<Props> = ({ resume, onResumeUpdate, resumeId }) 
           <AccordionDetails>
             <EducationEditor
               education={localResume.education || []}
-              resumeId={resumeId || null}
               onEducationUpdate={(updatedEducation) => {
-                setLocalResume((prev) => {
-                  const updated = { ...prev, education: updatedEducation };
+                const updated = { ...localResume, education: updatedEducation };
+                setLocalResume(updated);
                   onResumeUpdate(updated);
-                  return updated;
-                });
               }}
             />
           </AccordionDetails>
@@ -222,5 +333,3 @@ const EditorAccordion: React.FC<Props> = ({ resume, onResumeUpdate, resumeId }) 
 };
 
 export default EditorAccordion;
-
-

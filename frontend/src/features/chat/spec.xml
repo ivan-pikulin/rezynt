@@ -43,7 +43,7 @@
                     <feature name="no_border_radius" desc="Removed border radius and shadow on mobile" />
                 </mobile_features>
                 <navigation_rules>
-                    <rule name="back_arrow_behavior" desc="Back arrow in Header routes unauthenticated users to /start, authenticated users to /resumes" />
+                    <rule name="back_arrow_behavior" desc="Back arrow in Header routes to /start" />
                     <rule name="start_step_click" desc="Start step is clickable on ChatPage when user is unauthenticated and routes to /start" />
                 </navigation_rules>
             </component>

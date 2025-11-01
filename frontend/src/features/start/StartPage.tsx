@@ -8,7 +8,6 @@ import StartOptions from './components/StartOptions';
 import { useUser } from '../../shared/hooks';
 import { COLORS } from '../../shared/theme/theme';
 import PaywallModal from '../../shared/components/PaywallModal';
-import { useResumes } from '../resumes/hooks/useResumes';
 import { resumeApi } from '../../shared/services/api';
 import GradientSpinnerAnimation from '../../shared/components/GradientSpinnerAnimation';
 
@@ -17,14 +16,11 @@ const StartPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user } = useUser();
-  const { resumes, isLoading: resumesLoading } = useResumes();
   const [showPaywall, setShowPaywall] = React.useState(false);
   const [isProcessingUpload, setIsProcessingUpload] = useState(false);
   const [uploadMessage, setUploadMessage] = useState('');
   const [taskId, setTaskId] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
-
-  const hasResumes = Array.isArray(resumes) && resumes.length > 0;
 
   // List of messages to display during upload processing
   const uploadMessages = [
@@ -65,18 +61,13 @@ const StartPage: React.FC = () => {
         try {
           const result = await resumeApi.getUploadResult(taskIdParam);
           
-          if (result.status === 'completed' && result.resume_id) {
-            // Success - save startup message to localStorage and navigate to chat
+          if (result.status === 'completed') {
+            // Success - navigate to chat
             clearInterval(interval);
             setIsProcessingUpload(false);
             setUploadError(null);
             
-            // Save startup message to localStorage for use in chat
-            if (result.startup_message) {
-              localStorage.setItem(`startup_message_${result.resume_id}`, result.startup_message);
-            }
-            
-            navigate(`/chat?resume_id=${result.resume_id}`, { replace: true });
+            navigate('/chat', { replace: true });
           } else if (result.status === 'error' || result.state === 'FAILURE') {
             // Error - stop processing and show error
             clearInterval(interval);
@@ -109,25 +100,9 @@ const StartPage: React.FC = () => {
     }
   }, [searchParams, user, navigate, isProcessingUpload]);
 
-  // Redirect logic for registered free users with resumes
-  useEffect(() => {
-    // Only redirect if we have all the necessary data and not processing upload
-    if (user && resumes && !resumesLoading && !isProcessingUpload) {
-      const isRegistered = user.is_registered;
-      const isFreeUser = !user.is_premium;
-      const hasResumes = Array.isArray(resumes) && resumes.length > 0;
-      
-      // If user is registered, on free plan, and has resumes, redirect to chat with first resume
-      if (isRegistered && isFreeUser && hasResumes) {
-        const firstResume = resumes[0];
-        navigate(`/chat?resume_id=${firstResume.id}`, { replace: true });
-      }
-    }
-  }, [user, resumes, resumesLoading, navigate, isProcessingUpload]);
-
   const handleStepClick = (stepIndex: number) => {
     switch (stepIndex) {
-              case 0: // Start - already on this page
+      case 0: // Start - already on this page
         break;
       case 1: // Generate
         navigate('/chat');
@@ -146,7 +121,8 @@ const StartPage: React.FC = () => {
   const handleTabChange = (tab: 'resumes' | 'ai-writer' | 'editor') => {
     switch (tab) {
       case 'resumes':
-        navigate('/resumes');
+        // Navigate to editor (user has one resume)
+        navigate('/refine');
         break;
       case 'ai-writer':
         navigate('/chat');
@@ -158,18 +134,12 @@ const StartPage: React.FC = () => {
   };
 
   const guardStartFromScratch = () => {
-    if (hasResumes) {
-      setShowPaywall(true);
-      return false;
-    }
+    // No guard needed - user can overwrite their resume
     return true;
   };
 
   const guardUploadResume = () => {
-    if (hasResumes) {
-      setShowPaywall(true);
-      return false;
-    }
+    // No guard needed - user can overwrite their resume
     return true;
   };
 
@@ -180,7 +150,7 @@ const StartPage: React.FC = () => {
       flexDirection: 'column', 
       bgcolor: COLORS.resume.section.background
     }}>
-              {/* Common header */}
+      {/* Common header */}
       <Header 
         activeStep={0} 
         showBackButton={false}
@@ -193,25 +163,45 @@ const StartPage: React.FC = () => {
         disableStepsClick={!user}
       />
       
-              {/* Main area */}
+      {/* Main area */}
       <Box sx={{ 
         flex: 1, 
         display: 'flex', 
         justifyContent: 'center',
         alignItems: 'center',
-                  p: { xs: 2, sm: 3, md: 4 }, // Adaptive padding
-                  py: { xs: 3, sm: 4, md: 6 }, // Additional vertical padding
-          minHeight: { xs: 'calc(100vh - 64px)', sm: 'calc(100vh - 80px)' } // Account for header height
+        p: { xs: 2, sm: 3, md: 4 },
+        py: { xs: 3, sm: 4, md: 6 },
+        minHeight: { xs: 'calc(100vh - 64px)', sm: 'calc(100vh - 80px)' }
       }}>
-        <StartOptions 
-          onGuardStartFromScratch={guardStartFromScratch}
-          onGuardUploadResume={guardUploadResume}
-          isProcessingUpload={isProcessingUpload}
-          uploadMessage={uploadMessage}
-          uploadError={uploadError}
-          onClearError={() => setUploadError(null)}
-          isStartFromScratchDisabled={!!taskId}
-        />
+        {isProcessingUpload ? (
+          <Box sx={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            gap: 3,
+            maxWidth: 500,
+            textAlign: 'center'
+          }}>
+            <GradientSpinnerAnimation size={60} />
+            <Typography variant="h6" sx={{ color: COLORS.resume.text.primary, fontWeight: 500 }}>
+              {uploadMessage}
+            </Typography>
+            <Typography variant="body2" sx={{ color: COLORS.resume.text.secondary }}>
+              {t('start.uploadProcessing')}
+            </Typography>
+          </Box>
+        ) : (
+          <StartOptions 
+            onGuardStartFromScratch={guardStartFromScratch}
+            onGuardUploadResume={guardUploadResume}
+            isProcessingUpload={isProcessingUpload}
+            uploadMessage={uploadMessage}
+            uploadError={uploadError}
+            onClearError={() => setUploadError(null)}
+            isStartFromScratchDisabled={!!taskId}
+          />
+        )}
       </Box>
       <PaywallModal 
         open={showPaywall}
@@ -222,4 +212,4 @@ const StartPage: React.FC = () => {
   );
 };
 
-export default StartPage; 
+export default StartPage;

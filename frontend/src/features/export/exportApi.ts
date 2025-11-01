@@ -4,7 +4,7 @@ import { ExportResponse } from '../../shared/services/api/types';
 export interface PDFExportRequest {
   html_content: string;
   filename?: string;
-  template_slug?: string;
+  template_slug: string; // Required: nume, luma, alto, vero
 }
 
 export const exportApi = {
@@ -20,9 +20,9 @@ export const exportApi = {
     });
   },
 
-  exportToPDF: async (resumeId: string, request: PDFExportRequest): Promise<Blob> => {
+  exportToPDF: async (request: PDFExportRequest): Promise<Blob> => {
     const response = await baseApi.post(
-      `/resume/${resumeId}/export-pdf`,
+      `/resume/export-pdf`,
       request,
       {
         responseType: 'blob',

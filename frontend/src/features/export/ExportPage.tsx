@@ -24,40 +24,29 @@ import TemplateSelectionCards from './components/TemplateSelectionCards';
 const ExportPage: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const resumeId = searchParams.get('resume_id');
   const templateContainerRef = useRef<HTMLDivElement>(null);
-  const { resume, isLoading: loading, error: queryError, refreshResume } = useResumeQuery(resumeId);
-  const { selectedTemplate, updateTemplate } = useTemplate(resumeId, resume?.template_slug);
+  
+  // No more resume_id in URL - each user has one resume
+  const { resume, isLoading: loading, error: queryError, refreshResume } = useResumeQuery(false);
+  const { selectedTemplate, updateTemplate } = useTemplate(null, undefined);
 
   const [showSuccess, setShowSuccess] = useState(false);
   const [showRegistration, setShowRegistration] = useState(false);
   const { user, isAuthenticated } = useAuthContext();
   const { user: authUser, isAuthenticated: authAuthenticated, isLoading: authLoading } = useAuth();
 
-  // Check if resume belongs to user
+  // Check if user is authenticated
   useEffect(() => {
-    if (authLoading || loading) return; // Wait for authentication and resume loading
+    if (authLoading) return;
     
-    if (resume) {
-      const isGuestResume = !resumeId || resumeId === 'guest' || resume.id === -1;
-      
-      // If this is not a guest resume and user is not authenticated
-      if (!isGuestResume && !authAuthenticated) {
-        navigate('/login');
-        return;
-      }
-      
-      // If user is authenticated and this is not their resume
-      if (authAuthenticated && authUser && !isGuestResume && resume.user_id !== authUser.id) {
-        navigate('/login');
-        return;
-      }
+    if (!authAuthenticated) {
+      navigate('/login');
+      return;
     }
-  }, [resume, authUser, authAuthenticated, authLoading, loading, resumeId, navigate]);
+  }, [authUser, authAuthenticated, authLoading, navigate]);
 
   const handleBack = () => {
-    navigate(`/refine?resume_id=${resumeId}`);
+    navigate('/refine');
   };
 
   const handleStepClick = (stepIndex: number) => {
@@ -66,10 +55,10 @@ const ExportPage: React.FC = () => {
         // Do nothing - step is not clickable
         break;
       case 1: // Generate
-        navigate(`/chat?resume_id=${resumeId}`);
+        navigate('/chat');
         break;
       case 2: // Refine
-        navigate(`/refine?resume_id=${resumeId}`);
+        navigate('/refine');
         break;
       case 3: // Export - already on this page
         break;
@@ -81,13 +70,14 @@ const ExportPage: React.FC = () => {
   const handleTabChange = (tab: 'resumes' | 'ai-writer' | 'editor') => {
     switch (tab) {
       case 'resumes':
-        navigate('/resumes');
+        // Navigate to editor (user has one resume)
+        navigate('/refine');
         break;
       case 'ai-writer':
-        navigate(`/chat?resume_id=${resumeId}`);
+        navigate('/chat');
         break;
       case 'editor':
-        navigate(`/refine?resume_id=${resumeId}`);
+        navigate('/refine');
         break;
     }
   };
@@ -153,7 +143,9 @@ const ExportPage: React.FC = () => {
       await refreshResume();
       const displayData = convertApiResumeToDisplayData(resume);
       const txtContent = buildTxtFromDisplayData(displayData);
-      const fullName = `${displayData.first_name || ''} ${displayData.last_name || ''}`.trim();
+      const firstName = resume.personal_info?.first_name || '';
+      const lastName = resume.personal_info?.last_name || '';
+      const fullName = `${firstName} ${lastName}`.trim();
       const filename = `${(fullName || 'resume').replace(/\s+/g, '_')}.txt`;
       const blob = new Blob([txtContent], { type: 'text/plain;charset=utf-8' });
       const url = window.URL.createObjectURL(blob);
@@ -256,21 +248,6 @@ const ExportPage: React.FC = () => {
   const handleBackToStart = () => {
     setShowSuccess(false);
   };
-
-  // If no resumeId, show error
-  if (!resumeId) {
-    return (
-      <Box sx={{ 
-        height: '100vh', 
-        bgcolor: '#f5f6fa'
-      }}>
-        <ErrorMessage 
-          message={t('refine.error.noResumeId')} 
-          onRetry={() => window.location.reload()}
-        />
-      </Box>
-    );
-  }
 
   // If loading, show indicator
   if (loading) {

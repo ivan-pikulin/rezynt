@@ -30,11 +30,9 @@
         │   ├── components/ # Refine-specific components
         │   ├── RefinePage.tsx # Main refine page
         │   └── spec.xml # Refine feature specification
-        ├── resumes/ # Resumes feature - display all user resumes
-        │   ├── hooks/ # Custom hooks for resume operations
-        │   ├── ResumesPage.tsx # Main resumes page with grid layout
-        │   ├── resumeApi.ts # API functions for resume operations
-        │   ├── index.ts # Feature exports
+        ├── resumes/ # DEPRECATED - Removed (users now have one resume in User.resume_data)
+        │   ├── hooks/ # Custom hooks for resume operations (may still be used elsewhere)
+        │   ├── resumeApi.ts # Re-exports from shared/services/api
         │   └── spec.xml # Resumes feature specification
         └── export/ # Export feature - pricing and download
             ├── components/ # Export-specific components
@@ -68,8 +66,9 @@
             <component name="TemplateSelector" desc="Vertical list of template options"/>
             <component name="TemplateThumbnail" desc="Individual template card with preview"/>
         </feature>
-        <feature name="resumes" desc="Resume management and display">
-            <component name="ResumesPage" desc="Main resumes page with grid layout of resume cards"/>
+        <feature name="resumes" desc="DEPRECATED - Removed">
+            <note>ResumesPage removed - users now have one resume stored directly in User.resume_data JSONB field</note>
+            <note>Navigation changed: users go directly to /refine instead of /resumes</note>
         </feature>
         <feature name="export" desc="Pricing and export functionality">
             <component name="ExportPage" desc="Main export page with pricing table"/>
@@ -86,10 +85,8 @@
     </shared_components>
 
     <navigation>
-        <route path="/resumes" desc="Resumes management page">
-            <component>ResumesPage</component>
-            <auth>Required</auth>
-        </route>
+        <note>ResumesPage removed - users now have one resume stored in User.resume_data</note>
+        <note>Navigation updated to use /refine, /chat, /export without resume_id parameter</note>
     </navigation>
 
     <deps>

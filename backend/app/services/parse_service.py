@@ -15,15 +15,14 @@ logger = logging.getLogger(__name__)
 
 
 class ParsedResumeData(BaseModel):
-    """Data structure for resume parsing via OpenAI"""
-    first_name: Optional[str] = None
-    last_name: Optional[str] = None
-    location: Optional[str] = None
+    """Data structure for resume parsing via OpenAI - matches ResumeData JSONB structure"""
+    personal_info: Optional[Dict[str, Any]] = None
     professional_summary: Optional[str] = None
-    contacts: List[str] = []
-    skills: List[str] = []
-    experience: List[Dict[str, Any]] = []
-    education: List[Dict[str, Any]] = []
+    skills: Optional[List[str]] = None
+    work_experience: Optional[List[Dict[str, Any]]] = None
+    education: Optional[List[Dict[str, Any]]] = None
+    languages_spoken: Optional[List[Dict[str, Any]]] = None
+    awards: Optional[List[Dict[str, Any]]] = None
 
 
 class ParseService:
@@ -113,12 +112,16 @@ class ParseService:
                         
                         Rules:
                         - Extract only the information that is clearly present in the text
-                        - For dates, use YYYY-MM-DD format or null if not specified
-                        - For experience and education, include all available fields
-                        - For contacts, extract emails, phones, and other contact information as strings
-                        - For skills, extract technical skills, soft skills, and tools as strings
+                        - For dates, use format like "Month YYYY" (e.g., "June 2024") or "YYYY-MM-DD"
+                        - Personal info should include: first_name, last_name, current_role, city, country, photo_url (if available)
+                        - Contacts should be a nested object with: email, phone, telegram, whatsapp, linkedin, github, website, twitter, instagram
+                        - Work experience should include: job_title, company, short_description, city, country, start_date, end_date, responsibilities (list), achievements (list), technologies_tools (list)
+                        - Education should include: institution, degree, field_of_study, city, country, start_date, end_date, relevant_courses (list)
+                        - Languages should be extracted with language name and proficiency level
+                        - Awards should include: title, issuer, date, description
                         - Keep the original text as much as possible, don't add information that's not in the resume
-                        - If a field is not present in the resume, set it to null or empty list
+                        - If a field is not present in the resume, set it to null or empty list/array
+                        - Split location into city and country when possible
                         """
                     },
                     {
@@ -159,114 +162,54 @@ class ParseService:
     
     def _convert_structured_to_parsed(self, structured_data: OpenAIStructuredResume) -> ParsedResumeData:
         """
-        Converts OpenAIStructuredResume to ParsedResumeData
+        Converts OpenAIStructuredResume to ParsedResumeData (new JSONB structure)
         
         Args:
             structured_data: Structured data from OpenAI
             
         Returns:
-            ParsedResumeData: Converted data
+            ParsedResumeData: Converted data matching JSONB structure
         """
+        # Convert personal_info
+        personal_info_dict = None
+        if structured_data.personal_info:
+            pi = structured_data.personal_info
+            contacts_dict = None
+            if pi.contacts:
+                contacts_dict = pi.contacts.model_dump()
+            
+            personal_info_dict = {
+                "first_name": pi.first_name,
+                "last_name": pi.last_name,
+                "current_role": pi.current_role,
+                "city": pi.city,
+                "country": pi.country,
+                "photo_url": pi.photo_url,
+                "contacts": contacts_dict
+            }
+        
+        # Convert work_experience
+        work_experience_list = [exp.model_dump() for exp in structured_data.work_experience] if structured_data.work_experience else None
+        
+        # Convert education
+        education_list = [edu.model_dump() for edu in structured_data.education] if structured_data.education else None
+        
+        # Convert languages_spoken
+        languages_list = [lang.model_dump() for lang in structured_data.languages_spoken] if structured_data.languages_spoken else None
+        
+        # Convert awards
+        awards_list = [award.model_dump() for award in structured_data.awards] if structured_data.awards else None
+        
         return ParsedResumeData(
-            first_name=structured_data.first_name,
-            last_name=structured_data.last_name,
-            location=structured_data.location,
+            personal_info=personal_info_dict,
             professional_summary=structured_data.professional_summary,
-            contacts=structured_data.contacts,
-            skills=structured_data.skills,
-            experience=[
-                {
-                    "job_title": exp.job_title,
-                    "company": exp.company,
-                    "location": exp.location,
-                    "start_date": exp.start_date,
-                    "end_date": exp.end_date,
-                    "responsibilities": exp.responsibilities
-                }
-                for exp in structured_data.experience
-            ],
-            education=[
-                {
-                    "degree": edu.degree,
-                    "institution": edu.institution,
-                    "location": edu.location,
-                    "graduation_date": edu.graduation_date
-                }
-                for edu in structured_data.education
-            ]
+            skills=structured_data.skills if structured_data.skills else None,
+            work_experience=work_experience_list,
+            education=education_list,
+            languages_spoken=languages_list,
+            awards=awards_list
         )
     
-    def parse_resume_to_unified(self, file_path: str, user_id: int, title: str = "Parsed Resume") -> Dict[str, Any]:
-        """
-        Parses resume file and returns data in UnifiedResume format
-        
-        Args:
-            file_path: Path to resume file
-            user_id: User ID
-            title: Resume title
-            
-        Returns:
-            Dict[str, Any]: Data in UnifiedResume format
-        """
-        parsed_data = self.parse_resume_file(file_path)
-        
-        # Convert dates from strings to datetime objects
-        experience = []
-        for exp in parsed_data.experience:
-            start_date = None
-            end_date = None
-            
-            if exp.get("start_date"):
-                try:
-                    start_date = datetime.strptime(exp["start_date"], "%Y-%m-%d")
-                except ValueError:
-                    start_date = None
-            
-            if exp.get("end_date"):
-                try:
-                    end_date = datetime.strptime(exp["end_date"], "%Y-%m-%d")
-                except ValueError:
-                    end_date = None
-            
-            experience.append({
-                "job_title": exp.get("job_title", ""),
-                "company": exp.get("company", ""),
-                "location": exp.get("location", ""),
-                "start_date": start_date,
-                "end_date": end_date,
-                "responsibilities": exp.get("responsibilities", [])
-            })
-        
-        education = []
-        for edu in parsed_data.education:
-            graduation_date = None
-            
-            if edu.get("graduation_date"):
-                try:
-                    graduation_date = datetime.strptime(edu["graduation_date"], "%Y-%m-%d")
-                except ValueError:
-                    graduation_date = None
-            
-            education.append({
-                "degree": edu.get("degree", ""),
-                "institution": edu.get("institution", ""),
-                "location": edu.get("location", ""),
-                "graduation_date": graduation_date
-            })
-        
-        # Return data in UnifiedResume format
-        return {
-            "user_id": user_id,
-            "title": title,
-            "first_name": parsed_data.first_name,
-            "last_name": parsed_data.last_name,
-            "location": parsed_data.location,
-            "professional_summary": parsed_data.professional_summary,
-            "contacts": parsed_data.contacts,
-            "skills": parsed_data.skills,
-            "experience": experience,
-            "education": education
-        }
     
     async def test_structured_output(self, sample_text: str = None) -> Dict[str, Any]:
         """
@@ -310,14 +253,13 @@ class ParseService:
             
             # Convert to dictionary for convenience
             result = {
-                "first_name": structured_data.first_name,
-                "last_name": structured_data.last_name,
-                "location": structured_data.location,
+                "personal_info": structured_data.personal_info,
                 "professional_summary": structured_data.professional_summary,
-                "contacts": structured_data.contacts,
                 "skills": structured_data.skills,
-                "experience_count": len(structured_data.experience),
-                "education_count": len(structured_data.education),
+                "work_experience_count": len(structured_data.work_experience) if structured_data.work_experience else 0,
+                "education_count": len(structured_data.education) if structured_data.education else 0,
+                "languages_count": len(structured_data.languages_spoken) if structured_data.languages_spoken else 0,
+                "awards_count": len(structured_data.awards) if structured_data.awards else 0,
                 "success": True
             }
             

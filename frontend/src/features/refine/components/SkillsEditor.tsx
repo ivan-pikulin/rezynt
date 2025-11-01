@@ -4,20 +4,16 @@ import {
   Box,
   TextField
 } from '@mui/material';
-import { resumeApi } from '../../../shared/services/api';
-import { guestResumeService } from '../../../shared/services/guestResumeService';
 
 interface SkillsEditorProps {
   skills: string[];
-  resumeId: string | null;
   onSkillsUpdate: (skills: string[]) => void;
   inputStyles?: any;
 }
 
-const SkillsEditor: React.FC<SkillsEditorProps> = ({ skills, resumeId, onSkillsUpdate, inputStyles }) => {
+const SkillsEditor: React.FC<SkillsEditorProps> = ({ skills, onSkillsUpdate, inputStyles }) => {
   const { t } = useTranslation();
   const [localSkills, setLocalSkills] = useState<string[]>(skills);
-  const [isSaving, setIsSaving] = useState(false);
   const [newSkill, setNewSkill] = useState('');
 
   useEffect(() => {
@@ -30,15 +26,15 @@ const SkillsEditor: React.FC<SkillsEditorProps> = ({ skills, resumeId, onSkillsU
     setLocalSkills(updatedSkills);
   };
 
-  const handleSkillBlur = async (index: number) => {
+  const handleSkillBlur = (index: number) => {
     const value = localSkills[index];
     if (!value.trim()) {
       // Remove empty skills
       const updatedSkills = localSkills.filter((_, i) => i !== index);
       setLocalSkills(updatedSkills);
-      await saveSkills(updatedSkills);
+      onSkillsUpdate(updatedSkills);
     } else {
-      await saveSkills(localSkills);
+      onSkillsUpdate(localSkills);
     }
   };
 
@@ -46,39 +42,21 @@ const SkillsEditor: React.FC<SkillsEditorProps> = ({ skills, resumeId, onSkillsU
     setNewSkill(value);
   };
 
-  const handleNewSkillBlur = async () => {
+  const handleNewSkillBlur = () => {
     if (newSkill.trim()) {
       const updatedSkills = [...localSkills, newSkill.trim()];
       setLocalSkills(updatedSkills);
       setNewSkill('');
-      await saveSkills(updatedSkills);
+      onSkillsUpdate(updatedSkills);
     }
   };
 
-  const handleNewSkillKeyPress = async (e: React.KeyboardEvent) => {
+  const handleNewSkillKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && newSkill.trim()) {
       const updatedSkills = [...localSkills, newSkill.trim()];
       setLocalSkills(updatedSkills);
       setNewSkill('');
-      await saveSkills(updatedSkills);
-    }
-  };
-
-  const saveSkills = async (updatedSkills: string[]) => {
-    setIsSaving(true);
-    try {
-      const cleanedSkills = updatedSkills.filter(skill => skill.trim());
-      
-      if (resumeId === 'guest' || resumeId === '-1') {
-        guestResumeService.update({ skills: cleanedSkills as any });
-      } else {
-        await resumeApi.updateSkills(parseInt(resumeId!), cleanedSkills);
-      }
-      onSkillsUpdate(cleanedSkills);
-    } catch (error) {
-      console.error('Error saving skills:', error);
-    } finally {
-      setIsSaving(false);
+      onSkillsUpdate(updatedSkills);
     }
   };
 
@@ -94,7 +72,6 @@ const SkillsEditor: React.FC<SkillsEditorProps> = ({ skills, resumeId, onSkillsU
             value={skill}
             onChange={(e) => handleSkillChange(index, e.target.value)}
             onBlur={() => handleSkillBlur(index)}
-            disabled={isSaving}
             sx={inputStyles}
           />
         ))}
@@ -106,7 +83,6 @@ const SkillsEditor: React.FC<SkillsEditorProps> = ({ skills, resumeId, onSkillsU
           onBlur={handleNewSkillBlur}
           onKeyPress={handleNewSkillKeyPress}
           placeholder={t('refine.editor.addSkillPlaceholder')}
-          disabled={isSaving}
           sx={inputStyles}
         />
       </Box>

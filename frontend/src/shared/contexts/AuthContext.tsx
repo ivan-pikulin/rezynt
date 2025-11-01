@@ -2,7 +2,6 @@ import React, { createContext, useContext, ReactNode } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { TokenResponse } from '../../features/auth/types/auth';
 import { User } from '../services/api/types';
-import { migrateGuestResumeIfAny } from '../services/guestResumeMigration';
 
 interface AuthContextType {
   isAuthenticated: boolean;

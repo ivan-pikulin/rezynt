@@ -20,49 +20,34 @@ import ChatWindow from './components/ChatWindow';
 const ChatPage: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const resumeId = searchParams.get('resume_id');
-  const { resume: resumeData, refreshResume, isLoading: resumeLoading } = useResumeQuery(resumeId);
-  const { selectedTemplate } = useTemplate(resumeId, resumeData?.template_slug);
   const { user } = useUser();
   const { user: authUser, isAuthenticated, isLoading: authLoading } = useAuth();
   const { isAuthenticated: contextAuthenticated } = useAuthContext();
+  
+  // No more resume_id in URL - each user has one resume
+  const { resume: resumeData, refreshResume, isLoading: resumeLoading } = useResumeQuery(false);
+  const { selectedTemplate } = useTemplate(null, undefined);
   const [showPreview, setShowPreview] = useState(false);
 
   // Define mobile mode for screens up to 768px
   const isMobile = useMediaQuery('(max-width: 768px)');
 
-  // Check if resume belongs to user
+  // Check if user is authenticated
   useEffect(() => {
-    if (authLoading || resumeLoading) return; // Wait for authentication and resume loading
+    if (authLoading) return;
     
-    if (resumeData) {
-      const isGuestResume = !resumeId || resumeId === 'guest' || resumeData.id === -1;
-      
-      // If this is not a guest resume and user is not authenticated
-      if (!isGuestResume && !isAuthenticated) {
-        navigate('/login');
-        return;
-      }
-      
-      // If user is authenticated and this is not their resume
-      if (isAuthenticated && authUser && !isGuestResume && resumeData.user_id !== authUser.id) {
-        navigate('/login');
-        return;
-      }
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
     }
-  }, [resumeData, authUser, isAuthenticated, authLoading, resumeLoading, resumeId, navigate]);
+  }, [authUser, isAuthenticated, authLoading, navigate]);
 
   const handleNext = () => {
-    navigate(`/refine?resume_id=${resumeId}`);
+    navigate('/refine');
   };
 
   const handleBack = () => {
-    if (!isAuthenticated) {
-      navigate('/start');
-      return;
-    }
-    navigate('/resumes');
+    navigate('/start');
   };
 
   const handleStepClick = (stepIndex: number) => {
@@ -75,10 +60,10 @@ const ChatPage: React.FC = () => {
       case 1: // Generate - already on this page
         break;
       case 2: // Refine
-        navigate(`/refine?resume_id=${resumeId}`);
+        navigate('/refine');
         break;
       case 3: // Export
-        navigate(`/export?resume_id=${resumeId}`);
+        navigate('/export');
         break;
       default:
         break;
@@ -88,13 +73,14 @@ const ChatPage: React.FC = () => {
   const handleTabChange = (tab: 'resumes' | 'ai-writer' | 'editor') => {
     switch (tab) {
       case 'resumes':
-        navigate('/resumes');
+        // Navigate to editor (user has one resume)
+        navigate('/refine');
         break;
       case 'ai-writer':
         // Already on AI Writer page
         break;
       case 'editor':
-        navigate(`/refine?resume_id=${resumeId}`);
+        navigate('/refine');
         break;
     }
   };
@@ -162,9 +148,9 @@ const ChatPage: React.FC = () => {
             overflow: 'hidden' // Prevent overflow
           }}>
             <ChatWindow
-              resumeId={resumeId}
+              resumeId={null}
               onResumeUpdate={refreshResume}
-              fromUpload={resumeData?.from_upload || false}
+              fromUpload={false}
               onTogglePreview={togglePreview}
             />
           </Box>
@@ -188,7 +174,7 @@ const ChatPage: React.FC = () => {
             {/* Circular edit button in top-right corner over preview (desktop) */}
             {!isMobile && (
               <IconButton
-                onClick={() => navigate(`/refine?resume_id=${resumeId}`)}
+                onClick={() => navigate('/refine')}
                 sx={{
                   position: 'absolute',
                   top: 40,
