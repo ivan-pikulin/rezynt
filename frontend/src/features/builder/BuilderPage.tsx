@@ -97,9 +97,8 @@ export const BuilderPage: React.FC = () => {
         customSteps={customSteps}
         onStepClick={handleStepClick}
         allowFirstStepClick={true}
-        hideNavigationArrows={true}
-        showBackButton={false}
-        showNextButton={false}
+        onNext={canGoNext() ? goToNextStep : undefined}
+        onBack={canGoBack() ? goToPreviousStep : undefined}
       />
 
       <Container maxWidth="xl" sx={{ py: 4 }}>

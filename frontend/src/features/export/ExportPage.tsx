@@ -51,16 +51,13 @@ const ExportPage: React.FC = () => {
 
   const handleStepClick = (stepIndex: number) => {
     switch (stepIndex) {
-      case 0: // Start
+      case 0: // Create
         navigate('/start');
         break;
-      case 1: // Builder
-        navigate('/builder');
-        break;
-      case 2: // Refine
+      case 1: // Analyze
         navigate('/refine');
         break;
-      case 3: // Export - already on this page
+      case 2: // Export - already on this page
         break;
       default:
         break;
@@ -293,16 +290,18 @@ const ExportPage: React.FC = () => {
     }}>
       {/* Common header */}
       <Header 
-        activeStep={3} 
+        activeStep={2} 
         onBack={handleBack}
         showNextButton={false}
-        previousButtonText="Refine"
+        previousButtonText="Analyze"
         showLogo={true}
         onStepClick={handleStepClick}
         allowFirstStepClick={true}
         isProUser={user?.is_premium}
         currentTab="editor"
         onTabChange={handleTabChange}
+        hideNavigationArrows={true}
+        customSteps={[t('header.steps.start'), t('header.steps.refine'), t('header.steps.export')]}
       />
       
       {/* Main area */}

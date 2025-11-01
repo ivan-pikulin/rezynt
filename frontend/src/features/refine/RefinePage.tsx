@@ -123,15 +123,12 @@ const RefinePage: React.FC = () => {
 
   const handleStepClick = (stepIndex: number) => {
     switch (stepIndex) {
-      case 0: // Start
+      case 0: // Create
         navigate('/start');
         break;
-      case 1: // Builder
-        navigate('/builder');
+      case 1: // Analyze - already on this page
         break;
-      case 2: // Refine - already on this page
-        break;
-      case 3: // Export
+      case 2: // Export
         navigate('/export');
         break;
       default:
@@ -194,17 +191,19 @@ const RefinePage: React.FC = () => {
     }}>
       {/* Common header */}
       <Header 
-        activeStep={2} 
+        activeStep={1} 
         onNext={handleNext}
         onBack={handleBack}
         nextButtonText="Export"
-        previousButtonText="Builder"
+        previousButtonText="Create"
         showLogo={true}
         onStepClick={handleStepClick}
         allowFirstStepClick={true}
         isProUser={user?.is_premium}
         currentTab="editor"
         onTabChange={handleTabChange}
+        hideNavigationArrows={true}
+        customSteps={[t('header.steps.start'), t('header.steps.refine'), t('header.steps.export')]}
       />
 
       {/* Main area */}

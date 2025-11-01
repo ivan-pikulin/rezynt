@@ -322,9 +322,9 @@
   },
   "header": {
     "steps": {
-      "start": "Início",
+      "start": "Criar",
       "generate": "Gerar",
-      "refine": "Refinar",
+      "refine": "Analisar",
       "export": "Exportar"
     },
     "tabs": {

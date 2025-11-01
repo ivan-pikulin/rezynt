@@ -326,10 +326,10 @@
   },
   "header": {
     "steps": {
-      "start": "Start",
+      "start": "Create",
       "generate": "Generate",
       "builder": "Builder",
-      "refine": "Refine",
+      "refine": "Analyze",
       "export": "Export"
     },
     "tabs": {

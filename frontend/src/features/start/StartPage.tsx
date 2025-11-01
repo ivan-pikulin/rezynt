@@ -102,15 +102,12 @@ const StartPage: React.FC = () => {
 
   const handleStepClick = (stepIndex: number) => {
     switch (stepIndex) {
-      case 0: // Start - already on this page
+      case 0: // Create - already on this page
         break;
-      case 1: // Builder
-        navigate('/builder');
-        break;
-      case 2: // Refine
+      case 1: // Analyze
         navigate('/refine');
         break;
-      case 3: // Export
+      case 2: // Export
         navigate('/export');
         break;
       default:
@@ -161,6 +158,8 @@ const StartPage: React.FC = () => {
         currentTab="resumes"
         onTabChange={handleTabChange}
         disableStepsClick={!user}
+        customSteps={[t('header.steps.start'), t('header.steps.refine'), t('header.steps.export')]}
+        hideNavigationArrows={true}
       />
       
       {/* Main area */}

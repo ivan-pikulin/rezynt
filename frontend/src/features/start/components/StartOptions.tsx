@@ -102,12 +102,12 @@ const StartOptions: React.FC<StartOptionsProps> = ({
     setIsCreating(true);
     try {
       if (!isAuthenticated) {
-        // Guest flow: create local resume and go to refine/chat
+        // Guest flow: create local resume and go to builder
         guestResumeService.createOrGet();
-        navigate('/refine');
+        navigate('/builder');
       } else {
-        // User authenticated - just go to chat (user has one resume)
-        navigate('/chat');
+        // User authenticated - go to builder (user has one resume)
+        navigate('/builder');
       }
     } catch (error) {
       console.error('Failed to start from scratch:', error);
