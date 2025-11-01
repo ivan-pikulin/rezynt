@@ -20,4 +20,8 @@ export interface HeaderProps {
   // Props for onboarding mode
   isOnboarding?: boolean;
   onboardingTitle?: string;
+  
+  // Props for builder mode with custom steps
+  customSteps?: string[]; // Custom step labels (e.g., for builder)
+  hideNavigationArrows?: boolean; // Hide < > navigation arrows
 } 

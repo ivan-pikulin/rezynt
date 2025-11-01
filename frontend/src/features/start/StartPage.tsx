@@ -104,8 +104,8 @@ const StartPage: React.FC = () => {
     switch (stepIndex) {
       case 0: // Start - already on this page
         break;
-      case 1: // Generate
-        navigate('/chat');
+      case 1: // Builder
+        navigate('/builder');
         break;
       case 2: // Refine
         navigate('/refine');
@@ -125,7 +125,7 @@ const StartPage: React.FC = () => {
         navigate('/refine');
         break;
       case 'ai-writer':
-        navigate('/chat');
+        navigate('/builder');
         break;
       case 'editor':
         navigate('/refine');

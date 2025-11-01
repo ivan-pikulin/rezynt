@@ -328,6 +328,7 @@
     "steps": {
       "start": "Start",
       "generate": "Generate",
+      "builder": "Builder",
       "refine": "Refine",
       "export": "Export"
     },
@@ -477,6 +478,95 @@
       "skillsRequired": "At least one skill is required",
       "experienceRequired": "At least one experience entry is required",
       "educationRequired": "At least one education entry is required"
+    }
+  },
+  "builder": {
+    "steps": {
+      "contact-info": "Contact Info",
+      "work-experience": "Work Experience",
+      "education": "Education",
+      "skills": "Skills",
+      "summary": "Summary"
+    },
+    "contactInfo": {
+      "title": "How can employers get in touch with you?",
+      "description": "For your resume header, include (at minimum) your name and email so employers can contact you.",
+      "requiredIndicator": "* indicates a required field",
+      "fullName": "Full name",
+      "fullNamePlaceholder": "Enter your full name",
+      "email": "Email",
+      "emailPlaceholder": "your.email@example.com",
+      "phone": "Phone Number",
+      "phonePlaceholder": "+1 (555) 000-0000",
+      "city": "City/Suburb",
+      "cityPlaceholder": "Enter your city",
+      "country": "State/Territory",
+      "countryPlaceholder": "Enter your state or country"
+    },
+    "workExperience": {
+      "title": "Tell us about your work experience",
+      "description": "Add your work history, starting with your most recent position.",
+      "newExperience": "New Experience",
+      "addExperience": "Add Experience",
+      "jobTitle": "Job Title",
+      "jobTitlePlaceholder": "e.g. Senior Software Engineer",
+      "company": "Company",
+      "companyPlaceholder": "e.g. Google",
+      "city": "City",
+      "cityPlaceholder": "e.g. San Francisco",
+      "country": "Country",
+      "countryPlaceholder": "e.g. United States",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "currentPosition": "I currently work here",
+      "responsibilities": "Responsibilities & Achievements",
+      "responsibilityPlaceholder": "Describe your key responsibilities and achievements...",
+      "addResponsibility": "Add Responsibility"
+    },
+    "education": {
+      "title": "What's your educational background?",
+      "description": "Add your education history, starting with your most recent degree.",
+      "newEducation": "New Education",
+      "addEducation": "Add Education",
+      "degree": "Degree",
+      "degreePlaceholder": "e.g. Bachelor of Science",
+      "institution": "Institution",
+      "institutionPlaceholder": "e.g. Stanford University",
+      "fieldOfStudy": "Field of Study",
+      "fieldOfStudyPlaceholder": "e.g. Computer Science",
+      "city": "City",
+      "cityPlaceholder": "e.g. Stanford",
+      "country": "Country",
+      "countryPlaceholder": "e.g. United States",
+      "startDate": "Start Date",
+      "graduationDate": "Graduation Date"
+    },
+    "skills": {
+      "title": "What are your key skills?",
+      "description": "List your most relevant skills for the positions you're applying to.",
+      "placeholder": "e.g. Python, Project Management, Public Speaking",
+      "add": "Add",
+      "noSkills": "No skills added yet. Start by adding your first skill above.",
+      "tip": "Pro Tip",
+      "tipDescription": "Focus on skills that are relevant to your target job. Include both technical skills and soft skills."
+    },
+    "summary": {
+      "title": "Write a brief professional summary",
+      "description": "Summarize your experience, skills, and career goals in 2-4 sentences.",
+      "placeholder": "Write a compelling summary about your professional background, key achievements, and what you're looking for in your next role...",
+      "tip": "Pro Tip",
+      "tipDescription": "Your summary should be concise and engaging. Focus on what makes you unique and what value you bring to potential employers.",
+      "characterCount": "Character count"
+    },
+    "navigation": {
+      "back": "Back",
+      "next": "Next",
+      "finish": "Finish & Preview"
+    },
+    "preview": {
+      "tips": "Tips",
+      "preview": "Preview",
+      "progress": "Progress"
     }
   }
 }

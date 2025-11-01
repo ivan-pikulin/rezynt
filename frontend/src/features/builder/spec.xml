@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature name="Resume Builder">
+  <description>
+    Step-by-step resume builder that allows users to create professional resumes 
+    from scratch with an intuitive interface and real-time preview.
+  </description>
+
+  <technical_specifications>
+    <architecture>
+      <pattern>Feature-based architecture with React hooks and local state management</pattern>
+      <state_management>
+        - React hooks (useState, useEffect, useCallback)
+        - Custom useBuilder hook for managing builder state
+        - localStorage for automatic data persistence
+      </state_management>
+    </architecture>
+
+    <components>
+      <main_page>
+        <name>BuilderPage</name>
+        <location>frontend/src/features/builder/BuilderPage.tsx</location>
+        <description>
+          Main page component that orchestrates the resume building process.
+          Features:
+          - Step-by-step navigation with visual progress indicator in Header
+          - Real-time resume preview (on desktop)
+          - Responsive layout (2-column on desktop, single column on mobile)
+          - Progress bar showing completion percentage
+          - Auto-save to localStorage
+          - Uses shared Header component with custom builder steps
+        </description>
+      </main_page>
+
+      <step_components>
+        <component>
+          <name>ContactInfoStep</name>
+          <location>frontend/src/features/builder/components/ContactInfoStep.tsx</location>
+          <description>
+            Form for entering contact information (first step):
+            - Full name (first + last name)
+            - Email (required)
+            - Phone number
+            - City/Country
+            - Visual validation with checkmarks
+          </description>
+        </component>
+        <component>
+          <name>WorkExperienceStep</name>
+          <location>frontend/src/features/builder/components/WorkExperienceStep.tsx</location>
+          <description>
+            Dynamic form for adding multiple work experiences:
+            - Job title, company, location
+            - Start/end dates with "current position" option
+            - Multiple responsibilities per position
+            - Add/delete functionality
+          </description>
+        </component>
+        <component>
+          <name>EducationStep</name>
+          <location>frontend/src/features/builder/components/EducationStep.tsx</location>
+          <description>
+            Form for adding educational background:
+            - Degree, institution, field of study
+            - Location (city, country)
+            - Start/end dates
+            - Add/delete multiple entries
+          </description>
+        </component>
+        <component>
+          <name>SkillsStep</name>
+          <location>frontend/src/features/builder/components/SkillsStep.tsx</location>
+          <description>
+            Skills management interface:
+            - Add skills via text input + Enter or button click
+            - Display as chips with delete functionality
+            - Visual tips for better skill selection
+          </description>
+        </component>
+        <component>
+          <name>SummaryStep</name>
+          <location>frontend/src/features/builder/components/SummaryStep.tsx</location>
+          <description>
+            Professional summary editor:
+            - Multi-line text area
+            - Character counter
+            - Tips for writing effective summaries
+          </description>
+        </component>
+      </step_components>
+    </components>
+
+    <services>
+      <service>
+        <name>BuilderStorageService</name>
+        <location>frontend/src/features/builder/services/builderStorageService.ts</location>
+        <description>
+          Manages localStorage persistence:
+          - get(): Retrieve current builder state
+          - save(): Save complete or partial state
+          - updateField(): Update specific field
+          - markStepCompleted(): Track completed steps
+          - clear(): Remove all data
+          - initialize(): Set up default state if not exists
+        </description>
+      </service>
+    </services>
+
+    <hooks>
+      <hook>
+        <name>useBuilder</name>
+        <location>frontend/src/features/builder/hooks/useBuilder.ts</location>
+        <description>
+          Custom hook for builder state management:
+          - state: Current builder state
+          - updateField(): Update any field in state
+          - goToStep(): Navigate to specific step
+          - goToNextStep(): Move to next step
+          - goToPreviousStep(): Move to previous step
+          - isStepCompleted(): Check if step is completed
+          - canGoNext/canGoBack(): Navigation validation
+          - getNextStepLabel(): Get label for next step
+          - clearBuilder(): Reset all data
+          - getProgress(): Calculate completion percentage
+        </description>
+      </hook>
+    </hooks>
+
+    <types>
+      <file>
+        <name>builder.ts</name>
+        <location>frontend/src/features/builder/types/builder.ts</location>
+        <description>
+          TypeScript types and interfaces:
+          - BuilderStep: Union type of all steps
+          - BuilderStepConfig: Configuration for each step
+          - BuilderState: Extended ResumeData with builder metadata
+          - BUILDER_STEPS: Array of step configurations
+        </description>
+      </file>
+    </types>
+  </technical_specifications>
+
+  <user_flow>
+    <step order="1">
+      <name>Contact Info</name>
+      <description>User enters personal and contact information (starting step)</description>
+    </step>
+    <step order="2">
+      <name>Work Experience</name>
+      <description>User adds work history with responsibilities</description>
+    </step>
+    <step order="3">
+      <name>Education</name>
+      <description>User adds educational background</description>
+    </step>
+    <step order="4">
+      <name>Skills</name>
+      <description>User lists relevant skills</description>
+    </step>
+    <step order="5">
+      <name>Summary</name>
+      <description>User writes professional summary</description>
+    </step>
+    <step order="6">
+      <name>Finish</name>
+      <description>User completes builder, data is saved to backend, localStorage cleared, and user navigates to refine page</description>
+    </step>
+  </user_flow>
+  
+  <navigation>
+    <description>
+      Builder is integrated into main application flow and appears in header navigation.
+      Navigation structure:
+      1. Start (/start) - Initial page for creating resume
+      2. Builder (/builder) - Step-by-step resume construction (replaces "Generate" in header)
+      3. Refine (/refine) - AI-powered refinement and editing
+      4. Export (/export) - Template selection and download
+      
+      All pages (Start, Refine, Export) now navigate to Builder instead of Chat (/chat).
+      Builder appears as step 2 in the main header stepper across all pages.
+    </description>
+  </navigation>
+
+  <features>
+    <feature>
+      <name>Auto-save</name>
+      <description>All changes are automatically saved to localStorage on each update</description>
+    </feature>
+    <feature>
+      <name>Progress Tracking</name>
+      <description>Visual stepper in Header and progress bar show completion status</description>
+    </feature>
+    <feature>
+      <name>Header Integration</name>
+      <description>Builder steps are displayed in the main Header using customSteps prop, allowing direct navigation between steps</description>
+    </feature>
+    <feature>
+      <name>Real-time Preview</name>
+      <description>Desktop users see live preview of resume as they build (hidden on mobile)</description>
+    </feature>
+    <feature>
+      <name>Form Validation</name>
+      <description>Visual indicators (checkmarks) show field completion</description>
+    </feature>
+    <feature>
+      <name>Responsive Design</name>
+      <description>Optimized for mobile, tablet, and desktop screens</description>
+    </feature>
+    <feature>
+      <name>Navigation</name>
+      <description>Step-by-step navigation with Back/Next buttons in form, plus direct step selection in Header</description>
+    </feature>
+  </features>
+
+  <styling>
+    <approach>Material-UI components with custom theme</approach>
+    <colors>
+      <source>Imported from shared/theme/theme.ts</source>
+      <usage>
+        - Primary colors for buttons and accents
+        - Success colors for validation indicators
+        - Grey palette for backgrounds and borders
+        - Secondary colors for tips and highlights
+      </usage>
+    </colors>
+  </styling>
+
+  <internationalization>
+    <location>frontend/src/shared/i18n/en.json</location>
+    <namespace>builder.*</namespace>
+    <description>
+      All text content is externalized to i18n files under the "builder" namespace:
+      - builder.steps.*: Step names
+      - builder.getStarted.*: Welcome screen text
+      - builder.contactInfo.*: Contact form labels
+      - builder.workExperience.*: Work experience form
+      - builder.education.*: Education form
+      - builder.skills.*: Skills section
+      - builder.summary.*: Summary section
+      - builder.navigation.*: Navigation buttons
+      - builder.preview.*: Preview panel
+    </description>
+  </internationalization>
+
+  <routing>
+    <path>/builder</path>
+    <guard>PublicOnboardingGuard</guard>
+    <description>Accessible to both authenticated and guest users who have completed onboarding</description>
+  </routing>
+
+  <future_enhancements>
+    <enhancement>
+      <name>Resume Upload</name>
+      <description>Allow users to upload existing resume and parse into builder format</description>
+    </enhancement>
+    <enhancement>
+      <name>AI Suggestions</name>
+      <description>Provide AI-powered suggestions for improving content</description>
+    </enhancement>
+    <enhancement>
+      <name>Template Selection</name>
+      <description>Allow template switching within builder</description>
+    </enhancement>
+    <enhancement>
+      <name>Cloud Sync</name>
+      <description>Save builder state to backend for authenticated users</description>
+    </enhancement>
+  </future_enhancements>
+
+  <dependencies>
+    <dependency>
+      <name>React</name>
+      <usage>Core framework</usage>
+    </dependency>
+    <dependency>
+      <name>Material-UI</name>
+      <usage>UI components and styling</usage>
+    </dependency>
+    <dependency>
+      <name>react-i18next</name>
+      <usage>Internationalization</usage>
+    </dependency>
+    <dependency>
+      <name>react-router-dom</name>
+      <usage>Routing and navigation</usage>
+    </dependency>
+    <dependency>
+      <name>shared/types/resume</name>
+      <usage>Resume data structure types</usage>
+    </dependency>
+    <dependency>
+      <name>shared/components/ResumeRenderer</name>
+      <usage>Real-time preview rendering</usage>
+    </dependency>
+    <dependency>
+      <name>shared/components/Header</name>
+      <usage>Shared header with custom builder steps display</usage>
+    </dependency>
+    <dependency>
+      <name>shared/theme/theme</name>
+      <usage>Consistent styling</usage>
+    </dependency>
+  </dependencies>
+</feature>
+

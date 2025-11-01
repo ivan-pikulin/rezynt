@@ -1,0 +1,282 @@
+import React, { useState } from 'react';
+import { 
+  Box, 
+  Typography, 
+  TextField, 
+  Button, 
+  IconButton,
+  Paper,
+  Checkbox,
+  FormControlLabel,
+} from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
+import AddIcon from '@mui/icons-material/Add';
+import { BuilderState } from '../types/builder';
+import { WorkExperience } from '../../../shared/types/resume';
+import { COLORS } from '../../../shared/theme/theme';
+import { useTranslation } from 'react-i18next';
+
+interface WorkExperienceStepProps {
+  state: BuilderState;
+  onUpdate: <K extends keyof BuilderState>(field: K, value: BuilderState[K]) => void;
+}
+
+export const WorkExperienceStep: React.FC<WorkExperienceStepProps> = ({ state, onUpdate }) => {
+  const { t } = useTranslation();
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+
+  const handleAddExperience = () => {
+    const newExperience: WorkExperience = {
+      job_title: '',
+      company: '',
+      city: '',
+      country: '',
+      start_date: '',
+      end_date: '',
+      responsibilities: [],
+    };
+
+    onUpdate('work_experience', [...(state.work_experience || []), newExperience]);
+    setEditingIndex((state.work_experience || []).length);
+  };
+
+  const handleUpdateExperience = (index: number, field: keyof WorkExperience, value: any) => {
+    const updated = [...(state.work_experience || [])];
+    updated[index] = { ...updated[index], [field]: value };
+    onUpdate('work_experience', updated);
+  };
+
+  const handleDeleteExperience = (index: number) => {
+    const updated = (state.work_experience || []).filter((_, i) => i !== index);
+    onUpdate('work_experience', updated);
+    if (editingIndex === index) {
+      setEditingIndex(null);
+    }
+  };
+
+  const handleAddResponsibility = (expIndex: number) => {
+    const updated = [...(state.work_experience || [])];
+    const responsibilities = [...(updated[expIndex].responsibilities || []), ''];
+    updated[expIndex] = { ...updated[expIndex], responsibilities };
+    onUpdate('work_experience', updated);
+  };
+
+  const handleUpdateResponsibility = (expIndex: number, respIndex: number, value: string) => {
+    const updated = [...(state.work_experience || [])];
+    const responsibilities = [...(updated[expIndex].responsibilities || [])];
+    responsibilities[respIndex] = value;
+    updated[expIndex] = { ...updated[expIndex], responsibilities };
+    onUpdate('work_experience', updated);
+  };
+
+  const handleDeleteResponsibility = (expIndex: number, respIndex: number) => {
+    const updated = [...(state.work_experience || [])];
+    const responsibilities = (updated[expIndex].responsibilities || []).filter((_, i) => i !== respIndex);
+    updated[expIndex] = { ...updated[expIndex], responsibilities };
+    onUpdate('work_experience', updated);
+  };
+
+  const toggleCurrentPosition = (index: number, isChecked: boolean) => {
+    handleUpdateExperience(index, 'end_date', isChecked ? null : '');
+  };
+
+  return (
+    <Box sx={{ maxWidth: 800, margin: '0 auto' }}>
+      <Typography 
+        variant="h4" 
+        sx={{ 
+          fontWeight: 600, 
+          mb: 1,
+          color: COLORS.resume.text.primary,
+        }}
+      >
+        {t('builder.workExperience.title')}
+      </Typography>
+      
+      <Typography 
+        variant="body1" 
+        sx={{ 
+          mb: 3,
+          color: COLORS.resume.text.secondary,
+        }}
+      >
+        {t('builder.workExperience.description')}
+      </Typography>
+
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        {(state.work_experience || []).map((exp, index) => (
+          <Paper 
+            key={index}
+            sx={{ 
+              p: 2.5, 
+              border: `1px solid ${COLORS.common.border}`,
+              borderRadius: '12px',
+              boxShadow: 'none',
+            }}
+          >
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+              <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                {exp.job_title || t('builder.workExperience.newExperience')}
+              </Typography>
+              <IconButton 
+                size="small" 
+                onClick={() => handleDeleteExperience(index)}
+                sx={{ color: COLORS.error.main }}
+              >
+                <DeleteIcon fontSize="small" />
+              </IconButton>
+            </Box>
+
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+              <Box>
+                <Typography variant="body2" sx={{ mb: 0.5, fontWeight: 500 }}>
+                  {t('builder.workExperience.jobTitle')}
+                </Typography>
+                <TextField
+                  fullWidth
+                  placeholder={t('builder.workExperience.jobTitlePlaceholder')}
+                  value={exp.job_title || ''}
+                  onChange={(e) => handleUpdateExperience(index, 'job_title', e.target.value)}
+                  size="small"
+                  sx={{ '& .MuiOutlinedInput-root': { backgroundColor: 'white', borderRadius: '8px' } }}
+                />
+              </Box>
+
+              <Box>
+                <Typography variant="body2" sx={{ mb: 0.5, fontWeight: 500 }}>
+                  {t('builder.workExperience.company')}
+                </Typography>
+                <TextField
+                  fullWidth
+                  placeholder={t('builder.workExperience.companyPlaceholder')}
+                  value={exp.company || ''}
+                  onChange={(e) => handleUpdateExperience(index, 'company', e.target.value)}
+                  size="small"
+                  sx={{ '& .MuiOutlinedInput-root': { backgroundColor: 'white', borderRadius: '8px' } }}
+                />
+              </Box>
+
+              <Box>
+                <Typography variant="body2" sx={{ mb: 0.5, fontWeight: 500 }}>
+                  {t('builder.workExperience.city')}
+                </Typography>
+                <TextField
+                  fullWidth
+                  placeholder={t('builder.workExperience.cityPlaceholder')}
+                  value={exp.city || ''}
+                  onChange={(e) => handleUpdateExperience(index, 'city', e.target.value)}
+                  size="small"
+                  sx={{ '& .MuiOutlinedInput-root': { backgroundColor: 'white', borderRadius: '8px' } }}
+                />
+              </Box>
+
+              <Box>
+                <Typography variant="body2" sx={{ mb: 0.5, fontWeight: 500 }}>
+                  {t('builder.workExperience.country')}
+                </Typography>
+                <TextField
+                  fullWidth
+                  placeholder={t('builder.workExperience.countryPlaceholder')}
+                  value={exp.country || ''}
+                  onChange={(e) => handleUpdateExperience(index, 'country', e.target.value)}
+                  size="small"
+                  sx={{ '& .MuiOutlinedInput-root': { backgroundColor: 'white', borderRadius: '8px' } }}
+                />
+              </Box>
+
+              <Box>
+                <Typography variant="body2" sx={{ mb: 0.5, fontWeight: 500 }}>
+                  {t('builder.workExperience.startDate')}
+                </Typography>
+                <TextField
+                  fullWidth
+                  type="month"
+                  value={exp.start_date || ''}
+                  onChange={(e) => handleUpdateExperience(index, 'start_date', e.target.value)}
+                  size="small"
+                  sx={{ '& .MuiOutlinedInput-root': { backgroundColor: 'white', borderRadius: '8px' } }}
+                />
+              </Box>
+
+              <Box>
+                <Typography variant="body2" sx={{ mb: 0.5, fontWeight: 500 }}>
+                  {t('builder.workExperience.endDate')}
+                </Typography>
+                <TextField
+                  fullWidth
+                  type="month"
+                  value={exp.end_date === null ? '' : (exp.end_date || '')}
+                  onChange={(e) => handleUpdateExperience(index, 'end_date', e.target.value)}
+                  disabled={exp.end_date === null}
+                  size="small"
+                  sx={{ '& .MuiOutlinedInput-root': { backgroundColor: 'white', borderRadius: '8px' } }}
+                />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={exp.end_date === null}
+                      onChange={(e) => toggleCurrentPosition(index, e.target.checked)}
+                      size="small"
+                    />
+                  }
+                  label={t('builder.workExperience.currentPosition')}
+                  sx={{ mt: 0.5 }}
+                />
+              </Box>
+
+              <Box sx={{ gridColumn: '1 / -1' }}>
+                <Typography variant="body2" sx={{ mb: 1, fontWeight: 500 }}>
+                  {t('builder.workExperience.responsibilities')}
+                </Typography>
+                {(exp.responsibilities || []).map((resp, respIndex) => (
+                  <Box key={respIndex} sx={{ display: 'flex', gap: 1, mb: 1 }}>
+                    <TextField
+                      fullWidth
+                      placeholder={t('builder.workExperience.responsibilityPlaceholder')}
+                      value={resp}
+                      onChange={(e) => handleUpdateResponsibility(index, respIndex, e.target.value)}
+                      size="small"
+                      multiline
+                      rows={2}
+                      sx={{ '& .MuiOutlinedInput-root': { backgroundColor: 'white', borderRadius: '8px' } }}
+                    />
+                    <IconButton 
+                      size="small"
+                      onClick={() => handleDeleteResponsibility(index, respIndex)}
+                      sx={{ color: COLORS.error.main }}
+                    >
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  </Box>
+                ))}
+                <Button
+                  variant="outlined"
+                  size="small"
+                  startIcon={<AddIcon />}
+                  onClick={() => handleAddResponsibility(index)}
+                  sx={{ mt: 1 }}
+                >
+                  {t('builder.workExperience.addResponsibility')}
+                </Button>
+              </Box>
+            </Box>
+          </Paper>
+        ))}
+
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={handleAddExperience}
+          sx={{ 
+            alignSelf: 'flex-start',
+            borderRadius: '8px',
+            textTransform: 'none',
+          }}
+        >
+          {t('builder.workExperience.addExperience')}
+        </Button>
+      </Box>
+    </Box>
+  );
+};
+

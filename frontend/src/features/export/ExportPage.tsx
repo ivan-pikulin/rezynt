@@ -51,11 +51,11 @@ const ExportPage: React.FC = () => {
 
   const handleStepClick = (stepIndex: number) => {
     switch (stepIndex) {
-      case 0: // Start - disabled for unauthenticated users
-        // Do nothing - step is not clickable
+      case 0: // Start
+        navigate('/start');
         break;
-      case 1: // Generate
-        navigate('/chat');
+      case 1: // Builder
+        navigate('/builder');
         break;
       case 2: // Refine
         navigate('/refine');
@@ -74,7 +74,7 @@ const ExportPage: React.FC = () => {
         navigate('/refine');
         break;
       case 'ai-writer':
-        navigate('/chat');
+        navigate('/builder');
         break;
       case 'editor':
         navigate('/refine');
@@ -297,9 +297,9 @@ const ExportPage: React.FC = () => {
         onBack={handleBack}
         showNextButton={false}
         previousButtonText="Refine"
-        showLogo={true} // Show logo on desktop
+        showLogo={true}
         onStepClick={handleStepClick}
-        allowFirstStepClick={false} // Disable step navigation for all users
+        allowFirstStepClick={true}
         isProUser={user?.is_premium}
         currentTab="editor"
         onTabChange={handleTabChange}

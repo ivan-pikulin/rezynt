@@ -118,16 +118,16 @@ const RefinePage: React.FC = () => {
   };
 
   const handleBack = () => {
-    navigate('/chat');
+    navigate('/builder');
   };
 
   const handleStepClick = (stepIndex: number) => {
     switch (stepIndex) {
-      case 0: // Start - disabled for unauthenticated users
-        // Do nothing - step is not clickable
+      case 0: // Start
+        navigate('/start');
         break;
-      case 1: // Generate
-        navigate('/chat');
+      case 1: // Builder
+        navigate('/builder');
         break;
       case 2: // Refine - already on this page
         break;
@@ -146,7 +146,7 @@ const RefinePage: React.FC = () => {
         navigate('/refine');
         break;
       case 'ai-writer':
-        navigate('/chat');
+        navigate('/builder');
         break;
       case 'editor':
         // Already on editor page
@@ -198,10 +198,10 @@ const RefinePage: React.FC = () => {
         onNext={handleNext}
         onBack={handleBack}
         nextButtonText="Export"
-        previousButtonText="Generate"
+        previousButtonText="Builder"
         showLogo={true}
         onStepClick={handleStepClick}
-        allowFirstStepClick={false} // Disable step navigation for all users
+        allowFirstStepClick={true}
         isProUser={user?.is_premium}
         currentTab="editor"
         onTabChange={handleTabChange}

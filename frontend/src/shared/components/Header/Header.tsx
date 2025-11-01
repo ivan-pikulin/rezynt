@@ -34,13 +34,16 @@ const Header: React.FC<HeaderProps> = ({
   currentTab = 'resumes',
   onTabChange,
   isOnboarding = false,
-  onboardingTitle
+  onboardingTitle,
+  customSteps,
+  hideNavigationArrows = false
 }) => {
   const { t } = useTranslation();
   const { user } = useAuthContext();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const steps = [t('header.steps.start'), t('header.steps.generate'), t('header.steps.refine'), t('header.steps.export')];
+  const defaultSteps = [t('header.steps.start'), t('header.steps.builder'), t('header.steps.refine'), t('header.steps.export')];
+  const steps = customSteps || defaultSteps;
   
   // Define mobile mode for screens up to 768px
   const isMobile = useMediaQuery('(max-width: 768px)');
@@ -70,7 +73,7 @@ const Header: React.FC<HeaderProps> = ({
       case 1:
         return t('header.steps.start');
       case 2:
-        return t('header.steps.generate');
+        return t('header.steps.builder');
       case 3:
         return t('header.steps.refine');
       default:
@@ -207,7 +210,7 @@ const Header: React.FC<HeaderProps> = ({
           /* Steps for regular users */
           <>
             {/* Back button on left */}
-            {showSteps && showBackButton && onBack && (
+            {showSteps && showBackButton && onBack && !hideNavigationArrows && (
               <Box
                 onClick={onBack}
                 sx={{
@@ -299,7 +302,7 @@ const Header: React.FC<HeaderProps> = ({
             )}
 
             {/* Forward button on right */}
-            {showSteps && showNextButton && onNext && (
+            {showSteps && showNextButton && onNext && !hideNavigationArrows && (
               <Box
                 onClick={onNext}
                 sx={{
