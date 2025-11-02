@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Box } from '@mui/material';
+import { COLORS } from '../../../shared/theme/theme';
 
 // Simple input component
 const SimpleInput: React.FC<{
@@ -32,7 +33,7 @@ const SimpleInput: React.FC<{
         transition: 'border-color 0.2s ease-in-out',
       }}
       onFocus={(e) => {
-        e.target.style.borderColor = '#2563eb';
+        e.target.style.borderColor = COLORS.primary.main;
       }}
       // Note: onBlur style change handled separately to avoid conflict with onBlur callback
     />

@@ -32,7 +32,7 @@ const SimpleInput: React.FC<{
         transition: 'border-color 0.2s ease-in-out',
       }}
       onFocus={(e) => {
-        e.target.style.borderColor = '#2563eb';
+        e.target.style.borderColor = COLORS.primary.main;
       }}
       onBlur={(e) => {
         e.target.style.borderColor = '#e5e7eb';

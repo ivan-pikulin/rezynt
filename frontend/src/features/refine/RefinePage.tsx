@@ -307,8 +307,8 @@ const RefinePage: React.FC = () => {
                 disabled={isRefreshingAnalysis}
                 style={{
                   width: '100%',
-                  backgroundColor: isRefreshingAnalysis ? '#e5e7eb' : '#2563eb',
-                  color: 'white',
+                  backgroundColor: isRefreshingAnalysis ? COLORS.button.primary.backgroundDisabled : COLORS.button.primary.background,
+                  color: isRefreshingAnalysis ? COLORS.button.primary.textDisabled : COLORS.button.primary.text,
                   fontSize: '13px',
                   fontWeight: 500,
                   padding: '8px 12px',
@@ -320,6 +320,17 @@ const RefinePage: React.FC = () => {
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '8px',
+                  transition: 'background-color 0.2s ease-in-out',
+                }}
+                onMouseEnter={(e) => {
+                  if (!isRefreshingAnalysis) {
+                    e.currentTarget.style.backgroundColor = COLORS.button.primary.backgroundHover;
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isRefreshingAnalysis) {
+                    e.currentTarget.style.backgroundColor = COLORS.button.primary.background;
+                  }
                 }}
               >
                 {isRefreshingAnalysis && <CircularProgress size={14} sx={{ color: 'white' }} />}
@@ -366,7 +377,7 @@ const RefinePage: React.FC = () => {
               <Box sx={{ width: '14px', height: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 {isSaving ? (
                   <Fade in={true} timeout={300}>
-                    <CircularProgress size={14} thickness={4} sx={{ color: '#2563eb' }} />
+                    <CircularProgress size={14} thickness={4} sx={{ color: COLORS.primary.main }} />
                   </Fade>
                 ) : (
                   <Zoom in={!isSaving} timeout={400} style={{ transitionDelay: showSuccessAnimation ? '0ms' : '0ms' }}>
@@ -394,8 +405,8 @@ const RefinePage: React.FC = () => {
                 onClick={handleSaveNow}
                 disabled={isSaving}
                 style={{
-                  backgroundColor: isSaving ? '#e5e7eb' : '#dbeafe',
-                  color: isSaving ? '#9ca3af' : '#2563eb',
+                  backgroundColor: isSaving ? COLORS.button.primary.backgroundDisabled : COLORS.button.secondary.background,
+                  color: isSaving ? COLORS.button.primary.textDisabled : COLORS.button.secondary.text,
                   fontSize: '11px',
                   fontWeight: 500,
                   padding: '4px 8px',
@@ -403,6 +414,17 @@ const RefinePage: React.FC = () => {
                   border: 'none',
                   cursor: isSaving ? 'not-allowed' : 'pointer',
                   textTransform: 'none',
+                  transition: 'background-color 0.2s ease-in-out',
+                }}
+                onMouseEnter={(e) => {
+                  if (!isSaving) {
+                    e.currentTarget.style.backgroundColor = COLORS.button.secondary.backgroundHover;
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isSaving) {
+                    e.currentTarget.style.backgroundColor = COLORS.button.secondary.background;
+                  }
                 }}
               >
                 {isSaving ? 'Saving...' : 'Save now'}

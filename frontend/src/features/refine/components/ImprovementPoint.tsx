@@ -5,6 +5,7 @@ import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import { ImprovementPoint as ImprovementPointType } from '../../../shared/services/api/types';
 import { analysisApi } from '../../../shared/services/api';
+import { COLORS } from '../../../shared/theme/theme';
 
 interface Props {
   point: ImprovementPointType;
@@ -13,9 +14,21 @@ interface Props {
 }
 
 const severityColors = {
-  high: '#ef4444',
-  medium: '#f97316',
-  low: '#fbbf24',
+  high: COLORS.severity.high.main,
+  medium: COLORS.severity.medium.main,
+  low: COLORS.severity.low.main,
+};
+
+const severityBackgrounds = {
+  high: COLORS.severity.high.background,
+  medium: COLORS.severity.medium.background,
+  low: COLORS.severity.low.background,
+};
+
+const severityTexts = {
+  high: COLORS.severity.high.text,
+  medium: COLORS.severity.medium.text,
+  low: COLORS.severity.low.text,
 };
 
 const severityIcons = {
@@ -91,14 +104,18 @@ const ImprovementPoint: React.FC<Props> = ({ point, onFixApplied, onNavigateToFi
           </Typography>
           
           <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px' }}>
-            <Typography
+            <Box
               sx={{
-                fontSize: '12px',
-                color: '#6b7280',
+                fontSize: '11px',
+                fontWeight: 600,
+                color: severityTexts[point.severity],
+                backgroundColor: severityBackgrounds[point.severity],
+                padding: '2px 8px',
+                borderRadius: '4px',
               }}
             >
               +{point.score_impact} points
-            </Typography>
+            </Box>
             
             <Box sx={{ display: 'flex', gap: '4px' }}>
               {(point.action_type === 'go_to_edit' || point.action_type === 'both') && (
@@ -128,9 +145,9 @@ const ImprovementPoint: React.FC<Props> = ({ point, onFixApplied, onNavigateToFi
                     textTransform: 'none',
                     padding: '2px 8px',
                     minWidth: 'auto',
-                    backgroundColor: fixed ? '#10b981' : '#2563eb',
+                    backgroundColor: fixed ? COLORS.success.main : COLORS.button.primary.background,
                     '&:hover': {
-                      backgroundColor: fixed ? '#059669' : '#1d4ed8',
+                      backgroundColor: fixed ? COLORS.success.dark : COLORS.button.primary.backgroundHover,
                     },
                   }}
                 >

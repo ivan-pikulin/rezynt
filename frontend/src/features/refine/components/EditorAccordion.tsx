@@ -8,6 +8,7 @@ import Typography from '@mui/material/Typography';
 import React, { useEffect, useState, useImperativeHandle, forwardRef, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Resume } from '../../../shared/services/api/types';
+import { COLORS } from '../../../shared/theme/theme';
 import EducationEditor, { EducationEditorHandle } from './EducationEditor';
 import ExperienceEditor, { ExperienceEditorHandle } from './ExperienceEditor';
 import SkillsEditor from './SkillsEditor';
@@ -38,7 +39,7 @@ const SimpleInput: React.FC<{
         transition: 'border-color 0.2s ease-in-out',
       }}
       onFocus={(e) => {
-        e.target.style.borderColor = '#2563eb';
+        e.target.style.borderColor = COLORS.primary.main;
       }}
       onBlur={(e) => {
         e.target.style.borderColor = '#e5e7eb';
@@ -482,9 +483,9 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
                 outline: 'none',
                 transition: 'border-color 0.2s ease-in-out',
               }}
-              onFocus={(e) => {
-                e.target.style.borderColor = '#2563eb';
-              }}
+      onFocus={(e) => {
+        e.target.style.borderColor = COLORS.primary.main;
+      }}
               onBlur={(e) => {
                 e.target.style.borderColor = '#e5e7eb';
               }}

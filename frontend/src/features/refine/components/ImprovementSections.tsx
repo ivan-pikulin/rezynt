@@ -7,6 +7,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import React, { useState } from 'react';
 import { AnalysisSection } from '../../../shared/services/api/types';
 import ImprovementPoint from './ImprovementPoint';
+import { COLORS } from '../../../shared/theme/theme';
 
 type Props = {
   sections: AnalysisSection[];
@@ -24,15 +25,21 @@ const accordionSx = {
 };
 
 const statusToColor = {
-  NeedsWork: '#ef4444',
-  Good: '#f97316',
-  Strong: '#22c55e',
+  NeedsWork: COLORS.error.main,      // Red
+  Good: COLORS.warning.main,         // Orange
+  Strong: COLORS.success.main,       // Green
 };
 
 const statusToBackground = {
-  NeedsWork: '#fef2f2',
-  Good: '#fff7ed',
-  Strong: '#f0fdf4',
+  NeedsWork: COLORS.error.light,
+  Good: COLORS.warning.light,
+  Strong: COLORS.success.light,
+};
+
+const statusToText = {
+  NeedsWork: COLORS.error.text,
+  Good: COLORS.warning.text,
+  Strong: COLORS.success.text,
 };
 
 const ImprovementSections: React.FC<Props> = ({ sections, onNavigateToField }) => {
@@ -128,7 +135,11 @@ const ImprovementSections: React.FC<Props> = ({ sections, onNavigateToField }) =
                     <Box sx={{ ...progressFill, width: `${pct}%`, backgroundColor: color }}/>
                   </Box>
                   <Typography sx={{ ...progressScore, color }}>{pct}%</Typography>
-                  <Box sx={{ ...statusBadge, backgroundColor: bgColor, color }}>
+                  <Box sx={{ 
+                    ...statusBadge, 
+                    backgroundColor: bgColor, 
+                    color: statusToText[s.status as keyof typeof statusToText] 
+                  }}>
                     {statusLabel}
                   </Box>
                 </Box>

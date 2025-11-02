@@ -3,6 +3,7 @@ import Typography from '@mui/material/Typography';
 import CircularProgress from '@mui/material/CircularProgress';
 import React, { useState, useEffect } from 'react';
 import CountUp from 'react-countup';
+import { getScoreColor } from '../../../shared/theme/theme';
 
 type ScoreBarProps = {
   score: number; // 0-100
@@ -16,15 +17,9 @@ const clamp = (value: number, min: number, max: number) => {
   return Math.min(max, Math.max(min, value));
 };
 
-const getScoreColor = (score: number) => {
-  if (score < 40) return '#ef4444'; // red
-  if (score < 70) return '#f97316'; // orange
-  return '#22c55e'; // green
-};
-
 const ScoreBar: React.FC<ScoreBarProps> = ({ score, label, subtitle, marketingText }) => {
   const normalized = clamp(score, 0, 100);
-  const scoreColor = getScoreColor(normalized);
+  const scoreColor = getScoreColor(normalized).main;
   
   // Animation state for circular progress
   const [animatedProgress, setAnimatedProgress] = useState(0);

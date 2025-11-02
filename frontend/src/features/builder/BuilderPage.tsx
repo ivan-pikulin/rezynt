@@ -162,10 +162,6 @@ export const BuilderPage: React.FC = () => {
                         textTransform: 'none',
                         px: 3,
                         fontWeight: 600,
-                        backgroundColor: COLORS.success.main,
-                        '&:hover': {
-                          backgroundColor: COLORS.success.dark,
-                        },
                       }}
                     >
                       {t('builder.navigation.finish')}
@@ -193,9 +189,9 @@ export const BuilderPage: React.FC = () => {
                 mb: 2,
                 borderRadius: '8px',
                 textTransform: 'none',
-                backgroundColor: COLORS.secondary.main,
+                backgroundColor: COLORS.button.primary.background,
                 '&:hover': {
-                  backgroundColor: COLORS.secondary.dark,
+                  backgroundColor: COLORS.button.primary.backgroundHover,
                 },
               }}
             >
@@ -259,9 +255,9 @@ export const BuilderPage: React.FC = () => {
               sx={{ 
                 borderRadius: '8px',
                 textTransform: 'none',
-                backgroundColor: COLORS.secondary.main,
+                backgroundColor: COLORS.button.primary.background,
                 '&:hover': {
-                  backgroundColor: COLORS.secondary.dark,
+                  backgroundColor: COLORS.button.primary.backgroundHover,
                 },
               }}
             >
