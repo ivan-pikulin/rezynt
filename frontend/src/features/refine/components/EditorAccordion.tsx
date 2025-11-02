@@ -210,6 +210,10 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
                 console.log('🔑 No subfield, focusing on first field:', fieldId);
               } else if (mainField === 'professional_summary') {
                 fieldId = 'professional-summary';
+              } else if (mainField === 'skills') {
+                // Focus on new skill input
+                fieldId = 'skill-new';
+                console.log('🔑 Skills field, focusing on new skill input:', fieldId);
               }
               
               if (fieldId) {

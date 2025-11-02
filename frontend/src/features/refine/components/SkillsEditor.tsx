@@ -92,6 +92,14 @@ const SkillsEditor: React.FC<SkillsEditorProps> = ({ skills, onSkillsUpdate, inp
       setLocalSkills(updatedSkills);
       setNewSkill('');
       onSkillsUpdate(updatedSkills);
+      
+      // Focus on the new empty field
+      setTimeout(() => {
+        const newField = document.getElementById('skill-new');
+        if (newField instanceof HTMLInputElement) {
+          newField.focus();
+        }
+      }, 10);
     }
   };
 
@@ -109,6 +117,7 @@ const SkillsEditor: React.FC<SkillsEditorProps> = ({ skills, onSkillsUpdate, inp
             placeholder=""
           />
         ))}
+        {/* Field for typing new skill */}
         <SimpleInput
           id="skill-new"
           value={newSkill}
@@ -117,6 +126,15 @@ const SkillsEditor: React.FC<SkillsEditorProps> = ({ skills, onSkillsUpdate, inp
           onKeyPress={handleNewSkillKeyPress}
           placeholder={t('refine.editor.addSkillPlaceholder')}
         />
+        {/* Show additional empty field when user is typing */}
+        {newSkill.trim() && (
+          <SimpleInput
+            id="skill-placeholder"
+            value=""
+            onChange={() => {}}
+            placeholder={t('refine.editor.addSkillPlaceholder')}
+          />
+        )}
       </Box>
     </Box>
   );
