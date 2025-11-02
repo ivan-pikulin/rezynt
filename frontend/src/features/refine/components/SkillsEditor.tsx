@@ -67,6 +67,7 @@ const SkillsEditor: React.FC<SkillsEditorProps> = ({ skills, onSkillsUpdate, inp
         {localSkills.map((skill, index) => (
           <TextField
             key={index}
+            id={`skill-${index}`}
             fullWidth
             size="small"
             value={skill}
@@ -76,6 +77,7 @@ const SkillsEditor: React.FC<SkillsEditorProps> = ({ skills, onSkillsUpdate, inp
           />
         ))}
         <TextField
+          id="skill-new"
           fullWidth
           size="small"
           value={newSkill}

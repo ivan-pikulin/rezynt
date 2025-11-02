@@ -6,11 +6,11 @@ import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useImperativeHandle, forwardRef, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Resume } from '../../../shared/services/api/types';
-import EducationEditor from './EducationEditor';
-import ExperienceEditor from './ExperienceEditor';
+import EducationEditor, { EducationEditorHandle } from './EducationEditor';
+import ExperienceEditor, { ExperienceEditorHandle } from './ExperienceEditor';
 import SkillsEditor from './SkillsEditor';
 
 type Props = {
@@ -18,10 +18,20 @@ type Props = {
   onResumeUpdate: (resume: Resume) => void;
 };
 
-const EditorAccordion: React.FC<Props> = ({ resume, onResumeUpdate }) => {
+export type EditorAccordionHandle = {
+  navigateToField: (fieldPath: string) => void;
+};
+
+const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onResumeUpdate }, ref) => {
   const { t } = useTranslation();
 
   const [localResume, setLocalResume] = useState<Resume>(resume);
+  const [expandedAccordions, setExpandedAccordions] = useState<Set<string>>(
+    new Set(['personal', 'summary', 'skills'])
+  );
+  
+  const experienceEditorRef = useRef<ExperienceEditorHandle>(null);
+  const educationEditorRef = useRef<EducationEditorHandle>(null);
 
   const [formData, setFormData] = useState({
     professional_summary: resume.professional_summary || '',
@@ -63,6 +73,177 @@ const EditorAccordion: React.FC<Props> = ({ resume, onResumeUpdate }) => {
       instagram: resume.personal_info?.contacts?.instagram || ''
     });
   }, [resume]);
+
+  // Toggle accordion
+  const toggleAccordion = (accordionId: string) => {
+    setExpandedAccordions((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(accordionId)) {
+        newSet.delete(accordionId);
+      } else {
+        newSet.add(accordionId);
+      }
+      return newSet;
+    });
+  };
+
+  // Navigate to specific field based on field_path
+  useImperativeHandle(ref, () => {
+    console.log('🔧 useImperativeHandle creating handle object');
+    
+    const navigateToField = (fieldPath: string) => {
+      console.log('📍 EditorAccordion.navigateToField called:', fieldPath);
+      
+      // Parse field_path (e.g., "work_experience[0].achievements", "professional_summary", "personal_info.email")
+      const parts = fieldPath.split('.');
+      const mainFieldWithIndex = parts[0]; // e.g., "work_experience[0]"
+      const mainField = mainFieldWithIndex.split('[')[0]; // e.g., "work_experience"
+      
+      // Extract array index if present
+      const indexMatch = mainFieldWithIndex.match(/\[(\d+)\]/);
+      const arrayIndex = indexMatch ? parseInt(indexMatch[1], 10) : null;
+      
+      // Get sub-field (after the dot)
+      const subField = parts.slice(1).join('.'); // e.g., "achievements" or "email"
+      
+      console.log('🔍 Parsed field path:', {
+        mainField,
+        arrayIndex,
+        subField,
+        fullPath: fieldPath
+      });
+      
+      // Map field to accordion ID
+      let accordionId = '';
+      if (mainField === 'personal_info') {
+        accordionId = 'personal';
+      } else if (mainField === 'professional_summary') {
+        accordionId = 'summary';
+      } else if (mainField === 'skills') {
+        accordionId = 'skills';
+      } else if (mainField === 'work_experience') {
+        accordionId = 'experience';
+      } else if (mainField === 'education') {
+        accordionId = 'education';
+      }
+      
+      // Open the accordion if it's not already open
+      if (accordionId) {
+        setExpandedAccordions((prev) => {
+          const newSet = new Set(prev);
+          newSet.add(accordionId);
+          return newSet;
+        });
+        
+        // For nested fields (experience/education), delegate to child editor
+        setTimeout(() => {
+          if (mainField === 'work_experience' && arrayIndex !== null && experienceEditorRef.current) {
+            // Navigate to specific experience field
+            console.log('➡️ Delegating to ExperienceEditor:', { arrayIndex, subField });
+            experienceEditorRef.current.navigateToField(arrayIndex, subField || 'job_title');
+          } else if (mainField === 'education' && arrayIndex !== null && educationEditorRef.current) {
+            // Navigate to specific education field
+            console.log('➡️ Delegating to EducationEditor:', { arrayIndex, subField });
+            educationEditorRef.current.navigateToField(arrayIndex, subField || 'degree');
+          } else {
+            console.log('➡️ Navigating to simple field:', { accordionId, mainField, subField });
+            // For simple fields, just scroll to accordion and focus on field
+            const element = document.getElementById(`accordion-${accordionId}`);
+            if (element) {
+              element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+            
+            // Try to focus on the specific field if it exists
+            setTimeout(() => {
+              let fieldId = '';
+              if (mainField === 'personal_info' && subField) {
+                // Special case: just 'contacts' without specific field - focus on first contact field
+                if (subField === 'contacts') {
+                  fieldId = 'personal-email'; // Default to email field
+                  console.log('🔑 Field path ends with "contacts", focusing on first field:', fieldId);
+                } else {
+                  // Handle nested contacts fields: contacts.email -> email
+                  const actualField = subField.includes('contacts.') 
+                    ? subField.replace('contacts.', '') 
+                    : subField;
+                  fieldId = `personal-${actualField}`;
+                  console.log('🔑 Generated field ID for personal_info:', { subField, actualField, fieldId });
+                }
+              } else if (mainField === 'personal_info' && !subField) {
+                // No subfield specified - focus on first personal info field
+                fieldId = 'personal-first_name';
+                console.log('🔑 No subfield, focusing on first field:', fieldId);
+              } else if (mainField === 'professional_summary') {
+                fieldId = 'professional-summary';
+              }
+              
+              if (fieldId) {
+                console.log('🔎 Trying to focus on field:', fieldId);
+                const fieldElement = document.getElementById(fieldId);
+                
+                if (fieldElement) {
+                  console.log('✅ Field element found (outer):', fieldElement.tagName);
+                  
+                  // For Material UI TextField, we need to find the actual input element
+                  let inputElement = fieldElement as HTMLInputElement | HTMLTextAreaElement;
+                  
+                  // If it's a div (TextField wrapper), find the input/textarea inside
+                  if (fieldElement.tagName === 'DIV') {
+                    const innerInput = fieldElement.querySelector('input, textarea') as HTMLInputElement | HTMLTextAreaElement | null;
+                    if (innerInput) {
+                      inputElement = innerInput;
+                      console.log('✅ Found inner input element:', innerInput.tagName);
+                    }
+                  }
+                  
+                  // Scroll into view
+                  inputElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  
+                  // Additional delay to ensure scroll completes before focusing
+                  setTimeout(() => {
+                    console.log('🎯 Focusing on element...');
+                    inputElement.focus();
+                    // For text fields, also select the content for easy editing
+                    if (inputElement.select && typeof inputElement.select === 'function') {
+                      inputElement.select();
+                    }
+                    
+                    // Add highlight animation
+                    const originalTransition = inputElement.style.transition;
+                    const originalBoxShadow = inputElement.style.boxShadow;
+                    
+                    // Apply smooth pulsing highlight
+                    inputElement.style.transition = 'box-shadow 0.3s ease-in-out';
+                    inputElement.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.4)';
+                    
+                    // Fade out after 2 seconds
+                    setTimeout(() => {
+                      inputElement.style.boxShadow = '0 0 0 0 rgba(37, 99, 235, 0)';
+                      
+                      // Clean up after transition completes
+                      setTimeout(() => {
+                        inputElement.style.transition = originalTransition;
+                        inputElement.style.boxShadow = originalBoxShadow;
+                      }, 300);
+                    }, 2000);
+                    
+                    console.log('✅ Focus completed');
+                  }, 100);
+                } else {
+                  console.log('❌ Field element not found:', fieldId);
+                  console.log('Available personal fields:', 
+                    Array.from(document.querySelectorAll('[id^="personal-"]')).map(el => el.id)
+                  );
+                }
+              }
+            }, 200);
+          }
+        }, 150);
+      }
+    };
+    
+    return { navigateToField };
+  }, []);
 
   const handleFieldChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -140,13 +321,20 @@ const EditorAccordion: React.FC<Props> = ({ resume, onResumeUpdate }) => {
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <Box sx={{ flex: 1, overflow: 'auto', p: 2, bgcolor: '#F5F7FA' }}>
         {/* Personal Info */}
-        <Accordion disableGutters defaultExpanded sx={accordionStyles}>
+        <Accordion 
+          id="accordion-personal"
+          disableGutters 
+          expanded={expandedAccordions.has('personal')}
+          onChange={() => toggleAccordion('personal')}
+          sx={accordionStyles}
+        >
           <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color: '#6b7280' }} />}>
             <Typography sx={sectionNameStyles}>{t('refine.editor.personalInfo')}</Typography>
           </AccordionSummary>
           <AccordionDetails>
             <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2, mb: 2 }}>
               <TextField 
+                id="personal-first_name"
                 size="small" 
                 placeholder={t('refine.editor.firstName')} 
                 value={formData.first_name} 
@@ -154,6 +342,7 @@ const EditorAccordion: React.FC<Props> = ({ resume, onResumeUpdate }) => {
                 sx={inputStyles} 
               />
               <TextField 
+                id="personal-last_name"
                 size="small" 
                 placeholder={t('refine.editor.lastName')} 
                 value={formData.last_name} 
@@ -161,6 +350,7 @@ const EditorAccordion: React.FC<Props> = ({ resume, onResumeUpdate }) => {
                 sx={inputStyles} 
               />
               <TextField 
+                id="personal-current_role"
                 size="small" 
                 fullWidth 
                 placeholder={t('refine.editor.currentRole', 'Current Role')} 
@@ -171,6 +361,7 @@ const EditorAccordion: React.FC<Props> = ({ resume, onResumeUpdate }) => {
             </Box>
             <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2, mb: 2 }}>
               <TextField 
+                id="personal-city"
                 size="small" 
                 placeholder={t('refine.editor.city', 'City')} 
                 value={formData.city} 
@@ -178,6 +369,7 @@ const EditorAccordion: React.FC<Props> = ({ resume, onResumeUpdate }) => {
                 sx={inputStyles} 
               />
               <TextField 
+                id="personal-country"
                 size="small" 
                 placeholder={t('refine.editor.country', 'Country')} 
                 value={formData.country} 
@@ -191,6 +383,7 @@ const EditorAccordion: React.FC<Props> = ({ resume, onResumeUpdate }) => {
             </Typography>
             <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
               <TextField 
+                id="personal-email"
                 size="small" 
                 placeholder={t('refine.editor.email')} 
                 value={formData.email} 
@@ -198,6 +391,7 @@ const EditorAccordion: React.FC<Props> = ({ resume, onResumeUpdate }) => {
                 sx={inputStyles} 
               />
               <TextField 
+                id="personal-phone"
                 size="small" 
                 placeholder={t('refine.editor.phone')} 
                 value={formData.phone} 
@@ -205,6 +399,7 @@ const EditorAccordion: React.FC<Props> = ({ resume, onResumeUpdate }) => {
                 sx={inputStyles} 
               />
               <TextField 
+                id="personal-telegram"
                 size="small" 
                 placeholder="Telegram" 
                 value={formData.telegram} 
@@ -212,6 +407,7 @@ const EditorAccordion: React.FC<Props> = ({ resume, onResumeUpdate }) => {
                 sx={inputStyles} 
               />
               <TextField 
+                id="personal-whatsapp"
                 size="small" 
                 placeholder="WhatsApp" 
                 value={formData.whatsapp} 
@@ -219,6 +415,7 @@ const EditorAccordion: React.FC<Props> = ({ resume, onResumeUpdate }) => {
                 sx={inputStyles} 
               />
               <TextField 
+                id="personal-linkedin"
                 size="small" 
                 placeholder="LinkedIn" 
                 value={formData.linkedin} 
@@ -226,6 +423,7 @@ const EditorAccordion: React.FC<Props> = ({ resume, onResumeUpdate }) => {
                 sx={inputStyles} 
               />
               <TextField 
+                id="personal-github"
                 size="small" 
                 placeholder="GitHub" 
                 value={formData.github} 
@@ -233,6 +431,7 @@ const EditorAccordion: React.FC<Props> = ({ resume, onResumeUpdate }) => {
                 sx={inputStyles} 
               />
               <TextField 
+                id="personal-website"
                 size="small" 
                 placeholder="Website" 
                 value={formData.website} 
@@ -240,6 +439,7 @@ const EditorAccordion: React.FC<Props> = ({ resume, onResumeUpdate }) => {
                 sx={inputStyles} 
               />
               <TextField 
+                id="personal-twitter"
                 size="small" 
                 placeholder="Twitter" 
                 value={formData.twitter} 
@@ -247,6 +447,7 @@ const EditorAccordion: React.FC<Props> = ({ resume, onResumeUpdate }) => {
                 sx={inputStyles} 
               />
               <TextField 
+                id="personal-instagram"
                 size="small" 
                 placeholder="Instagram" 
                 value={formData.instagram} 
@@ -258,12 +459,19 @@ const EditorAccordion: React.FC<Props> = ({ resume, onResumeUpdate }) => {
         </Accordion>
 
         {/* Professional Summary */}
-        <Accordion disableGutters defaultExpanded sx={accordionStyles}>
+        <Accordion 
+          id="accordion-summary"
+          disableGutters 
+          expanded={expandedAccordions.has('summary')}
+          onChange={() => toggleAccordion('summary')}
+          sx={accordionStyles}
+        >
           <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color: '#6b7280' }} />}>
             <Typography sx={sectionNameStyles}>{t('refine.editor.professionalSummary')}</Typography>
           </AccordionSummary>
           <AccordionDetails>
             <TextField 
+              id="professional-summary"
               fullWidth 
               size="small" 
               multiline 
@@ -276,7 +484,13 @@ const EditorAccordion: React.FC<Props> = ({ resume, onResumeUpdate }) => {
         </Accordion>
 
         {/* Skills */}
-        <Accordion disableGutters defaultExpanded sx={accordionStyles}>
+        <Accordion 
+          id="accordion-skills"
+          disableGutters 
+          expanded={expandedAccordions.has('skills')}
+          onChange={() => toggleAccordion('skills')}
+          sx={accordionStyles}
+        >
           <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color: '#6b7280' }} />}>
             <Typography sx={sectionNameStyles}>{t('refine.editor.skills')}</Typography>
           </AccordionSummary>
@@ -294,12 +508,19 @@ const EditorAccordion: React.FC<Props> = ({ resume, onResumeUpdate }) => {
         </Accordion>
 
         {/* Experience */}
-        <Accordion disableGutters sx={accordionStyles}>
+        <Accordion 
+          id="accordion-experience"
+          disableGutters 
+          expanded={expandedAccordions.has('experience')}
+          onChange={() => toggleAccordion('experience')}
+          sx={accordionStyles}
+        >
           <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color: '#6b7280' }} />}>
             <Typography sx={sectionNameStyles}>{t('refine.editor.experience')}</Typography>
           </AccordionSummary>
           <AccordionDetails>
             <ExperienceEditor
+              ref={experienceEditorRef}
               experience={localResume.work_experience || []}
               onExperienceUpdate={(updatedExperience) => {
                 const updated = { ...localResume, work_experience: updatedExperience };
@@ -311,12 +532,19 @@ const EditorAccordion: React.FC<Props> = ({ resume, onResumeUpdate }) => {
         </Accordion>
 
         {/* Education */}
-        <Accordion disableGutters sx={accordionStyles}>
+        <Accordion 
+          id="accordion-education"
+          disableGutters 
+          expanded={expandedAccordions.has('education')}
+          onChange={() => toggleAccordion('education')}
+          sx={accordionStyles}
+        >
           <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color: '#6b7280' }} />}>
             <Typography sx={sectionNameStyles}>{t('refine.editor.education')}</Typography>
           </AccordionSummary>
           <AccordionDetails>
             <EducationEditor
+              ref={educationEditorRef}
               education={localResume.education || []}
               onEducationUpdate={(updatedEducation) => {
                 const updated = { ...localResume, education: updatedEducation };
@@ -330,6 +558,8 @@ const EditorAccordion: React.FC<Props> = ({ resume, onResumeUpdate }) => {
 
     </Box>
   );
-};
+});
+
+EditorAccordion.displayName = 'EditorAccordion';
 
 export default EditorAccordion;

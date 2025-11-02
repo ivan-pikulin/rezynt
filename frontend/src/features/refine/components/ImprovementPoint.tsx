@@ -9,6 +9,7 @@ import { analysisApi } from '../../../shared/services/api';
 interface Props {
   point: ImprovementPointType;
   onFixApplied?: (pointId: string, fixed: string) => void;
+  onNavigateToField?: (fieldPath: string) => void;
 }
 
 const severityColors = {
@@ -23,7 +24,7 @@ const severityIcons = {
   low: '🟡',
 };
 
-const ImprovementPoint: React.FC<Props> = ({ point, onFixApplied }) => {
+const ImprovementPoint: React.FC<Props> = ({ point, onFixApplied, onNavigateToField }) => {
   const [isFixing, setIsFixing] = useState(false);
   const [fixed, setFixed] = useState<string | null>(null);
 
@@ -43,8 +44,22 @@ const ImprovementPoint: React.FC<Props> = ({ point, onFixApplied }) => {
   };
 
   const handleGoToEdit = () => {
-    // TODO: Implement navigation to builder with field focus
-    console.log('Navigate to edit:', point.field_path);
+    console.log('🎯 Go to Edit clicked:', {
+      pointId: point.id,
+      fieldPath: point.field_path,
+      message: point.message
+    });
+    
+    console.log('🔗 onNavigateToField exists:', !!onNavigateToField);
+    console.log('🔗 onNavigateToField type:', typeof onNavigateToField);
+    
+    if (onNavigateToField) {
+      console.log('📞 Calling onNavigateToField with:', point.field_path);
+      onNavigateToField(point.field_path);
+      console.log('✅ onNavigateToField called successfully');
+    } else {
+      console.error('❌ onNavigateToField is not defined!');
+    }
   };
 
   return (

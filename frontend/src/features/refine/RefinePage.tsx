@@ -6,7 +6,7 @@ import Fade from '@mui/material/Fade';
 import Zoom from '@mui/material/Zoom';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Header from '../../shared/components/Header/Header';
@@ -19,7 +19,7 @@ import { COLORS } from '../../shared/theme/theme';
 // import { TemplateConfig } from '../../shared/types/resume';
 import ErrorMessage from './components/ErrorMessage';
 import LoadingSpinner from './components/LoadingSpinner';
-import EditorAccordion from './components/EditorAccordion';
+import EditorAccordion, { EditorAccordionHandle } from './components/EditorAccordion';
 import ScoreBar from './components/ScoreBar';
 import ImprovementSections from './components/ImprovementSections';
 import { analysisApi } from '../../shared/services/api';
@@ -36,6 +36,7 @@ const RefinePage: React.FC = () => {
   const [showSaveNotification, setShowSaveNotification] = useState(true);
   const [lastSaveTime, setLastSaveTime] = useState('');
   const [isRefreshingAnalysis, setIsRefreshingAnalysis] = useState(false);
+  const editorRef = useRef<EditorAccordionHandle>(null);
   
   // Check if user is authenticated
   useEffect(() => {
@@ -131,6 +132,23 @@ const RefinePage: React.FC = () => {
       console.error('Error refreshing analysis:', error);
     } finally {
       setIsRefreshingAnalysis(false);
+    }
+  };
+
+  // Navigate to field handler
+  const handleNavigateToField = (fieldPath: string) => {
+    console.log('🎯 RefinePage.handleNavigateToField called:', fieldPath);
+    console.log('📌 editorRef.current exists:', !!editorRef.current);
+    
+    // Switch to editor tab on mobile
+    setMobileTab('editor');
+    
+    // Navigate to field in editor
+    if (editorRef.current) {
+      console.log('✅ Calling editorRef.current.navigateToField');
+      editorRef.current.navigateToField(fieldPath);
+    } else {
+      console.error('❌ editorRef.current is null!');
     }
   };
 
@@ -309,7 +327,10 @@ const RefinePage: React.FC = () => {
               </button>
             </Box>
             
-            <ImprovementSections sections={analysis?.sections || []} />
+            <ImprovementSections 
+              sections={analysis?.sections || []} 
+              onNavigateToField={handleNavigateToField}
+            />
           </Box>
           {/* Right column: Editor accordions */}
           <Box sx={{ 
@@ -318,7 +339,11 @@ const RefinePage: React.FC = () => {
             position: 'relative',
             display: { xs: mobileTab === 'editor' ? 'block' : 'none', md: 'block' }
           }}>
-            <EditorAccordion resume={localResume || resume} onResumeUpdate={handleResumeUpdate} />
+            <EditorAccordion 
+              ref={editorRef}
+              resume={localResume || resume} 
+              onResumeUpdate={handleResumeUpdate} 
+            />
           
           {/* Save Notification */}
           {showSaveNotification && (

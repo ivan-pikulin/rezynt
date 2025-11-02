@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useImperativeHandle, forwardRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Box,
@@ -22,6 +22,10 @@ interface EducationEditorProps {
   onEducationUpdate: (education: Education[]) => void;
 }
 
+export interface EducationEditorHandle {
+  navigateToField: (index: number, fieldName: string) => void;
+}
+
 interface EducationFormData {
   degree: string;
   institution: string;
@@ -33,10 +37,10 @@ interface EducationFormData {
   relevant_courses: string[];
 }
 
-const EducationEditor: React.FC<EducationEditorProps> = ({
+const EducationEditor = forwardRef<EducationEditorHandle, EducationEditorProps>(({
   education,
   onEducationUpdate
-}) => {
+}, ref) => {
   const { t } = useTranslation();
   const [localEducation, setLocalEducation] = useState<Education[]>(education);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
@@ -61,6 +65,78 @@ const EducationEditor: React.FC<EducationEditorProps> = ({
   const handleExpandChange = (index: number | false) => {
     setExpandedIndex(index === false ? null : index);
   };
+
+  // Expose navigation method
+  useImperativeHandle(ref, () => ({
+    navigateToField: (index: number, fieldName: string) => {
+      console.log('🎓 EducationEditor.navigateToField called:', { index, fieldName });
+      
+      // Expand the accordion for this education entry
+      setExpandedIndex(index);
+      
+      // Focus on the field after a delay to allow accordion to expand
+      setTimeout(() => {
+        // For array fields (relevant_courses), try to focus on the first item or the section
+        let fieldId = `education-${index}-${fieldName}`;
+        
+        // If it's an array field, try the first item
+        if (fieldName === 'relevant_courses') {
+          const firstItemId = `${fieldId}-0`;
+          const firstItem = document.getElementById(firstItemId);
+          if (firstItem) {
+            fieldId = firstItemId;
+          }
+        }
+        
+        console.log('🔎 Looking for element with ID:', fieldId);
+        
+        const element = document.getElementById(fieldId) as HTMLInputElement | HTMLTextAreaElement | null;
+        if (element) {
+          console.log('✅ Element found, focusing...');
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          
+          // Small delay for scroll to complete
+          setTimeout(() => {
+            element.focus();
+            if (element.select && typeof element.select === 'function') {
+              element.select();
+            }
+            
+            // Add highlight animation
+            const originalTransition = element.style.transition;
+            const originalBoxShadow = element.style.boxShadow;
+            
+            // Apply smooth pulsing highlight
+            element.style.transition = 'box-shadow 0.3s ease-in-out';
+            element.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.4)';
+            
+            // Fade out after 2 seconds
+            setTimeout(() => {
+              element.style.boxShadow = '0 0 0 0 rgba(37, 99, 235, 0)';
+              
+              // Clean up after transition completes
+              setTimeout(() => {
+                element.style.transition = originalTransition;
+                element.style.boxShadow = originalBoxShadow;
+              }, 300);
+            }, 2000);
+          }, 50);
+        } else {
+          console.log('❌ Element not found:', fieldId);
+          console.log('Available IDs in education:', 
+            Array.from(document.querySelectorAll('[id^="education-"]')).map(el => el.id)
+          );
+          
+          // Fallback: scroll to the accordion itself
+          const accordionElement = document.querySelector(`[id^="education-${index}-"]`);
+          if (accordionElement) {
+            console.log('⚠️ Fallback: scrolling to accordion');
+            accordionElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }
+      }, 150);
+    }
+  }), []);
 
   const handleFieldChange = (index: number, field: keyof EducationFormData, value: any) => {
     setFormDataArray(prev => ({
@@ -205,6 +281,7 @@ const EducationEditor: React.FC<EducationEditorProps> = ({
           <AccordionDetails>
             <Box sx={{ display: 'grid', gap: 2 }}>
               <TextField
+                id={`education-${index}-degree`}
                 size="small"
                 placeholder={t('refine.editor.degree')}
                 value={formDataArray[index]?.degree || ''}
@@ -213,6 +290,7 @@ const EducationEditor: React.FC<EducationEditorProps> = ({
                 sx={inputStyles}
               />
               <TextField
+                id={`education-${index}-institution`}
                 size="small"
                 placeholder={t('refine.editor.institution')}
                 value={formDataArray[index]?.institution || ''}
@@ -221,6 +299,7 @@ const EducationEditor: React.FC<EducationEditorProps> = ({
                 sx={inputStyles}
               />
               <TextField
+                id={`education-${index}-field_of_study`}
                 size="small"
                 placeholder={t('refine.editor.fieldOfStudy', 'Field of Study')}
                 value={formDataArray[index]?.field_of_study || ''}
@@ -230,6 +309,7 @@ const EducationEditor: React.FC<EducationEditorProps> = ({
               />
               <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
                 <TextField
+                  id={`education-${index}-city`}
                   size="small"
                   placeholder={t('refine.editor.city', 'City')}
                   value={formDataArray[index]?.city || ''}
@@ -237,6 +317,7 @@ const EducationEditor: React.FC<EducationEditorProps> = ({
                   sx={inputStyles}
                 />
                 <TextField
+                  id={`education-${index}-country`}
                   size="small"
                   placeholder={t('refine.editor.country', 'Country')}
                   value={formDataArray[index]?.country || ''}
@@ -246,6 +327,7 @@ const EducationEditor: React.FC<EducationEditorProps> = ({
               </Box>
               <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
                 <TextField
+                  id={`education-${index}-start_date`}
                   size="small"
                   placeholder="September 2020"
                   value={formDataArray[index]?.start_date || ''}
@@ -253,6 +335,7 @@ const EducationEditor: React.FC<EducationEditorProps> = ({
                   sx={inputStyles}
                 />
                 <TextField
+                  id={`education-${index}-end_date`}
                   size="small"
                   placeholder="May 2024"
                   value={formDataArray[index]?.end_date || ''}
@@ -267,6 +350,7 @@ const EducationEditor: React.FC<EducationEditorProps> = ({
               {formDataArray[index]?.relevant_courses.map((course, courseIndex) => (
                 <Box key={courseIndex} sx={{ display: 'flex', gap: 1 }}>
                   <TextField
+                    id={`education-${index}-relevant_courses-${courseIndex}`}
                     size="small"
                     fullWidth
                     value={course}
@@ -302,6 +386,8 @@ const EducationEditor: React.FC<EducationEditorProps> = ({
       </Button>
     </Box>
   );
-};
+});
+
+EducationEditor.displayName = 'EducationEditor';
 
 export default EducationEditor;

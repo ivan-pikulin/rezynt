@@ -18,8 +18,9 @@
         │   ├── TemplateSelector.tsx    # Template selection component (not used on new layout)
         │   ├── TemplateThumbnail.tsx   # Template thumbnail component
         │   ├── ScoreBar.tsx            # Top scoring and marketing strip
-        │   ├── ImprovementSections.tsx # Left list with improvement categories
-        │   └── EditorAccordion.tsx     # Right editor composed as expandable sections
+        │   ├── ImprovementSections.tsx # Left list with improvement categories (passes onNavigateToField prop)
+        │   ├── ImprovementPoint.tsx    # Individual improvement point with action buttons (Go to Edit, Fix)
+        │   └── EditorAccordion.tsx     # Right editor composed as expandable sections with field navigation
         ├── utils/
         │   └── resumeDataConverter.ts  # Data conversion utilities
         ├── RefinePage.tsx              # Main refine page component
@@ -40,6 +41,14 @@
                 <feature name="improvement_sections" desc="Shows Content, ATS, Tone categories with progress/status"/>
                 <feature name="editor_accordions" desc="Right column editor composed of expandable sections"/>
                 <feature name="mobile_tabs" desc="Mobile-only tabs (Analysis/Editor) for switching between content sections on small screens"/>
+                <feature name="field_navigation" desc="Navigate to specific editor fields from improvement points via 'Go to Edit' buttons">
+                    <details>
+                        <detail desc="Uses ref to EditorAccordion component for imperatively calling navigation methods"/>
+                        <detail desc="Parses field_path (e.g. 'work_experience[0].achievements') to determine target accordion"/>
+                        <detail desc="Automatically opens accordion and scrolls to it"/>
+                        <detail desc="On mobile, automatically switches to Editor tab before navigation"/>
+                    </details>
+                </feature>
                 <feature name="resume_loading" desc="Loads resume data from API using resumeId parameter"/>
                 <feature name="real_time_updates" desc="Updates resume data in real-time as user edits"/>
                 <feature name="error_handling" desc="Displays loading states and error messages"/>
@@ -86,12 +95,19 @@
             </features>
         </component>
         
-        <component name="ExperienceEditor" desc="Work experience management component with full CRUD operations">
+        <component name="ExperienceEditor" desc="Work experience management component with full CRUD operations. Uses forwardRef to expose field navigation methods.">
             <props>
                 <prop name="experience" type="UnifiedResumeExperience[]" desc="Array of work experience entries"/>
                 <prop name="resumeId" type="string | null" desc="Resume ID for determining guest vs authenticated user"/>
                 <prop name="onExperienceUpdate" type="function" desc="Callback for experience updates"/>
             </props>
+            <exported_handle type="ExperienceEditorHandle">
+                <method name="navigateToField" params="index: number, fieldName: string" desc="Navigate to a specific field in a specific experience entry">
+                    <detail desc="Opens the accordion for the specified experience entry"/>
+                    <detail desc="Focuses on the field with ID pattern: experience-{index}-{fieldName}"/>
+                    <detail desc="Scrolls the field into view smoothly"/>
+                </method>
+            </exported_handle>
             <features>
                 <feature name="add_experience" desc="Add new work experience entries"/>
                 <feature name="edit_experience" desc="Edit existing experience details"/>
@@ -99,26 +115,116 @@
                 <feature name="responsibilities_management" desc="Manage job responsibilities"/>
                 <feature name="current_position" desc="Mark positions as current"/>
                 <feature name="date_handling" desc="Handle start/end dates"/>
+                <feature name="field_navigation" desc="Navigate to specific fields within nested experience entries"/>
+                <feature name="field_ids" desc="All input fields have unique IDs for navigation: experience-{index}-{fieldName}"/>
                 <feature name="api_integration" desc="Saves changes to backend API for authenticated users"/>
                 <feature name="guest_user_support" desc="For guest users (resumeId='guest'), saves experience locally using guestResumeService"/>
                 <feature name="real_time_updates" desc="Updates parent component immediately"/>
             </features>
         </component>
         
-        <component name="EducationEditor" desc="Education management component with full CRUD operations">
+        <component name="EducationEditor" desc="Education management component with full CRUD operations. Uses forwardRef to expose field navigation methods.">
             <props>
                 <prop name="education" type="UnifiedResumeEducation[]" desc="Array of education entries"/>
                 <prop name="resumeId" type="string | null" desc="Resume ID for determining guest vs authenticated user"/>
                 <prop name="onEducationUpdate" type="function" desc="Callback for education updates"/>
             </props>
+            <exported_handle type="EducationEditorHandle">
+                <method name="navigateToField" params="index: number, fieldName: string" desc="Navigate to a specific field in a specific education entry">
+                    <detail desc="Opens the accordion for the specified education entry"/>
+                    <detail desc="Focuses on the field with ID pattern: education-{index}-{fieldName}"/>
+                    <detail desc="Scrolls the field into view smoothly"/>
+                </method>
+            </exported_handle>
             <features>
                 <feature name="add_education" desc="Add new education entries"/>
                 <feature name="edit_education" desc="Edit existing education details"/>
                 <feature name="delete_education" desc="Remove education entries"/>
                 <feature name="date_handling" desc="Handle graduation dates"/>
+                <feature name="field_navigation" desc="Navigate to specific fields within nested education entries"/>
+                <feature name="field_ids" desc="All input fields have unique IDs for navigation: education-{index}-{fieldName}"/>
                 <feature name="api_integration" desc="Saves changes to backend API for authenticated users"/>
                 <feature name="guest_user_support" desc="For guest users (resumeId='guest'), saves education locally using guestResumeService"/>
                 <feature name="real_time_updates" desc="Updates parent component immediately"/>
+            </features>
+        </component>
+
+        <component name="EditorAccordion" desc="Main editor component with accordion sections for all resume fields. Uses forwardRef to expose imperative navigation methods.">
+            <props>
+                <prop name="resume" type="Resume" desc="Resume data object"/>
+                <prop name="onResumeUpdate" type="function" desc="Callback for resume updates"/>
+            </props>
+            <exported_handle type="EditorAccordionHandle">
+                <method name="navigateToField" params="fieldPath: string" desc="Navigate to a specific field in the editor by parsing field path and opening corresponding accordion">
+                    <detail desc="Parses array indices from field paths like work_experience[0].achievements"/>
+                    <detail desc="Delegates navigation to child editors (ExperienceEditor, EducationEditor) for nested fields"/>
+                    <detail desc="Focuses on specific input fields for simple fields (PersonalInfo, ProfessionalSummary)"/>
+                </method>
+            </exported_handle>
+            <refs>
+                <ref name="experienceEditorRef" type="ExperienceEditorHandle" desc="Reference to ExperienceEditor for delegating field navigation"/>
+                <ref name="educationEditorRef" type="EducationEditorHandle" desc="Reference to EducationEditor for delegating field navigation"/>
+            </refs>
+            <features>
+                <feature name="accordion_state_management" desc="Manages which accordions are expanded using Set state">
+                    <detail desc="Default expanded: personal, summary, skills"/>
+                </feature>
+                <feature name="field_navigation" desc="Parse field_path and map to accordion sections">
+                    <mapping from="personal_info.*" to="personal" accordion_id="accordion-personal">
+                        <detail desc="Focuses on field with ID pattern: personal-{fieldName}"/>
+                    </mapping>
+                    <mapping from="professional_summary" to="summary" accordion_id="accordion-summary">
+                        <detail desc="Focuses on field with ID: professional-summary"/>
+                    </mapping>
+                    <mapping from="skills" to="skills" accordion_id="accordion-skills"/>
+                    <mapping from="work_experience[index].*" to="experience" accordion_id="accordion-experience">
+                        <detail desc="Delegates to experienceEditorRef.navigateToField(index, fieldName)"/>
+                        <detail desc="Opens nested accordion for specific experience entry"/>
+                        <detail desc="Focuses on field with ID pattern: experience-{index}-{fieldName}"/>
+                    </mapping>
+                    <mapping from="education[index].*" to="education" accordion_id="accordion-education">
+                        <detail desc="Delegates to educationEditorRef.navigateToField(index, fieldName)"/>
+                        <detail desc="Opens nested accordion for specific education entry"/>
+                        <detail desc="Focuses on field with ID pattern: education-{index}-{fieldName}"/>
+                    </mapping>
+                </feature>
+                <feature name="field_ids" desc="All input fields have unique IDs for navigation">
+                    <ids type="PersonalInfo" pattern="personal-{fieldName}" examples="personal-first_name, personal-email"/>
+                    <ids type="ProfessionalSummary" pattern="professional-summary"/>
+                    <ids type="Experience" pattern="experience-{index}-{fieldName}" examples="experience-0-job_title, experience-1-responsibilities-0"/>
+                    <ids type="Education" pattern="education-{index}-{fieldName}" examples="education-0-degree, education-1-relevant_courses-0"/>
+                </feature>
+                <feature name="smooth_scroll" desc="Automatically scrolls to accordion and field with smooth behavior (150ms delay)"/>
+                <feature name="focus_management" desc="Automatically focuses on input fields after navigation"/>
+                <feature name="controlled_accordions" desc="All accordions are controlled components using expanded/onChange props"/>
+            </features>
+        </component>
+
+        <component name="ImprovementSections" desc="Container for improvement categories with expandable sections">
+            <props>
+                <prop name="sections" type="AnalysisSection[]" desc="Array of improvement sections"/>
+                <prop name="onNavigateToField" type="function" desc="Callback for navigating to editor field"/>
+            </props>
+            <features>
+                <feature name="section_expansion" desc="Only one section can be expanded at a time"/>
+                <feature name="progress_display" desc="Shows percentage and status for each section"/>
+                <feature name="improvement_points" desc="Lists improvement points for each section"/>
+                <feature name="navigation_delegation" desc="Passes onNavigateToField to child ImprovementPoint components"/>
+            </features>
+        </component>
+
+        <component name="ImprovementPoint" desc="Individual improvement point with action buttons">
+            <props>
+                <prop name="point" type="ImprovementPoint" desc="Improvement point data"/>
+                <prop name="onFixApplied" type="function" desc="Callback when fix is applied"/>
+                <prop name="onNavigateToField" type="function" desc="Callback for navigating to editor field"/>
+            </props>
+            <features>
+                <feature name="severity_display" desc="Shows severity with color-coded border and icon"/>
+                <feature name="action_buttons" desc="Conditional rendering of Go to Edit and Fix buttons based on action_type"/>
+                <feature name="field_navigation" desc="Go to Edit button calls onNavigateToField with point.field_path"/>
+                <feature name="ai_fix" desc="Fix button calls API to apply AI-generated fix"/>
+                <feature name="fix_display" desc="Shows suggested fix after applying"/>
             </features>
         </component>
     </components>

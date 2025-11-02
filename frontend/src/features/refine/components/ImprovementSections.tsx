@@ -10,6 +10,7 @@ import ImprovementPoint from './ImprovementPoint';
 
 type Props = {
   sections: AnalysisSection[];
+  onNavigateToField?: (fieldPath: string) => void;
 };
 
 const accordionSx = {
@@ -34,7 +35,7 @@ const statusToBackground = {
   Strong: '#f0fdf4',
 };
 
-const ImprovementSections: React.FC<Props> = ({ sections }) => {
+const ImprovementSections: React.FC<Props> = ({ sections, onNavigateToField }) => {
   const [expandedSection, setExpandedSection] = useState<string | false>(false);
 
   const handleAccordionChange = (panelId: string) => (_event: React.SyntheticEvent, isExpanded: boolean) => {
@@ -140,7 +141,11 @@ const ImprovementSections: React.FC<Props> = ({ sections }) => {
                 </Typography>
               ) : (
                 s.improvement_points.map((point) => (
-                  <ImprovementPoint key={point.id} point={point} />
+                  <ImprovementPoint 
+                    key={point.id} 
+                    point={point}
+                    onNavigateToField={onNavigateToField}
+                  />
                 ))
               )}
             </AccordionDetails>

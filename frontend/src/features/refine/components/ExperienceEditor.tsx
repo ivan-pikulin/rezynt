@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useImperativeHandle, forwardRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Box,
@@ -25,6 +25,10 @@ interface ExperienceEditorProps {
   onExperienceUpdate: (experience: WorkExperience[]) => void;
 }
 
+export interface ExperienceEditorHandle {
+  navigateToField: (index: number, fieldName: string) => void;
+}
+
 interface ExperienceFormData {
   job_title: string;
   company: string;
@@ -39,10 +43,10 @@ interface ExperienceFormData {
   technologies_tools: string[];
 }
 
-const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
+const ExperienceEditor = forwardRef<ExperienceEditorHandle, ExperienceEditorProps>(({
   experience,
   onExperienceUpdate
-}) => {
+}, ref) => {
   const { t } = useTranslation();
   const [localExperience, setLocalExperience] = useState<WorkExperience[]>(experience);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
@@ -70,6 +74,79 @@ const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
   const handleExpandChange = (index: number | false) => {
     setExpandedIndex(index === false ? null : index);
   };
+
+  // Expose navigation method
+  useImperativeHandle(ref, () => ({
+    navigateToField: (index: number, fieldName: string) => {
+      console.log('📝 ExperienceEditor.navigateToField called:', { index, fieldName });
+      
+      // Expand the accordion for this experience entry
+      setExpandedIndex(index);
+      
+      // Focus on the field after a delay to allow accordion to expand
+      setTimeout(() => {
+        // For array fields (achievements, responsibilities, technologies_tools),
+        // try to focus on the first item or the section
+        let fieldId = `experience-${index}-${fieldName}`;
+        
+        // If it's an array field, try the first item
+        if (['achievements', 'responsibilities', 'technologies_tools'].includes(fieldName)) {
+          const firstItemId = `${fieldId}-0`;
+          const firstItem = document.getElementById(firstItemId);
+          if (firstItem) {
+            fieldId = firstItemId;
+          }
+        }
+        
+        console.log('🔎 Looking for element with ID:', fieldId);
+        
+        const element = document.getElementById(fieldId) as HTMLInputElement | HTMLTextAreaElement | null;
+        if (element) {
+          console.log('✅ Element found, focusing...');
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          
+          // Small delay for scroll to complete
+          setTimeout(() => {
+            element.focus();
+            if (element.select && typeof element.select === 'function') {
+              element.select();
+            }
+            
+            // Add highlight animation
+            const originalTransition = element.style.transition;
+            const originalBoxShadow = element.style.boxShadow;
+            
+            // Apply smooth pulsing highlight
+            element.style.transition = 'box-shadow 0.3s ease-in-out';
+            element.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.4)';
+            
+            // Fade out after 2 seconds
+            setTimeout(() => {
+              element.style.boxShadow = '0 0 0 0 rgba(37, 99, 235, 0)';
+              
+              // Clean up after transition completes
+              setTimeout(() => {
+                element.style.transition = originalTransition;
+                element.style.boxShadow = originalBoxShadow;
+              }, 300);
+            }, 2000);
+          }, 50);
+        } else {
+          console.log('❌ Element not found:', fieldId);
+          console.log('Available IDs in experience:', 
+            Array.from(document.querySelectorAll('[id^="experience-"]')).map(el => el.id)
+          );
+          
+          // Fallback: scroll to the accordion itself
+          const accordionElement = document.querySelector(`[id^="experience-${index}-"]`);
+          if (accordionElement) {
+            console.log('⚠️ Fallback: scrolling to accordion');
+            accordionElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }
+      }, 150);
+    }
+  }), []);
 
   const handleFieldChange = (index: number, field: keyof ExperienceFormData, value: any) => {
     setFormDataArray(prev => ({
@@ -219,6 +296,7 @@ const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
             <AccordionDetails>
             <Box sx={{ display: 'grid', gap: 2 }}>
                 <TextField
+                id={`experience-${index}-job_title`}
                 size="small"
                 placeholder={t('refine.editor.jobTitle')}
                 value={formDataArray[index]?.job_title || ''}
@@ -227,6 +305,7 @@ const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
                 sx={inputStyles}
               />
               <TextField
+                id={`experience-${index}-company`}
                   size="small"
                 placeholder={t('refine.editor.company')}
                 value={formDataArray[index]?.company || ''}
@@ -236,6 +315,7 @@ const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
                 />
               <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
                 <TextField
+                  id={`experience-${index}-city`}
                   size="small"
                   placeholder={t('refine.editor.city', 'City')}
                   value={formDataArray[index]?.city || ''}
@@ -243,6 +323,7 @@ const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
                   sx={inputStyles}
                 />
                 <TextField
+                  id={`experience-${index}-country`}
                   size="small"
                   placeholder={t('refine.editor.country', 'Country')}
                   value={formDataArray[index]?.country || ''}
@@ -252,6 +333,7 @@ const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
               </Box>
               <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
                 <TextField
+                  id={`experience-${index}-start_date`}
                   size="small"
                   placeholder="June 2024"
                   value={formDataArray[index]?.start_date || ''}
@@ -259,6 +341,7 @@ const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
                   sx={inputStyles}
                 />
                 <TextField
+                  id={`experience-${index}-end_date`}
                   size="small"
                   placeholder="August 2025"
                   value={formDataArray[index]?.end_date || ''}
@@ -282,6 +365,7 @@ const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
               {formDataArray[index]?.responsibilities.map((resp, respIndex) => (
                 <Box key={respIndex} sx={{ display: 'flex', gap: 1 }}>
                   <TextField
+                    id={`experience-${index}-responsibilities-${respIndex}`}
                     size="small"
                     fullWidth
                     multiline
@@ -317,6 +401,8 @@ const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
         </Button>
     </Box>
   );
-};
+});
+
+ExperienceEditor.displayName = 'ExperienceEditor';
 
 export default ExperienceEditor;
