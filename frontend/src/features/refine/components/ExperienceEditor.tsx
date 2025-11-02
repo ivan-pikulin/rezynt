@@ -9,7 +9,6 @@ import {
   AccordionDetails,
   FormControlLabel,
   Switch,
-  IconButton,
   Divider
 } from '@mui/material';
 import {
@@ -495,16 +494,31 @@ const ExperienceEditor = forwardRef<ExperienceEditorHandle, ExperienceEditorProp
               <Divider />
               <Typography variant="subtitle2">{t('refine.editor.achievements')}</Typography>
               {formDataArray[index]?.achievements.map((ach, achIndex) => (
-                <Box key={achIndex} sx={{ display: 'flex', gap: 1 }}>
+                <Box key={achIndex} sx={{ display: 'flex', gap: 1, alignItems: 'flex-start' }}>
                   <SimpleTextarea
                     id={`experience-${index}-achievements-${achIndex}`}
                     value={ach}
                     onChange={(value) => handleAchievementChange(index, achIndex, value)}
                     rows={2}
                   />
-                  <IconButton size="small" onClick={() => handleDeleteAchievement(index, achIndex)}>
-                    <DeleteIcon fontSize="small" />
-                  </IconButton>
+                  <Box 
+                    component="div"
+                    onClick={() => handleDeleteAchievement(index, achIndex)}
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: '32px',
+                      height: '32px',
+                      borderRadius: '50%',
+                      cursor: 'pointer',
+                      flexShrink: 0,
+                      backgroundColor: '#F3F4F6',
+                      '&:hover': { backgroundColor: '#E5E7EB' },
+                    }}
+                  >
+                    <DeleteIcon sx={{ fontSize: '18px', color: '#6B7280' }} />
+                  </Box>
                 </Box>
               ))}
                 <Button

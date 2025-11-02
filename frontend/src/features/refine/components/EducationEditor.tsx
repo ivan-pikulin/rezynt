@@ -6,8 +6,7 @@ import {
   Button,
   Accordion,
   AccordionSummary,
-  AccordionDetails,
-  IconButton
+  AccordionDetails
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -345,16 +344,31 @@ const EducationEditor = forwardRef<EducationEditorHandle, EducationEditorProps>(
                 {t('refine.editor.relevantCourses', 'Relevant Courses')}
               </Typography>
               {formDataArray[index]?.relevant_courses.map((course, courseIndex) => (
-                <Box key={courseIndex} sx={{ display: 'flex', gap: 1 }}>
+                <Box key={courseIndex} sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
                   <SimpleInput
                     id={`education-${index}-relevant_courses-${courseIndex}`}
                     value={course}
                     onChange={(value) => handleCourseChange(index, courseIndex, value)}
                     placeholder={t('refine.editor.courseName', 'Course name')}
                   />
-                  <IconButton size="small" onClick={() => handleDeleteCourse(index, courseIndex)}>
-                    <DeleteIcon fontSize="small" />
-                  </IconButton>
+                  <Box 
+                    component="div"
+                    onClick={() => handleDeleteCourse(index, courseIndex)}
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: '32px',
+                      height: '32px',
+                      borderRadius: '50%',
+                      cursor: 'pointer',
+                      flexShrink: 0,
+                      backgroundColor: '#F3F4F6',
+                      '&:hover': { backgroundColor: '#E5E7EB' },
+                    }}
+                  >
+                    <DeleteIcon sx={{ fontSize: '18px', color: '#6B7280' }} />
+                  </Box>
                 </Box>
               ))}
               <Button
