@@ -325,7 +325,7 @@ const ExperienceEditor = forwardRef<ExperienceEditorHandle, ExperienceEditorProp
       [index]: { ...prev[index], [field]: value }
     }));
   };
-  
+    
   // Save to parent and history (for onBlur)
   const handleFieldBlur = (index: number) => {
     const formData = formDataArray[index];
@@ -421,6 +421,7 @@ const ExperienceEditor = forwardRef<ExperienceEditorHandle, ExperienceEditorProp
             borderRadius: '8px',
             mb: 2,
             border: '1px solid #e5e7eb',
+            boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.03)',
           }}
           >
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>

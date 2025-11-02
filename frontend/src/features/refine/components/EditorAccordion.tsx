@@ -1,10 +1,23 @@
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import EmailIcon from '@mui/icons-material/Email';
+import PhoneIcon from '@mui/icons-material/Phone';
+import TelegramIcon from '@mui/icons-material/Telegram';
+import WhatsAppIcon from '@mui/icons-material/WhatsApp';
+import LinkedInIcon from '@mui/icons-material/LinkedIn';
+import GitHubIcon from '@mui/icons-material/GitHub';
+import LanguageIcon from '@mui/icons-material/Language';
+import TwitterIcon from '@mui/icons-material/Twitter';
+import InstagramIcon from '@mui/icons-material/Instagram';
+import AddIcon from '@mui/icons-material/Add';
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
 import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
 import React, { useEffect, useState, useImperativeHandle, forwardRef, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Resume } from '../../../shared/services/api/types';
@@ -12,6 +25,19 @@ import { COLORS } from '../../../shared/theme/theme';
 import EducationEditor, { EducationEditorHandle } from './EducationEditor';
 import ExperienceEditor, { ExperienceEditorHandle } from './ExperienceEditor';
 import SkillsEditor from './SkillsEditor';
+
+// Contact configuration
+const CONTACT_CONFIGS = [
+  { field: 'email', icon: EmailIcon, label: 'Email' },
+  { field: 'phone', icon: PhoneIcon, label: 'Phone' },
+  { field: 'telegram', icon: TelegramIcon, label: 'Telegram' },
+  { field: 'whatsapp', icon: WhatsAppIcon, label: 'WhatsApp' },
+  { field: 'linkedin', icon: LinkedInIcon, label: 'LinkedIn' },
+  { field: 'github', icon: GitHubIcon, label: 'GitHub' },
+  { field: 'website', icon: LanguageIcon, label: 'Website' },
+  { field: 'twitter', icon: TwitterIcon, label: 'Twitter' },
+  { field: 'instagram', icon: InstagramIcon, label: 'Instagram' },
+] as const;
 
 // Simple input component to replace MUI TextField
 const SimpleInput: React.FC<{
@@ -89,6 +115,18 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
     instagram: resume.personal_info?.contacts?.instagram || ''
   });
 
+  // State for contact menu
+  const [contactMenuAnchor, setContactMenuAnchor] = useState<null | HTMLElement>(null);
+  const [visibleContacts, setVisibleContacts] = useState<Set<string>>(() => {
+    const visible = new Set<string>();
+    CONTACT_CONFIGS.forEach(({ field }) => {
+      if (resume.personal_info?.contacts?.[field as keyof typeof resume.personal_info.contacts]) {
+        visible.add(field);
+      }
+    });
+    return visible;
+  });
+
   useEffect(() => {
     console.log('🔄 EditorAccordion: resume prop changed, updating local state', {
       experienceCount: resume.work_experience?.length,
@@ -116,6 +154,15 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
       twitter: resume.personal_info?.contacts?.twitter || '',
       instagram: resume.personal_info?.contacts?.instagram || ''
     });
+    
+    // Update visible contacts
+    const visible = new Set<string>();
+    CONTACT_CONFIGS.forEach(({ field }) => {
+      if (resume.personal_info?.contacts?.[field as keyof typeof resume.personal_info.contacts]) {
+        visible.add(field);
+      }
+    });
+    setVisibleContacts(visible);
   }, [resume]);
 
   // Toggle accordion
@@ -287,6 +334,18 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
     
     setFormData((prev) => ({ ...prev, [field]: value }));
     
+    // Contact fields
+    const contactFields = ['email', 'phone', 'telegram', 'whatsapp', 'linkedin', 'github', 'website', 'twitter', 'instagram'];
+    
+    // If blur event and value is empty and it's a contact field, hide it
+    if (isBlur && !value.trim() && contactFields.includes(field)) {
+      setVisibleContacts(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(field);
+        return newSet;
+      });
+    }
+    
     // Update local resume immediately with deep copy of nested objects
     const updated = { 
       ...localResume,
@@ -300,14 +359,15 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
       }
     };
     
-    // Contact fields
-    const contactFields = ['email', 'phone', 'telegram', 'whatsapp', 'linkedin', 'github', 'website', 'twitter', 'instagram'];
-    
     if (field === 'professional_summary') {
       updated.professional_summary = value;
     } else if (contactFields.includes(field)) {
-      // Update contacts
-      (updated.personal_info!.contacts as any)[field] = value;
+      // Update contacts - remove if empty, otherwise set value
+      if (!value.trim()) {
+        delete (updated.personal_info!.contacts as any)[field];
+      } else {
+        (updated.personal_info!.contacts as any)[field] = value;
+      }
     } else {
       // Update personal info fields
       (updated.personal_info as any)[field] = value;
@@ -324,6 +384,24 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
     onResumeUpdate(updated, isBlur);
   };
 
+  // Handle adding a contact
+  const handleAddContact = (field: string) => {
+    setVisibleContacts(prev => {
+      const newSet = new Set(prev);
+      newSet.add(field);
+      return newSet;
+    });
+    setContactMenuAnchor(null);
+    
+    // Focus on the new field after a short delay
+    setTimeout(() => {
+      const element = document.getElementById(`personal-${field}`);
+      if (element) {
+        element.focus();
+      }
+    }, 100);
+  };
+
   const accordionStyles = {
     '&:before': { display: 'none' },
     borderRadius: '8px',
@@ -336,7 +414,7 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
       '&.Mui-expanded': { minHeight: '48px', padding: '12px 16px' }
     },
     '& .MuiAccordionSummary-content': { margin: 0 },
-    '& .MuiAccordionDetails-root': { padding: '16px' }
+    '& .MuiAccordionDetails-root': { padding: '8px 16px 16px 16px' }
   };
 
   const sectionNameStyles = {
@@ -422,73 +500,58 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
               />
             </Box>
             <Divider sx={{ my: 2 }} />
-            <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 600 }}>
+            <Typography sx={{ mb: 2, fontSize: '14px', fontWeight: 500, color: '#1f2937' }}>
               {t('refine.editor.contacts')}
             </Typography>
-            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
-              <SimpleInput
-                id="personal-email"
-                placeholder={t('refine.editor.email')} 
-                value={formData.email} 
-                onChange={(value) => handleFieldChange('email', value, false)}
-                onBlur={() => handleFieldChange('email', formData.email, true)}
-              />
-              <SimpleInput
-                id="personal-phone"
-                placeholder={t('refine.editor.phone')} 
-                value={formData.phone} 
-                onChange={(value) => handleFieldChange('phone', value, false)}
-                onBlur={() => handleFieldChange('phone', formData.phone, true)}
-              />
-              <SimpleInput
-                id="personal-telegram"
-                placeholder="Telegram" 
-                value={formData.telegram} 
-                onChange={(value) => handleFieldChange('telegram', value, false)}
-                onBlur={() => handleFieldChange('telegram', formData.telegram, true)}
-              />
-              <SimpleInput
-                id="personal-whatsapp"
-                placeholder="WhatsApp" 
-                value={formData.whatsapp} 
-                onChange={(value) => handleFieldChange('whatsapp', value, false)}
-                onBlur={() => handleFieldChange('whatsapp', formData.whatsapp, true)}
-              />
-              <SimpleInput
-                id="personal-linkedin"
-                placeholder="LinkedIn" 
-                value={formData.linkedin} 
-                onChange={(value) => handleFieldChange('linkedin', value, false)}
-                onBlur={() => handleFieldChange('linkedin', formData.linkedin, true)}
-              />
-              <SimpleInput
-                id="personal-github"
-                placeholder="GitHub" 
-                value={formData.github} 
-                onChange={(value) => handleFieldChange('github', value, false)}
-                onBlur={() => handleFieldChange('github', formData.github, true)}
-              />
-              <SimpleInput
-                id="personal-website"
-                placeholder="Website" 
-                value={formData.website} 
-                onChange={(value) => handleFieldChange('website', value, false)}
-                onBlur={() => handleFieldChange('website', formData.website, true)}
-              />
-              <SimpleInput
-                id="personal-twitter"
-                placeholder="Twitter" 
-                value={formData.twitter} 
-                onChange={(value) => handleFieldChange('twitter', value, false)}
-                onBlur={() => handleFieldChange('twitter', formData.twitter, true)}
-              />
-              <SimpleInput
-                id="personal-instagram"
-                placeholder="Instagram" 
-                value={formData.instagram} 
-                onChange={(value) => handleFieldChange('instagram', value, false)}
-                onBlur={() => handleFieldChange('instagram', formData.instagram, true)}
-              />
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              {CONTACT_CONFIGS.filter(({ field }) => visibleContacts.has(field)).map(({ field, icon: Icon, label }) => (
+                <Box key={field} sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                  <Icon sx={{ fontSize: '20px', color: '#6b7280', flexShrink: 0 }} />
+                  <SimpleInput
+                    id={`personal-${field}`}
+                    placeholder={label}
+                    value={formData[field as keyof typeof formData] as string}
+                    onChange={(value) => handleFieldChange(field, value, false)}
+                    onBlur={() => handleFieldChange(field, formData[field as keyof typeof formData] as string, true)}
+                  />
+                </Box>
+              ))}
+              
+              {visibleContacts.size < CONTACT_CONFIGS.length && (
+                <>
+                  <Button
+                    size="small"
+                    startIcon={<AddIcon />}
+                    onClick={(e) => setContactMenuAnchor(e.currentTarget)}
+                    sx={{
+                      textTransform: 'none',
+                      justifyContent: 'flex-start',
+                      color: COLORS.primary.main,
+                      '&:hover': {
+                        backgroundColor: 'rgba(37, 99, 235, 0.04)',
+                      },
+                    }}
+                  >
+                    Add contact
+                  </Button>
+                  <Menu
+                    anchorEl={contactMenuAnchor}
+                    open={Boolean(contactMenuAnchor)}
+                    onClose={() => setContactMenuAnchor(null)}
+                  >
+                    {CONTACT_CONFIGS.filter(({ field }) => !visibleContacts.has(field)).map(({ field, icon: Icon, label }) => (
+                      <MenuItem
+                        key={field}
+                        onClick={() => handleAddContact(field)}
+                        sx={{ display: 'flex', gap: 1, alignItems: 'center' }}
+                      >
+                        <Icon sx={{ fontSize: '18px', color: '#6b7280' }} />
+                        <Typography sx={{ fontSize: '14px' }}>{label}</Typography>
+                      </MenuItem>
+                    ))}
+                  </Menu>
+                </>
+              )}
             </Box>
           </AccordionDetails>
         </Accordion>

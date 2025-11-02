@@ -204,7 +204,7 @@ const EducationEditor = forwardRef<EducationEditorHandle, EducationEditorProps>(
       [index]: { ...prev[index], [field]: value }
     }));
   };
-  
+    
   // Save to parent and history (for onBlur)
   const handleFieldBlur = (index: number) => {
     const formData = formDataArray[index];
@@ -218,7 +218,7 @@ const EducationEditor = forwardRef<EducationEditorHandle, EducationEditorProps>(
       end_date: formData.end_date || undefined,
       relevant_courses: formData.relevant_courses?.filter(c => c.trim()) || undefined
     };
-    
+
     const updatedEducation = [...localEducation];
     updatedEducation[index] = educationData;
     setLocalEducation(updatedEducation);
@@ -293,6 +293,7 @@ const EducationEditor = forwardRef<EducationEditorHandle, EducationEditorProps>(
             borderRadius: '8px',
             mb: 2,
             border: '1px solid #e5e7eb',
+            boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.03)',
           }}
         >
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
