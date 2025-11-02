@@ -1,9 +1,45 @@
 import React from 'react';
-import { Box, Typography, TextField } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { BuilderState } from '../types/builder';
 import { COLORS } from '../../../shared/theme/theme';
 import { useTranslation } from 'react-i18next';
+
+// Simple input component
+const SimpleInput: React.FC<{
+  placeholder: string;
+  value: string;
+  onChange: (value: string) => void;
+  type?: string;
+  required?: boolean;
+}> = ({ placeholder, value, onChange, type = 'text', required = false }) => {
+  return (
+    <input
+      type={type}
+      placeholder={placeholder}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      required={required}
+      style={{
+        width: '100%',
+        fontSize: '12px',
+        padding: '8px 12px',
+        borderRadius: '6px',
+        backgroundColor: '#F9FAFB',
+        border: '1px solid #e5e7eb',
+        fontFamily: 'inherit',
+        outline: 'none',
+        transition: 'border-color 0.2s ease-in-out',
+      }}
+      onFocus={(e) => {
+        e.target.style.borderColor = '#2563eb';
+      }}
+      onBlur={(e) => {
+        e.target.style.borderColor = '#e5e7eb';
+      }}
+    />
+  );
+};
 
 interface ContactInfoStepProps {
   state: BuilderState;
@@ -12,28 +48,6 @@ interface ContactInfoStepProps {
 
 export const ContactInfoStep: React.FC<ContactInfoStepProps> = ({ state, onUpdate }) => {
   const { t } = useTranslation();
-  
-  const inputStyles = {
-    '& .MuiOutlinedInput-root': {
-      borderRadius: '6px',
-      backgroundColor: '#F9FAFB',
-      '& fieldset': {
-        borderColor: '#e5e7eb',
-        borderWidth: '1px',
-      },
-      '&:hover fieldset': {
-        borderColor: '#e5e7eb',
-      },
-      '&.Mui-focused fieldset': {
-        borderColor: '#e5e7eb',
-        borderWidth: '1px',
-      },
-    },
-    '& .MuiInputBase-input': {
-      fontSize: '12px',
-      padding: '8px 12px',
-    },
-  };
 
   const handlePersonalInfoChange = (field: string, value: string) => {
     onUpdate('personal_info', {
@@ -107,19 +121,16 @@ export const ContactInfoStep: React.FC<ContactInfoStepProps> = ({ state, onUpdat
                 <CheckCircleIcon sx={{ fontSize: 16, color: COLORS.success.main }} />
               )}
             </Typography>
-            <TextField
-              fullWidth
+            <SimpleInput
               placeholder={t('builder.contactInfo.fullNamePlaceholder')}
               value={`${getFieldValue('first_name')} ${getFieldValue('last_name')}`.trim()}
-              onChange={(e) => {
-                const parts = e.target.value.split(' ');
+              onChange={(value) => {
+                const parts = value.split(' ');
                 const firstName = parts[0] || '';
                 const lastName = parts.slice(1).join(' ') || '';
                 handlePersonalInfoChange('first_name', firstName);
                 handlePersonalInfoChange('last_name', lastName);
               }}
-              size="small"
-              sx={inputStyles}
             />
           </Box>
         </Box>
@@ -141,15 +152,12 @@ export const ContactInfoStep: React.FC<ContactInfoStepProps> = ({ state, onUpdat
                 <CheckCircleIcon sx={{ fontSize: 16, color: COLORS.success.main }} />
               )}
             </Typography>
-            <TextField
-              fullWidth
+            <SimpleInput
               type="email"
               placeholder={t('builder.contactInfo.emailPlaceholder')}
               value={getContactValue('email')}
-              onChange={(e) => handleContactChange('email', e.target.value)}
-              size="small"
+              onChange={(value) => handleContactChange('email', value)}
               required
-              sx={inputStyles}
             />
           </Box>
         </Box>
@@ -171,14 +179,11 @@ export const ContactInfoStep: React.FC<ContactInfoStepProps> = ({ state, onUpdat
                 <CheckCircleIcon sx={{ fontSize: 16, color: COLORS.success.main }} />
               )}
             </Typography>
-            <TextField
-              fullWidth
+            <SimpleInput
               type="tel"
               placeholder={t('builder.contactInfo.phonePlaceholder')}
               value={getContactValue('phone')}
-              onChange={(e) => handleContactChange('phone', e.target.value)}
-              size="small"
-              sx={inputStyles}
+              onChange={(value) => handleContactChange('phone', value)}
             />
           </Box>
         </Box>
@@ -200,13 +205,10 @@ export const ContactInfoStep: React.FC<ContactInfoStepProps> = ({ state, onUpdat
                 <CheckCircleIcon sx={{ fontSize: 16, color: COLORS.success.main }} />
               )}
             </Typography>
-            <TextField
-              fullWidth
+            <SimpleInput
               placeholder={t('builder.contactInfo.cityPlaceholder')}
               value={getFieldValue('city')}
-              onChange={(e) => handlePersonalInfoChange('city', e.target.value)}
-              size="small"
-              sx={inputStyles}
+              onChange={(value) => handlePersonalInfoChange('city', value)}
             />
           </Box>
         </Box>
@@ -228,13 +230,10 @@ export const ContactInfoStep: React.FC<ContactInfoStepProps> = ({ state, onUpdat
                 <CheckCircleIcon sx={{ fontSize: 16, color: COLORS.success.main }} />
               )}
             </Typography>
-            <TextField
-              fullWidth
+            <SimpleInput
               placeholder={t('builder.contactInfo.countryPlaceholder')}
               value={getFieldValue('country')}
-              onChange={(e) => handlePersonalInfoChange('country', e.target.value)}
-              size="small"
-              sx={inputStyles}
+              onChange={(value) => handlePersonalInfoChange('country', value)}
             />
           </Box>
         </Box>

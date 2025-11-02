@@ -4,7 +4,6 @@ import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
-import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import React, { useEffect, useState, useImperativeHandle, forwardRef, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -12,6 +11,41 @@ import { Resume } from '../../../shared/services/api/types';
 import EducationEditor, { EducationEditorHandle } from './EducationEditor';
 import ExperienceEditor, { ExperienceEditorHandle } from './ExperienceEditor';
 import SkillsEditor from './SkillsEditor';
+
+// Simple input component to replace MUI TextField
+const SimpleInput: React.FC<{
+  id: string;
+  placeholder: string;
+  value: string;
+  onChange: (value: string) => void;
+}> = ({ id, placeholder, value, onChange }) => {
+  return (
+    <input
+      id={id}
+      type="text"
+      placeholder={placeholder}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      style={{
+        width: '100%',
+        fontSize: '12px',
+        padding: '8px 12px',
+        borderRadius: '6px',
+        backgroundColor: '#F9FAFB',
+        border: '1px solid #e5e7eb',
+        fontFamily: 'inherit',
+        outline: 'none',
+        transition: 'border-color 0.2s ease-in-out',
+      }}
+      onFocus={(e) => {
+        e.target.style.borderColor = '#2563eb';
+      }}
+      onBlur={(e) => {
+        e.target.style.borderColor = '#e5e7eb';
+      }}
+    />
+  );
+};
 
 type Props = {
   resume: Resume;
@@ -179,22 +213,10 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
               
               if (fieldId) {
                 console.log('🔎 Trying to focus on field:', fieldId);
-                const fieldElement = document.getElementById(fieldId);
+                const inputElement = document.getElementById(fieldId) as HTMLInputElement | HTMLTextAreaElement | null;
                 
-                if (fieldElement) {
-                  console.log('✅ Field element found (outer):', fieldElement.tagName);
-                  
-                  // For Material UI TextField, we need to find the actual input element
-                  let inputElement = fieldElement as HTMLInputElement | HTMLTextAreaElement;
-                  
-                  // If it's a div (TextField wrapper), find the input/textarea inside
-                  if (fieldElement.tagName === 'DIV') {
-                    const innerInput = fieldElement.querySelector('input, textarea') as HTMLInputElement | HTMLTextAreaElement | null;
-                    if (innerInput) {
-                      inputElement = innerInput;
-                      console.log('✅ Found inner input element:', innerInput.tagName);
-                    }
-                  }
+                if (inputElement) {
+                  console.log('✅ Input element found:', inputElement.tagName);
                   
                   // Scroll into view
                   inputElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -202,20 +224,19 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
                   // Additional delay to ensure scroll completes before focusing
                   setTimeout(() => {
                     console.log('🎯 Focusing on element...');
+                    
+                    // Focus and select
                     inputElement.focus();
-                    // For text fields, also select the content for easy editing
-                    if (inputElement.select && typeof inputElement.select === 'function') {
+                    if (inputElement.select) {
                       inputElement.select();
                     }
                     
                     // Add highlight animation
                     const originalTransition = inputElement.style.transition;
                     const originalBoxShadow = inputElement.style.boxShadow;
-                    const originalBorderRadius = inputElement.style.borderRadius;
                     
-                    // Apply smooth pulsing highlight with border radius
+                    // Apply smooth pulsing highlight
                     inputElement.style.transition = 'box-shadow 0.3s ease-in-out';
-                    inputElement.style.borderRadius = '6px';
                     inputElement.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.4)';
                     
                     // Fade out after 2 seconds
@@ -226,7 +247,6 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
                       setTimeout(() => {
                         inputElement.style.transition = originalTransition;
                         inputElement.style.boxShadow = originalBoxShadow;
-                        inputElement.style.borderRadius = originalBorderRadius;
                       }, 300);
                     }, 2000);
                     
@@ -336,48 +356,37 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
           </AccordionSummary>
           <AccordionDetails>
             <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2, mb: 2 }}>
-              <TextField 
+              <SimpleInput
                 id="personal-first_name"
-                size="small" 
                 placeholder={t('refine.editor.firstName')} 
                 value={formData.first_name} 
-                onChange={(e) => handleFieldChange('first_name', e.target.value)} 
-                sx={inputStyles} 
+                onChange={(value) => handleFieldChange('first_name', value)} 
               />
-              <TextField 
+              <SimpleInput
                 id="personal-last_name"
-                size="small" 
                 placeholder={t('refine.editor.lastName')} 
                 value={formData.last_name} 
-                onChange={(e) => handleFieldChange('last_name', e.target.value)} 
-                sx={inputStyles} 
+                onChange={(value) => handleFieldChange('last_name', value)} 
               />
-              <TextField 
+              <SimpleInput
                 id="personal-current_role"
-                size="small" 
-                fullWidth 
                 placeholder={t('refine.editor.currentRole', 'Current Role')} 
                 value={formData.current_role} 
-                onChange={(e) => handleFieldChange('current_role', e.target.value)} 
-                sx={inputStyles} 
+                onChange={(value) => handleFieldChange('current_role', value)} 
               />
             </Box>
             <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2, mb: 2 }}>
-              <TextField 
+              <SimpleInput
                 id="personal-city"
-                size="small" 
                 placeholder={t('refine.editor.city', 'City')} 
                 value={formData.city} 
-                onChange={(e) => handleFieldChange('city', e.target.value)} 
-                sx={inputStyles} 
+                onChange={(value) => handleFieldChange('city', value)} 
               />
-              <TextField 
+              <SimpleInput
                 id="personal-country"
-                size="small" 
                 placeholder={t('refine.editor.country', 'Country')} 
                 value={formData.country} 
-                onChange={(e) => handleFieldChange('country', e.target.value)} 
-                sx={inputStyles} 
+                onChange={(value) => handleFieldChange('country', value)} 
               />
             </Box>
             <Divider sx={{ my: 2 }} />
@@ -385,77 +394,59 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
               {t('refine.editor.contacts')}
             </Typography>
             <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
-              <TextField 
+              <SimpleInput
                 id="personal-email"
-                size="small" 
                 placeholder={t('refine.editor.email')} 
                 value={formData.email} 
-                onChange={(e) => handleFieldChange('email', e.target.value)} 
-                sx={inputStyles} 
+                onChange={(value) => handleFieldChange('email', value)} 
               />
-              <TextField 
+              <SimpleInput
                 id="personal-phone"
-                size="small" 
                 placeholder={t('refine.editor.phone')} 
                 value={formData.phone} 
-                onChange={(e) => handleFieldChange('phone', e.target.value)} 
-                sx={inputStyles} 
+                onChange={(value) => handleFieldChange('phone', value)} 
               />
-              <TextField 
+              <SimpleInput
                 id="personal-telegram"
-                size="small" 
                 placeholder="Telegram" 
                 value={formData.telegram} 
-                onChange={(e) => handleFieldChange('telegram', e.target.value)} 
-                sx={inputStyles} 
+                onChange={(value) => handleFieldChange('telegram', value)} 
               />
-              <TextField 
+              <SimpleInput
                 id="personal-whatsapp"
-                size="small" 
                 placeholder="WhatsApp" 
                 value={formData.whatsapp} 
-                onChange={(e) => handleFieldChange('whatsapp', e.target.value)} 
-                sx={inputStyles} 
+                onChange={(value) => handleFieldChange('whatsapp', value)} 
               />
-              <TextField 
+              <SimpleInput
                 id="personal-linkedin"
-                size="small" 
                 placeholder="LinkedIn" 
                 value={formData.linkedin} 
-                onChange={(e) => handleFieldChange('linkedin', e.target.value)} 
-                sx={inputStyles} 
+                onChange={(value) => handleFieldChange('linkedin', value)} 
               />
-              <TextField 
+              <SimpleInput
                 id="personal-github"
-                size="small" 
                 placeholder="GitHub" 
                 value={formData.github} 
-                onChange={(e) => handleFieldChange('github', e.target.value)} 
-                sx={inputStyles} 
+                onChange={(value) => handleFieldChange('github', value)} 
               />
-              <TextField 
+              <SimpleInput
                 id="personal-website"
-                size="small" 
                 placeholder="Website" 
                 value={formData.website} 
-                onChange={(e) => handleFieldChange('website', e.target.value)} 
-                sx={inputStyles} 
+                onChange={(value) => handleFieldChange('website', value)} 
               />
-              <TextField 
+              <SimpleInput
                 id="personal-twitter"
-                size="small" 
                 placeholder="Twitter" 
                 value={formData.twitter} 
-                onChange={(e) => handleFieldChange('twitter', e.target.value)} 
-                sx={inputStyles} 
+                onChange={(value) => handleFieldChange('twitter', value)} 
               />
-              <TextField 
+              <SimpleInput
                 id="personal-instagram"
-                size="small" 
                 placeholder="Instagram" 
                 value={formData.instagram} 
-                onChange={(e) => handleFieldChange('instagram', e.target.value)} 
-                sx={inputStyles} 
+                onChange={(value) => handleFieldChange('instagram', value)} 
               />
             </Box>
           </AccordionDetails>
@@ -473,15 +464,30 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
             <Typography sx={sectionNameStyles}>{t('refine.editor.professionalSummary')}</Typography>
           </AccordionSummary>
           <AccordionDetails>
-            <TextField 
+            <textarea 
               id="professional-summary"
-              fullWidth 
-              size="small" 
-              multiline 
-              rows={4} 
-              sx={inputStyles} 
+              rows={4}
+              placeholder={t('refine.editor.professionalSummary')}
               value={formData.professional_summary} 
-              onChange={(e) => handleFieldChange('professional_summary', e.target.value)} 
+              onChange={(e) => handleFieldChange('professional_summary', e.target.value)}
+              style={{
+                width: '100%',
+                fontSize: '12px',
+                padding: '8px 12px',
+                borderRadius: '6px',
+                backgroundColor: '#F9FAFB',
+                border: '1px solid #e5e7eb',
+                fontFamily: 'inherit',
+                resize: 'vertical',
+                outline: 'none',
+                transition: 'border-color 0.2s ease-in-out',
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = '#2563eb';
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = '#e5e7eb';
+              }}
             />
           </AccordionDetails>
         </Accordion>

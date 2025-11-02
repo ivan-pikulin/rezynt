@@ -2,7 +2,6 @@ import React, { useState, useImperativeHandle, forwardRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Box,
-  TextField,
   Typography,
   Button,
   Accordion,
@@ -19,6 +18,78 @@ import {
   DeleteOutline as DeleteIcon
 } from '@mui/icons-material';
 import { WorkExperience } from '../../../shared/services/api/types';
+
+// Simple input component
+const SimpleInput: React.FC<{
+  id: string;
+  placeholder: string;
+  value: string;
+  onChange: (value: string) => void;
+}> = ({ id, placeholder, value, onChange }) => {
+  return (
+    <input
+      id={id}
+      type="text"
+      placeholder={placeholder}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      style={{
+        width: '100%',
+        fontSize: '12px',
+        padding: '8px 12px',
+        borderRadius: '6px',
+        backgroundColor: '#F9FAFB',
+        border: '1px solid #e5e7eb',
+        fontFamily: 'inherit',
+        outline: 'none',
+        transition: 'border-color 0.2s ease-in-out',
+      }}
+      onFocus={(e) => {
+        e.target.style.borderColor = '#2563eb';
+      }}
+      onBlur={(e) => {
+        e.target.style.borderColor = '#e5e7eb';
+      }}
+    />
+  );
+};
+
+// Simple textarea component
+const SimpleTextarea: React.FC<{
+  id: string;
+  placeholder?: string;
+  value: string;
+  onChange: (value: string) => void;
+  rows?: number;
+}> = ({ id, placeholder, value, onChange, rows = 2 }) => {
+  return (
+    <textarea
+      id={id}
+      placeholder={placeholder}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      rows={rows}
+      style={{
+        width: '100%',
+        fontSize: '12px',
+        padding: '8px 12px',
+        borderRadius: '6px',
+        backgroundColor: '#F9FAFB',
+        border: '1px solid #e5e7eb',
+        fontFamily: 'inherit',
+        resize: 'vertical',
+        outline: 'none',
+        transition: 'border-color 0.2s ease-in-out',
+      }}
+      onFocus={(e) => {
+        e.target.style.borderColor = '#2563eb';
+      }}
+      onBlur={(e) => {
+        e.target.style.borderColor = '#e5e7eb';
+      }}
+    />
+  );
+};
 
 interface ExperienceEditorProps {
   experience: WorkExperience[];
@@ -230,16 +301,16 @@ const ExperienceEditor = forwardRef<ExperienceEditorHandle, ExperienceEditorProp
       short_description: formData.short_description?.trim() || undefined,
       city: formData.city?.trim() || undefined,
       country: formData.country?.trim() || undefined,
-      start_date: formData.start_date || undefined,
-      end_date: formData.is_current ? undefined : (formData.end_date || undefined),
+        start_date: formData.start_date || undefined,
+        end_date: formData.is_current ? undefined : (formData.end_date || undefined),
       // Save achievements as both achievements and responsibilities for backward compatibility
       achievements: filteredAchievements,
       responsibilities: filteredAchievements,
       technologies_tools: formData.technologies_tools?.filter(t => t.trim()) || undefined
-    };
+      };
 
-    const updatedExperience = [...localExperience];
-    updatedExperience[index] = experienceData;
+      const updatedExperience = [...localExperience];
+      updatedExperience[index] = experienceData;
     setLocalExperience(updatedExperience);
     onExperienceUpdate(updatedExperience);
   };
@@ -255,26 +326,26 @@ const ExperienceEditor = forwardRef<ExperienceEditorHandle, ExperienceEditorProp
     const newExperience: WorkExperience = {};
 
     const updatedExperience = [...localExperience, newExperience];
-    setLocalExperience(updatedExperience);
-    onExperienceUpdate(updatedExperience);
-    
-    const newIndex = updatedExperience.length - 1;
-    setFormDataArray(prev => ({
-      ...prev,
-      [newIndex]: {
-        job_title: '',
-        company: '',
+      setLocalExperience(updatedExperience);
+      onExperienceUpdate(updatedExperience);
+      
+      const newIndex = updatedExperience.length - 1;
+      setFormDataArray(prev => ({
+        ...prev,
+        [newIndex]: {
+          job_title: '',
+          company: '',
         short_description: '',
         city: '',
         country: '',
-        start_date: '',
-        end_date: '',
+          start_date: '',
+          end_date: '',
         is_current: true,
         achievements: [],
         technologies_tools: []
-      }
-    }));
-    setExpandedIndex(newIndex);
+        }
+      }));
+      setExpandedIndex(newIndex);
   };
 
   const handleAddAchievement = (index: number) => {
@@ -299,28 +370,6 @@ const ExperienceEditor = forwardRef<ExperienceEditorHandle, ExperienceEditorProp
     const newAchievements = [...formData.achievements];
     newAchievements[achIndex] = value;
     handleFieldChange(expIndex, 'achievements', newAchievements);
-  };
-
-  const inputStyles = {
-    '& .MuiOutlinedInput-root': {
-      borderRadius: '6px',
-      backgroundColor: '#F9FAFB',
-      '& fieldset': {
-        borderColor: '#e5e7eb',
-        borderWidth: '1px',
-      },
-      '&:hover fieldset': {
-        borderColor: '#e5e7eb',
-      },
-      '&.Mui-focused fieldset': {
-        borderColor: '#e5e7eb',
-        borderWidth: '1px',
-      },
-    },
-    '& .MuiInputBase-input': {
-      fontSize: '12px',
-      padding: '8px 12px',
-    },
   };
 
   return (
@@ -363,70 +412,73 @@ const ExperienceEditor = forwardRef<ExperienceEditorHandle, ExperienceEditorProp
             </AccordionSummary>
             <AccordionDetails>
             <Box sx={{ display: 'grid', gap: 2 }}>
-                <TextField
+              <SimpleInput
                 id={`experience-${index}-job_title`}
-                size="small"
                 placeholder={t('refine.editor.jobTitle')}
                 value={formDataArray[index]?.job_title || ''}
-                onChange={(e) => handleFieldChange(index, 'job_title', e.target.value)}
-                  fullWidth
-                sx={inputStyles}
+                onChange={(value) => handleFieldChange(index, 'job_title', value)}
               />
-              <TextField
+              <SimpleInput
                 id={`experience-${index}-company`}
-                size="small"
                 placeholder={t('refine.editor.company')}
                 value={formDataArray[index]?.company || ''}
-                onChange={(e) => handleFieldChange(index, 'company', e.target.value)}
-                fullWidth
-                sx={inputStyles}
+                onChange={(value) => handleFieldChange(index, 'company', value)}
               />
-              <TextField
+              <SimpleTextarea
                 id={`experience-${index}-short_description`}
-                size="small"
                 placeholder={t('refine.editor.companyDescription', 'Brief company or project description')}
                 value={formDataArray[index]?.short_description || ''}
-                onChange={(e) => handleFieldChange(index, 'short_description', e.target.value)}
-                fullWidth
-                multiline
+                onChange={(value) => handleFieldChange(index, 'short_description', value)}
                 rows={2}
-                sx={inputStyles}
               />
               <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
-                <TextField
+                <SimpleInput
                   id={`experience-${index}-city`}
-                  size="small"
                   placeholder={t('refine.editor.city', 'City')}
                   value={formDataArray[index]?.city || ''}
-                  onChange={(e) => handleFieldChange(index, 'city', e.target.value)}
-                  sx={inputStyles}
+                  onChange={(value) => handleFieldChange(index, 'city', value)}
                 />
-                <TextField
+                <SimpleInput
                   id={`experience-${index}-country`}
-                  size="small"
                   placeholder={t('refine.editor.country', 'Country')}
                   value={formDataArray[index]?.country || ''}
-                  onChange={(e) => handleFieldChange(index, 'country', e.target.value)}
-                  sx={inputStyles}
+                  onChange={(value) => handleFieldChange(index, 'country', value)}
                 />
               </Box>
               <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
-                <TextField
+                <SimpleInput
                   id={`experience-${index}-start_date`}
-                  size="small"
                   placeholder="June 2024"
                   value={formDataArray[index]?.start_date || ''}
-                  onChange={(e) => handleFieldChange(index, 'start_date', e.target.value)}
-                  sx={inputStyles}
+                  onChange={(value) => handleFieldChange(index, 'start_date', value)}
                 />
-                <TextField
+                <input
                   id={`experience-${index}-end_date`}
-                  size="small"
+                  type="text"
                   placeholder="August 2025"
                   value={formDataArray[index]?.end_date || ''}
                   onChange={(e) => handleFieldChange(index, 'end_date', e.target.value)}
                   disabled={formDataArray[index]?.is_current}
-                  sx={inputStyles}
+                  style={{
+                    width: '100%',
+                    fontSize: '12px',
+                    padding: '8px 12px',
+                    borderRadius: '6px',
+                    backgroundColor: formDataArray[index]?.is_current ? '#f3f4f6' : '#F9FAFB',
+                    border: '1px solid #e5e7eb',
+                    fontFamily: 'inherit',
+                    outline: 'none',
+                    transition: 'border-color 0.2s ease-in-out',
+                    cursor: formDataArray[index]?.is_current ? 'not-allowed' : 'text',
+                  }}
+                  onFocus={(e) => {
+                    if (!formDataArray[index]?.is_current) {
+                      e.target.style.borderColor = '#2563eb';
+                    }
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = '#e5e7eb';
+                  }}
                 />
               </Box>
                 <FormControlLabel
@@ -443,28 +495,25 @@ const ExperienceEditor = forwardRef<ExperienceEditorHandle, ExperienceEditorProp
               <Typography variant="subtitle2">{t('refine.editor.achievements')}</Typography>
               {formDataArray[index]?.achievements.map((ach, achIndex) => (
                 <Box key={achIndex} sx={{ display: 'flex', gap: 1 }}>
-                  <TextField
+                  <SimpleTextarea
                     id={`experience-${index}-achievements-${achIndex}`}
-                    size="small"
-                    fullWidth
-                    multiline
                     value={ach}
-                    onChange={(e) => handleAchievementChange(index, achIndex, e.target.value)}
-                    sx={inputStyles}
+                    onChange={(value) => handleAchievementChange(index, achIndex, value)}
+                    rows={2}
                   />
                   <IconButton size="small" onClick={() => handleDeleteAchievement(index, achIndex)}>
                     <DeleteIcon fontSize="small" />
                   </IconButton>
                 </Box>
               ))}
-              <Button
+                <Button
                 id={`experience-${index}-add-achievement-btn`}
                 size="small"
                 startIcon={<AddIcon />}
                 onClick={() => handleAddAchievement(index)}
               >
                 {t('refine.editor.addAchievement')}
-              </Button>
+                </Button>
               </Box>
             </AccordionDetails>
           </Accordion>

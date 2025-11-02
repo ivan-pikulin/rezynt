@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Typography, TextField } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { BuilderState } from '../types/builder';
 import { COLORS } from '../../../shared/theme/theme';
 import { useTranslation } from 'react-i18next';
@@ -11,28 +11,6 @@ interface SummaryStepProps {
 
 export const SummaryStep: React.FC<SummaryStepProps> = ({ state, onUpdate }) => {
   const { t } = useTranslation();
-
-  const inputStyles = {
-    '& .MuiOutlinedInput-root': {
-      borderRadius: '6px',
-      backgroundColor: '#F9FAFB',
-      '& fieldset': {
-        borderColor: '#e5e7eb',
-        borderWidth: '1px',
-      },
-      '&:hover fieldset': {
-        borderColor: '#e5e7eb',
-      },
-      '&.Mui-focused fieldset': {
-        borderColor: '#e5e7eb',
-        borderWidth: '1px',
-      },
-    },
-    '& .MuiInputBase-input': {
-      fontSize: '12px',
-      padding: '8px 12px',
-    },
-  };
 
   return (
     <Box sx={{ maxWidth: 800, margin: '0 auto' }}>
@@ -59,14 +37,29 @@ export const SummaryStep: React.FC<SummaryStepProps> = ({ state, onUpdate }) => 
         {t('builder.summary.description')}
       </Typography>
 
-      <TextField
-        fullWidth
-        multiline
-        rows={8}
+      <textarea
         placeholder={t('builder.summary.placeholder')}
         value={state.professional_summary || ''}
         onChange={(e) => onUpdate('professional_summary', e.target.value)}
-        sx={inputStyles}
+        rows={8}
+        style={{
+          width: '100%',
+          fontSize: '12px',
+          padding: '8px 12px',
+          borderRadius: '6px',
+          backgroundColor: '#F9FAFB',
+          border: '1px solid #e5e7eb',
+          fontFamily: 'inherit',
+          resize: 'vertical',
+          outline: 'none',
+          transition: 'border-color 0.2s ease-in-out',
+        }}
+        onFocus={(e) => {
+          e.target.style.borderColor = '#2563eb';
+        }}
+        onBlur={(e) => {
+          e.target.style.borderColor = '#e5e7eb';
+        }}
       />
 
       <Box 

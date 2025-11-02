@@ -2,7 +2,6 @@ import React, { useState, useImperativeHandle, forwardRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Box,
-  TextField,
   Typography,
   Button,
   Accordion,
@@ -16,6 +15,41 @@ import {
   DeleteOutline as DeleteIcon
 } from '@mui/icons-material';
 import { Education } from '../../../shared/services/api/types';
+
+// Simple input component
+const SimpleInput: React.FC<{
+  id: string;
+  placeholder: string;
+  value: string;
+  onChange: (value: string) => void;
+}> = ({ id, placeholder, value, onChange }) => {
+  return (
+    <input
+      id={id}
+      type="text"
+      placeholder={placeholder}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      style={{
+        width: '100%',
+        fontSize: '12px',
+        padding: '8px 12px',
+        borderRadius: '6px',
+        backgroundColor: '#F9FAFB',
+        border: '1px solid #e5e7eb',
+        fontFamily: 'inherit',
+        outline: 'none',
+        transition: 'border-color 0.2s ease-in-out',
+      }}
+      onFocus={(e) => {
+        e.target.style.borderColor = '#2563eb';
+      }}
+      onBlur={(e) => {
+        e.target.style.borderColor = '#e5e7eb';
+      }}
+    />
+  );
+};
 
 interface EducationEditorProps {
   education: Education[];
@@ -90,38 +124,25 @@ const EducationEditor = forwardRef<EducationEditorHandle, EducationEditorProps>(
         
         console.log('🔎 Looking for element with ID:', fieldId);
         
-        const element = document.getElementById(fieldId);
-        if (element) {
-          console.log('✅ Element found, focusing...');
+        const inputElement = document.getElementById(fieldId) as HTMLInputElement | HTMLTextAreaElement | null;
+        if (inputElement) {
+          console.log('✅ Input element found:', inputElement.tagName);
           
-          // Find the actual input/textarea element (might be nested in MUI TextField)
-          let inputElement = element as HTMLElement;
-          if (element.tagName === 'DIV') {
-            const innerInput = element.querySelector('input, textarea') as HTMLInputElement | HTMLTextAreaElement | null;
-            if (innerInput) {
-              inputElement = innerInput;
-            }
-          }
-          
-          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          inputElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
           
           // Small delay for scroll to complete
           setTimeout(() => {
-            if (inputElement instanceof HTMLInputElement || inputElement instanceof HTMLTextAreaElement) {
-              inputElement.focus();
-              if (inputElement.select && typeof inputElement.select === 'function') {
-                inputElement.select();
-              }
+            inputElement.focus();
+            if (inputElement.select) {
+              inputElement.select();
             }
             
-            // Add highlight animation to the actual input element
+            // Add highlight animation
             const originalTransition = inputElement.style.transition;
             const originalBoxShadow = inputElement.style.boxShadow;
-            const originalBorderRadius = inputElement.style.borderRadius;
             
-            // Apply smooth pulsing highlight with border radius
+            // Apply smooth pulsing highlight
             inputElement.style.transition = 'box-shadow 0.3s ease-in-out';
-            inputElement.style.borderRadius = '6px';
             inputElement.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.4)';
             
             // Fade out after 2 seconds
@@ -132,7 +153,6 @@ const EducationEditor = forwardRef<EducationEditorHandle, EducationEditorProps>(
               setTimeout(() => {
                 inputElement.style.transition = originalTransition;
                 inputElement.style.boxShadow = originalBoxShadow;
-                inputElement.style.borderRadius = originalBorderRadius;
               }, 300);
             }, 2000);
           }, 50);
@@ -233,28 +253,6 @@ const EducationEditor = forwardRef<EducationEditorHandle, EducationEditorProps>(
     handleFieldChange(eduIndex, 'relevant_courses', newCourses);
   };
 
-  const inputStyles = {
-    '& .MuiOutlinedInput-root': {
-      borderRadius: '6px',
-      backgroundColor: '#F9FAFB',
-      '& fieldset': {
-        borderColor: '#e5e7eb',
-        borderWidth: '1px',
-      },
-      '&:hover fieldset': {
-        borderColor: '#e5e7eb',
-      },
-      '&.Mui-focused fieldset': {
-        borderColor: '#e5e7eb',
-        borderWidth: '1px',
-      },
-    },
-    '& .MuiInputBase-input': {
-      fontSize: '12px',
-      padding: '8px 12px',
-    },
-  };
-
   return (
     <Box>
       {localEducation.map((edu, index) => (
@@ -295,67 +293,50 @@ const EducationEditor = forwardRef<EducationEditorHandle, EducationEditorProps>(
           </AccordionSummary>
           <AccordionDetails>
             <Box sx={{ display: 'grid', gap: 2 }}>
-              <TextField
+              <SimpleInput
                 id={`education-${index}-degree`}
-                size="small"
                 placeholder={t('refine.editor.degree')}
                 value={formDataArray[index]?.degree || ''}
-                onChange={(e) => handleFieldChange(index, 'degree', e.target.value)}
-                fullWidth
-                sx={inputStyles}
+                onChange={(value) => handleFieldChange(index, 'degree', value)}
               />
-              <TextField
+              <SimpleInput
                 id={`education-${index}-institution`}
-                size="small"
                 placeholder={t('refine.editor.institution')}
                 value={formDataArray[index]?.institution || ''}
-                onChange={(e) => handleFieldChange(index, 'institution', e.target.value)}
-                fullWidth
-                sx={inputStyles}
+                onChange={(value) => handleFieldChange(index, 'institution', value)}
               />
-              <TextField
+              <SimpleInput
                 id={`education-${index}-field_of_study`}
-                size="small"
                 placeholder={t('refine.editor.fieldOfStudy', 'Field of Study')}
                 value={formDataArray[index]?.field_of_study || ''}
-                onChange={(e) => handleFieldChange(index, 'field_of_study', e.target.value)}
-                fullWidth
-                sx={inputStyles}
+                onChange={(value) => handleFieldChange(index, 'field_of_study', value)}
               />
               <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
-                <TextField
+                <SimpleInput
                   id={`education-${index}-city`}
-                  size="small"
                   placeholder={t('refine.editor.city', 'City')}
                   value={formDataArray[index]?.city || ''}
-                  onChange={(e) => handleFieldChange(index, 'city', e.target.value)}
-                  sx={inputStyles}
+                  onChange={(value) => handleFieldChange(index, 'city', value)}
                 />
-                <TextField
+                <SimpleInput
                   id={`education-${index}-country`}
-                  size="small"
                   placeholder={t('refine.editor.country', 'Country')}
                   value={formDataArray[index]?.country || ''}
-                  onChange={(e) => handleFieldChange(index, 'country', e.target.value)}
-                  sx={inputStyles}
+                  onChange={(value) => handleFieldChange(index, 'country', value)}
                 />
               </Box>
               <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
-                <TextField
+                <SimpleInput
                   id={`education-${index}-start_date`}
-                  size="small"
                   placeholder="September 2020"
                   value={formDataArray[index]?.start_date || ''}
-                  onChange={(e) => handleFieldChange(index, 'start_date', e.target.value)}
-                  sx={inputStyles}
+                  onChange={(value) => handleFieldChange(index, 'start_date', value)}
                 />
-                <TextField
+                <SimpleInput
                   id={`education-${index}-end_date`}
-                  size="small"
                   placeholder="May 2024"
                   value={formDataArray[index]?.end_date || ''}
-                  onChange={(e) => handleFieldChange(index, 'end_date', e.target.value)}
-                  sx={inputStyles}
+                  onChange={(value) => handleFieldChange(index, 'end_date', value)}
                 />
               </Box>
               
@@ -364,14 +345,11 @@ const EducationEditor = forwardRef<EducationEditorHandle, EducationEditorProps>(
               </Typography>
               {formDataArray[index]?.relevant_courses.map((course, courseIndex) => (
                 <Box key={courseIndex} sx={{ display: 'flex', gap: 1 }}>
-                  <TextField
+                  <SimpleInput
                     id={`education-${index}-relevant_courses-${courseIndex}`}
-                    size="small"
-                    fullWidth
                     value={course}
-                    onChange={(e) => handleCourseChange(index, courseIndex, e.target.value)}
+                    onChange={(value) => handleCourseChange(index, courseIndex, value)}
                     placeholder={t('refine.editor.courseName', 'Course name')}
-                    sx={inputStyles}
                   />
                   <IconButton size="small" onClick={() => handleDeleteCourse(index, courseIndex)}>
                     <DeleteIcon fontSize="small" />

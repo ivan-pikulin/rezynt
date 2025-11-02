@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { 
   Box, 
   Typography, 
-  TextField, 
   Button, 
   IconButton,
   Paper,
@@ -14,6 +13,39 @@ import { Education } from '../../../shared/types/resume';
 import { COLORS } from '../../../shared/theme/theme';
 import { useTranslation } from 'react-i18next';
 
+// Simple input component
+const SimpleInput: React.FC<{
+  placeholder: string;
+  value: string;
+  onChange: (value: string) => void;
+}> = ({ placeholder, value, onChange }) => {
+  return (
+    <input
+      type="text"
+      placeholder={placeholder}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      style={{
+        width: '100%',
+        fontSize: '12px',
+        padding: '8px 12px',
+        borderRadius: '6px',
+        backgroundColor: '#F9FAFB',
+        border: '1px solid #e5e7eb',
+        fontFamily: 'inherit',
+        outline: 'none',
+        transition: 'border-color 0.2s ease-in-out',
+      }}
+      onFocus={(e) => {
+        e.target.style.borderColor = '#2563eb';
+      }}
+      onBlur={(e) => {
+        e.target.style.borderColor = '#e5e7eb';
+      }}
+    />
+  );
+};
+
 interface EducationStepProps {
   state: BuilderState;
   onUpdate: <K extends keyof BuilderState>(field: K, value: BuilderState[K]) => void;
@@ -21,28 +53,6 @@ interface EducationStepProps {
 
 export const EducationStep: React.FC<EducationStepProps> = ({ state, onUpdate }) => {
   const { t } = useTranslation();
-
-  const inputStyles = {
-    '& .MuiOutlinedInput-root': {
-      borderRadius: '6px',
-      backgroundColor: '#F9FAFB',
-      '& fieldset': {
-        borderColor: '#e5e7eb',
-        borderWidth: '1px',
-      },
-      '&:hover fieldset': {
-        borderColor: '#e5e7eb',
-      },
-      '&.Mui-focused fieldset': {
-        borderColor: '#e5e7eb',
-        borderWidth: '1px',
-      },
-    },
-    '& .MuiInputBase-input': {
-      fontSize: '12px',
-      padding: '8px 12px',
-    },
-  };
 
   // Automatically add first empty education if none exist
   useEffect(() => {
@@ -139,13 +149,10 @@ export const EducationStep: React.FC<EducationStepProps> = ({ state, onUpdate })
                 <Typography variant="body2" sx={{ mb: 0.5, fontWeight: 500 }}>
                   {t('builder.education.degree')}
                 </Typography>
-                <TextField
-                  fullWidth
+                <SimpleInput
                   placeholder={t('builder.education.degreePlaceholder')}
                   value={edu.degree || ''}
-                  onChange={(e) => handleUpdateEducation(index, 'degree', e.target.value)}
-                  size="small"
-                  sx={inputStyles}
+                  onChange={(value) => handleUpdateEducation(index, 'degree', value)}
                 />
               </Box>
 
@@ -153,13 +160,10 @@ export const EducationStep: React.FC<EducationStepProps> = ({ state, onUpdate })
                 <Typography variant="body2" sx={{ mb: 0.5, fontWeight: 500 }}>
                   {t('builder.education.institution')}
                 </Typography>
-                <TextField
-                  fullWidth
+                <SimpleInput
                   placeholder={t('builder.education.institutionPlaceholder')}
                   value={edu.institution || ''}
-                  onChange={(e) => handleUpdateEducation(index, 'institution', e.target.value)}
-                  size="small"
-                  sx={inputStyles}
+                  onChange={(value) => handleUpdateEducation(index, 'institution', value)}
                 />
               </Box>
 
@@ -167,13 +171,10 @@ export const EducationStep: React.FC<EducationStepProps> = ({ state, onUpdate })
                 <Typography variant="body2" sx={{ mb: 0.5, fontWeight: 500 }}>
                   {t('builder.education.fieldOfStudy')}
                 </Typography>
-                <TextField
-                  fullWidth
+                <SimpleInput
                   placeholder={t('builder.education.fieldOfStudyPlaceholder')}
                   value={edu.field_of_study || ''}
-                  onChange={(e) => handleUpdateEducation(index, 'field_of_study', e.target.value)}
-                  size="small"
-                  sx={inputStyles}
+                  onChange={(value) => handleUpdateEducation(index, 'field_of_study', value)}
                 />
               </Box>
 
@@ -181,13 +182,10 @@ export const EducationStep: React.FC<EducationStepProps> = ({ state, onUpdate })
                 <Typography variant="body2" sx={{ mb: 0.5, fontWeight: 500 }}>
                   {t('builder.education.city')}
                 </Typography>
-                <TextField
-                  fullWidth
+                <SimpleInput
                   placeholder={t('builder.education.cityPlaceholder')}
                   value={edu.city || ''}
-                  onChange={(e) => handleUpdateEducation(index, 'city', e.target.value)}
-                  size="small"
-                  sx={inputStyles}
+                  onChange={(value) => handleUpdateEducation(index, 'city', value)}
                 />
               </Box>
 
@@ -195,13 +193,10 @@ export const EducationStep: React.FC<EducationStepProps> = ({ state, onUpdate })
                 <Typography variant="body2" sx={{ mb: 0.5, fontWeight: 500 }}>
                   {t('builder.education.country')}
                 </Typography>
-                <TextField
-                  fullWidth
+                <SimpleInput
                   placeholder={t('builder.education.countryPlaceholder')}
                   value={edu.country || ''}
-                  onChange={(e) => handleUpdateEducation(index, 'country', e.target.value)}
-                  size="small"
-                  sx={inputStyles}
+                  onChange={(value) => handleUpdateEducation(index, 'country', value)}
                 />
               </Box>
 
@@ -209,13 +204,27 @@ export const EducationStep: React.FC<EducationStepProps> = ({ state, onUpdate })
                 <Typography variant="body2" sx={{ mb: 0.5, fontWeight: 500 }}>
                   {t('builder.education.startDate')}
                 </Typography>
-                <TextField
-                  fullWidth
+                <input
                   type="month"
                   value={edu.start_date || ''}
                   onChange={(e) => handleUpdateEducation(index, 'start_date', e.target.value)}
-                  size="small"
-                  sx={inputStyles}
+                  style={{
+                    width: '100%',
+                    fontSize: '12px',
+                    padding: '8px 12px',
+                    borderRadius: '6px',
+                    backgroundColor: '#F9FAFB',
+                    border: '1px solid #e5e7eb',
+                    fontFamily: 'inherit',
+                    outline: 'none',
+                    transition: 'border-color 0.2s ease-in-out',
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = '#2563eb';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = '#e5e7eb';
+                  }}
                 />
               </Box>
 
@@ -223,13 +232,27 @@ export const EducationStep: React.FC<EducationStepProps> = ({ state, onUpdate })
                 <Typography variant="body2" sx={{ mb: 0.5, fontWeight: 500 }}>
                   {t('builder.education.graduationDate')}
                 </Typography>
-                <TextField
-                  fullWidth
+                <input
                   type="month"
                   value={edu.end_date || ''}
                   onChange={(e) => handleUpdateEducation(index, 'end_date', e.target.value)}
-                  size="small"
-                  sx={inputStyles}
+                  style={{
+                    width: '100%',
+                    fontSize: '12px',
+                    padding: '8px 12px',
+                    borderRadius: '6px',
+                    backgroundColor: '#F9FAFB',
+                    border: '1px solid #e5e7eb',
+                    fontFamily: 'inherit',
+                    outline: 'none',
+                    transition: 'border-color 0.2s ease-in-out',
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = '#2563eb';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = '#e5e7eb';
+                  }}
                 />
               </Box>
             </Box>

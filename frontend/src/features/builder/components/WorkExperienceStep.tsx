@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { 
   Box, 
   Typography, 
-  TextField, 
   Button, 
   IconButton,
   Paper,
@@ -16,6 +15,74 @@ import { WorkExperience } from '../../../shared/types/resume';
 import { COLORS } from '../../../shared/theme/theme';
 import { useTranslation } from 'react-i18next';
 
+// Simple input component
+const SimpleInput: React.FC<{
+  placeholder: string;
+  value: string;
+  onChange: (value: string) => void;
+}> = ({ placeholder, value, onChange }) => {
+  return (
+    <input
+      type="text"
+      placeholder={placeholder}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      style={{
+        width: '100%',
+        fontSize: '12px',
+        padding: '8px 12px',
+        borderRadius: '6px',
+        backgroundColor: '#F9FAFB',
+        border: '1px solid #e5e7eb',
+        fontFamily: 'inherit',
+        outline: 'none',
+        transition: 'border-color 0.2s ease-in-out',
+      }}
+      onFocus={(e) => {
+        e.target.style.borderColor = '#2563eb';
+      }}
+      onBlur={(e) => {
+        e.target.style.borderColor = '#e5e7eb';
+      }}
+    />
+  );
+};
+
+// Simple textarea component
+const SimpleTextarea: React.FC<{
+  placeholder: string;
+  value: string;
+  onChange: (value: string) => void;
+  rows?: number;
+}> = ({ placeholder, value, onChange, rows = 2 }) => {
+  return (
+    <textarea
+      placeholder={placeholder}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      rows={rows}
+      style={{
+        width: '100%',
+        fontSize: '12px',
+        padding: '8px 12px',
+        borderRadius: '6px',
+        backgroundColor: '#F9FAFB',
+        border: '1px solid #e5e7eb',
+        fontFamily: 'inherit',
+        resize: 'vertical',
+        outline: 'none',
+        transition: 'border-color 0.2s ease-in-out',
+      }}
+      onFocus={(e) => {
+        e.target.style.borderColor = '#2563eb';
+      }}
+      onBlur={(e) => {
+        e.target.style.borderColor = '#e5e7eb';
+      }}
+    />
+  );
+};
+
 interface WorkExperienceStepProps {
   state: BuilderState;
   onUpdate: <K extends keyof BuilderState>(field: K, value: BuilderState[K]) => void;
@@ -24,28 +91,6 @@ interface WorkExperienceStepProps {
 export const WorkExperienceStep: React.FC<WorkExperienceStepProps> = ({ state, onUpdate }) => {
   const { t } = useTranslation();
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
-
-  const inputStyles = {
-    '& .MuiOutlinedInput-root': {
-      borderRadius: '6px',
-      backgroundColor: '#F9FAFB',
-      '& fieldset': {
-        borderColor: '#e5e7eb',
-        borderWidth: '1px',
-      },
-      '&:hover fieldset': {
-        borderColor: '#e5e7eb',
-      },
-      '&.Mui-focused fieldset': {
-        borderColor: '#e5e7eb',
-        borderWidth: '1px',
-      },
-    },
-    '& .MuiInputBase-input': {
-      fontSize: '12px',
-      padding: '8px 12px',
-    },
-  };
 
   // Automatically add first empty experience if none exist
   useEffect(() => {
@@ -172,13 +217,10 @@ export const WorkExperienceStep: React.FC<WorkExperienceStepProps> = ({ state, o
                 <Typography variant="body2" sx={{ mb: 0.5, fontWeight: 500 }}>
                   {t('builder.workExperience.jobTitle')}
                 </Typography>
-                <TextField
-                  fullWidth
+                <SimpleInput
                   placeholder={t('builder.workExperience.jobTitlePlaceholder')}
                   value={exp.job_title || ''}
-                  onChange={(e) => handleUpdateExperience(index, 'job_title', e.target.value)}
-                  size="small"
-                  sx={inputStyles}
+                  onChange={(value) => handleUpdateExperience(index, 'job_title', value)}
                 />
               </Box>
 
@@ -186,13 +228,10 @@ export const WorkExperienceStep: React.FC<WorkExperienceStepProps> = ({ state, o
                 <Typography variant="body2" sx={{ mb: 0.5, fontWeight: 500 }}>
                   {t('builder.workExperience.company')}
                 </Typography>
-                <TextField
-                  fullWidth
+                <SimpleInput
                   placeholder={t('builder.workExperience.companyPlaceholder')}
                   value={exp.company || ''}
-                  onChange={(e) => handleUpdateExperience(index, 'company', e.target.value)}
-                  size="small"
-                  sx={inputStyles}
+                  onChange={(value) => handleUpdateExperience(index, 'company', value)}
                 />
               </Box>
 
@@ -200,13 +239,10 @@ export const WorkExperienceStep: React.FC<WorkExperienceStepProps> = ({ state, o
                 <Typography variant="body2" sx={{ mb: 0.5, fontWeight: 500 }}>
                   {t('builder.workExperience.city')}
                 </Typography>
-                <TextField
-                  fullWidth
+                <SimpleInput
                   placeholder={t('builder.workExperience.cityPlaceholder')}
                   value={exp.city || ''}
-                  onChange={(e) => handleUpdateExperience(index, 'city', e.target.value)}
-                  size="small"
-                  sx={inputStyles}
+                  onChange={(value) => handleUpdateExperience(index, 'city', value)}
                 />
               </Box>
 
@@ -214,13 +250,10 @@ export const WorkExperienceStep: React.FC<WorkExperienceStepProps> = ({ state, o
                 <Typography variant="body2" sx={{ mb: 0.5, fontWeight: 500 }}>
                   {t('builder.workExperience.country')}
                 </Typography>
-                <TextField
-                  fullWidth
+                <SimpleInput
                   placeholder={t('builder.workExperience.countryPlaceholder')}
                   value={exp.country || ''}
-                  onChange={(e) => handleUpdateExperience(index, 'country', e.target.value)}
-                  size="small"
-                  sx={inputStyles}
+                  onChange={(value) => handleUpdateExperience(index, 'country', value)}
                 />
               </Box>
 
@@ -228,13 +261,27 @@ export const WorkExperienceStep: React.FC<WorkExperienceStepProps> = ({ state, o
                 <Typography variant="body2" sx={{ mb: 0.5, fontWeight: 500 }}>
                   {t('builder.workExperience.startDate')}
                 </Typography>
-                <TextField
-                  fullWidth
+                <input
                   type="month"
                   value={exp.start_date || ''}
                   onChange={(e) => handleUpdateExperience(index, 'start_date', e.target.value)}
-                  size="small"
-                  sx={inputStyles}
+                  style={{
+                    width: '100%',
+                    fontSize: '12px',
+                    padding: '8px 12px',
+                    borderRadius: '6px',
+                    backgroundColor: '#F9FAFB',
+                    border: '1px solid #e5e7eb',
+                    fontFamily: 'inherit',
+                    outline: 'none',
+                    transition: 'border-color 0.2s ease-in-out',
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = '#2563eb';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = '#e5e7eb';
+                  }}
                 />
               </Box>
 
@@ -242,14 +289,31 @@ export const WorkExperienceStep: React.FC<WorkExperienceStepProps> = ({ state, o
                 <Typography variant="body2" sx={{ mb: 0.5, fontWeight: 500 }}>
                   {t('builder.workExperience.endDate')}
                 </Typography>
-                <TextField
-                  fullWidth
+                <input
                   type="month"
                   value={exp.end_date === null ? '' : (exp.end_date || '')}
                   onChange={(e) => handleUpdateExperience(index, 'end_date', e.target.value)}
                   disabled={exp.end_date === null}
-                  size="small"
-                  sx={inputStyles}
+                  style={{
+                    width: '100%',
+                    fontSize: '12px',
+                    padding: '8px 12px',
+                    borderRadius: '6px',
+                    backgroundColor: exp.end_date === null ? '#f3f4f6' : '#F9FAFB',
+                    border: '1px solid #e5e7eb',
+                    fontFamily: 'inherit',
+                    outline: 'none',
+                    transition: 'border-color 0.2s ease-in-out',
+                    cursor: exp.end_date === null ? 'not-allowed' : 'text',
+                  }}
+                  onFocus={(e) => {
+                    if (exp.end_date !== null) {
+                      e.target.style.borderColor = '#2563eb';
+                    }
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = '#e5e7eb';
+                  }}
                 />
                 <FormControlLabel
                   control={
@@ -270,15 +334,11 @@ export const WorkExperienceStep: React.FC<WorkExperienceStepProps> = ({ state, o
                 </Typography>
                 {(exp.responsibilities || []).map((resp, respIndex) => (
                   <Box key={respIndex} sx={{ display: 'flex', gap: 1, mb: 1 }}>
-                    <TextField
-                      fullWidth
+                    <SimpleTextarea
                       placeholder={t('builder.workExperience.responsibilityPlaceholder')}
                       value={resp}
-                      onChange={(e) => handleUpdateResponsibility(index, respIndex, e.target.value)}
-                      size="small"
-                      multiline
+                      onChange={(value) => handleUpdateResponsibility(index, respIndex, value)}
                       rows={2}
-                      sx={inputStyles}
                     />
                     <IconButton 
                       size="small"

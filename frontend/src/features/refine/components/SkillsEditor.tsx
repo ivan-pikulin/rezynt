@@ -1,14 +1,48 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  Box,
-  TextField
-} from '@mui/material';
+import { Box } from '@mui/material';
+
+// Simple input component
+const SimpleInput: React.FC<{
+  id: string;
+  placeholder: string;
+  value: string;
+  onChange: (value: string) => void;
+  onBlur?: () => void;
+  onKeyPress?: (e: React.KeyboardEvent) => void;
+}> = ({ id, placeholder, value, onChange, onBlur, onKeyPress }) => {
+  return (
+    <input
+      id={id}
+      type="text"
+      placeholder={placeholder}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      onBlur={onBlur}
+      onKeyPress={onKeyPress}
+      style={{
+        width: '100%',
+        fontSize: '12px',
+        padding: '8px 12px',
+        borderRadius: '6px',
+        backgroundColor: '#F9FAFB',
+        border: '1px solid #e5e7eb',
+        fontFamily: 'inherit',
+        outline: 'none',
+        transition: 'border-color 0.2s ease-in-out',
+      }}
+      onFocus={(e) => {
+        e.target.style.borderColor = '#2563eb';
+      }}
+      // Note: onBlur style change handled separately to avoid conflict with onBlur callback
+    />
+  );
+};
 
 interface SkillsEditorProps {
   skills: string[];
   onSkillsUpdate: (skills: string[]) => void;
-  inputStyles?: any;
+  inputStyles?: any; // Deprecated, kept for backward compatibility
 }
 
 const SkillsEditor: React.FC<SkillsEditorProps> = ({ skills, onSkillsUpdate, inputStyles }) => {
@@ -65,27 +99,22 @@ const SkillsEditor: React.FC<SkillsEditorProps> = ({ skills, onSkillsUpdate, inp
       {/* Skills list */}
       <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 1, mb: 2 }}>
         {localSkills.map((skill, index) => (
-          <TextField
+          <SimpleInput
             key={index}
             id={`skill-${index}`}
-            fullWidth
-            size="small"
             value={skill}
-            onChange={(e) => handleSkillChange(index, e.target.value)}
+            onChange={(value) => handleSkillChange(index, value)}
             onBlur={() => handleSkillBlur(index)}
-            sx={inputStyles}
+            placeholder=""
           />
         ))}
-        <TextField
+        <SimpleInput
           id="skill-new"
-          fullWidth
-          size="small"
           value={newSkill}
-          onChange={(e) => handleNewSkillChange(e.target.value)}
+          onChange={(value) => handleNewSkillChange(value)}
           onBlur={handleNewSkillBlur}
           onKeyPress={handleNewSkillKeyPress}
           placeholder={t('refine.editor.addSkillPlaceholder')}
-          sx={inputStyles}
         />
       </Box>
     </Box>

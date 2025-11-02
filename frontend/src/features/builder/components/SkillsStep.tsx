@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { 
   Box, 
   Typography, 
-  TextField, 
   Button, 
   Chip,
 } from '@mui/material';
@@ -10,6 +9,41 @@ import AddIcon from '@mui/icons-material/Add';
 import { BuilderState } from '../types/builder';
 import { COLORS } from '../../../shared/theme/theme';
 import { useTranslation } from 'react-i18next';
+
+// Simple input component
+const SimpleInput: React.FC<{
+  placeholder: string;
+  value: string;
+  onChange: (value: string) => void;
+  onKeyPress?: (e: React.KeyboardEvent) => void;
+}> = ({ placeholder, value, onChange, onKeyPress }) => {
+  return (
+    <input
+      type="text"
+      placeholder={placeholder}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      onKeyPress={onKeyPress}
+      style={{
+        width: '100%',
+        fontSize: '12px',
+        padding: '8px 12px',
+        borderRadius: '6px',
+        backgroundColor: '#F9FAFB',
+        border: '1px solid #e5e7eb',
+        fontFamily: 'inherit',
+        outline: 'none',
+        transition: 'border-color 0.2s ease-in-out',
+      }}
+      onFocus={(e) => {
+        e.target.style.borderColor = '#2563eb';
+      }}
+      onBlur={(e) => {
+        e.target.style.borderColor = '#e5e7eb';
+      }}
+    />
+  );
+};
 
 interface SkillsStepProps {
   state: BuilderState;
@@ -19,28 +53,6 @@ interface SkillsStepProps {
 export const SkillsStep: React.FC<SkillsStepProps> = ({ state, onUpdate }) => {
   const { t } = useTranslation();
   const [newSkill, setNewSkill] = useState('');
-
-  const inputStyles = {
-    '& .MuiOutlinedInput-root': {
-      borderRadius: '6px',
-      backgroundColor: '#F9FAFB',
-      '& fieldset': {
-        borderColor: '#e5e7eb',
-        borderWidth: '1px',
-      },
-      '&:hover fieldset': {
-        borderColor: '#e5e7eb',
-      },
-      '&.Mui-focused fieldset': {
-        borderColor: '#e5e7eb',
-        borderWidth: '1px',
-      },
-    },
-    '& .MuiInputBase-input': {
-      fontSize: '12px',
-      padding: '8px 12px',
-    },
-  };
 
   const handleAddSkill = () => {
     if (newSkill.trim()) {
@@ -88,14 +100,11 @@ export const SkillsStep: React.FC<SkillsStepProps> = ({ state, onUpdate }) => {
 
       <Box sx={{ mb: 3 }}>
         <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-          <TextField
-            fullWidth
+          <SimpleInput
             placeholder={t('builder.skills.placeholder')}
             value={newSkill}
-            onChange={(e) => setNewSkill(e.target.value)}
+            onChange={(value) => setNewSkill(value)}
             onKeyPress={handleKeyPress}
-            size="small"
-            sx={inputStyles}
           />
           <Button
             variant="contained"
