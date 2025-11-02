@@ -1,12 +1,13 @@
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CircleIcon from '@mui/icons-material/Circle';
 import CircularProgress from '@mui/material/CircularProgress';
 import Fade from '@mui/material/Fade';
 import Zoom from '@mui/material/Zoom';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Header from '../../shared/components/Header/Header';
@@ -38,6 +39,21 @@ const RefinePage: React.FC = () => {
   const [isRefreshingAnalysis, setIsRefreshingAnalysis] = useState(false);
   const editorRef = useRef<EditorAccordionHandle>(null);
   
+  // Auto-save state
+  const [lastSavedResume, setLastSavedResume] = useState<Resume | null>(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  
+  // Undo/Redo state
+  const [history, setHistory] = useState<Resume[]>([]);
+  const [historyIndex, setHistoryIndex] = useState(-1);
+  const isUndoRedoOperation = useRef(false);
+  const historyIndexRef = useRef(historyIndex);
+  
+  // Keep ref in sync with state
+  useEffect(() => {
+    historyIndexRef.current = historyIndex;
+  }, [historyIndex]);
+  
   // Check if user is authenticated
   useEffect(() => {
     if (authLoading) return;
@@ -57,13 +73,179 @@ const RefinePage: React.FC = () => {
   useEffect(() => {
     if (resume) {
       setLocalResume(resume);
+      setLastSavedResume(resume);
+      // Initialize history with the fetched resume
+      if (history.length === 0) {
+        setHistory([resume]);
+        setHistoryIndex(0);
+      }
     }
   }, [resume]);
 
-  // Resume update handler - just updates local state
-  const handleResumeUpdate = (updatedResume: Resume) => {
+  // Resume update handler - updates local state and optionally adds to history
+  const handleResumeUpdate = (updatedResume: Resume, addToHistoryFlag: boolean = false) => {
+    console.log('📝 handleResumeUpdate called', {
+      timestamp: new Date().toISOString(),
+      addToHistoryFlag,
+      updatedResume: JSON.stringify(updatedResume).substring(0, 200) + '...'
+    });
     setLocalResume(updatedResume);
+    
+    // Add to history if flag is set
+    if (addToHistoryFlag && !isUndoRedoOperation.current) {
+      console.log('📚 Adding to history (explicit event)');
+      addToHistory(updatedResume);
+    }
   };
+  
+  // Add to history helper
+  const addToHistory = useCallback((resume: Resume) => {
+    console.log('📚 addToHistory called');
+    
+    setHistory(prevHistory => {
+      // Trim future history if we're not at the end using ref
+      const currentIndex = historyIndexRef.current;
+      const trimmedHistory = prevHistory.slice(0, currentIndex + 1);
+      
+      console.log('📚 Current history state:', {
+        currentIndex,
+        historyLength: prevHistory.length,
+        trimmedLength: trimmedHistory.length
+      });
+      
+      // Check if the current state is different from the last entry
+      const lastEntry = trimmedHistory[trimmedHistory.length - 1];
+      if (lastEntry && JSON.stringify(lastEntry) === JSON.stringify(resume)) {
+        console.log('📚 Skipping: identical to last entry');
+        return prevHistory;
+      }
+      
+      // Add new state to history
+      const updatedHistory = [...trimmedHistory, resume];
+      
+      console.log('📚 Added to history:', {
+        newLength: updatedHistory.length,
+        newIndex: currentIndex + 1
+      });
+      
+      // Limit history size to 50 entries
+      return updatedHistory.slice(-50);
+    });
+    
+    setHistoryIndex(prevIndex => {
+      const newIndex = prevIndex + 1;
+      console.log('📚 Updated history index:', { from: prevIndex, to: newIndex });
+      return newIndex;
+    });
+  }, []);
+  
+  // Track unsaved changes
+  useEffect(() => {
+    if (!localResume || !lastSavedResume) {
+      console.log('💾 Unsaved changes check: skipped (no resume data)');
+      setHasUnsavedChanges(false);
+      return;
+    }
+    
+    const hasChanges = JSON.stringify(localResume) !== JSON.stringify(lastSavedResume);
+    console.log('💾 Unsaved changes check:', {
+      hasChanges,
+      localResumeHash: JSON.stringify(localResume).substring(0, 100),
+      lastSavedResumeHash: JSON.stringify(lastSavedResume).substring(0, 100)
+    });
+    setHasUnsavedChanges(hasChanges);
+  }, [localResume, lastSavedResume]);
+  
+  // Auto-save interval (1 second)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (hasUnsavedChanges && localResume && isAuthenticated) {
+        handleSaveNow();
+      }
+    }, 1000); // 1 second
+    
+    return () => clearInterval(interval);
+  }, [hasUnsavedChanges, localResume, isAuthenticated]);
+  
+  // Manual history tracking - no automatic tracking
+  // History is added explicitly when specific events occur (field blur, item add/delete)
+  
+  // Undo handler
+  const handleUndo = useCallback(() => {
+    console.log('⬅️ Undo called:', { historyIndex, historyLength: history.length });
+    
+    if (historyIndex > 0) {
+      isUndoRedoOperation.current = true;
+      const newIndex = historyIndex - 1;
+      const previousState = history[newIndex];
+      
+      console.log('⬅️ Undoing to index:', newIndex, {
+        experienceCount: previousState.work_experience?.length,
+        educationCount: previousState.education?.length
+      });
+      
+      setHistoryIndex(newIndex);
+      // Create a new object to force re-render
+      setLocalResume({ ...previousState });
+      
+      setTimeout(() => {
+        isUndoRedoOperation.current = false;
+        console.log('⬅️ Undo operation complete');
+      }, 0);
+    } else {
+      console.log('⬅️ Cannot undo: at beginning of history');
+    }
+  }, [historyIndex, history]);
+  
+  // Redo handler
+  const handleRedo = useCallback(() => {
+    console.log('➡️ Redo called:', { historyIndex, historyLength: history.length });
+    
+    if (historyIndex < history.length - 1) {
+      isUndoRedoOperation.current = true;
+      const newIndex = historyIndex + 1;
+      const nextState = history[newIndex];
+      
+      console.log('➡️ Redoing to index:', newIndex, {
+        experienceCount: nextState.work_experience?.length,
+        educationCount: nextState.education?.length
+      });
+      
+      setHistoryIndex(newIndex);
+      // Create a new object to force re-render
+      setLocalResume({ ...nextState });
+      
+      setTimeout(() => {
+        isUndoRedoOperation.current = false;
+        console.log('➡️ Redo operation complete');
+      }, 0);
+    } else {
+      console.log('➡️ Cannot redo: at end of history');
+    }
+  }, [historyIndex, history]);
+  
+  // Keyboard shortcuts for undo/redo
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const isCtrlOrCmd = event.ctrlKey || event.metaKey;
+      
+      if (isCtrlOrCmd && event.shiftKey && event.key === 'Z') {
+        // Ctrl+Shift+Z or Cmd+Shift+Z for redo
+        event.preventDefault();
+        handleRedo();
+      } else if (isCtrlOrCmd && event.key === 'z') {
+        // Ctrl+Z or Cmd+Z for undo
+        event.preventDefault();
+        handleUndo();
+      }
+    };
+    
+    document.addEventListener('keydown', handleKeyDown);
+    
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [handleUndo, handleRedo]);
 
   // Save now handler - calls PUT /resume/ API
   const handleSaveNow = async () => {
@@ -78,6 +260,7 @@ const RefinePage: React.FC = () => {
       
       // Update cache and timestamp
       updateResumeInCache(localResume);
+      setLastSavedResume(localResume);
       const now = new Date();
       const hours = String(now.getHours()).padStart(2, '0');
       const minutes = String(now.getMinutes()).padStart(2, '0');
@@ -379,6 +562,16 @@ const RefinePage: React.FC = () => {
                   <Fade in={true} timeout={300}>
                     <CircularProgress size={14} thickness={4} sx={{ color: COLORS.primary.main }} />
                   </Fade>
+                ) : hasUnsavedChanges ? (
+                  <Zoom in={!isSaving} timeout={400}>
+                    <CircleIcon 
+                      sx={{ 
+                        width: '8px', 
+                        height: '8px', 
+                        color: '#f59e0b',
+                      }} 
+                    />
+                  </Zoom>
                 ) : (
                   <Zoom in={!isSaving} timeout={400} style={{ transitionDelay: showSuccessAnimation ? '0ms' : '0ms' }}>
                     <CheckCircleIcon 
@@ -399,7 +592,7 @@ const RefinePage: React.FC = () => {
               </Box>
               
               <Typography sx={{ fontSize: '11px', color: '#6b7280' }}>
-                All changes saved at {lastSaveTime}
+                {hasUnsavedChanges ? 'Unsaved changes' : `All changes saved at ${lastSaveTime}`}
               </Typography>
               <button 
                 onClick={handleSaveNow}

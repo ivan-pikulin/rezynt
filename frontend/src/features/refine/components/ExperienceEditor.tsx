@@ -1,4 +1,4 @@
-import React, { useState, useImperativeHandle, forwardRef } from 'react';
+import React, { useState, useEffect, useImperativeHandle, forwardRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Box,
@@ -25,7 +25,8 @@ const SimpleInput: React.FC<{
   placeholder: string;
   value: string;
   onChange: (value: string) => void;
-}> = ({ id, placeholder, value, onChange }) => {
+  onBlur?: () => void;
+}> = ({ id, placeholder, value, onChange, onBlur }) => {
   return (
     <input
       id={id}
@@ -33,6 +34,13 @@ const SimpleInput: React.FC<{
       placeholder={placeholder}
       value={value}
       onChange={(e) => onChange(e.target.value)}
+      onFocus={(e) => {
+        e.target.style.borderColor = COLORS.primary.main;
+      }}
+      onBlur={(e) => {
+        e.target.style.borderColor = '#e5e7eb';
+        if (onBlur) onBlur();
+      }}
       style={{
         width: '100%',
         fontSize: '12px',
@@ -43,12 +51,6 @@ const SimpleInput: React.FC<{
         fontFamily: 'inherit',
         outline: 'none',
         transition: 'border-color 0.2s ease-in-out',
-      }}
-      onFocus={(e) => {
-        e.target.style.borderColor = COLORS.primary.main;
-      }}
-      onBlur={(e) => {
-        e.target.style.borderColor = '#e5e7eb';
       }}
     />
   );
@@ -60,8 +62,9 @@ const SimpleTextarea: React.FC<{
   placeholder?: string;
   value: string;
   onChange: (value: string) => void;
+  onBlur?: () => void;
   rows?: number;
-}> = ({ id, placeholder, value, onChange, rows = 2 }) => {
+}> = ({ id, placeholder, value, onChange, onBlur, rows = 2 }) => {
   return (
     <textarea
       id={id}
@@ -69,6 +72,13 @@ const SimpleTextarea: React.FC<{
       value={value}
       onChange={(e) => onChange(e.target.value)}
       rows={rows}
+      onFocus={(e) => {
+        e.target.style.borderColor = COLORS.primary.main;
+      }}
+      onBlur={(e) => {
+        e.target.style.borderColor = '#e5e7eb';
+        if (onBlur) onBlur();
+      }}
       style={{
         width: '100%',
         fontSize: '12px',
@@ -80,12 +90,6 @@ const SimpleTextarea: React.FC<{
         resize: 'vertical',
         outline: 'none',
         transition: 'border-color 0.2s ease-in-out',
-      }}
-      onFocus={(e) => {
-        e.target.style.borderColor = COLORS.primary.main;
-      }}
-      onBlur={(e) => {
-        e.target.style.borderColor = '#e5e7eb';
       }}
     />
   );
@@ -120,6 +124,35 @@ const ExperienceEditor = forwardRef<ExperienceEditorHandle, ExperienceEditorProp
   const { t } = useTranslation();
   const [localExperience, setLocalExperience] = useState<WorkExperience[]>(experience);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+  
+  // Sync with prop changes (important for undo/redo)
+  useEffect(() => {
+    console.log('💼 ExperienceEditor: syncing with prop', { count: experience.length });
+    setLocalExperience(experience);
+    
+    // Rebuild form data from prop
+    const newFormData: Record<number, ExperienceFormData> = {};
+    experience.forEach((exp, idx) => {
+      const allAchievements = [
+        ...(exp.achievements || []),
+        ...(exp.responsibilities || [])
+      ];
+      
+      newFormData[idx] = {
+        job_title: exp.job_title || '',
+        company: exp.company || '',
+        short_description: exp.short_description || '',
+        city: exp.city || '',
+        country: exp.country || '',
+        start_date: exp.start_date || '',
+        end_date: exp.end_date || '',
+        is_current: !exp.end_date || exp.end_date.toLowerCase() === 'present',
+        achievements: allAchievements,
+        technologies_tools: exp.technologies_tools || []
+      };
+    });
+    setFormDataArray(newFormData);
+  }, [experience]);
   
   const [formDataArray, setFormDataArray] = useState<Record<number, ExperienceFormData>>(() => {
     const initial: Record<number, ExperienceFormData> = {};
@@ -285,14 +318,17 @@ const ExperienceEditor = forwardRef<ExperienceEditorHandle, ExperienceEditorProp
     }
   }), [expandedIndex]);
 
+  // Update local state only (for onChange)
   const handleFieldChange = (index: number, field: keyof ExperienceFormData, value: any) => {
     setFormDataArray(prev => ({
       ...prev,
       [index]: { ...prev[index], [field]: value }
     }));
-    
-    // Auto-update
-    const formData = { ...formDataArray[index], [field]: value };
+  };
+  
+  // Save to parent and history (for onBlur)
+  const handleFieldBlur = (index: number) => {
+    const formData = formDataArray[index];
     const filteredAchievements = formData.achievements?.filter(a => a.trim()) || undefined;
     
     const experienceData: WorkExperience = {
@@ -417,18 +453,21 @@ const ExperienceEditor = forwardRef<ExperienceEditorHandle, ExperienceEditorProp
                 placeholder={t('refine.editor.jobTitle')}
                 value={formDataArray[index]?.job_title || ''}
                 onChange={(value) => handleFieldChange(index, 'job_title', value)}
+                onBlur={() => handleFieldBlur(index)}
               />
               <SimpleInput
                 id={`experience-${index}-company`}
                 placeholder={t('refine.editor.company')}
                 value={formDataArray[index]?.company || ''}
                 onChange={(value) => handleFieldChange(index, 'company', value)}
+                onBlur={() => handleFieldBlur(index)}
               />
               <SimpleTextarea
                 id={`experience-${index}-short_description`}
                 placeholder={t('refine.editor.companyDescription', 'Brief company or project description')}
                 value={formDataArray[index]?.short_description || ''}
                 onChange={(value) => handleFieldChange(index, 'short_description', value)}
+                onBlur={() => handleFieldBlur(index)}
                 rows={2}
               />
               <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
@@ -437,12 +476,14 @@ const ExperienceEditor = forwardRef<ExperienceEditorHandle, ExperienceEditorProp
                   placeholder={t('refine.editor.city', 'City')}
                   value={formDataArray[index]?.city || ''}
                   onChange={(value) => handleFieldChange(index, 'city', value)}
+                  onBlur={() => handleFieldBlur(index)}
                 />
                 <SimpleInput
                   id={`experience-${index}-country`}
                   placeholder={t('refine.editor.country', 'Country')}
                   value={formDataArray[index]?.country || ''}
                   onChange={(value) => handleFieldChange(index, 'country', value)}
+                  onBlur={() => handleFieldBlur(index)}
                 />
               </Box>
               <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
@@ -451,6 +492,7 @@ const ExperienceEditor = forwardRef<ExperienceEditorHandle, ExperienceEditorProp
                   placeholder="June 2024"
                   value={formDataArray[index]?.start_date || ''}
                   onChange={(value) => handleFieldChange(index, 'start_date', value)}
+                  onBlur={() => handleFieldBlur(index)}
                 />
                 <input
                   id={`experience-${index}-end_date`}
@@ -478,6 +520,7 @@ const ExperienceEditor = forwardRef<ExperienceEditorHandle, ExperienceEditorProp
                   }}
                   onBlur={(e) => {
                     e.target.style.borderColor = '#e5e7eb';
+                    handleFieldBlur(index);
                   }}
                 />
               </Box>

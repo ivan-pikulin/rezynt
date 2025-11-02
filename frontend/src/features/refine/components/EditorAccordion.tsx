@@ -19,7 +19,8 @@ const SimpleInput: React.FC<{
   placeholder: string;
   value: string;
   onChange: (value: string) => void;
-}> = ({ id, placeholder, value, onChange }) => {
+  onBlur?: () => void;
+}> = ({ id, placeholder, value, onChange, onBlur }) => {
   return (
     <input
       id={id}
@@ -27,6 +28,10 @@ const SimpleInput: React.FC<{
       placeholder={placeholder}
       value={value}
       onChange={(e) => onChange(e.target.value)}
+      onBlur={(e) => {
+        e.target.style.borderColor = '#e5e7eb';
+        if (onBlur) onBlur();
+      }}
       style={{
         width: '100%',
         fontSize: '12px',
@@ -41,16 +46,13 @@ const SimpleInput: React.FC<{
       onFocus={(e) => {
         e.target.style.borderColor = COLORS.primary.main;
       }}
-      onBlur={(e) => {
-        e.target.style.borderColor = '#e5e7eb';
-      }}
     />
   );
 };
 
 type Props = {
   resume: Resume;
-  onResumeUpdate: (resume: Resume) => void;
+  onResumeUpdate: (resume: Resume, addToHistory?: boolean) => void;
 };
 
 export type EditorAccordionHandle = {
@@ -88,6 +90,13 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
   });
 
   useEffect(() => {
+    console.log('🔄 EditorAccordion: resume prop changed, updating local state', {
+      experienceCount: resume.work_experience?.length,
+      educationCount: resume.education?.length
+    });
+    
+    // Always update localResume when resume prop changes
+    // This is important for undo/redo to work properly
     setLocalResume(resume);
     setFormData({
       professional_summary: resume.professional_summary || '',
@@ -273,14 +282,23 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
     return { navigateToField };
   }, []);
 
-  const handleFieldChange = (field: string, value: string) => {
+  const handleFieldChange = (field: string, value: string, isBlur: boolean = false) => {
+    console.log('✏️ EditorAccordion: field changed', { field, value, isBlur });
+    
     setFormData((prev) => ({ ...prev, [field]: value }));
     
-    // Update local resume immediately
-    const updated = { ...localResume };
-    if (!updated.personal_info) {
-      updated.personal_info = {};
-    }
+    // Update local resume immediately with deep copy of nested objects
+    const updated = { 
+      ...localResume,
+      personal_info: localResume.personal_info ? {
+        ...localResume.personal_info,
+        contacts: localResume.personal_info.contacts ? {
+          ...localResume.personal_info.contacts
+        } : {}
+      } : {
+        contacts: {}
+      }
+    };
     
     // Contact fields
     const contactFields = ['email', 'phone', 'telegram', 'whatsapp', 'linkedin', 'github', 'website', 'twitter', 'instagram'];
@@ -289,17 +307,21 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
       updated.professional_summary = value;
     } else if (contactFields.includes(field)) {
       // Update contacts
-      if (!updated.personal_info.contacts) {
-        updated.personal_info.contacts = {};
-      }
-      (updated.personal_info.contacts as any)[field] = value;
+      (updated.personal_info!.contacts as any)[field] = value;
     } else {
       // Update personal info fields
       (updated.personal_info as any)[field] = value;
     }
     
+    console.log('✏️ EditorAccordion: calling onResumeUpdate', {
+      field,
+      isBlur,
+      updatedResume: JSON.stringify(updated).substring(0, 150) + '...'
+    });
+    
     setLocalResume(updated);
-    onResumeUpdate(updated);
+    // Add to history only on blur (field editing complete)
+    onResumeUpdate(updated, isBlur);
   };
 
   const accordionStyles = {
@@ -365,19 +387,22 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
                 id="personal-first_name"
                 placeholder={t('refine.editor.firstName')} 
                 value={formData.first_name} 
-                onChange={(value) => handleFieldChange('first_name', value)} 
+                onChange={(value) => handleFieldChange('first_name', value, false)}
+                onBlur={() => handleFieldChange('first_name', formData.first_name, true)}
               />
               <SimpleInput
                 id="personal-last_name"
                 placeholder={t('refine.editor.lastName')} 
                 value={formData.last_name} 
-                onChange={(value) => handleFieldChange('last_name', value)} 
+                onChange={(value) => handleFieldChange('last_name', value, false)}
+                onBlur={() => handleFieldChange('last_name', formData.last_name, true)}
               />
               <SimpleInput
                 id="personal-current_role"
                 placeholder={t('refine.editor.currentRole', 'Current Role')} 
                 value={formData.current_role} 
-                onChange={(value) => handleFieldChange('current_role', value)} 
+                onChange={(value) => handleFieldChange('current_role', value, false)}
+                onBlur={() => handleFieldChange('current_role', formData.current_role, true)}
               />
             </Box>
             <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2, mb: 2 }}>
@@ -385,13 +410,15 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
                 id="personal-city"
                 placeholder={t('refine.editor.city', 'City')} 
                 value={formData.city} 
-                onChange={(value) => handleFieldChange('city', value)} 
+                onChange={(value) => handleFieldChange('city', value, false)}
+                onBlur={() => handleFieldChange('city', formData.city, true)}
               />
               <SimpleInput
                 id="personal-country"
                 placeholder={t('refine.editor.country', 'Country')} 
                 value={formData.country} 
-                onChange={(value) => handleFieldChange('country', value)} 
+                onChange={(value) => handleFieldChange('country', value, false)}
+                onBlur={() => handleFieldChange('country', formData.country, true)}
               />
             </Box>
             <Divider sx={{ my: 2 }} />
@@ -403,55 +430,64 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
                 id="personal-email"
                 placeholder={t('refine.editor.email')} 
                 value={formData.email} 
-                onChange={(value) => handleFieldChange('email', value)} 
+                onChange={(value) => handleFieldChange('email', value, false)}
+                onBlur={() => handleFieldChange('email', formData.email, true)}
               />
               <SimpleInput
                 id="personal-phone"
                 placeholder={t('refine.editor.phone')} 
                 value={formData.phone} 
-                onChange={(value) => handleFieldChange('phone', value)} 
+                onChange={(value) => handleFieldChange('phone', value, false)}
+                onBlur={() => handleFieldChange('phone', formData.phone, true)}
               />
               <SimpleInput
                 id="personal-telegram"
                 placeholder="Telegram" 
                 value={formData.telegram} 
-                onChange={(value) => handleFieldChange('telegram', value)} 
+                onChange={(value) => handleFieldChange('telegram', value, false)}
+                onBlur={() => handleFieldChange('telegram', formData.telegram, true)}
               />
               <SimpleInput
                 id="personal-whatsapp"
                 placeholder="WhatsApp" 
                 value={formData.whatsapp} 
-                onChange={(value) => handleFieldChange('whatsapp', value)} 
+                onChange={(value) => handleFieldChange('whatsapp', value, false)}
+                onBlur={() => handleFieldChange('whatsapp', formData.whatsapp, true)}
               />
               <SimpleInput
                 id="personal-linkedin"
                 placeholder="LinkedIn" 
                 value={formData.linkedin} 
-                onChange={(value) => handleFieldChange('linkedin', value)} 
+                onChange={(value) => handleFieldChange('linkedin', value, false)}
+                onBlur={() => handleFieldChange('linkedin', formData.linkedin, true)}
               />
               <SimpleInput
                 id="personal-github"
                 placeholder="GitHub" 
                 value={formData.github} 
-                onChange={(value) => handleFieldChange('github', value)} 
+                onChange={(value) => handleFieldChange('github', value, false)}
+                onBlur={() => handleFieldChange('github', formData.github, true)}
               />
               <SimpleInput
                 id="personal-website"
                 placeholder="Website" 
                 value={formData.website} 
-                onChange={(value) => handleFieldChange('website', value)} 
+                onChange={(value) => handleFieldChange('website', value, false)}
+                onBlur={() => handleFieldChange('website', formData.website, true)}
               />
               <SimpleInput
                 id="personal-twitter"
                 placeholder="Twitter" 
                 value={formData.twitter} 
-                onChange={(value) => handleFieldChange('twitter', value)} 
+                onChange={(value) => handleFieldChange('twitter', value, false)}
+                onBlur={() => handleFieldChange('twitter', formData.twitter, true)}
               />
               <SimpleInput
                 id="personal-instagram"
                 placeholder="Instagram" 
                 value={formData.instagram} 
-                onChange={(value) => handleFieldChange('instagram', value)} 
+                onChange={(value) => handleFieldChange('instagram', value, false)}
+                onBlur={() => handleFieldChange('instagram', formData.instagram, true)}
               />
             </Box>
           </AccordionDetails>
@@ -474,7 +510,14 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
               rows={4}
               placeholder={t('refine.editor.professionalSummary')}
               value={formData.professional_summary} 
-              onChange={(e) => handleFieldChange('professional_summary', e.target.value)}
+              onChange={(e) => handleFieldChange('professional_summary', e.target.value, false)}
+              onFocus={(e) => {
+                e.target.style.borderColor = COLORS.primary.main;
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = '#e5e7eb';
+                handleFieldChange('professional_summary', formData.professional_summary, true);
+              }}
               style={{
                 width: '100%',
                 fontSize: '12px',
@@ -486,12 +529,6 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
                 resize: 'vertical',
                 outline: 'none',
                 transition: 'border-color 0.2s ease-in-out',
-              }}
-      onFocus={(e) => {
-        e.target.style.borderColor = COLORS.primary.main;
-      }}
-              onBlur={(e) => {
-                e.target.style.borderColor = '#e5e7eb';
               }}
             />
           </AccordionDetails>
@@ -512,9 +549,11 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
             <SkillsEditor
               skills={localResume.skills || []}
               onSkillsUpdate={(updatedSkills) => {
+                console.log('🎯 EditorAccordion: skills updated', { updatedSkills });
                 const updated = { ...localResume, skills: updatedSkills };
                 setLocalResume(updated);
-                  onResumeUpdate(updated);
+                // Add to history when skills change (add/remove/edit)
+                onResumeUpdate(updated, true);
               }}
               inputStyles={inputStyles}
             />
@@ -537,9 +576,13 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
               ref={experienceEditorRef}
               experience={localResume.work_experience || []}
               onExperienceUpdate={(updatedExperience) => {
+                console.log('💼 EditorAccordion: experience updated', { 
+                  itemsCount: updatedExperience.length 
+                });
                 const updated = { ...localResume, work_experience: updatedExperience };
                 setLocalResume(updated);
-                  onResumeUpdate(updated);
+                // Add to history when experience changes (add/remove/edit complete)
+                onResumeUpdate(updated, true);
               }}
             />
           </AccordionDetails>
@@ -561,9 +604,13 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
               ref={educationEditorRef}
               education={localResume.education || []}
               onEducationUpdate={(updatedEducation) => {
+                console.log('🎓 EditorAccordion: education updated', { 
+                  itemsCount: updatedEducation.length 
+                });
                 const updated = { ...localResume, education: updatedEducation };
                 setLocalResume(updated);
-                  onResumeUpdate(updated);
+                // Add to history when education changes (add/remove/edit complete)
+                onResumeUpdate(updated, true);
               }}
             />
           </AccordionDetails>

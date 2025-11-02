@@ -1,4 +1,4 @@
-import React, { useState, useImperativeHandle, forwardRef } from 'react';
+import React, { useState, useEffect, useImperativeHandle, forwardRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Box,
@@ -22,7 +22,8 @@ const SimpleInput: React.FC<{
   placeholder: string;
   value: string;
   onChange: (value: string) => void;
-}> = ({ id, placeholder, value, onChange }) => {
+  onBlur?: () => void;
+}> = ({ id, placeholder, value, onChange, onBlur }) => {
   return (
     <input
       id={id}
@@ -30,6 +31,13 @@ const SimpleInput: React.FC<{
       placeholder={placeholder}
       value={value}
       onChange={(e) => onChange(e.target.value)}
+      onFocus={(e) => {
+        e.target.style.borderColor = COLORS.primary.main;
+      }}
+      onBlur={(e) => {
+        e.target.style.borderColor = '#e5e7eb';
+        if (onBlur) onBlur();
+      }}
       style={{
         width: '100%',
         fontSize: '12px',
@@ -40,12 +48,6 @@ const SimpleInput: React.FC<{
         fontFamily: 'inherit',
         outline: 'none',
         transition: 'border-color 0.2s ease-in-out',
-      }}
-      onFocus={(e) => {
-        e.target.style.borderColor = COLORS.primary.main;
-      }}
-      onBlur={(e) => {
-        e.target.style.borderColor = '#e5e7eb';
       }}
     />
   );
@@ -78,6 +80,28 @@ const EducationEditor = forwardRef<EducationEditorHandle, EducationEditorProps>(
   const { t } = useTranslation();
   const [localEducation, setLocalEducation] = useState<Education[]>(education);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+  
+  // Sync with prop changes (important for undo/redo)
+  useEffect(() => {
+    console.log('🎓 EducationEditor: syncing with prop', { count: education.length });
+    setLocalEducation(education);
+    
+    // Rebuild form data from prop
+    const newFormData: Record<number, EducationFormData> = {};
+    education.forEach((edu, idx) => {
+      newFormData[idx] = {
+        degree: edu.degree || '',
+        institution: edu.institution || '',
+        field_of_study: edu.field_of_study || '',
+        city: edu.city || '',
+        country: edu.country || '',
+        start_date: edu.start_date || '',
+        end_date: edu.end_date || '',
+        relevant_courses: [...(edu.relevant_courses || [])]
+      };
+    });
+    setFormDataArray(newFormData);
+  }, [education]);
   
   const [formDataArray, setFormDataArray] = useState<Record<number, EducationFormData>>(() => {
     const initial: Record<number, EducationFormData> = {};
@@ -173,14 +197,17 @@ const EducationEditor = forwardRef<EducationEditorHandle, EducationEditorProps>(
     }
   }), []);
 
+  // Update local state only (for onChange)
   const handleFieldChange = (index: number, field: keyof EducationFormData, value: any) => {
     setFormDataArray(prev => ({
       ...prev,
       [index]: { ...prev[index], [field]: value }
     }));
-    
-    // Auto-update
-    const formData = { ...formDataArray[index], [field]: value };
+  };
+  
+  // Save to parent and history (for onBlur)
+  const handleFieldBlur = (index: number) => {
+    const formData = formDataArray[index];
     const educationData: Education = {
       degree: formData.degree?.trim() || undefined,
       institution: formData.institution?.trim() || undefined,
@@ -191,7 +218,7 @@ const EducationEditor = forwardRef<EducationEditorHandle, EducationEditorProps>(
       end_date: formData.end_date || undefined,
       relevant_courses: formData.relevant_courses?.filter(c => c.trim()) || undefined
     };
-
+    
     const updatedEducation = [...localEducation];
     updatedEducation[index] = educationData;
     setLocalEducation(updatedEducation);
@@ -298,18 +325,21 @@ const EducationEditor = forwardRef<EducationEditorHandle, EducationEditorProps>(
                 placeholder={t('refine.editor.degree')}
                 value={formDataArray[index]?.degree || ''}
                 onChange={(value) => handleFieldChange(index, 'degree', value)}
+                onBlur={() => handleFieldBlur(index)}
               />
               <SimpleInput
                 id={`education-${index}-institution`}
                 placeholder={t('refine.editor.institution')}
                 value={formDataArray[index]?.institution || ''}
                 onChange={(value) => handleFieldChange(index, 'institution', value)}
+                onBlur={() => handleFieldBlur(index)}
               />
               <SimpleInput
                 id={`education-${index}-field_of_study`}
                 placeholder={t('refine.editor.fieldOfStudy', 'Field of Study')}
                 value={formDataArray[index]?.field_of_study || ''}
                 onChange={(value) => handleFieldChange(index, 'field_of_study', value)}
+                onBlur={() => handleFieldBlur(index)}
               />
               <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
                 <SimpleInput
@@ -317,12 +347,14 @@ const EducationEditor = forwardRef<EducationEditorHandle, EducationEditorProps>(
                   placeholder={t('refine.editor.city', 'City')}
                   value={formDataArray[index]?.city || ''}
                   onChange={(value) => handleFieldChange(index, 'city', value)}
+                  onBlur={() => handleFieldBlur(index)}
                 />
                 <SimpleInput
                   id={`education-${index}-country`}
                   placeholder={t('refine.editor.country', 'Country')}
                   value={formDataArray[index]?.country || ''}
                   onChange={(value) => handleFieldChange(index, 'country', value)}
+                  onBlur={() => handleFieldBlur(index)}
                 />
               </Box>
               <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
@@ -331,12 +363,14 @@ const EducationEditor = forwardRef<EducationEditorHandle, EducationEditorProps>(
                   placeholder="September 2020"
                   value={formDataArray[index]?.start_date || ''}
                   onChange={(value) => handleFieldChange(index, 'start_date', value)}
+                  onBlur={() => handleFieldBlur(index)}
                 />
                 <SimpleInput
                   id={`education-${index}-end_date`}
                   placeholder="May 2024"
                   value={formDataArray[index]?.end_date || ''}
                   onChange={(value) => handleFieldChange(index, 'end_date', value)}
+                  onBlur={() => handleFieldBlur(index)}
                 />
               </Box>
               
