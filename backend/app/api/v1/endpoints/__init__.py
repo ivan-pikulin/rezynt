@@ -1,1 +1,1 @@
-from . import auth, health, resume, user, chat, test_pdf, ai
+from . import ai, analysis, auth, chat, health, resume, test_pdf, user

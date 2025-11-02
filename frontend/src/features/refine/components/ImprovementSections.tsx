@@ -1,22 +1,15 @@
 import Box from '@mui/material/Box';
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
+import AccordionDetails from '@mui/material/AccordionDetails';
 import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import React from 'react';
-
-export type SectionStatus = 'NeedsWork' | 'Good' | 'Strong';
-
-export type ImprovementSection = {
-  id: string;
-  title: string;
-  total: number;
-  done: number;
-  status: SectionStatus;
-};
+import React, { useState } from 'react';
+import { AnalysisSection } from '../../../shared/services/api/types';
+import ImprovementPoint from './ImprovementPoint';
 
 type Props = {
-  sections: ImprovementSection[];
+  sections: AnalysisSection[];
 };
 
 const accordionSx = {
@@ -29,26 +22,34 @@ const accordionSx = {
   '& .MuiAccordionSummary-content': { margin: 0 },
 };
 
-const statusToColor: Record<SectionStatus, string> = {
+const statusToColor = {
   NeedsWork: '#ef4444',
   Good: '#f97316',
   Strong: '#22c55e',
 };
 
-const statusToBackground: Record<SectionStatus, string> = {
+const statusToBackground = {
   NeedsWork: '#fef2f2',
   Good: '#fff7ed',
   Strong: '#f0fdf4',
 };
 
 const ImprovementSections: React.FC<Props> = ({ sections }) => {
+  const [expandedSection, setExpandedSection] = useState<string | false>(false);
+
+  const handleAccordionChange = (panelId: string) => (_event: React.SyntheticEvent, isExpanded: boolean) => {
+    setExpandedSection(isExpanded ? panelId : false);
+  };
+
   return (
     <Box sx={{ p: { xs: 1, md: 2 }, overflow: 'auto' }}>
       {sections.map((s) => {
-        const pct = s.total === 0 ? 100 : Math.round((s.done / s.total) * 100);
-        const color = statusToColor[s.status];
-        const bgColor = statusToBackground[s.status];
+        const pct = s.percentage;
+        const color = statusToColor[s.status as keyof typeof statusToColor];
+        const bgColor = statusToBackground[s.status as keyof typeof statusToBackground];
         const statusLabel = s.status === 'NeedsWork' ? 'Needs Work' : s.status;
+        const done = s.improvement_points.length;
+        const total = done; // All points shown are issues to fix
 
         const breakdownCard = {
           backgroundColor: 'white',
@@ -108,7 +109,8 @@ const ImprovementSections: React.FC<Props> = ({ sections }) => {
 
         return (
           <Accordion 
-            expanded={false} 
+            expanded={expandedSection === s.id}
+            onChange={handleAccordionChange(s.id)}
             key={s.id}
             sx={{ ...breakdownCard, boxShadow: 'none', ...accordionSx }}
           >
@@ -116,19 +118,32 @@ const ImprovementSections: React.FC<Props> = ({ sections }) => {
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
                 <Box sx={breakdownTitle}>
                   <Typography sx={breakdownName}>{s.title}</Typography>
-                  <Typography sx={breakdownCount}>({s.done}/{s.total})</Typography>
+                  <Typography sx={breakdownCount}>
+                    ({done} {done === 1 ? 'issue' : 'issues'})
+                  </Typography>
                 </Box>
                 <Box sx={breakdownProgress}>
                   <Box sx={progressBar}>
                     <Box sx={{ ...progressFill, width: `${pct}%`, backgroundColor: color }}/>
                   </Box>
-                  <Typography sx={{ ...progressScore, color }}>{pct}</Typography>
+                  <Typography sx={{ ...progressScore, color }}>{pct}%</Typography>
                   <Box sx={{ ...statusBadge, backgroundColor: bgColor, color }}>
                     {statusLabel}
                   </Box>
                 </Box>
               </Box>
             </AccordionSummary>
+            <AccordionDetails sx={{ padding: '8px 16px 16px' }}>
+              {s.improvement_points.length === 0 ? (
+                <Typography sx={{ fontSize: '14px', color: '#6b7280', textAlign: 'center', padding: '16px' }}>
+                  No issues found in this section. Great job!
+                </Typography>
+              ) : (
+                s.improvement_points.map((point) => (
+                  <ImprovementPoint key={point.id} point={point} />
+                ))
+              )}
+            </AccordionDetails>
           </Accordion>
         );
       })}

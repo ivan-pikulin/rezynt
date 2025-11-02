@@ -22,7 +22,7 @@ import LoadingSpinner from './components/LoadingSpinner';
 import EditorAccordion from './components/EditorAccordion';
 import ScoreBar from './components/ScoreBar';
 import ImprovementSections from './components/ImprovementSections';
-import { getResumeAnalysis } from './analysisApi';
+import { analysisApi } from '../../shared/services/api';
 
 const RefinePage: React.FC = () => {
   const { t } = useTranslation();
@@ -106,10 +106,15 @@ const RefinePage: React.FC = () => {
     }
   }, [resume, lastSaveTime]);
 
-  // Load analysis (mocked) - no resume_id needed
+  // Load analysis from backend API
   useEffect(() => {
     if (resume) {
-      getResumeAnalysis('user').then(setAnalysis).catch(() => setAnalysis(null));
+      analysisApi.getAnalysis()
+        .then(setAnalysis)
+        .catch((error) => {
+          console.error('Error loading analysis:', error);
+          setAnalysis(null);
+        });
     }
   }, [resume]);
 

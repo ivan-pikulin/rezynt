@@ -1,3 +1,10 @@
+from .analysis import (
+    AnalysisResult,
+    AnalysisSection,
+    ApplyFixRequest,
+    ApplyFixResponse,
+    ImprovementPoint,
+)
 from .resume import (
     Award,
     ChatMessage,
@@ -60,4 +67,10 @@ __all__ = [
     "ResumeResponse",
     "ResumeUpdate",
     "WorkExperience",
+    # Analysis schemas
+    "AnalysisResult",
+    "AnalysisSection",
+    "ApplyFixRequest",
+    "ApplyFixResponse",
+    "ImprovementPoint",
 ] 

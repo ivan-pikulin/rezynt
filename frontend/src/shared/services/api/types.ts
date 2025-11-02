@@ -194,3 +194,49 @@ export interface TaskStatus {
   message: string;
   error?: string;
 }
+
+// Analysis types
+export interface ImprovementPoint {
+  id: string;
+  rule_id: string;
+  section_id: 'content' | 'ats' | 'style';
+  field_path: string;
+  message: string;
+  score_impact: number;
+  severity: 'high' | 'medium' | 'low';
+  check_type: 'mechanical' | 'llm' | 'llm_assisted';
+  action_type: 'go_to_edit' | 'fix' | 'both';
+  fix_suggestion?: string;
+  metadata?: Record<string, any>;
+}
+
+export interface AnalysisSection {
+  id: 'content' | 'ats' | 'style';
+  title: string;
+  current_points: number;
+  max_points: number;
+  percentage: number;
+  status: 'NeedsWork' | 'Good' | 'Strong';
+  improvement_points: ImprovementPoint[];
+}
+
+export interface AnalysisResult {
+  score: number;
+  label: string;
+  subtitle: string;
+  sections: AnalysisSection[];
+  total_improvements: number;
+  potential_score: number;
+  generated_at: string;
+}
+
+export interface ApplyFixRequest {
+  point_id: string;
+  field_path: string;
+}
+
+export interface ApplyFixResponse {
+  original: string;
+  fixed: string;
+  field_path: string;
+}
