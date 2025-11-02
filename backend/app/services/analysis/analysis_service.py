@@ -16,14 +16,12 @@ from app.services.analysis.rules.content import (
     MissingDegreeRule,
     MissingFieldOfStudyRule,
     LongBulletsRule,
-    MissingTechnologiesRule,
     MissingSummaryRule,
     SummaryTooShortRule,
     SummaryTooLongRule,
     TooFewSkillsRule,
     TooManySkillsRule,
     MissingContactsRule,
-    MissingProfessionalLinksRule,
 )
 from app.services.analysis.rules.ats import (
     JobTitleCapitalizationRule,
@@ -59,22 +57,20 @@ class AnalysisService:
     def _load_rules(self) -> List[BaseRule]:
         """Load and instantiate all rule classes."""
         return [
-            # Content & Structure rules (15 rules)
+            # Content & Structure rules (13 rules)
             MissingAchievementsRule(),
+            MissingCompanyDescriptionRule(),
             AchievementsWithoutMetricsRule(),
             ResponsibilitiesNotResultsRule(),
-            MissingCompanyDescriptionRule(),
             MissingDegreeRule(),
             MissingFieldOfStudyRule(),
             LongBulletsRule(),
-            MissingTechnologiesRule(),
             MissingSummaryRule(),
             SummaryTooShortRule(),
             SummaryTooLongRule(),
             TooFewSkillsRule(),
             TooManySkillsRule(),
             MissingContactsRule(),
-            MissingProfessionalLinksRule(),
             
             # ATS Optimization rules (9 rules)
             JobTitleCapitalizationRule(),

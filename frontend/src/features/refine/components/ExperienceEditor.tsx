@@ -38,7 +38,6 @@ interface ExperienceFormData {
   start_date: string;
   end_date: string;
   is_current: boolean;
-  responsibilities: string[];
   achievements: string[];
   technologies_tools: string[];
 }
@@ -54,6 +53,12 @@ const ExperienceEditor = forwardRef<ExperienceEditorHandle, ExperienceEditorProp
   const [formDataArray, setFormDataArray] = useState<Record<number, ExperienceFormData>>(() => {
     const initial: Record<number, ExperienceFormData> = {};
     experience.forEach((exp, idx) => {
+      // Merge responsibilities into achievements for backward compatibility
+      const allAchievements = [
+        ...(exp.achievements || []),
+        ...(exp.responsibilities || [])
+      ].filter((item, index, self) => item && self.indexOf(item) === index); // Remove duplicates
+      
       initial[idx] = {
         job_title: exp.job_title || '',
         company: exp.company || '',
@@ -63,8 +68,7 @@ const ExperienceEditor = forwardRef<ExperienceEditorHandle, ExperienceEditorProp
         start_date: exp.start_date || '',
         end_date: exp.end_date || '',
         is_current: !exp.end_date,
-        responsibilities: [...(exp.responsibilities || [])],
-        achievements: [...(exp.achievements || [])],
+        achievements: allAchievements,
         technologies_tools: [...(exp.technologies_tools || [])]
       };
     });
@@ -80,54 +84,116 @@ const ExperienceEditor = forwardRef<ExperienceEditorHandle, ExperienceEditorProp
     navigateToField: (index: number, fieldName: string) => {
       console.log('📝 ExperienceEditor.navigateToField called:', { index, fieldName });
       
+      // Check if accordion is already expanded
+      const wasExpanded = expandedIndex === index;
+      console.log('🔍 Accordion was expanded:', wasExpanded);
+      
       // Expand the accordion for this experience entry
       setExpandedIndex(index);
       
+      // Delay depends on whether accordion needs to expand
+      const accordionDelay = wasExpanded ? 150 : 400;
+      
       // Focus on the field after a delay to allow accordion to expand
       setTimeout(() => {
-        // For array fields (achievements, responsibilities, technologies_tools),
-        // try to focus on the first item or the section
+        // For array fields (achievements, technologies_tools),
+        // try to focus on the first item or the add button if no items exist
         let fieldId = `experience-${index}-${fieldName}`;
         
         // If it's an array field, try the first item
-        if (['achievements', 'responsibilities', 'technologies_tools'].includes(fieldName)) {
+        if (['achievements', 'technologies_tools'].includes(fieldName)) {
           const firstItemId = `${fieldId}-0`;
           const firstItem = document.getElementById(firstItemId);
           if (firstItem) {
             fieldId = firstItemId;
+          } else {
+            // No items exist, navigate to "Add" button instead
+            const addButtonId = `experience-${index}-add-${fieldName === 'achievements' ? 'achievement' : 'technology'}-btn`;
+            const addButton = document.getElementById(addButtonId);
+            
+            if (addButton) {
+              console.log('🎯 No items found, navigating to Add button:', addButtonId);
+              
+              addButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              
+              // Pulse animation for button (2 pulses) - after scroll completes
+              setTimeout(() => {
+                const originalTransform = addButton.style.transform;
+                const originalTransition = addButton.style.transition;
+                
+                addButton.style.transition = 'transform 0.3s ease-in-out';
+                
+                // First pulse
+                addButton.style.transform = 'scale(1.1)';
+                setTimeout(() => {
+                  addButton.style.transform = 'scale(1)';
+                  
+                  // Second pulse
+                  setTimeout(() => {
+                    addButton.style.transform = 'scale(1.1)';
+                    setTimeout(() => {
+                      addButton.style.transform = 'scale(1)';
+                      
+                      // Clean up
+                      setTimeout(() => {
+                        addButton.style.transform = originalTransform;
+                        addButton.style.transition = originalTransition;
+                      }, 300);
+                    }, 300);
+                  }, 300);
+                }, 300);
+              }, 500);
+              
+              return;
+            }
           }
         }
         
         console.log('🔎 Looking for element with ID:', fieldId);
         
-        const element = document.getElementById(fieldId) as HTMLInputElement | HTMLTextAreaElement | null;
+        const element = document.getElementById(fieldId);
         if (element) {
           console.log('✅ Element found, focusing...');
+          
+          // Find the actual input/textarea element (might be nested in MUI TextField)
+          let inputElement = element as HTMLElement;
+          if (element.tagName === 'DIV') {
+            const innerInput = element.querySelector('input, textarea') as HTMLInputElement | HTMLTextAreaElement | null;
+            if (innerInput) {
+              inputElement = innerInput;
+            }
+          }
+          
           element.scrollIntoView({ behavior: 'smooth', block: 'center' });
           
           // Small delay for scroll to complete
           setTimeout(() => {
-            element.focus();
-            if (element.select && typeof element.select === 'function') {
-              element.select();
+            if (inputElement instanceof HTMLInputElement || inputElement instanceof HTMLTextAreaElement) {
+              inputElement.focus();
+              if (inputElement.select && typeof inputElement.select === 'function') {
+                inputElement.select();
+              }
             }
             
-            // Add highlight animation
-            const originalTransition = element.style.transition;
-            const originalBoxShadow = element.style.boxShadow;
+            // Add highlight animation to the actual input element
+            const originalTransition = inputElement.style.transition;
+            const originalBoxShadow = inputElement.style.boxShadow;
+            const originalBorderRadius = inputElement.style.borderRadius;
             
-            // Apply smooth pulsing highlight
-            element.style.transition = 'box-shadow 0.3s ease-in-out';
-            element.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.4)';
+            // Apply smooth pulsing highlight with border radius
+            inputElement.style.transition = 'box-shadow 0.3s ease-in-out';
+            inputElement.style.borderRadius = '6px';
+            inputElement.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.4)';
             
             // Fade out after 2 seconds
             setTimeout(() => {
-              element.style.boxShadow = '0 0 0 0 rgba(37, 99, 235, 0)';
+              inputElement.style.boxShadow = '0 0 0 0 rgba(37, 99, 235, 0)';
               
               // Clean up after transition completes
               setTimeout(() => {
-                element.style.transition = originalTransition;
-                element.style.boxShadow = originalBoxShadow;
+                inputElement.style.transition = originalTransition;
+                inputElement.style.boxShadow = originalBoxShadow;
+                inputElement.style.borderRadius = originalBorderRadius;
               }, 300);
             }, 2000);
           }, 50);
@@ -144,9 +210,9 @@ const ExperienceEditor = forwardRef<ExperienceEditorHandle, ExperienceEditorProp
             accordionElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
           }
         }
-      }, 150);
+      }, accordionDelay);
     }
-  }), []);
+  }), [expandedIndex]);
 
   const handleFieldChange = (index: number, field: keyof ExperienceFormData, value: any) => {
     setFormDataArray(prev => ({
@@ -156,21 +222,24 @@ const ExperienceEditor = forwardRef<ExperienceEditorHandle, ExperienceEditorProp
     
     // Auto-update
     const formData = { ...formDataArray[index], [field]: value };
+    const filteredAchievements = formData.achievements?.filter(a => a.trim()) || undefined;
+    
     const experienceData: WorkExperience = {
       job_title: formData.job_title?.trim() || undefined,
       company: formData.company?.trim() || undefined,
       short_description: formData.short_description?.trim() || undefined,
       city: formData.city?.trim() || undefined,
       country: formData.country?.trim() || undefined,
-        start_date: formData.start_date || undefined,
-        end_date: formData.is_current ? undefined : (formData.end_date || undefined),
-      responsibilities: formData.responsibilities?.filter(r => r.trim()) || undefined,
-      achievements: formData.achievements?.filter(a => a.trim()) || undefined,
+      start_date: formData.start_date || undefined,
+      end_date: formData.is_current ? undefined : (formData.end_date || undefined),
+      // Save achievements as both achievements and responsibilities for backward compatibility
+      achievements: filteredAchievements,
+      responsibilities: filteredAchievements,
       technologies_tools: formData.technologies_tools?.filter(t => t.trim()) || undefined
-      };
+    };
 
-      const updatedExperience = [...localExperience];
-      updatedExperience[index] = experienceData;
+    const updatedExperience = [...localExperience];
+    updatedExperience[index] = experienceData;
     setLocalExperience(updatedExperience);
     onExperienceUpdate(updatedExperience);
   };
@@ -186,51 +255,50 @@ const ExperienceEditor = forwardRef<ExperienceEditorHandle, ExperienceEditorProp
     const newExperience: WorkExperience = {};
 
     const updatedExperience = [...localExperience, newExperience];
-      setLocalExperience(updatedExperience);
-      onExperienceUpdate(updatedExperience);
-      
-      const newIndex = updatedExperience.length - 1;
-      setFormDataArray(prev => ({
-        ...prev,
-        [newIndex]: {
-          job_title: '',
-          company: '',
+    setLocalExperience(updatedExperience);
+    onExperienceUpdate(updatedExperience);
+    
+    const newIndex = updatedExperience.length - 1;
+    setFormDataArray(prev => ({
+      ...prev,
+      [newIndex]: {
+        job_title: '',
+        company: '',
         short_description: '',
         city: '',
         country: '',
-          start_date: '',
-          end_date: '',
+        start_date: '',
+        end_date: '',
         is_current: true,
-        responsibilities: [],
         achievements: [],
         technologies_tools: []
-        }
-      }));
-      setExpandedIndex(newIndex);
+      }
+    }));
+    setExpandedIndex(newIndex);
   };
 
-  const handleAddResponsibility = (index: number) => {
+  const handleAddAchievement = (index: number) => {
     const formData = formDataArray[index];
     setFormDataArray(prev => ({
       ...prev,
       [index]: {
         ...formData,
-        responsibilities: [...formData.responsibilities, '']
+        achievements: [...formData.achievements, '']
       }
     }));
   };
 
-  const handleDeleteResponsibility = (expIndex: number, respIndex: number) => {
+  const handleDeleteAchievement = (expIndex: number, achIndex: number) => {
     const formData = formDataArray[expIndex];
-    const newResponsibilities = formData.responsibilities.filter((_, i) => i !== respIndex);
-    handleFieldChange(expIndex, 'responsibilities', newResponsibilities);
+    const newAchievements = formData.achievements.filter((_, i) => i !== achIndex);
+    handleFieldChange(expIndex, 'achievements', newAchievements);
   };
 
-  const handleResponsibilityChange = (expIndex: number, respIndex: number, value: string) => {
+  const handleAchievementChange = (expIndex: number, achIndex: number, value: string) => {
     const formData = formDataArray[expIndex];
-    const newResponsibilities = [...formData.responsibilities];
-    newResponsibilities[respIndex] = value;
-    handleFieldChange(expIndex, 'responsibilities', newResponsibilities);
+    const newAchievements = [...formData.achievements];
+    newAchievements[achIndex] = value;
+    handleFieldChange(expIndex, 'achievements', newAchievements);
   };
 
   const inputStyles = {
@@ -306,13 +374,24 @@ const ExperienceEditor = forwardRef<ExperienceEditorHandle, ExperienceEditorProp
               />
               <TextField
                 id={`experience-${index}-company`}
-                  size="small"
+                size="small"
                 placeholder={t('refine.editor.company')}
                 value={formDataArray[index]?.company || ''}
                 onChange={(e) => handleFieldChange(index, 'company', e.target.value)}
                 fullWidth
-                  sx={inputStyles}
-                />
+                sx={inputStyles}
+              />
+              <TextField
+                id={`experience-${index}-short_description`}
+                size="small"
+                placeholder={t('refine.editor.companyDescription', 'Brief company or project description')}
+                value={formDataArray[index]?.short_description || ''}
+                onChange={(e) => handleFieldChange(index, 'short_description', e.target.value)}
+                fullWidth
+                multiline
+                rows={2}
+                sx={inputStyles}
+              />
               <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
                 <TextField
                   id={`experience-${index}-city`}
@@ -361,30 +440,31 @@ const ExperienceEditor = forwardRef<ExperienceEditorHandle, ExperienceEditorProp
                 />
 
               <Divider />
-              <Typography variant="subtitle2">{t('refine.editor.responsibilities')}</Typography>
-              {formDataArray[index]?.responsibilities.map((resp, respIndex) => (
-                <Box key={respIndex} sx={{ display: 'flex', gap: 1 }}>
+              <Typography variant="subtitle2">{t('refine.editor.achievements')}</Typography>
+              {formDataArray[index]?.achievements.map((ach, achIndex) => (
+                <Box key={achIndex} sx={{ display: 'flex', gap: 1 }}>
                   <TextField
-                    id={`experience-${index}-responsibilities-${respIndex}`}
+                    id={`experience-${index}-achievements-${achIndex}`}
                     size="small"
                     fullWidth
                     multiline
-                    value={resp}
-                    onChange={(e) => handleResponsibilityChange(index, respIndex, e.target.value)}
+                    value={ach}
+                    onChange={(e) => handleAchievementChange(index, achIndex, e.target.value)}
                     sx={inputStyles}
-              />
-                  <IconButton size="small" onClick={() => handleDeleteResponsibility(index, respIndex)}>
+                  />
+                  <IconButton size="small" onClick={() => handleDeleteAchievement(index, achIndex)}>
                     <DeleteIcon fontSize="small" />
                   </IconButton>
                 </Box>
               ))}
-                <Button
+              <Button
+                id={`experience-${index}-add-achievement-btn`}
                 size="small"
                 startIcon={<AddIcon />}
-                onClick={() => handleAddResponsibility(index)}
+                onClick={() => handleAddAchievement(index)}
               >
-                {t('refine.editor.addResponsibility')}
-                </Button>
+                {t('refine.editor.addAchievement')}
+              </Button>
               </Box>
             </AccordionDetails>
           </Accordion>

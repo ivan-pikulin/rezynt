@@ -325,6 +325,103 @@
                 <background_repeat>no-repeat - without repetition</background_repeat>
             </watermark_features>
         </component>
+        
+        <component>
+            <name>AnalysisService</name>
+            <description>
+                Service for resume analysis. Evaluates resumes across three main categories (Content & Structure, ATS Optimization, Style & Grammar) and provides improvement suggestions.
+            </description>
+            <methods>
+                <method>
+                    <name>analyze_resume</name>
+                    <description>Analyzes resume and returns complete analysis result with score and improvement points</description>
+                    <params>
+                        <param name="resume" type="dict">Resume data dictionary</param>
+                    </params>
+                    <returns type="AnalysisResult">Complete analysis result with score, sections, and improvement points</returns>
+                    <async>True - runs multiple rule checks asynchronously</async>
+                </method>
+                <method>
+                    <name>apply_fix</name>
+                    <description>Applies a fix for a specific improvement point</description>
+                    <params>
+                        <param name="point_id" type="str">ID of the improvement point</param>
+                        <param name="field_path" type="str">Field path where the issue was found</param>
+                        <param name="resume" type="dict">Resume data</param>
+                    </params>
+                    <returns type="dict">Dictionary with original and fixed text</returns>
+                </method>
+            </methods>
+            <rules>
+                <content_rules>
+                    <rule name="MissingAchievementsRule" status="active">Detects missing achievements in work experience</rule>
+                    <rule name="AchievementsWithoutMetricsRule" status="active">Detects achievements without quantifiable metrics</rule>
+                    <rule name="ResponsibilitiesNotResultsRule" status="active">Detects responsibilities instead of results</rule>
+                    <rule name="MissingDegreeRule" status="active">Detects missing degree in education</rule>
+                    <rule name="MissingFieldOfStudyRule" status="active">Detects missing field of study in education</rule>
+                    <rule name="LongBulletsRule" status="active">Detects overly long bullet points</rule>
+                    <rule name="MissingSummaryRule" status="active">Detects missing professional summary</rule>
+                    <rule name="SummaryTooShortRule" status="active">Detects too short professional summary</rule>
+                    <rule name="SummaryTooLongRule" status="active">Detects too long professional summary</rule>
+                    <rule name="TooFewSkillsRule" status="active">Detects too few skills</rule>
+                    <rule name="TooManySkillsRule" status="active">Detects too many skills</rule>
+                    <rule name="MissingContactsRule" status="active">Detects missing essential contact information</rule>
+                    <rule name="MissingCompanyDescriptionRule" status="active">Detects missing company or project descriptions</rule>
+                </content_rules>
+                <ats_rules>
+                    <rule name="JobTitleCapitalizationRule" status="active">Detects incorrect job title capitalization</rule>
+                    <rule name="MissingKeywordsRule" status="active">Detects missing keywords</rule>
+                    <rule name="InvalidDatesRule" status="active">Detects invalid date formats</rule>
+                    <rule name="EmploymentGapsRule" status="active">Detects employment gaps</rule>
+                    <rule name="InconsistentDateFormatsRule" status="active">Detects inconsistent date formats</rule>
+                    <rule name="MissingExperienceLocationRule" status="active">Detects missing location in work experience</rule>
+                    <rule name="SkillsNotInExperienceRule" status="active">Detects skills not mentioned in experience</rule>
+                    <rule name="ResumeLengthRule" status="active">Checks resume length</rule>
+                    <rule name="GenericJobTitlesRule" status="active">Detects generic job titles</rule>
+                </ats_rules>
+                <style_rules>
+                    <rule name="InconsistentVerbTenseRule" status="active">Detects inconsistent verb tenses</rule>
+                    <rule name="WeakVerbsRule" status="active">Detects weak verbs</rule>
+                    <rule name="RepetitiveWordingRule" status="active">Detects repetitive wording</rule>
+                    <rule name="FillerPhrasesRule" status="active">Detects filler phrases</rule>
+                    <rule name="PassiveVoiceRule" status="active">Detects passive voice</rule>
+                    <rule name="PersonalPronounsRule" status="active">Detects personal pronouns</rule>
+                    <rule name="BuzzwordsRule" status="active">Detects buzzwords</rule>
+                    <rule name="MissingActionVerbsRule" status="active">Detects missing action verbs</rule>
+                    <rule name="UndefinedAbbreviationsRule" status="active">Detects undefined abbreviations</rule>
+                </style_rules>
+            </rules>
+            <configuration>
+                <sections>
+                    <section name="content" weight="50" max_points="50">Content & Structure</section>
+                    <section name="ats" weight="30" max_points="30">ATS Optimization</section>
+                    <section name="style" weight="20" max_points="20">Style & Grammar</section>
+                </sections>
+                <scoring>
+                    <method>Aggregates section scores to calculate overall score (0-100)</method>
+                    <labels>
+                        <label score="0-40">Weak</label>
+                        <label score="41-60">Fair</label>
+                        <label score="61-75">Good</label>
+                        <label score="76-89">Strong</label>
+                        <label score="90-100">Excellent</label>
+                    </labels>
+                </scoring>
+            </configuration>
+            <schemas>
+                <schema name="ImprovementPoint">Single improvement suggestion with field_path, message, severity, score_impact</schema>
+                <schema name="AnalysisSection">Section with improvement points, score, and status</schema>
+                <schema name="AnalysisResult">Complete analysis result with overall score and sections</schema>
+            </schemas>
+            <notes>
+                <note>UI change: "responsibilities" renamed to "achievements" in ExperienceEditor for better clarity</note>
+                <note>Backward compatibility: achievements saved as both achievements and responsibilities fields</note>
+                <note>short_description field added to RefinePage ExperienceEditor</note>
+                <note>MissingAchievementsRule restored: navigates to "Add Achievement" button with pulse animation when no achievements exist</note>
+                <note>Removed unused rules: MissingTechnologiesRule, MissingProfessionalLinksRule</note>
+                <note>Total active rules: 13 Content, 9 ATS, 9 Style = 31 rules</note>
+            </notes>
+        </component>
     </components>
     
     <dependencies>

@@ -90,34 +90,49 @@ const EducationEditor = forwardRef<EducationEditorHandle, EducationEditorProps>(
         
         console.log('🔎 Looking for element with ID:', fieldId);
         
-        const element = document.getElementById(fieldId) as HTMLInputElement | HTMLTextAreaElement | null;
+        const element = document.getElementById(fieldId);
         if (element) {
           console.log('✅ Element found, focusing...');
+          
+          // Find the actual input/textarea element (might be nested in MUI TextField)
+          let inputElement = element as HTMLElement;
+          if (element.tagName === 'DIV') {
+            const innerInput = element.querySelector('input, textarea') as HTMLInputElement | HTMLTextAreaElement | null;
+            if (innerInput) {
+              inputElement = innerInput;
+            }
+          }
+          
           element.scrollIntoView({ behavior: 'smooth', block: 'center' });
           
           // Small delay for scroll to complete
           setTimeout(() => {
-            element.focus();
-            if (element.select && typeof element.select === 'function') {
-              element.select();
+            if (inputElement instanceof HTMLInputElement || inputElement instanceof HTMLTextAreaElement) {
+              inputElement.focus();
+              if (inputElement.select && typeof inputElement.select === 'function') {
+                inputElement.select();
+              }
             }
             
-            // Add highlight animation
-            const originalTransition = element.style.transition;
-            const originalBoxShadow = element.style.boxShadow;
+            // Add highlight animation to the actual input element
+            const originalTransition = inputElement.style.transition;
+            const originalBoxShadow = inputElement.style.boxShadow;
+            const originalBorderRadius = inputElement.style.borderRadius;
             
-            // Apply smooth pulsing highlight
-            element.style.transition = 'box-shadow 0.3s ease-in-out';
-            element.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.4)';
+            // Apply smooth pulsing highlight with border radius
+            inputElement.style.transition = 'box-shadow 0.3s ease-in-out';
+            inputElement.style.borderRadius = '6px';
+            inputElement.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.4)';
             
             // Fade out after 2 seconds
             setTimeout(() => {
-              element.style.boxShadow = '0 0 0 0 rgba(37, 99, 235, 0)';
+              inputElement.style.boxShadow = '0 0 0 0 rgba(37, 99, 235, 0)';
               
               // Clean up after transition completes
               setTimeout(() => {
-                element.style.transition = originalTransition;
-                element.style.boxShadow = originalBoxShadow;
+                inputElement.style.transition = originalTransition;
+                inputElement.style.boxShadow = originalBoxShadow;
+                inputElement.style.borderRadius = originalBorderRadius;
               }, 300);
             }, 2000);
           }, 50);

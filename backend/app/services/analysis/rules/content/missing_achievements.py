@@ -17,13 +17,16 @@ class MissingAchievementsRule(BaseRule):
         self.action_type = "go_to_edit"
     
     async def check(self, resume: dict) -> List[ImprovementPoint]:
-        """Simple mechanical check - no LLM needed."""
+        """Check for missing achievements in work experience."""
         points = []
         
         for i, exp in enumerate(resume.get('work_experience', [])):
+            # Check both achievements and responsibilities for backward compatibility
             achievements = exp.get('achievements', [])
+            responsibilities = exp.get('responsibilities', [])
             
-            if not achievements or len(achievements) == 0:
+            # If neither has content, flag it
+            if (not achievements or len(achievements) == 0) and (not responsibilities or len(responsibilities) == 0):
                 job_title = exp.get('job_title', 'this role')
                 points.append(self.create_point(
                     field_path=f"work_experience[{i}].achievements",

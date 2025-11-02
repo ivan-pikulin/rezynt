@@ -211,9 +211,11 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
                     // Add highlight animation
                     const originalTransition = inputElement.style.transition;
                     const originalBoxShadow = inputElement.style.boxShadow;
+                    const originalBorderRadius = inputElement.style.borderRadius;
                     
-                    // Apply smooth pulsing highlight
+                    // Apply smooth pulsing highlight with border radius
                     inputElement.style.transition = 'box-shadow 0.3s ease-in-out';
+                    inputElement.style.borderRadius = '6px';
                     inputElement.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.4)';
                     
                     // Fade out after 2 seconds
@@ -224,6 +226,7 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
                       setTimeout(() => {
                         inputElement.style.transition = originalTransition;
                         inputElement.style.boxShadow = originalBoxShadow;
+                        inputElement.style.borderRadius = originalBorderRadius;
                       }, 300);
                     }, 2000);
                     
