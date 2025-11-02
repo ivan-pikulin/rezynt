@@ -36,7 +36,8 @@ class ResponsibilitiesNotResultsRule(BaseRule):
                 if any(phrase in text_lower for phrase in responsibility_phrases):
                     points.append(self.create_point(
                         field_path=f"work_experience[{i}].achievements[{j}]",
-                        message="Rewrite to focus on results and impact, not just duties",
+                        title="Focuses on Responsibilities",
+                        description="Rewrite to focus on results and impact, not just duties",
                         metadata={"original_text": achievement}
                     ))
         

@@ -73,7 +73,8 @@ class EmploymentGapsRule(BaseRule):
                 if gap_months > AnalysisConfig.EMPLOYMENT_GAP_MONTHS:
                     points.append(self.create_point(
                         field_path="work_experience",
-                        message=f"{gap_months}-month gap detected - consider adding explanation",
+                        title="Employment Gap Detected",
+                        description=f"{gap_months}-month gap detected - consider adding explanation",
                         metadata={"gap_months": gap_months}
                     ))
             except (ValueError, Exception):

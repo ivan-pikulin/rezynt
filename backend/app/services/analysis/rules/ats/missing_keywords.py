@@ -44,7 +44,8 @@ class MissingKeywordsRule(BaseRule):
         if missing_keywords:
             points.append(self.create_point(
                 field_path="skills",
-                message=f"Consider adding: {', '.join(missing_keywords[:5])}",
+                title="Missing Keywords",
+                description=f"Consider adding: {', '.join(missing_keywords[:5])}",
                 metadata={"suggested_keywords": missing_keywords}
             ))
         

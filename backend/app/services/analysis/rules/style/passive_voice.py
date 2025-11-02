@@ -40,7 +40,8 @@ class PassiveVoiceRule(BaseRule):
             if passive_achievements:
                 points.append(self.create_point(
                     field_path=f"work_experience[{i}].achievements",
-                    message=f"Convert {len(passive_achievements)} bullet(s) to active voice",
+                    title="Uses Passive Voice",
+                    description=f"Convert {len(passive_achievements)} bullet(s) to active voice",
                     metadata={"passive_achievements": passive_achievements}
                 ))
         

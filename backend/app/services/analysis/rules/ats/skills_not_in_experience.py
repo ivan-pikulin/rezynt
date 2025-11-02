@@ -43,14 +43,16 @@ class SkillsNotInExperienceRule(BaseRule):
             # Point for skills section - to remove unmentioned
             points.append(self.create_point(
                 field_path="skills",
-                message=f"Remove {len(unmentioned_skills)} skills not demonstrated in experience",
+                title="Skills Not Demonstrated",
+                description=f"Remove {len(unmentioned_skills)} skills not demonstrated in experience",
                 metadata={"unmentioned_skills": unmentioned_skills[:5]}
             ))
             
             # Point for work experience - to add skill demonstrations
             points.append(self.create_point(
                 field_path="work_experience",
-                message="Add examples demonstrating your listed skills in work experience",
+                title="Demonstrate Listed Skills",
+                description="Add examples demonstrating your listed skills in work experience",
                 metadata={"unmentioned_skills": unmentioned_skills[:5]}
             ))
         

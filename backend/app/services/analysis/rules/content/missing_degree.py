@@ -26,7 +26,8 @@ class MissingDegreeRule(BaseRule):
                 institution = edu.get('institution', 'this program')
                 points.append(self.create_point(
                     field_path=f"education[{i}].degree",
-                    message=f"Specify degree for {institution}"
+                    title="Missing Degree",
+                    description=f"Specify degree for {institution}"
                 ))
         
         return points

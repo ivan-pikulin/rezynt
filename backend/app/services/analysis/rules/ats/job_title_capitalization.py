@@ -32,7 +32,8 @@ class JobTitleCapitalizationRule(BaseRule):
                 if not re.search(r'\b[A-Z]{2,}\b', job_title):
                     points.append(self.create_point(
                         field_path=f"work_experience[{i}].job_title",
-                        message="Use consistent Title Case for job title",
+                        title="Incorrect Capitalization",
+                        description="Use consistent Title Case for job title",
                         fix_suggestion=job_title.title()
                     ))
         

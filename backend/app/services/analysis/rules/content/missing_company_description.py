@@ -26,7 +26,8 @@ class MissingCompanyDescriptionRule(BaseRule):
                 company = exp.get('company', 'the company')
                 points.append(self.create_point(
                     field_path=f"work_experience[{i}].short_description",
-                    message=f"Add context about {company} or project"
+                    title="Missing Company Description",
+                    description=f"Add context about {company} or project"
                 ))
         
         return points

@@ -38,7 +38,8 @@ class GenericJobTitlesRule(BaseRule):
             if any(generic in job_title for generic in generic_titles) and len(job_title.split()) <= 2:
                 points.append(self.create_point(
                     field_path=f"work_experience[{i}].job_title",
-                    message="Use more specific job title reflecting your actual role",
+                    title="Generic Job Title",
+                    description="Use more specific job title reflecting your actual role",
                     metadata={
                         "original_title": exp.get('job_title'),
                         "job_description": exp.get('short_description', '')

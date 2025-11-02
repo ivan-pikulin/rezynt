@@ -27,7 +27,8 @@ class SummaryTooShortRule(BaseRule):
         if summary and len(summary) < self.min_length:
             points.append(self.create_point(
                 field_path="professional_summary",
-                message=f"Expand summary ({len(summary)} → {self.min_length}+ characters)",
+                title="Summary Too Short",
+                description=f"Expand summary ({len(summary)} → {self.min_length}+ characters)",
                 metadata={"current_length": len(summary), "original_text": summary}
             ))
         

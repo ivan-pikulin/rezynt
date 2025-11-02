@@ -43,14 +43,16 @@ class BuzzwordsRule(BaseRule):
         if summary_buzzwords:
             points.append(self.create_point(
                 field_path="professional_summary",
-                message=f"Replace buzzwords with specific terms: {', '.join(summary_buzzwords[:3])}",
+                title="Contains Buzzwords",
+                description=f"Replace buzzwords with specific terms: {', '.join(summary_buzzwords[:3])}",
                 metadata={"buzzwords": summary_buzzwords, "original_text": summary_text}
             ))
         
         if experience_buzzwords:
             points.append(self.create_point(
                 field_path="work_experience",
-                message=f"Replace buzzwords with specific terms: {', '.join(experience_buzzwords[:3])}",
+                title="Contains Buzzwords",
+                description=f"Replace buzzwords with specific terms: {', '.join(experience_buzzwords[:3])}",
                 metadata={"buzzwords": experience_buzzwords}
             ))
         

@@ -25,7 +25,8 @@ class MissingFieldOfStudyRule(BaseRule):
             if not field:
                 points.append(self.create_point(
                     field_path=f"education[{i}].field_of_study",
-                    message="Add your major or specialization"
+                    title="Missing Field of Study",
+                    description="Add your major or specialization"
                 ))
         
         return points

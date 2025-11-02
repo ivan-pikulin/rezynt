@@ -27,7 +27,8 @@ class SummaryTooLongRule(BaseRule):
         if len(summary) > self.max_length:
             points.append(self.create_point(
                 field_path="professional_summary",
-                message=f"Condense summary ({len(summary)} → <{self.max_length} characters)",
+                title="Summary Too Long",
+                description=f"Condense summary ({len(summary)} → <{self.max_length} characters)",
                 metadata={"current_length": len(summary), "original_text": summary}
             ))
         

@@ -29,7 +29,8 @@ class LongBulletsRule(BaseRule):
                 if word_count > self.max_words:
                     points.append(self.create_point(
                         field_path=f"work_experience[{i}].achievements[{j}]",
-                        message=f"Shorten bullet ({word_count} words → <{self.max_words} words)",
+                        title="Bullet Too Long",
+                        description=f"Shorten bullet ({word_count} words → <{self.max_words} words)",
                         metadata={
                             "original_text": achievement,
                             "word_count": word_count

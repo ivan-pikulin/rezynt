@@ -23,7 +23,8 @@ class MissingSummaryRule(BaseRule):
         if not summary or len(summary) < 20:
             points.append(self.create_point(
                 field_path="professional_summary",
-                message="Add a compelling professional summary (2-3 sentences)"
+                title="Missing Professional Summary",
+                description="Add a compelling professional summary (2-3 sentences)"
             ))
         
         return points

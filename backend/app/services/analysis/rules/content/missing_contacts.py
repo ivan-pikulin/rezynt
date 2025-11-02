@@ -25,14 +25,16 @@ class MissingContactsRule(BaseRule):
         if not contacts.get('email'):
             points.append(self.create_point(
                 field_path="personal_info.contacts.email",
-                message="Add your email address",
+                title="Missing Email",
+                description="Add your email address",
                 metadata={"severity": "high", "score_impact": 8}
             ))
         
         if not contacts.get('phone'):
             points.append(self.create_point(
                 field_path="personal_info.contacts.phone",
-                message="Add your phone number",
+                title="Missing Phone Number",
+                description="Add your phone number",
                 metadata={"severity": "medium", "score_impact": 5}
             ))
         

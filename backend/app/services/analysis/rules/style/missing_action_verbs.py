@@ -50,7 +50,8 @@ class MissingActionVerbsRule(BaseRule):
             if len(weak_bullets) >= 2:
                 points.append(self.create_point(
                     field_path=f"work_experience[{i}].achievements",
-                    message=f"{len(weak_bullets)} bullets don't start with action verbs",
+                    title="Missing Action Verbs",
+                    description=f"{len(weak_bullets)} bullets don't start with action verbs",
                     metadata={"weak_bullets": weak_bullets[:3]}
                 ))
         

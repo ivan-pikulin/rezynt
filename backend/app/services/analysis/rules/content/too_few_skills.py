@@ -26,7 +26,8 @@ class TooFewSkillsRule(BaseRule):
         if len(skills) < self.min_skills:
             points.append(self.create_point(
                 field_path="skills",
-                message=f"Add more skills ({len(skills)} → {self.min_skills}+ skills)"
+                title="Too Few Skills",
+                description=f"Add more skills ({len(skills)} → {self.min_skills}+ skills)"
             ))
         
         return points

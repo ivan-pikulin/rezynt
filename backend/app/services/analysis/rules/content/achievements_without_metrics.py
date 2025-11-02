@@ -42,7 +42,8 @@ class AchievementsWithoutMetricsRule(BaseRule):
                 if not has_metric and len(achievement) > 10:
                     points.append(self.create_point(
                         field_path=f"work_experience[{i}].achievements[{j}]",
-                        message="Add specific metrics to quantify your impact",
+                        title="Missing Metrics",
+                        description="Add specific metrics to quantify your impact",
                         metadata={"original_text": achievement}
                     ))
         

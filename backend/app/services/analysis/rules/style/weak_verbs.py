@@ -46,7 +46,8 @@ class WeakVerbsRule(BaseRule):
             if len(weak_achievements) >= 2:
                 points.append(self.create_point(
                     field_path=f"work_experience[{i}].achievements",
-                    message=f"Replace weak verbs with stronger alternatives in {len(weak_achievements)} bullets",
+                    title="Uses Weak Verbs",
+                    description=f"Replace weak verbs with stronger alternatives in {len(weak_achievements)} bullets",
                     metadata={"weak_achievements": weak_achievements}
                 ))
         

@@ -54,7 +54,8 @@ class UndefinedAbbreviationsRule(BaseRule):
         if len(undefined) >= 2:
             points.append(self.create_point(
                 field_path="work_experience",
-                message=f"Define abbreviations on first use: {', '.join(undefined[:3])}",
+                title="Undefined Abbreviations",
+                description=f"Define abbreviations on first use: {', '.join(undefined[:3])}",
                 metadata={"undefined": undefined}
             ))
         

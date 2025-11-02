@@ -47,7 +47,8 @@ class InvalidDatesRule(BaseRule):
             if not start_date_str:
                 points.append(self.create_point(
                     field_path=f"work_experience[{i}].start_date",
-                    message="Add start date for this position"
+                    title="Missing Start Date",
+                    description="Add start date for this position"
                 ))
                 continue
             
@@ -62,12 +63,14 @@ class InvalidDatesRule(BaseRule):
                     if start_date > end_date:
                         points.append(self.create_point(
                             field_path=f"work_experience[{i}]",
-                            message="Start date is after end date - please correct"
+                            title="Invalid Date Range",
+                            description="Start date is after end date - please correct"
                         ))
             except (ValueError, Exception):
                 points.append(self.create_point(
                     field_path=f"work_experience[{i}]",
-                    message="Use consistent date format (e.g., 'Jan 2020')"
+                    title="Inconsistent Date Format",
+                    description="Use consistent date format (e.g., 'Jan 2020')"
                 ))
         
         return points

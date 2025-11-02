@@ -19,24 +19,6 @@ const severityColors = {
   low: COLORS.severity.low.main,
 };
 
-const severityBackgrounds = {
-  high: COLORS.severity.high.background,
-  medium: COLORS.severity.medium.background,
-  low: COLORS.severity.low.background,
-};
-
-const severityTexts = {
-  high: COLORS.severity.high.text,
-  medium: COLORS.severity.medium.text,
-  low: COLORS.severity.low.text,
-};
-
-const severityIcons = {
-  high: '🔴',
-  medium: '🟠',
-  low: '🟡',
-};
-
 const ImprovementPoint: React.FC<Props> = ({ point, onFixApplied, onNavigateToField }) => {
   const [isFixing, setIsFixing] = useState(false);
   const [fixed, setFixed] = useState<string | null>(null);
@@ -60,7 +42,7 @@ const ImprovementPoint: React.FC<Props> = ({ point, onFixApplied, onNavigateToFi
     console.log('🎯 Go to Edit clicked:', {
       pointId: point.id,
       fieldPath: point.field_path,
-      message: point.message
+      title: point.title
     });
     
     console.log('🔗 onNavigateToField exists:', !!onNavigateToField);
@@ -87,53 +69,52 @@ const ImprovementPoint: React.FC<Props> = ({ point, onFixApplied, onNavigateToFi
       }}
     >
       <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-        <Typography sx={{ fontSize: '16px', marginTop: '2px' }}>
-          {severityIcons[point.severity]}
-        </Typography>
+        <Box
+          sx={{
+            width: '8px',
+            height: '8px',
+            borderRadius: '50%',
+            backgroundColor: severityColors[point.severity],
+            marginTop: '6px',
+            flexShrink: 0,
+          }}
+        />
         
         <Box sx={{ flex: 1 }}>
           <Typography
             sx={{
               fontSize: '14px',
-              fontWeight: 500,
+              fontWeight: 600,
               color: '#1f2937',
               marginBottom: '4px',
             }}
           >
-            {point.message}
+            {point.title}
           </Typography>
           
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px' }}>
-            <Box
+          <Typography
+            sx={{
+              fontSize: '13px',
+              fontWeight: 400,
+              color: '#6b7280',
+              marginBottom: '4px',
+            }}
+          >
+            {point.description}
+          </Typography>
+          
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', marginTop: '8px' }}>
+            <Typography
               sx={{
                 fontSize: '11px',
                 fontWeight: 600,
-                color: severityTexts[point.severity],
-                backgroundColor: severityBackgrounds[point.severity],
-                padding: '2px 8px',
-                borderRadius: '4px',
+                color: '#6b7fd7',
               }}
             >
               +{point.score_impact} points
-            </Box>
+            </Typography>
             
-            <Box sx={{ display: 'flex', gap: '4px' }}>
-              {(point.action_type === 'go_to_edit' || point.action_type === 'both') && (
-                <Button
-                  size="small"
-                  variant="outlined"
-                  onClick={handleGoToEdit}
-                  sx={{
-                    fontSize: '11px',
-                    textTransform: 'none',
-                    padding: '2px 8px',
-                    minWidth: 'auto',
-                  }}
-                >
-                  Go to Edit
-                </Button>
-              )}
-              
+            <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
               {(point.action_type === 'fix' || point.action_type === 'both') && (
                 <Button
                   size="small"
@@ -158,6 +139,22 @@ const ImprovementPoint: React.FC<Props> = ({ point, onFixApplied, onNavigateToFi
                   ) : (
                     'Fix'
                   )}
+                </Button>
+              )}
+              
+              {(point.action_type === 'go_to_edit' || point.action_type === 'both') && (
+                <Button
+                  size="small"
+                  variant="outlined"
+                  onClick={handleGoToEdit}
+                  sx={{
+                    fontSize: '11px',
+                    textTransform: 'none',
+                    padding: '2px 8px',
+                    minWidth: 'auto',
+                  }}
+                >
+                  Go to Edit
                 </Button>
               )}
             </Box>

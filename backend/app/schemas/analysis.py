@@ -10,7 +10,8 @@ class ImprovementPoint(BaseModel):
     rule_id: str  # Rule identifier (e.g., "missing_achievements")
     section_id: Literal['content', 'ats', 'style']  # Section category
     field_path: str  # JSON path (e.g., "work_experience[0].achievements")
-    message: str  # Human-readable message
+    title: str  # Short title of the issue
+    description: str  # Detailed description of the issue
     score_impact: int  # Points added if fixed (0-10)
     severity: Literal['high', 'medium', 'low']  # Severity level
     check_type: Literal['mechanical', 'llm', 'llm_assisted']  # How the check is performed

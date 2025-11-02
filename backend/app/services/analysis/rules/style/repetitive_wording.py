@@ -46,14 +46,16 @@ class RepetitiveWordingRule(BaseRule):
             if summary_text and any(phrase in summary_text.lower() for phrase in repeated_phrases):
                 points.append(self.create_point(
                     field_path="professional_summary",
-                    message=f"Vary wording - '{repeated_phrases[0]}' repeated multiple times",
+                    title="Repetitive Wording",
+                    description=f"Vary wording - '{repeated_phrases[0]}' repeated multiple times",
                     metadata={"repeated_phrases": repeated_phrases[:3], "original_text": summary_text}
                 ))
             
             if experience_text:
                 points.append(self.create_point(
                     field_path="work_experience",
-                    message=f"Vary wording - '{repeated_phrases[0]}' repeated {bigram_counts[repeated_phrases[0]]} times",
+                    title="Repetitive Wording",
+                    description=f"Vary wording - '{repeated_phrases[0]}' repeated {bigram_counts[repeated_phrases[0]]} times",
                     metadata={"repeated_phrases": repeated_phrases[:3]}
                 ))
         

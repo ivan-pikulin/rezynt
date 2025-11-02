@@ -44,12 +44,14 @@ class ResumeLengthRule(BaseRule):
         if total_words < AnalysisConfig.MIN_RESUME_WORDS:
             points.append(self.create_point(
                 field_path="resume",
-                message=f"Resume is too brief ({total_words} words) - add more details"
+                title="Resume Too Short",
+                description=f"Resume is too brief ({total_words} words) - add more details"
             ))
         elif total_words > AnalysisConfig.MAX_RESUME_WORDS:
             points.append(self.create_point(
                 field_path="resume",
-                message=f"Resume is too long ({total_words} words) - consider condensing"
+                title="Resume Too Long",
+                description=f"Resume is too long ({total_words} words) - consider condensing"
             ))
         
         return points

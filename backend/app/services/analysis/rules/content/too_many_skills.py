@@ -26,7 +26,8 @@ class TooManySkillsRule(BaseRule):
         if len(skills) > self.max_skills:
             points.append(self.create_point(
                 field_path="skills",
-                message=f"Focus on top skills ({len(skills)} → <{self.max_skills} skills)"
+                title="Too Many Skills",
+                description=f"Focus on top skills ({len(skills)} → <{self.max_skills} skills)"
             ))
         
         return points

@@ -43,7 +43,8 @@ class FillerPhrasesRule(BaseRule):
                 if found_fillers:
                     points.append(self.create_point(
                         field_path=f"work_experience[{i}].achievements[{j}]",
-                        message=f"Remove filler phrase: '{found_fillers[0]}'",
+                        title="Contains Filler Phrases",
+                        description=f"Remove filler phrase: '{found_fillers[0]}'",
                         metadata={"original_text": achievement, "fillers": found_fillers}
                     ))
         

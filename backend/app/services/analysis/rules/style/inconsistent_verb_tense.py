@@ -50,7 +50,8 @@ class InconsistentVerbTenseRule(BaseRule):
                 expected = "present" if is_current else "past"
                 points.append(self.create_point(
                     field_path=f"work_experience[{i}].achievements",
-                    message=f"Use {expected} tense consistently for this {'current' if is_current else 'past'} role"
+                    title="Inconsistent Verb Tense",
+                    description=f"Use {expected} tense consistently for this {'current' if is_current else 'past'} role"
                 ))
         
         return points

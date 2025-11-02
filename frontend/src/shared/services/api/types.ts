@@ -201,7 +201,8 @@ export interface ImprovementPoint {
   rule_id: string;
   section_id: 'content' | 'ats' | 'style';
   field_path: string;
-  message: string;
+  title: string;
+  description: string;
   score_impact: number;
   severity: 'high' | 'medium' | 'low';
   check_type: 'mechanical' | 'llm' | 'llm_assisted';

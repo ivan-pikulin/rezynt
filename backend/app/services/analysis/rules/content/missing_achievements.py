@@ -30,7 +30,8 @@ class MissingAchievementsRule(BaseRule):
                 job_title = exp.get('job_title', 'this role')
                 points.append(self.create_point(
                     field_path=f"work_experience[{i}].achievements",
-                    message=f"Add quantifiable achievements for {job_title}"
+                    title="Missing Achievements",
+                    description=f"Add quantifiable achievements for {job_title}"
                 ))
         
         return points

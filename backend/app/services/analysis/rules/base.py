@@ -60,7 +60,8 @@ class BaseRule(ABC):
     def create_point(
         self, 
         field_path: str, 
-        message: str, 
+        title: str,
+        description: str, 
         **kwargs
     ) -> ImprovementPoint:
         """
@@ -68,7 +69,8 @@ class BaseRule(ABC):
         
         Args:
             field_path: JSON path to the field (e.g., "work_experience[0].achievements")
-            message: Human-readable message for the user
+            title: Short title of the issue
+            description: Detailed description of the issue
             **kwargs: Additional fields (metadata, fix_suggestion, etc.)
             
         Returns:
@@ -82,7 +84,8 @@ class BaseRule(ABC):
             rule_id=self.rule_id,
             section_id=self.section_id,
             field_path=field_path,
-            message=message,
+            title=title,
+            description=description,
             score_impact=self.score_impact,
             severity=self.severity,
             check_type=self.check_type,

@@ -29,7 +29,8 @@ class PersonalPronounsRule(BaseRule):
         if re.search(pronoun_pattern, summary, re.IGNORECASE):
             points.append(self.create_point(
                 field_path="professional_summary",
-                message="Remove personal pronouns from summary",
+                title="Contains Personal Pronouns",
+                description="Remove personal pronouns from summary",
                 metadata={"original_text": summary}
             ))
         
@@ -44,7 +45,8 @@ class PersonalPronounsRule(BaseRule):
             if pronoun_count > 0:
                 points.append(self.create_point(
                     field_path=f"work_experience[{i}].achievements",
-                    message=f"Remove pronouns from {pronoun_count} bullet(s)"
+                    title="Contains Personal Pronouns",
+                    description=f"Remove pronouns from {pronoun_count} bullet(s)"
                 ))
         
         return points

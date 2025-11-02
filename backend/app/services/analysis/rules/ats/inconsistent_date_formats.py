@@ -70,13 +70,15 @@ class InconsistentDateFormatsRule(BaseRule):
             if work_dates:
                 points.append(self.create_point(
                     field_path="work_experience",
-                    message=f"Standardize date format in work experience (found: {formats_str})"
+                    title="Inconsistent Date Formats",
+                    description=f"Standardize date format in work experience (found: {formats_str})"
                 ))
             
             if edu_dates:
                 points.append(self.create_point(
                     field_path="education",
-                    message=f"Standardize date format in education (found: {formats_str})"
+                    title="Inconsistent Date Formats",
+                    description=f"Standardize date format in education (found: {formats_str})"
                 ))
         
         return points
