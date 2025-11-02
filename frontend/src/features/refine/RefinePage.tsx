@@ -35,6 +35,7 @@ const RefinePage: React.FC = () => {
   const [analysis, setAnalysis] = useState<{ score: number; label: string; subtitle: string; sections: any[] } | null>(null);
   const [showSaveNotification, setShowSaveNotification] = useState(true);
   const [lastSaveTime, setLastSaveTime] = useState('');
+  const [isRefreshingAnalysis, setIsRefreshingAnalysis] = useState(false);
   
   // Check if user is authenticated
   useEffect(() => {
@@ -117,6 +118,21 @@ const RefinePage: React.FC = () => {
         });
     }
   }, [resume]);
+
+  // Refresh analysis handler
+  const handleRefreshAnalysis = async () => {
+    if (!resume) return;
+    
+    setIsRefreshingAnalysis(true);
+    try {
+      const newAnalysis = await analysisApi.refreshAnalysis();
+      setAnalysis(newAnalysis);
+    } catch (error) {
+      console.error('Error refreshing analysis:', error);
+    } finally {
+      setIsRefreshingAnalysis(false);
+    }
+  };
 
   const handleNext = () => {
     navigate('/export');
@@ -265,6 +281,33 @@ const RefinePage: React.FC = () => {
                 />
               </Box>
             )}
+            
+            {/* Refresh Analysis Button */}
+            <Box sx={{ px: 2, pb: 1 }}>
+              <button
+                onClick={handleRefreshAnalysis}
+                disabled={isRefreshingAnalysis}
+                style={{
+                  width: '100%',
+                  backgroundColor: isRefreshingAnalysis ? '#e5e7eb' : '#2563eb',
+                  color: 'white',
+                  fontSize: '13px',
+                  fontWeight: 500,
+                  padding: '8px 12px',
+                  borderRadius: '6px',
+                  border: 'none',
+                  cursor: isRefreshingAnalysis ? 'not-allowed' : 'pointer',
+                  textTransform: 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                }}
+              >
+                {isRefreshingAnalysis && <CircularProgress size={14} sx={{ color: 'white' }} />}
+                {isRefreshingAnalysis ? 'Analyzing...' : 'Refresh Analysis'}
+              </button>
+            </Box>
             
             <ImprovementSections sections={analysis?.sections || []} />
           </Box>

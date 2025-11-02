@@ -198,9 +198,22 @@ const ExperienceEditor: React.FC<ExperienceEditorProps> = ({
               <Typography sx={{ fontSize: '14px', fontWeight: 500 }}>
                 {exp.job_title || t('refine.editor.newExperience')} {exp.company && `at ${exp.company}`}
                 </Typography>
-              <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleDeleteExperience(index); }}>
+              <Box 
+                component="div"
+                onClick={(e) => { e.stopPropagation(); handleDeleteExperience(index); }}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '28px',
+                  height: '28px',
+                  borderRadius: '50%',
+                  cursor: 'pointer',
+                  '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' },
+                }}
+              >
                 <DeleteIcon fontSize="small" />
-              </IconButton>
+              </Box>
               </Box>
             </AccordionSummary>
             <AccordionDetails>

@@ -18,9 +18,17 @@ async def get_analysis(
 ) -> Any:
     """
     Get analysis for current user's resume.
+    Returns stored analysis if available, otherwise generates new one.
     Only available for users with verified email.
     """
-    # Get user's resume data
+    # Check if stored analysis exists
+    stored_analysis = await user_crud.get_analysis_result(db, user_id=current_user.id)
+    
+    if stored_analysis:
+        # Return stored analysis
+        return AnalysisResult(**stored_analysis)
+    
+    # No stored analysis - generate new one
     resume_data = await user_crud.get_resume_data(db, user_id=current_user.id)
     
     if resume_data is None:
@@ -31,6 +39,13 @@ async def get_analysis(
     
     # Analyze the resume
     analysis_result = await analysis_service.analyze_resume(resume_data)
+    
+    # Save to database
+    await user_crud.save_analysis_result(
+        db, 
+        user_id=current_user.id, 
+        analysis_data=analysis_result.model_dump()
+    )
     
     return analysis_result
 
@@ -41,8 +56,8 @@ async def refresh_analysis(
     current_user: VerifiedUser,
 ) -> Any:
     """
-    Force refresh of analysis (bypass cache).
-    Currently behaves the same as GET /analysis/ since caching is not yet implemented.
+    Force regenerate analysis regardless of stored result.
+    Saves new result to database.
     """
     # Get user's resume data
     resume_data = await user_crud.get_resume_data(db, user_id=current_user.id)
@@ -53,8 +68,15 @@ async def refresh_analysis(
             detail="Resume not found"
         )
     
-    # Analyze the resume
+    # Always regenerate analysis
     analysis_result = await analysis_service.analyze_resume(resume_data)
+    
+    # Save to database
+    await user_crud.save_analysis_result(
+        db,
+        user_id=current_user.id,
+        analysis_data=analysis_result.model_dump()
+    )
     
     return analysis_result
 

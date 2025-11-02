@@ -184,9 +184,22 @@ const EducationEditor: React.FC<EducationEditorProps> = ({
               <Typography sx={{ fontSize: '14px', fontWeight: 500 }}>
                 {edu.degree || t('refine.editor.newEducation')} {edu.institution && `at ${edu.institution}`}
               </Typography>
-              <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleDeleteEducation(index); }}>
+              <Box 
+                component="div"
+                onClick={(e) => { e.stopPropagation(); handleDeleteEducation(index); }}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '28px',
+                  height: '28px',
+                  borderRadius: '50%',
+                  cursor: 'pointer',
+                  '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' },
+                }}
+              >
                 <DeleteIcon fontSize="small" />
-              </IconButton>
+              </Box>
             </Box>
           </AccordionSummary>
           <AccordionDetails>

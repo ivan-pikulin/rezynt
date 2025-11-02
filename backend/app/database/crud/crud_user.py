@@ -172,6 +172,31 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             await db.refresh(user)
         return user
 
+    async def get_analysis_result(self, db: AsyncSession, *, user_id: int) -> Optional[Dict[str, Any]]:
+        """
+        Get stored analysis result from user's analysis_result JSONB field.
+        Returns None if user not found or no analysis has been generated.
+        """
+        user = await self.get(db, id=user_id)
+        if not user:
+            return None
+        return user.analysis_result
+
+    async def save_analysis_result(self, db: AsyncSession, *, user_id: int, analysis_data: Dict[str, Any]) -> Optional[User]:
+        """
+        Save analysis result to user's analysis_result JSONB field.
+        Also updates analysis_generated_at timestamp.
+        """
+        from datetime import datetime
+        
+        user = await self.get(db, id=user_id)
+        if user:
+            user.analysis_result = analysis_data
+            user.analysis_generated_at = datetime.utcnow()
+            await db.commit()
+            await db.refresh(user)
+        return user
+
     async def change_password(self, db: AsyncSession, *, user_id: int, current_password: str, new_password: str) -> Optional[User]:
         """
         Change user password after verifying current password.

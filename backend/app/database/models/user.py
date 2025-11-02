@@ -24,6 +24,8 @@ class User(Base):
     password_reset_token = Column(String(500), nullable=True)
     password_reset_code = Column(String(10), nullable=True)
     resume_data = Column(JSONB, nullable=False, server_default='{}')
+    analysis_result = Column(JSONB, nullable=True)
+    analysis_generated_at = Column(TIMESTAMP(timezone=True), nullable=True)
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
