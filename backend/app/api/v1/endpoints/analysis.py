@@ -40,11 +40,11 @@ async def get_analysis(
     # Analyze the resume
     analysis_result = await analysis_service.analyze_resume(resume_data)
     
-    # Save to database
+    # Save to database (mode='json' converts datetime to ISO string)
     await user_crud.save_analysis_result(
         db, 
         user_id=current_user.id, 
-        analysis_data=analysis_result.model_dump()
+        analysis_data=analysis_result.model_dump(mode='json')
     )
     
     return analysis_result
@@ -71,11 +71,11 @@ async def refresh_analysis(
     # Always regenerate analysis
     analysis_result = await analysis_service.analyze_resume(resume_data)
     
-    # Save to database
+    # Save to database (mode='json' converts datetime to ISO string)
     await user_crud.save_analysis_result(
         db,
         user_id=current_user.id,
-        analysis_data=analysis_result.model_dump()
+        analysis_data=analysis_result.model_dump(mode='json')
     )
     
     return analysis_result
