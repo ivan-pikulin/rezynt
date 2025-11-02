@@ -1,7 +1,8 @@
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import CircularProgress from '@mui/material/CircularProgress';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import CountUp from 'react-countup';
 
 type ScoreBarProps = {
   score: number; // 0-100
@@ -24,6 +25,24 @@ const getScoreColor = (score: number) => {
 const ScoreBar: React.FC<ScoreBarProps> = ({ score, label, subtitle, marketingText }) => {
   const normalized = clamp(score, 0, 100);
   const scoreColor = getScoreColor(normalized);
+  
+  // Animation state for circular progress
+  const [animatedProgress, setAnimatedProgress] = useState(0);
+  const [startAnimation, setStartAnimation] = useState(false);
+
+  // Trigger animation on mount or score change
+  useEffect(() => {
+    setStartAnimation(false);
+    setAnimatedProgress(0);
+    
+    // Small delay before starting animation for better UX
+    const timer = setTimeout(() => {
+      setStartAnimation(true);
+      setAnimatedProgress(normalized);
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [normalized]);
 
   const styles = {
     scoreCard: {
@@ -94,14 +113,16 @@ const ScoreBar: React.FC<ScoreBarProps> = ({ score, label, subtitle, marketingTe
           {/* Progress ring */}
           <CircularProgress
             variant="determinate"
-            value={normalized}
+            value={animatedProgress}
             size={120}
             thickness={6}
             sx={{
               position: 'absolute',
               color: scoreColor,
+              transition: 'all 1.5s cubic-bezier(0.4, 0, 0.2, 1)',
               '& .MuiCircularProgress-circle': {
                 strokeLinecap: 'round',
+                transition: 'stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1)',
               },
             }}
           />
@@ -115,11 +136,34 @@ const ScoreBar: React.FC<ScoreBarProps> = ({ score, label, subtitle, marketingTe
             alignItems: 'center',
             gap: '2px',
           }}>
-            <Typography sx={styles.scoreNumber}>{Math.round(normalized)}</Typography>
+            <Typography sx={styles.scoreNumber}>
+              {startAnimation ? (
+                <CountUp
+                  start={0}
+                  end={Math.round(normalized)}
+                  duration={1.5}
+                  delay={0}
+                  useEasing={true}
+                  easingFn={(t, b, c, d) => {
+                    // Custom easing function - ease-out cubic
+                    t /= d;
+                    t--;
+                    return c * (t * t * t + 1) + b;
+                  }}
+                />
+              ) : (
+                0
+              )}
+            </Typography>
             <Typography sx={styles.scoreLabel}>Score</Typography>
           </Box>
         </Box>
-        <Box sx={styles.scoreStatus}>
+        <Box sx={{
+          ...styles.scoreStatus,
+          opacity: startAnimation ? 1 : 0,
+          transform: startAnimation ? 'translateX(0)' : 'translateX(-10px)',
+          transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.3s',
+        }}>
           <Typography sx={styles.statusText}>{label}</Typography>
           <Typography sx={styles.statusSubtext}>{subtitle}</Typography>
         </Box>
