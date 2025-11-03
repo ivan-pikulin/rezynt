@@ -354,7 +354,18 @@ const ExportPage: React.FC = () => {
               textTransform: 'none',
               px: { xs: 2.5, sm: 3 },
               py: { xs: 1, sm: 1.25 },
-              '&:hover': { bgcolor: COLORS.primary.dark }
+              '&:hover': { bgcolor: COLORS.primary.dark },
+              animation: 'pulse 2s ease-in-out infinite',
+              '@keyframes pulse': {
+                '0%, 100%': {
+                  transform: 'scale(1)',
+                  boxShadow: '0 0 0 0 rgba(103, 58, 183, 0.4)'
+                },
+                '50%': {
+                  transform: 'scale(1.05)',
+                  boxShadow: '0 0 20px 5px rgba(103, 58, 183, 0.2)'
+                }
+              }
             }}
           >
             {t('export.buttons.upgradeToPdf', 'Upgrade to Download PDF')}
