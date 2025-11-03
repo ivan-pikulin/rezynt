@@ -28,7 +28,6 @@ const ResetPasswordPage = React.lazy(() => import('./features/auth/ResetPassword
 const OnboardingPage = React.lazy(() => import('./features/onboarding/OnboardingPage'));
 const HomeRedirect = React.lazy(() => import('./shared/components/HomeRedirect'));
 const PaymentSuccessPage = React.lazy(() => import('./features/export/PaymentSuccessPage'));
-const CVUpgradeMainPage = React.lazy(() => import('./features/cvupgrade/CVUpgradeMainPage'));
 const BuilderPage = React.lazy(() => import('./features/builder/BuilderPage'));
 const ProfileSettingsPage = React.lazy(() => import('./features/profile/ProfileSettingsPage'));
 const UpgradePage = React.lazy(() => import('./features/upgrade/UpgradePage'));
@@ -91,7 +90,6 @@ function AppRoutes() {
           </PublicOnboardingGuard>
         } />
         <Route path="/payment/success" element={<PaymentSuccessPage />} />
-        <Route path="/cvupgrade-main" element={<CVUpgradeMainPage />} />
         <Route path="/builder" element={
           <PublicOnboardingGuard>
             <BuilderPage />
