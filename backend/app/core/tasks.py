@@ -129,6 +129,9 @@ async def _process_resume_upload_task(file_content: bytes, filename: str, user_i
         await _update_user_resume_data(user_id, parsed_data)
         logger.info(f"Database operations completed successfully for user {user_id}")
         
+        # Trigger analysis after successful resume upload
+        await _generate_analysis_after_upload(user_id)
+        
         # Clean up parsed data
         del parsed_data
         gc.collect()
@@ -211,3 +214,32 @@ async def _update_user_resume_data(user_id: int, parsed_data):
             logger.error(f"Error updating resume data in database: {e}", exc_info=True)
             db.rollback()
             raise e
+
+
+async def _generate_analysis_after_upload(user_id: int):
+    """Generates analysis for uploaded resume"""
+    from app.database.session import SessionLocal
+    from app.database.crud.crud_user import user_crud
+    from app.services.analysis.analysis_service import analysis_service
+    
+    logger.info(f"Generating analysis for user {user_id}")
+    
+    async with SessionLocal() as db:
+        # Get user's resume data
+        resume_data = await user_crud.get_resume_data(db, user_id=user_id)
+        
+        if not resume_data:
+            logger.warning(f"No resume data found for user {user_id}")
+            return
+        
+        # Generate analysis
+        analysis_result = await analysis_service.analyze_resume(resume_data)
+        
+        # Save analysis to database
+        await user_crud.save_analysis_result(
+            db,
+            user_id=user_id,
+            analysis_data=analysis_result.model_dump(mode='json')
+        )
+        
+        logger.info(f"Analysis saved for user {user_id}, score: {analysis_result.score}")
