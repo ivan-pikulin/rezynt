@@ -169,6 +169,35 @@ class UserService:
             self.logger.error(f"Failed to resend verification code: {e}")
             return False, ""
 
+    async def send_email_change_code(self, user_id: int, new_email: str) -> Tuple[bool, str]:
+        """Send verification code for email change"""
+        # Check if new email is already taken
+        existing_user = await user_crud.get_by_email(self.db, email=new_email)
+        if existing_user and existing_user.id != user_id:
+            raise ValueError("User with this email already exists")
+        
+        # Generate token and code for email change
+        token, code = verification_generator.generate_token_and_code(user_id, 'email-change')
+        
+        # Store token and code in database
+        await user_crud.set_verification_data(self.db, user_id=user_id, token=token, code=code, code_type='email_change')
+        
+        # Send email to the NEW email address
+        try:
+            from app.services.email_service import EmailService
+            email_service = EmailService()
+            success = email_service.send_email_change_confirmation(new_email, token, code)
+            return success, token
+        except Exception as e:
+            self.logger.error(f"Failed to send email change code: {e}")
+            return False, ""
+    
+    async def verify_email_change_code(self, user_id: int, email: str, code: str) -> bool:
+        """Verify the email change code"""
+        # Verify code against stored code in database
+        user = await user_crud.verify_code(self.db, email=email, code=code, code_type='email_change', user_id=user_id)
+        return user is not None
+
     async def get_user_by_email(self, email: str) -> Optional[User]:
         """Gets user by email"""
         return await user_crud.get_by_email(self.db, email=email)

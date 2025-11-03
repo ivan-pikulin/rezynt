@@ -299,3 +299,61 @@ class EmailService:
         result = self.send_email(to_email, subject, html_content)
         logger.info(f"Password reset email send result: {result}")
         return result
+    
+    def send_email_change_confirmation(self, to_email: str, token: str, verification_code: str) -> bool:
+        """
+        Sends email change confirmation email
+        
+        Args:
+            to_email: New email address
+            token: Email change token
+            verification_code: 6-digit verification code
+            
+        Returns:
+            bool: True if email sent successfully
+        """
+        logger.info(f"Sending email change confirmation to {to_email}")
+        
+        subject = "Confirm Email Change - Rezynt"
+        
+        html_template = """<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Confirm Email Change</title>
+</head>
+<body style="font-family:Arial,sans-serif;margin:0;padding:20px;background-color:#f4f4f4">
+<div style="max-width:600px;margin:0 auto;background-color:white;padding:30px;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,0.1)">
+<h1 style="color:#4caf50;text-align:center;margin-bottom:30px">Confirm Email Change</h1>
+<h2 style="color:#333;margin-bottom:20px">Verify your new email address</h2>
+<p style="color:#666;line-height:1.6;margin-bottom:30px">You are changing your email address for your Rezynt account. To complete this change, please enter the verification code below:</p>
+
+<!-- Verification Code Section -->
+<div style="background-color:#f8f9fa;border:2px solid #e9ecef;border-radius:8px;padding:25px;margin:30px 0;text-align:center">
+<h3 style="color:#333;margin:0 0 15px 0;font-size:18px">Verification Code</h3>
+<div style="background-color:white;border:2px solid #4caf50;border-radius:8px;padding:20px;margin:15px 0;display:inline-block">
+<span style="font-size:32px;font-weight:bold;color:#4caf50;letter-spacing:8px;font-family:monospace">{{ code }}</span>
+</div>
+<p style="color:#666;margin:15px 0 0 0;font-size:14px">Copy this code and paste it in the email change form</p>
+</div>
+
+<div style="background-color:#ffe6e6;border:1px solid #ffb3b3;border-radius:4px;padding:15px;margin:30px 0">
+<p style="margin:0;color:#d63031;font-size:14px"><strong>Important:</strong> This code is valid for 15 minutes only. If you didn't request this email change, please ignore this email and your account will remain secure.</p>
+</div>
+
+<p style="text-align:center;color:#999;font-size:12px;margin-top:40px;border-top:1px solid #eee;padding-top:20px">&copy; 2025 Rezynt. All rights reserved.</p>
+</div>
+</body>
+</html>"""
+        
+        # Render HTML template
+        template_vars = {
+            'code': verification_code
+        }
+            
+        html_content = Template(html_template).render(**template_vars)
+        
+        logger.info(f"Email change confirmation HTML content generated, length: {len(html_content)}")
+        result = self.send_email(to_email, subject, html_content)
+        logger.info(f"Email change confirmation send result: {result}")
+        return result

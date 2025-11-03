@@ -194,15 +194,22 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             await db.refresh(user)
         return user
 
-    async def verify_code(self, db: AsyncSession, *, email: str, code: str, code_type: str = 'email_confirm') -> Optional[User]:
+    async def verify_code(self, db: AsyncSession, *, email: str = None, code: str, code_type: str = 'email_confirm', user_id: int = None) -> Optional[User]:
         """
-        Verify code for user by email and code.
+        Verify code for user by email or user_id and code.
+        For email_change, user_id should be provided instead of email.
         """
-        user = await self.get_by_email(db, email=email)
+        if user_id:
+            user = await self.get(db, id=user_id)
+        else:
+            user = await self.get_by_email(db, email=email)
+        
         if user:
             if code_type == 'email_confirm' and user.verification_code == code:
                 return user
             elif code_type == 'password_reset' and user.password_reset_code == code:
+                return user
+            elif code_type == 'email_change' and user.verification_code == code:
                 return user
         return None
 

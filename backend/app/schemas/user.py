@@ -98,6 +98,18 @@ class ResendVerificationCode(BaseModel):
     code_type: str  # 'email_confirm' or 'password_reset'
 
 
+# Email change schemas
+class SendEmailChangeCode(BaseModel):
+    email: EmailStr
+
+
+class UserUpdateWithCode(BaseModel):
+    email: Optional[EmailStr] = None
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    verification_code: Optional[str] = None
+
+
 # Onboarding schemas
 class OnboardingResponse(BaseModel):
     experience: str

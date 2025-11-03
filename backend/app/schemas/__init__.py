@@ -24,9 +24,9 @@ from .resume import (
 from .token import RefreshRequest, Token, TokenPayload
 from .user import (ChangePasswordRequest, DeleteAccountRequest, EmailVerificationByCode, 
                    GuestSessionResponse, OnboardingComplete, OnboardingResponse, PasswordResetByCode, 
-                   PasswordResetConfirm, PasswordResetRequest, ResendVerificationCode, 
+                   PasswordResetConfirm, PasswordResetRequest, ResendVerificationCode, SendEmailChangeCode,
                    User, UserBase, UserCreate, UserInDB, UserInDBBase, UserPremiumUpdate, 
-                   UserPublic, UserRoleUpdate, UserUpdate)
+                   UserPublic, UserRoleUpdate, UserUpdate, UserUpdateWithCode)
 
 __all__ = [
     # User schemas
@@ -54,6 +54,8 @@ __all__ = [
     "EmailVerificationByCode",
     "PasswordResetByCode",
     "ResendVerificationCode",
+    "SendEmailChangeCode",
+    "UserUpdateWithCode",
     # Resume schemas
     "Award",
     "ChatMessage",

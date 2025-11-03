@@ -23,8 +23,15 @@ export class UserApi extends BaseApi {
   /**
    * Update current user profile
    */
-  async updateCurrentUser(data: { first_name?: string; last_name?: string; email?: string }): Promise<User> {
+  async updateCurrentUser(data: { first_name?: string; last_name?: string; email?: string; verification_code?: string }): Promise<User> {
     return this.patch<User>('/user/me', data);
+  }
+
+  /**
+   * Request email change verification code
+   */
+  async requestEmailChangeCode(email: string): Promise<{ message: string; token: string }> {
+    return this.post<{ message: string; token: string }>('/user/request-email-change-code', { email });
   }
 
   /**

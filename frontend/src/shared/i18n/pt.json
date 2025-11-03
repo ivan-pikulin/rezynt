@@ -359,7 +359,15 @@
       "email": "E-mail",
       "saveChanges": "Salvar Alterações",
       "success": "Perfil atualizado com sucesso",
-      "error": "Falha ao atualizar perfil"
+      "error": "Falha ao atualizar perfil",
+      "verificationCodeLabel": "Código de Verificação",
+      "verificationCodePlaceholder": "Digite o código de 6 dígitos",
+      "checkEmailMessage": "Por favor, verifique seu email e digite o código de verificação",
+      "verifyEmailButton": "Verificar Email",
+      "sendingCode": "Enviando código...",
+      "invalidCode": "Código de verificação inválido",
+      "emailVerified": "Email verificado",
+      "resendCode": "Reenviar Código"
     },
     "emailConfirmation": {
       "title": "Confirmação de E-mail",

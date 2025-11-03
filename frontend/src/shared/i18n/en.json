@@ -365,7 +365,15 @@
       "email": "Email",
       "saveChanges": "Save Changes",
       "success": "Profile updated successfully",
-      "error": "Failed to update profile"
+      "error": "Failed to update profile",
+      "verificationCodeLabel": "Verification Code",
+      "verificationCodePlaceholder": "Enter 6-digit code",
+      "checkEmailMessage": "Please check your email and enter the verification code",
+      "verifyEmailButton": "Verify Email",
+      "sendingCode": "Sending code...",
+      "invalidCode": "Invalid verification code",
+      "emailVerified": "Email verified",
+      "resendCode": "Resend Code"
     },
     "emailConfirmation": {
       "title": "Email Confirmation",

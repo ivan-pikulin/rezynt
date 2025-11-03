@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Box, Button, TextField, Typography, Alert } from '@mui/material';
-import { Person as PersonIcon } from '@mui/icons-material';
+import { Box, Button, TextField, Typography, Alert, IconButton, InputAdornment } from '@mui/material';
+import { Person as PersonIcon, CheckCircle as CheckCircleIcon, Warning as WarningIcon } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { userApi } from '../../../shared/services/api';
 import { User } from '../../../shared/services/api/types';
@@ -18,6 +18,9 @@ export const AccountInformationSection: React.FC<AccountInformationSectionProps>
   const [firstName, setFirstName] = useState(user.first_name || '');
   const [lastName, setLastName] = useState(user.last_name || '');
   const [email, setEmail] = useState(user.email || '');
+  const [verificationCode, setVerificationCode] = useState('');
+  const [isEmailChangePending, setIsEmailChangePending] = useState(false);
+  const [isSendingCode, setIsSendingCode] = useState(false);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -27,6 +30,8 @@ export const AccountInformationSection: React.FC<AccountInformationSectionProps>
     setFirstName(user.first_name || '');
     setLastName(user.last_name || '');
     setEmail(user.email || '');
+    setIsEmailChangePending(false);
+    setVerificationCode('');
   }, [user]);
 
   const inputStyles = {
@@ -56,23 +61,107 @@ export const AccountInformationSection: React.FC<AccountInformationSectionProps>
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setSuccess(false);
     setError(null);
 
+    const emailChanged = email !== user.email && user.email !== null;
+    const emailBeingSet = email !== user.email && user.email === null;
+
+    // Case 1: Only name changes
+    if (!emailChanged && !emailBeingSet) {
+      setLoading(true);
+      try {
+        const updatedUser = await userApi.updateCurrentUser({
+          first_name: firstName,
+          last_name: lastName
+        });
+        onUpdate(updatedUser);
+        setSuccess(true);
+        setTimeout(() => setSuccess(false), 3000);
+      } catch (err) {
+        setError(t('profileSettings.accountInfo.error'));
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
+
+    // Case 2: Setting email for first time (from null)
+    if (emailBeingSet) {
+      setLoading(true);
+      try {
+        const updatedUser = await userApi.updateCurrentUser({
+          first_name: firstName,
+          last_name: lastName,
+          email: email
+        });
+        onUpdate(updatedUser);
+        setSuccess(true);
+        setTimeout(() => setSuccess(false), 3000);
+      } catch (err) {
+        setError(t('profileSettings.accountInfo.error'));
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
+
+    // Case 3: Changing existing email
+    if (emailChanged) {
+      // If code not yet requested, request it
+      if (!isEmailChangePending) {
+        setIsSendingCode(true);
+        try {
+          await userApi.requestEmailChangeCode(email);
+          setIsEmailChangePending(true);
+          setError(null);
+        } catch (err: any) {
+          setError(err.message || t('profileSettings.accountInfo.error'));
+        } finally {
+          setIsSendingCode(false);
+        }
+        return;
+      }
+
+      // Code has been requested, now submit with code
+      setLoading(true);
+      try {
+        const updatedUser = await userApi.updateCurrentUser({
+          first_name: firstName,
+          last_name: lastName,
+          email: email,
+          verification_code: verificationCode
+        });
+        onUpdate(updatedUser);
+        setSuccess(true);
+        setIsEmailChangePending(false);
+        setVerificationCode('');
+        setTimeout(() => setSuccess(false), 3000);
+      } catch (err: any) {
+        if (err.message?.includes('Invalid verification code') || err.message?.includes('Verification code required')) {
+          setError(t('profileSettings.accountInfo.invalidCode'));
+        } else {
+          setError(err.message || t('profileSettings.accountInfo.error'));
+        }
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
+  const handleVerifyEmail = async () => {
+    if (!user.email) return;
+    
+    setIsSendingCode(true);
+    setError(null);
     try {
-      const updatedUser = await userApi.updateCurrentUser({
-        first_name: firstName,
-        last_name: lastName,
-        email: email
-      });
-      onUpdate(updatedUser);
+      await userApi.resendEmailConfirmation(user.email);
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
-    } catch (err) {
-      setError(t('profileSettings.accountInfo.error'));
+    } catch (err: any) {
+      setError(err.message || t('profileSettings.accountInfo.error'));
     } finally {
-      setLoading(false);
+      setIsSendingCode(false);
     }
   };
 
@@ -126,7 +215,62 @@ export const AccountInformationSection: React.FC<AccountInformationSectionProps>
             type="email"
             required
             sx={inputStyles}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  {user.email && user.is_verified && (
+                    <CheckCircleIcon sx={{ color: '#10b981', fontSize: 20 }} />
+                  )}
+                  {user.email && !user.is_verified && (
+                    <IconButton
+                      size="small"
+                      onClick={handleVerifyEmail}
+                      disabled={isSendingCode}
+                      sx={{ p: 0.5 }}
+                    >
+                      <WarningIcon sx={{ color: '#f59e0b', fontSize: 20 }} />
+                    </IconButton>
+                  )}
+                </InputAdornment>
+              ),
+            }}
           />
+          
+          {user.email && !user.is_verified && (
+            <Button
+              size="small"
+              onClick={handleVerifyEmail}
+              disabled={isSendingCode}
+              sx={{
+                alignSelf: 'flex-start',
+                textTransform: 'none',
+                fontWeight: 600,
+                fontSize: '11px'
+              }}
+            >
+              {isSendingCode ? t('profileSettings.accountInfo.sendingCode') : t('profileSettings.accountInfo.verifyEmailButton')}
+            </Button>
+          )}
+
+          {isEmailChangePending && (
+            <>
+              <Alert severity="info" sx={{ fontSize: '12px' }}>
+                {t('profileSettings.accountInfo.checkEmailMessage')}
+              </Alert>
+              <TextField
+                label={t('profileSettings.accountInfo.verificationCodeLabel')}
+                placeholder={t('profileSettings.accountInfo.verificationCodePlaceholder')}
+                value={verificationCode}
+                onChange={(e) => setVerificationCode(e.target.value)}
+                fullWidth
+                size="small"
+                variant="outlined"
+                required
+                inputProps={{ maxLength: 6 }}
+                sx={inputStyles}
+              />
+            </>
+          )}
 
           {success && (
             <Alert severity="success">
@@ -142,7 +286,7 @@ export const AccountInformationSection: React.FC<AccountInformationSectionProps>
             type="submit"
             variant="contained"
             size="small"
-            disabled={loading}
+            disabled={loading || isSendingCode || (isEmailChangePending && !verificationCode)}
             sx={{
               alignSelf: 'flex-start',
               textTransform: 'none',
@@ -151,7 +295,11 @@ export const AccountInformationSection: React.FC<AccountInformationSectionProps>
               mt: 0.5
             }}
           >
-            {t('profileSettings.accountInfo.saveChanges')}
+            {loading ? t('common.saving') : 
+             isSendingCode ? t('profileSettings.accountInfo.sendingCode') :
+             isEmailChangePending ? t('profileSettings.accountInfo.saveChanges') :
+             (email !== user.email && user.email !== null) ? t('profileSettings.accountInfo.sendingCode').replace('...', '') :
+             t('profileSettings.accountInfo.saveChanges')}
           </Button>
         </Box>
       </form>
