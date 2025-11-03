@@ -55,15 +55,7 @@ const RefinePage: React.FC = () => {
     historyIndexRef.current = historyIndex;
   }, [historyIndex]);
   
-  // Check if user is authenticated
-  useEffect(() => {
-    if (authLoading) return;
-    
-    if (!isAuthenticated) {
-      navigate('/login');
-      return;
-    }
-  }, [authUser, isAuthenticated, authLoading, navigate]);
+  // Authentication check removed - guest users can access this page
 
   const [isSaving, setIsSaving] = useState(false);
   const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);

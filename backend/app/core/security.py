@@ -12,7 +12,10 @@ ALGORITHM = "HS256"
 
 
 def create_access_token(
-    subject: Union[str, Any], expires_delta: timedelta | None = None
+    subject: Union[str, Any], 
+    expires_delta: timedelta | None = None,
+    guest_id: str | None = None,
+    is_registered: bool = True
 ) -> str:
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
@@ -20,7 +23,9 @@ def create_access_token(
         expire = datetime.utcnow() + timedelta(
             minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
         )
-    to_encode = {"exp": expire, "sub": str(subject)}
+    to_encode = {"exp": expire, "sub": str(subject), "is_registered": is_registered}
+    if guest_id:
+        to_encode["guest_id"] = guest_id
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
@@ -33,11 +38,17 @@ def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
 
 
-def create_refresh_token(subject: Union[str, Any]) -> str:
+def create_refresh_token(
+    subject: Union[str, Any],
+    guest_id: str | None = None,
+    is_registered: bool = True
+) -> str:
     """
     Create a refresh token that doesn't expire.
     """
-    to_encode = {"sub": str(subject)}
+    to_encode = {"sub": str(subject), "is_registered": is_registered}
+    if guest_id:
+        to_encode["guest_id"] = guest_id
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 

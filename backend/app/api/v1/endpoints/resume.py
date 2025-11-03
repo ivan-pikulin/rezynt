@@ -1,6 +1,6 @@
 from typing import Any, Dict
 
-from app.api.deps import AsyncDB, VerifiedUser
+from app.api.deps import AsyncDB, CurrentUser
 from app.core.celery_app import celery_app
 from app.core.config import settings
 from app.core.tasks import process_resume_upload_task
@@ -16,7 +16,7 @@ router = APIRouter()
 @router.get("/", response_model=ResumeResponse)
 async def get_resume(
     db: AsyncDB,
-    current_user: VerifiedUser,
+    current_user: CurrentUser,
 ) -> Dict[str, Any]:
     """
     Get current user's resume from User.resume_data.
@@ -36,7 +36,7 @@ async def update_resume(
     *,
     db: AsyncDB,
     resume_in: ResumeUpdate,
-    current_user: VerifiedUser,
+    current_user: CurrentUser,
 ) -> Dict[str, Any]:
     """
     Full update of current user's resume.
@@ -56,7 +56,7 @@ async def update_resume(
 async def delete_resume(
     *,
     db: AsyncDB,
-    current_user: VerifiedUser,
+    current_user: CurrentUser,
 ) -> Dict[str, Any]:
     """
     Delete current user's resume by setting resume_data to empty dict.
@@ -80,7 +80,7 @@ async def upload_resume(
     *,
     db: AsyncDB,
     file: UploadFile = File(...),
-    current_user: VerifiedUser,
+    current_user: CurrentUser,
 ) -> Dict[str, Any]:
     """
     Upload a resume file and process it with markitdown.
@@ -190,7 +190,7 @@ async def temp_upload_resume(
 async def get_upload_status(
     *,
     task_id: str,
-    current_user: VerifiedUser,
+    current_user: CurrentUser,
 ) -> Dict[str, Any]:
     """
     Get the status of a resume upload processing task.
@@ -245,7 +245,7 @@ async def get_upload_status(
 async def get_upload_result(
     *,
     task_id: str,
-    current_user: VerifiedUser,
+    current_user: CurrentUser,
 ) -> Dict[str, Any]:
     """
     Get the result of a resume upload processing task.
@@ -320,7 +320,7 @@ async def export_resume_pdf(
     *,
     db: AsyncDB,
     export_request: PDFExportRequest,
-    current_user: VerifiedUser,
+    current_user: CurrentUser,
 ):
     """
     Export resume to PDF using HTML content from frontend.

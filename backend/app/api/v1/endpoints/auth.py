@@ -6,12 +6,46 @@ from app.core import security
 from app.core.config import settings
 from app.database.crud import user_crud
 from app.database.crud.crud_temp_resume_file import temp_resume_file_crud
-from app.schemas import RefreshRequest, Token, UserCreate, UserPublic, PasswordResetRequest, PasswordResetConfirm, EmailVerificationByCode, PasswordResetByCode, ResendVerificationCode
+from app.schemas import RefreshRequest, Token, UserCreate, UserPublic, PasswordResetRequest, PasswordResetConfirm, EmailVerificationByCode, PasswordResetByCode, ResendVerificationCode, GuestSessionResponse
 from app.services.user_service import UserService
 from fastapi import APIRouter, Body, Depends, HTTPException, status, Response
 from fastapi.security import OAuth2PasswordRequestForm
 
 router = APIRouter()
+
+
+@router.post("/guest", response_model=GuestSessionResponse, status_code=status.HTTP_201_CREATED)
+async def create_guest_session(
+    *,
+    db: AsyncDB,
+) -> dict:
+    """
+    Create a guest session without requiring email/password.
+    Returns JWT tokens and guest_id for the session.
+    """
+    # Create guest user
+    guest_user = await user_crud.create_guest(db)
+    
+    # Generate tokens
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = security.create_access_token(
+        guest_user.id, 
+        expires_delta=access_token_expires,
+        guest_id=guest_user.guest_id,
+        is_registered=False
+    )
+    refresh_token = security.create_refresh_token(
+        guest_user.id,
+        guest_id=guest_user.guest_id,
+        is_registered=False
+    )
+    
+    return {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "token_type": "bearer",
+        "guest_id": guest_user.guest_id,
+    }
 
 
 @router.post("/signup", response_model=UserPublic, status_code=status.HTTP_201_CREATED)
@@ -79,9 +113,18 @@ async def login(
 
     access_token_expires = timedelta(
         minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    refresh_token = security.create_refresh_token(user.id)
+    refresh_token = security.create_refresh_token(
+        user.id,
+        guest_id=user.guest_id,
+        is_registered=user.is_registered
+    )
     return {
-        "access_token": security.create_access_token(user.id, expires_delta=access_token_expires),
+        "access_token": security.create_access_token(
+            user.id, 
+            expires_delta=access_token_expires,
+            guest_id=user.guest_id,
+            is_registered=user.is_registered
+        ),
         "refresh_token": refresh_token,
         "token_type": "bearer",
     }
@@ -102,8 +145,17 @@ async def confirm_registration(
 
         # Issue tokens after successful confirmation
         access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-        access_token = security.create_access_token(user.id, expires_delta=access_token_expires)
-        refresh_token = security.create_refresh_token(user.id)
+        access_token = security.create_access_token(
+            user.id, 
+            expires_delta=access_token_expires,
+            guest_id=user.guest_id,
+            is_registered=user.is_registered
+        )
+        refresh_token = security.create_refresh_token(
+            user.id,
+            guest_id=user.guest_id,
+            is_registered=user.is_registered
+        )
 
         # Redirect to frontend with tokens in query for auto-login
         success_url = (
@@ -177,10 +229,21 @@ async def refresh_token(
     user_id = security.verify_refresh_token(refresh_in.refresh_token)
     if not user_id:
         raise HTTPException(status_code=401, detail="Invalid refresh token")
+    
+    # Get user to include guest_id and is_registered in new token
+    user = await user_crud.get(db, id=int(user_id))
+    if not user:
+        raise HTTPException(status_code=401, detail="User not found")
+    
     access_token_expires = timedelta(
         minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     return {
-        "access_token": security.create_access_token(user_id, expires_delta=access_token_expires),
+        "access_token": security.create_access_token(
+            user_id, 
+            expires_delta=access_token_expires,
+            guest_id=user.guest_id,
+            is_registered=user.is_registered
+        ),
         "token_type": "bearer",
     }
 
@@ -210,8 +273,17 @@ async def confirm_email_by_code(
 
         # Issue tokens after successful confirmation
         access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-        access_token = security.create_access_token(user.id, expires_delta=access_token_expires)
-        refresh_token = security.create_refresh_token(user.id)
+        access_token = security.create_access_token(
+            user.id, 
+            expires_delta=access_token_expires,
+            guest_id=user.guest_id,
+            is_registered=user.is_registered
+        )
+        refresh_token = security.create_refresh_token(
+            user.id,
+            guest_id=user.guest_id,
+            is_registered=user.is_registered
+        )
 
         # Check if user has a temp resume file
         temp_file = await temp_resume_file_crud.get_by_user_id(db, user.id)

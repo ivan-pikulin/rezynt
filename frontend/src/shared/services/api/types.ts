@@ -19,7 +19,8 @@ export interface PaginatedResponse<T> {
 // User types
 export interface User {
   id: number;
-  email: string;
+  email?: string;
+  guest_id?: string;
   first_name?: string;
   last_name?: string;
   is_verified: boolean;
@@ -72,6 +73,7 @@ export interface TokenResponse {
   refresh_token: string;
   token_type: string;
   task_id?: string;
+  guest_id?: string;
 }
 
 export interface RefreshRequest {

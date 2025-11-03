@@ -5,7 +5,7 @@ from pydantic import BaseModel, EmailStr
 
 
 class UserBase(BaseModel):
-    email: EmailStr
+    email: Optional[EmailStr] = None
     first_name: Optional[str] = None
     last_name: Optional[str] = None
 
@@ -14,6 +14,7 @@ class UserCreate(BaseModel):
     email: EmailStr
     password: str
     temp_file_id: Optional[str] = None
+    guest_id: Optional[str] = None
 
 
 class UserUpdate(BaseModel):
@@ -41,6 +42,7 @@ class UserInDBBase(UserBase):
 # Public schema for API responses (no password)
 class UserPublic(UserBase):
     id: int
+    guest_id: Optional[str] = None
     is_verified: bool
     is_premium: bool
     is_registered: bool
@@ -116,3 +118,11 @@ class ChangePasswordRequest(BaseModel):
 
 class DeleteAccountRequest(BaseModel):
     password: str
+
+
+# Guest session schema
+class GuestSessionResponse(BaseModel):
+    access_token: str
+    refresh_token: str
+    token_type: str
+    guest_id: str

@@ -3,7 +3,7 @@ from typing import Any
 
 from fastapi import APIRouter, HTTPException, status
 
-from app.api.deps import AsyncDB, VerifiedUser
+from app.api.deps import AsyncDB, CurrentUser
 from app.database.crud.crud_user import user_crud
 from app.schemas.analysis import AnalysisResult, ApplyFixRequest, ApplyFixResponse
 from app.services.analysis.analysis_service import analysis_service
@@ -14,7 +14,7 @@ router = APIRouter()
 @router.get("/", response_model=AnalysisResult)
 async def get_analysis(
     db: AsyncDB,
-    current_user: VerifiedUser,
+    current_user: CurrentUser,
 ) -> Any:
     """
     Get analysis for current user's resume.
@@ -53,7 +53,7 @@ async def get_analysis(
 @router.post("/refresh", response_model=AnalysisResult)
 async def refresh_analysis(
     db: AsyncDB,
-    current_user: VerifiedUser,
+    current_user: CurrentUser,
 ) -> Any:
     """
     Force regenerate analysis regardless of stored result.
@@ -85,7 +85,7 @@ async def refresh_analysis(
 async def apply_fix(
     *,
     db: AsyncDB,
-    current_user: VerifiedUser,
+    current_user: CurrentUser,
     request: ApplyFixRequest,
 ) -> Any:
     """

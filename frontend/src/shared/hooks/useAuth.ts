@@ -35,8 +35,22 @@ export const useAuth = (): UseAuthReturn => {
         const refreshToken = tokenService.getRefreshToken();
 
         if (!accessToken || !refreshToken) {
-          setIsAuthenticated(false);
-          setUser(null);
+          // No tokens - create guest session
+          console.log('No tokens found, creating guest session...');
+          try {
+            const { authApi } = await import('../services/api');
+            const guestTokens = await authApi.createGuestSession();
+            tokenService.storeTokens(guestTokens);
+            setIsAuthenticated(true);
+            
+            // Load guest user data
+            const userData = await userApi.getCurrentUser();
+            setUser(userData);
+          } catch (error) {
+            console.error('Error creating guest session:', error);
+            setIsAuthenticated(false);
+            setUser(null);
+          }
           setIsLoading(false);
           return;
         }
@@ -49,9 +63,22 @@ export const useAuth = (): UseAuthReturn => {
           // Access token expired, try to refresh
           const success = await refreshTokens();
           if (!success) {
-            tokenService.clearTokens();
-            setIsAuthenticated(false);
-            setUser(null);
+            // Refresh failed - create new guest session
+            console.log('Token refresh failed, creating new guest session...');
+            try {
+              const { authApi } = await import('../services/api');
+              const guestTokens = await authApi.createGuestSession();
+              tokenService.storeTokens(guestTokens);
+              setIsAuthenticated(true);
+              
+              const userData = await userApi.getCurrentUser();
+              setUser(userData);
+            } catch (error) {
+              console.error('Error creating guest session:', error);
+              tokenService.clearTokens();
+              setIsAuthenticated(false);
+              setUser(null);
+            }
           }
         } else {
           setIsAuthenticated(true);

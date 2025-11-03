@@ -1,4 +1,5 @@
 from typing import Any, Dict, Optional, Union
+import uuid
 
 from app.core.security import get_password_hash, verify_password
 from app.database.crud.base import CRUDBase
@@ -13,7 +14,40 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         result = await db.execute(select(self.model).where(User.email == email))
         return result.scalar_one_or_none()
 
+    async def get_by_guest_id(self, db: AsyncSession, *, guest_id: str) -> Optional[User]:
+        """Get user by guest_id"""
+        result = await db.execute(select(self.model).where(User.guest_id == guest_id))
+        return result.scalar_one_or_none()
+
+    async def create_guest(self, db: AsyncSession) -> User:
+        """Create a guest user with no email/password"""
+        guest_id = str(uuid.uuid4())
+        db_obj = User(
+            guest_id=guest_id,
+            email=None,
+            password_hash=None,
+            is_verified=False,
+            is_registered=False,
+            credits=20,  # Same as registered users
+        )
+        db.add(db_obj)
+        await db.commit()
+        await db.refresh(db_obj)
+        return db_obj
+
     async def create(self, db: AsyncSession, *, obj_in: UserCreate) -> User:
+        # Check if guest_id is provided - convert guest to registered
+        if obj_in.guest_id:
+            guest_user = await self.get_by_guest_id(db, guest_id=obj_in.guest_id)
+            if guest_user:
+                return await self.convert_guest_to_registered(
+                    db,
+                    guest_user=guest_user,
+                    email=obj_in.email,
+                    password=obj_in.password
+                )
+        
+        # Create new registered user
         db_obj = User(
             email=obj_in.email,
             password_hash=get_password_hash(obj_in.password),
@@ -25,6 +59,31 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         await db.commit()
         await db.refresh(db_obj)
         return db_obj
+
+    async def convert_guest_to_registered(
+        self,
+        db: AsyncSession,
+        *,
+        guest_user: User,
+        email: str,
+        password: str
+    ) -> User:
+        """Convert a guest user to a registered user"""
+        # Check if email already exists
+        existing_user = await self.get_by_email(db, email=email)
+        if existing_user and existing_user.id != guest_user.id:
+            raise ValueError("User with this email already exists")
+        
+        # Update guest user to registered
+        guest_user.email = email
+        guest_user.password_hash = get_password_hash(password)
+        guest_user.is_registered = True
+        guest_user.is_verified = False
+        # Keep guest_id for reference
+        
+        await db.commit()
+        await db.refresh(guest_user)
+        return guest_user
 
     async def update(
         self, db: AsyncSession, *, db_obj: User, obj_in: Union[UserUpdate, Dict[str, Any]]

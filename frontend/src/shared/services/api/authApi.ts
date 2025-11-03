@@ -35,6 +35,13 @@ export interface ResendVerificationCode {
 
 export class AuthApi extends BaseApi {
   /**
+   * Create a guest session
+   */
+  async createGuestSession(): Promise<TokenResponse> {
+    return this.post<TokenResponse>('/auth/guest', {});
+  }
+
+  /**
    * User login with email and password
    */
   async login(credentials: LoginCredentials): Promise<TokenResponse> {
@@ -52,11 +59,12 @@ export class AuthApi extends BaseApi {
   /**
    * User registration with email and password
    */
-  async signup(userData: { email: string; password: string; temp_file_id?: string }): Promise<User> {
+  async signup(userData: { email: string; password: string; temp_file_id?: string; guest_id?: string }): Promise<User> {
     const requestData = {
       email: userData.email,
       password: userData.password,
-      temp_file_id: userData.temp_file_id
+      temp_file_id: userData.temp_file_id,
+      guest_id: userData.guest_id
     };
     
     console.log('AuthApi.signup - sending request:', requestData);

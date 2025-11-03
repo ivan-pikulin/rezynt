@@ -14,6 +14,7 @@ import { useFormik } from 'formik';
 import * as yup from 'yup';
 import { useTranslation } from 'react-i18next';
 import { authApi } from '../../../shared/services/api';
+import { tokenService } from '../../../shared/services/api/tokenService';
 import { SignupCredentials } from '../types/auth';
 import { ga4Service } from '../../../shared/services/ga4Service';
 
@@ -57,15 +58,24 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSuccess, onSwitchToLogin, tem
       setError('');
       
       try {
+        // Get guest_id from localStorage if exists
+        const guestId = tokenService.getGuestId();
+        
         const signupData = {
           email: values.email,
           password: values.password,
-          temp_file_id: tempFileId || undefined
+          temp_file_id: tempFileId || undefined,
+          guest_id: guestId || undefined
         };
         
         console.log('Sending signup request with data:', signupData);
         
         await authApi.signup(signupData);
+        
+        // Clear guest_id after successful signup conversion
+        if (guestId) {
+          tokenService.clearGuestId();
+        }
         
         // Track successful signup
         ga4Service.trackSignUp('email');

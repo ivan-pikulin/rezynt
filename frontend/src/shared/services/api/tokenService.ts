@@ -11,16 +11,32 @@ export const tokenService = {
     return token;
   },
 
+  getGuestId: (): string | null => {
+    return localStorage.getItem('guest_id');
+  },
+
+  setGuestId: (guestId: string) => {
+    localStorage.setItem('guest_id', guestId);
+  },
+
+  clearGuestId: () => {
+    localStorage.removeItem('guest_id');
+  },
+
   clearTokens: () => {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('token_type');
+    localStorage.removeItem('guest_id');
   },
 
   storeTokens: (tokens: TokenResponse) => {
     localStorage.setItem('access_token', tokens.access_token);
     localStorage.setItem('refresh_token', tokens.refresh_token);
     localStorage.setItem('token_type', tokens.token_type);
+    if (tokens.guest_id) {
+      localStorage.setItem('guest_id', tokens.guest_id);
+    }
   },
 
   refreshToken: async (refreshToken: string): Promise<TokenResponse> => {

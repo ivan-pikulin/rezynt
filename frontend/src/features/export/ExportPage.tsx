@@ -35,15 +35,7 @@ const ExportPage: React.FC = () => {
   const { user, isAuthenticated } = useAuthContext();
   const { user: authUser, isAuthenticated: authAuthenticated, isLoading: authLoading } = useAuth();
 
-  // Check if user is authenticated
-  useEffect(() => {
-    if (authLoading) return;
-    
-    if (!authAuthenticated) {
-      navigate('/login');
-      return;
-    }
-  }, [authUser, authAuthenticated, authLoading, navigate]);
+  // Authentication check removed - guest users can access this page
 
   const handleBack = () => {
     navigate('/refine');
