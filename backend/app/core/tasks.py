@@ -112,7 +112,13 @@ async def _process_resume_upload_task(file_content: bytes, filename: str, user_i
         
         logger.info("Starting resume parsing with ParseService")
         parsed_data = await parse_service.parse_resume_file(temp_file_path)
-        logger.info(f"Resume parsing completed. Parsed data summary: first_name={parsed_data.first_name}, last_name={parsed_data.last_name}, experience_count={len(parsed_data.experience)}, education_count={len(parsed_data.education)}")
+        
+        # Safe logging with proper structure
+        first_name = parsed_data.personal_info.get('first_name') if parsed_data.personal_info else None
+        last_name = parsed_data.personal_info.get('last_name') if parsed_data.personal_info else None
+        experience_count = len(parsed_data.work_experience) if parsed_data.work_experience else 0
+        education_count = len(parsed_data.education) if parsed_data.education else 0
+        logger.info(f"Resume parsing completed. Parsed data summary: first_name={first_name}, last_name={last_name}, experience_count={experience_count}, education_count={education_count}")
         
         # Clean up ParseService
         del parse_service

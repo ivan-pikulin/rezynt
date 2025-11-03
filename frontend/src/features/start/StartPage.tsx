@@ -64,12 +64,12 @@ const StartPage: React.FC = () => {
           const result = await resumeApi.getUploadResult(taskIdParam);
           
           if (result.status === 'completed') {
-            // Success - navigate to chat
+            // Success - navigate to refine page
             clearInterval(interval);
             setIsProcessingUpload(false);
             setUploadError(null);
             
-            navigate('/chat', { replace: true });
+            navigate('/refine', { replace: true });
           } else if (result.status === 'error' || result.state === 'FAILURE') {
             // Error - stop processing and show error
             clearInterval(interval);

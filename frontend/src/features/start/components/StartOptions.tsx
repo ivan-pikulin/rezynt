@@ -137,12 +137,12 @@ const StartOptions: React.FC<StartOptionsProps> = ({
       try {
         const result = await startApi.uploadResume(file);
         
-        // Save startup message to localStorage for use in chat
+        // Save startup message to localStorage for future use
         if (result.startupMessage) {
           localStorage.setItem(`startup_message_${result.resume.id}`, result.startupMessage);
         }
         
-        navigate('/chat');
+        navigate('/refine');
       } catch (error) {
         console.error('Failed to upload resume:', error);
         // Can add user notification about error
