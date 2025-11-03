@@ -302,28 +302,6 @@
       "description": "Comece a criar seu próximo currículo"
     }
   },
-  "chat": {
-    "title": "Editor de Currículo com IA",
-    "preview": "Visualização do Currículo",
-    "buttons": {
-      "refine": "Refinar",
-      "resumes": "Currículos"
-    },
-    "input": {
-      "placeholder": "Digite sua mensagem..."
-    },
-    "waitingMessage": {
-      "editResume": "Edite seu currículo"
-    },
-    "welcomeMessages": {
-      "guest": "Bem-vindo! Sou seu Criador de Currículo com IA, aqui para economizar seu tempo e aumentar suas chances. Vamos nos conhecer: qual é o seu nome?",
-      "fromUpload": "Bem-vindo! Sou seu Editor com IA, aqui para economizar seu tempo e aumentar suas chances. Vamos começar?",
-      "fromScratch": "Bem-vindo! Sou seu Editor com IA, aqui para economizar seu tempo e aumentar suas chances. Vamos nos conhecer: qual é o seu nome?"
-    },
-    "errors": {
-      "general": "Desculpe, encontrei um erro. Por favor, tente novamente."
-    }
-  },
   "header": {
     "steps": {
       "start": "Criar",

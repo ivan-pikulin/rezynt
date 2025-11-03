@@ -63,23 +63,6 @@ export { theme };
 
 // Basic color constants
 const COLORS = {
-  chat: {
-    bot: {
-      avatar: '#c69c72',
-      background: '#e3f2fd',
-      text: '#1976d2'
-    },
-    user: {
-      avatar: '#ffc857ff',
-      background: '#4a5899',
-      text: 'white'
-    },
-    input: {
-      background: '#f8f9fa',
-      border: '#eee',
-      text: '#2c3e50'
-    }
-  },
   resume: {
     header: {
       background: '#f8fbff',

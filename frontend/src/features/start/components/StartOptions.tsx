@@ -135,13 +135,7 @@ const StartOptions: React.FC<StartOptionsProps> = ({
     if (!isUploading) {
       setIsUploading(true);
       try {
-        const result = await startApi.uploadResume(file);
-        
-        // Save startup message to localStorage for future use
-        if (result.startupMessage) {
-          localStorage.setItem(`startup_message_${result.resume.id}`, result.startupMessage);
-        }
-        
+        await startApi.uploadResume(file);
         navigate('/refine');
       } catch (error) {
         console.error('Failed to upload resume:', error);

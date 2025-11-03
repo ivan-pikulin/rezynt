@@ -16,7 +16,6 @@ const queryClient = new QueryClient();
 
 // Lazy load feature pages
 const StartPage = React.lazy(() => import('./features/start/StartPage'));
-const ChatPage = React.lazy(() => import('./features/chat/ChatPage'));
 const RefinePage = React.lazy(() => import('./features/refine/RefinePage'));
 const ExportPage = React.lazy(() => import('./features/export/ExportPage'));
 const LoginPage = React.lazy(() => import('./features/auth/LoginPage'));
@@ -79,11 +78,6 @@ function AppRoutes() {
         <Route path="/start" element={
           <PublicOnboardingGuard>
             <StartPage />
-          </PublicOnboardingGuard>
-        } />
-        <Route path="/chat" element={
-          <PublicOnboardingGuard>
-            <ChatPage />
           </PublicOnboardingGuard>
         } />
         <Route path="/refine" element={

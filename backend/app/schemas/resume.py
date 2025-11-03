@@ -123,19 +123,3 @@ class OpenAIStructuredResume(BaseModel):
     languages_spoken: Optional[List[Language]] = None
     awards: Optional[List[Award]] = None
 
-
-# Chat schemas for platform integration
-class ChatMessage(BaseModel):
-    """Schema for chat message from platform"""
-    id: str
-    role: str  # "user" or "assistant"
-    content: str
-    created_at: int  # timestamp
-    conversation_id: Optional[str] = None
-
-
-class ChatMessageList(BaseModel):
-    """Schema for chat message list response"""
-    messages: List[ChatMessage]
-    has_more: bool
-    limit: int

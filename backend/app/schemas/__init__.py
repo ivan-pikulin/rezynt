@@ -7,8 +7,6 @@ from .analysis import (
 )
 from .resume import (
     Award,
-    ChatMessage,
-    ChatMessageList,
     Contacts,
     Education,
     Language,
@@ -58,8 +56,6 @@ __all__ = [
     "UserUpdateWithCode",
     # Resume schemas
     "Award",
-    "ChatMessage",
-    "ChatMessageList",
     "Contacts",
     "Education",
     "Language",

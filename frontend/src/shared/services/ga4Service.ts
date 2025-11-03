@@ -101,15 +101,6 @@ class GA4Service {
   }
 
   /**
-   * Track chat interaction
-   * @param action - Chat action (e.g., 'message_sent', 'suggestion_clicked')
-   * @param additionalParams - Additional parameters
-   */
-  trackChatInteraction(action: string, additionalParams?: Record<string, any>): void {
-    this.trackEvent('chat_interaction', { action, ...additionalParams });
-  }
-
-  /**
    * Set user properties
    * @param properties - User properties
    */

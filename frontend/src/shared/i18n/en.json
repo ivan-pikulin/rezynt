@@ -307,28 +307,6 @@
       "description": "Start building your next resume"
     }
   },
-  "chat": {
-    "title": "AI Resume Writer",
-    "preview": "Resume Preview",
-    "buttons": {
-      "refine": "Refine",
-      "resumes": "Resumes"
-    },
-    "input": {
-      "placeholder": "Type your message..."
-    },
-    "waitingMessage": {
-      "editResume": "Edit your resume"
-    },
-    "welcomeMessages": {
-      "guest": "Welcome aboard! I'm your AI Resume Builder, here to save you time and boost your chances. Let's get personal: what's your name?",
-      "fromUpload": "Welcome aboard! I'm your AI Writer, here to save you time and boost your chances. Let's start?",
-      "fromScratch": "Welcome aboard! I'm your AI Writer, here to save you time and boost your chances. Let's get personal: what's your name?"
-    },
-    "errors": {
-      "general": "Sorry, I encountered an error. Please try again."
-    }
-  },
   "header": {
     "steps": {
       "start": "Create",

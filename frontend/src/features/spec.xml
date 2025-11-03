@@ -19,13 +19,6 @@
         │   ├── StartPage.tsx # Main start page
         │   ├── startApi.ts # API for file upload and session creation
         │   └── spec.xml # Start feature specification
-        ├── chat/ # Chat feature - AI-assisted resume creation
-        │   ├── components/ # Chat-specific components
-        │   ├── hooks/ # Custom hooks for chat operations
-        │   ├── services/ # Chat-related services
-        │   ├── types/ # Chat types
-        │   ├── ChatPage.tsx # Main chat page
-        │   └── spec.xml # Chat feature specification
         ├── refine/ # Refine feature - template selection and preview
         │   ├── components/ # Refine-specific components
         │   ├── RefinePage.tsx # Main refine page
@@ -55,12 +48,6 @@
             <component name="StartPage" desc="Main start page with header and centered options"/>
             <component name="StartOptions" desc="Two cards for choosing resume creation method"/>
         </feature>
-        <feature name="chat" desc="AI-assisted resume creation with chat interface">
-            <component name="ChatPage" desc="Main chat page with chat window and resume preview"/>
-            <component name="ChatWindow" desc="Chat interface component"/>
-            <component name="ChatInput" desc="Chat input component"/>
-            <component name="ChatMessage" desc="Individual chat message component"/>
-        </feature>
         <feature name="refine" desc="Template selection and resume refinement">
             <component name="RefinePage" desc="Main refine page with template selector and preview"/>
             <component name="TemplateSelector" desc="Vertical list of template options"/>
@@ -86,7 +73,7 @@
 
     <navigation>
         <note>ResumesPage removed - users now have one resume stored in User.resume_data</note>
-        <note>Navigation updated to use /refine, /chat, /export without resume_id parameter</note>
+        <note>Navigation updated to use /refine, /export without resume_id parameter</note>
     </navigation>
 
     <deps>

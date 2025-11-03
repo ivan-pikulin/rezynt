@@ -33,8 +33,8 @@
                 <prop name="onGuardUploadResume?" desc="Optional guard callback; return false to prevent file picker (e.g., open paywall)" />
             </props>
             <events>
-                <event name="onStartFromScratch" desc="Navigate to chat page" />
-                <event name="onUploadResume" desc="Handle file upload" />
+                <event name="onStartFromScratch" desc="Navigate to builder page" />
+                <event name="onUploadResume" desc="Handle file upload and navigate to refine page" />
             </events>
             <mobile_features>
                 <feature name="vertical_layout" desc="Cards stack vertically on mobile devices" />
@@ -81,8 +81,8 @@
     </api>
 
     <navigation>
-        <flow name="start_from_scratch" desc="Navigate to /chat?resume_id={id} after creating resume; if user already has resumes, StartPage shows PaywallModal and blocks action via guard" />
-        <flow name="upload_resume" desc="Navigate to /chat?resume_id={id} after uploading file; if user already has resumes, StartPage shows PaywallModal and blocks action via guard" />
+        <flow name="start_from_scratch" desc="Navigate to /builder after creating resume; if user already has resumes, StartPage shows PaywallModal and blocks action via guard" />
+        <flow name="upload_resume" desc="Navigate to /refine after uploading and processing file; if user already has resumes, StartPage shows PaywallModal and blocks action via guard" />
     </navigation>
 
     <deps>

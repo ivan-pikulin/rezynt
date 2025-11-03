@@ -166,21 +166,6 @@ export interface PDFExportRequest {
   template_slug?: string; // Options: nume, luma, alto, vero
 }
 
-// Chat types
-export interface ChatMessage {
-  id: string;
-  role: string; // "user" or "assistant"
-  content: string;
-  created_at: number; // timestamp
-  conversation_id?: string;
-}
-
-export interface ChatMessageList {
-  messages: ChatMessage[];
-  has_more: boolean;
-  limit: number;
-}
-
 // Onboarding types
 export interface OnboardingResponse {
   experience: string;

@@ -6,7 +6,7 @@ export const startApi = {
   /**
  * Upload resume file
  */
-  uploadResume: async (file: File): Promise<{ resume: Resume; startupMessage?: string }> => {
+  uploadResume: async (file: File): Promise<Resume> => {
           // Upload file and get task_id
     const uploadResult = await resumeApi.uploadResume(file);
     
@@ -27,31 +27,13 @@ export const startApi = {
       }
     }
     
-    if (!result || !result.resume_id) {
-      throw new Error(i18n.t('errors.noResumeId'));
+    if (!result || result.status !== 'completed') {
+      throw new Error(i18n.t('errors.uploadFailedGeneric'));
     }
     
-    // Get created resume
-    const resume = await resumeApi.getResume(result.resume_id);
+    // Get user's resume (each user has one resume)
+    const resume = await resumeApi.getResume();
     
-    // Return resume and startup message
-    return {
-      resume,
-      startupMessage: result.startup_message
-    };
-  },
-
-  /**
-   * Start creating resume from scratch
-   */
-  startFromScratch: async (): Promise<Resume> => {
-    // Create resume with template_slug (use first available template)
-    const resume = await resumeApi.createResume({
-      title: i18n.t('defaults.resumeTitle'),
-      template_slug: 'nume', // Default template
-      professional_summary: ''
-    });
-
     return resume;
   }
 }; 

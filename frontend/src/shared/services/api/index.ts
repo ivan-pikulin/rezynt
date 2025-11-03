@@ -6,14 +6,12 @@ export { default as baseApi } from './baseApi';
 export { UserApi } from './userApi';
 export { AuthApi } from './authApi';
 export { ResumeApi } from './resumeApi';
-export { ChatApi } from './chatApi';
 export { AnalysisApi } from './analysisApi';
 
 // API Instances
 export { userApi } from './userApi';
 export { authApi } from './authApi';
 export { resumeApi } from './resumeApi';
-export { chatApi } from './chatApi';
 export { analysisApi } from './analysisApi';
 
 // Types
