@@ -17,7 +17,6 @@ import RegistrationModal from '../../shared/components/RegistrationModal';
 import TemplateSelector from '../refine/components/TemplateSelector';
 import Button from '@mui/material/Button';
 import { COLORS } from '../../shared/theme/theme';
-import PaywallModal from '../../shared/components/PaywallModal';
 import Typography from '@mui/material/Typography';
 import TemplateSelectionCards from './components/TemplateSelectionCards';
 
@@ -75,11 +74,9 @@ const ExportPage: React.FC = () => {
     setShowRegistration(true);
   };
 
-  const [isPaywallOpen, setIsPaywallOpen] = useState(false);
-
   const handleExportPDF = () => {
-    // Always show paywall for PDF
-    setIsPaywallOpen(true);
+    // Navigate to upgrade page for PDF
+    navigate('/upgrade');
   };
 
   const buildTxtFromDisplayData = (data: any): string => {
@@ -381,11 +378,6 @@ const ExportPage: React.FC = () => {
         open={showRegistration}
         onClose={() => setShowRegistration(false)}
         onSuccess={() => setShowRegistration(false)}
-      />
-      <PaywallModal 
-        open={isPaywallOpen}
-        onClose={() => setIsPaywallOpen(false)}
-        onSuccess={() => setIsPaywallOpen(false)}
       />
     </Box>
   );

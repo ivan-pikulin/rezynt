@@ -8,7 +8,6 @@ import StartOptions from './components/StartOptions';
 import { useUser } from '../../shared/hooks';
 import { useResumeQuery } from '../../shared/hooks/useResumeQuery';
 import { COLORS } from '../../shared/theme/theme';
-import PaywallModal from '../../shared/components/PaywallModal';
 import { resumeApi } from '../../shared/services/api';
 import GradientSpinnerAnimation from '../../shared/components/GradientSpinnerAnimation';
 
@@ -20,7 +19,6 @@ const StartPage: React.FC = () => {
   // Check for resume - use guest mode if user is not registered
   const isGuest = !user?.is_registered;
   const { resume } = useResumeQuery(isGuest);
-  const [showPaywall, setShowPaywall] = React.useState(false);
   const [isProcessingUpload, setIsProcessingUpload] = useState(false);
   const [uploadMessage, setUploadMessage] = useState('');
   const [taskId, setTaskId] = useState<string | null>(null);
@@ -254,11 +252,6 @@ const StartPage: React.FC = () => {
           </Box>
         )}
       </Box>
-      <PaywallModal 
-        open={showPaywall}
-        onClose={() => setShowPaywall(false)}
-        onSuccess={() => setShowPaywall(false)}
-      />
     </Box>
   );
 };

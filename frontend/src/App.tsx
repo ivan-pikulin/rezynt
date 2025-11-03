@@ -32,6 +32,7 @@ const PaymentSuccessPage = React.lazy(() => import('./features/export/PaymentSuc
 const CVUpgradeMainPage = React.lazy(() => import('./features/cvupgrade/CVUpgradeMainPage'));
 const BuilderPage = React.lazy(() => import('./features/builder/BuilderPage'));
 const ProfileSettingsPage = React.lazy(() => import('./features/profile/ProfileSettingsPage'));
+const UpgradePage = React.lazy(() => import('./features/upgrade/UpgradePage'));
 
 function AppRoutes() {
   // Track page views automatically
@@ -100,6 +101,11 @@ function AppRoutes() {
         <Route path="/builder" element={
           <PublicOnboardingGuard>
             <BuilderPage />
+          </PublicOnboardingGuard>
+        } />
+        <Route path="/upgrade" element={
+          <PublicOnboardingGuard>
+            <UpgradePage />
           </PublicOnboardingGuard>
         } />
         

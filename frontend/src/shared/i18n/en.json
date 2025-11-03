@@ -449,6 +449,26 @@
       "processing": "PROCESSING..."
     }
   },
+  "upgrade": {
+    "title": "Turn Your Resume Into a Job-Magnet",
+    "subtitle": "Great resumes get noticed faster. That's why we keep things simple — one payment, full access, real results.",
+    "features": {
+      "unlimitedAnalysis": "Unlimited Analysis",
+      "aiImprovements": "AI-powered improvements",
+      "cleanPDF": "Clean PDF download",
+      "prioritySupport": "Priority email support"
+    },
+    "pricing": {
+      "period": "3-Month Access",
+      "price": "$40",
+      "description": "Job searching is stressful enough. So we made payment simple — one time, no renewal, nothing to remember."
+    },
+    "buttons": {
+      "continue": "Get Started Now",
+      "processing": "Processing..."
+    },
+    "bottomNote": "14-days money-back guarantee"
+  },
   "export": {
     "title": "Export",
     "pageTitle": "Resume",

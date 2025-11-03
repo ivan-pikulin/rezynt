@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import { Box, Typography, Chip, CircularProgress, IconButton } from '@mui/material';
 import StarIcon from '@mui/icons-material/Star';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import { useNavigate } from 'react-router-dom';
 import { ChatMessage } from './ChatMessage';
 import { ChatInput } from './ChatInput';
 import { useChat } from '../hooks/useChat';
 import { useUser } from '../../../shared/hooks/useUser';
 import { COLORS } from '../../../shared/theme/theme';
 import { useTranslation } from 'react-i18next';
-import PaywallModal from '../../../shared/components/PaywallModal';
 import RegistrationModal from '../../../shared/components/RegistrationModal';
 import { useMediaQuery } from '@mui/material';
 
@@ -21,8 +21,8 @@ interface ChatWindowProps {
 
 const ChatWindow: React.FC<ChatWindowProps> = ({ resumeId, onResumeUpdate, fromUpload = false, onTogglePreview }) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { user, refetch: refetchUser } = useUser();
-  const [showPaywallModal, setShowPaywallModal] = useState(false);
   const [showRegistrationModal, setShowRegistrationModal] = useState(false);
   
       // Define mobile mode for screens up to 768px
@@ -47,7 +47,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ resumeId, onResumeUpdate, fromU
       if (!user) {
         setShowRegistrationModal(true);
       } else {
-        setShowPaywallModal(true);
+        navigate('/upgrade');
       }
     }
   );
@@ -66,17 +66,8 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ resumeId, onResumeUpdate, fromU
       return;
     }
     if (!user?.is_premium) {
-      setShowPaywallModal(true);
+      navigate('/upgrade');
     }
-  };
-
-  const handlePaywallSuccess = () => {
-    setShowPaywallModal(false);
-    refetchUser();
-  };
-
-  const handlePaywallClose = () => {
-    setShowPaywallModal(false);
   };
   
   return (
@@ -250,12 +241,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ resumeId, onResumeUpdate, fromU
         <ChatInput onSendMessage={sendUserMessage} disabled={isLoading} />
       </Box>
 
-      {/* Paywall Modal */}
-      <PaywallModal
-        open={showPaywallModal}
-        onClose={handlePaywallClose}
-        onSuccess={handlePaywallSuccess}
-      />
       <RegistrationModal
         open={showRegistrationModal}
         onClose={() => setShowRegistrationModal(false)}

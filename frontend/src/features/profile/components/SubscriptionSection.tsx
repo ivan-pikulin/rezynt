@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Box, Button, Chip, Typography } from '@mui/material';
 import {
   Star as StarIcon,
   TrendingUp as UpgradeIcon
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { User } from '../../../shared/services/api/types';
 import { COLORS } from '../../../shared/theme/theme';
-import PaywallModal from '../../../shared/components/PaywallModal';
 
 interface SubscriptionSectionProps {
   user: User;
@@ -17,10 +17,10 @@ export const SubscriptionSection: React.FC<SubscriptionSectionProps> = ({
   user
 }) => {
   const { t } = useTranslation();
-  const [isPaywallOpen, setIsPaywallOpen] = useState(false);
+  const navigate = useNavigate();
 
   const handleUpgrade = () => {
-    setIsPaywallOpen(true);
+    navigate('/upgrade');
   };
 
   if (user.is_premium) {
@@ -101,12 +101,6 @@ export const SubscriptionSection: React.FC<SubscriptionSectionProps> = ({
           {t('profileSettings.subscription.upgradeButton')}
         </Button>
       </Box>
-
-      <PaywallModal
-        open={isPaywallOpen}
-        onClose={() => setIsPaywallOpen(false)}
-        onSuccess={() => setIsPaywallOpen(false)}
-      />
     </>
   );
 };

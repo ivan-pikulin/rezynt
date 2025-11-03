@@ -443,6 +443,26 @@
       "processing": "PROCESSANDO..."
     }
   },
+  "upgrade": {
+    "title": "Transforme Seu Currículo em um Ímã de Empregos",
+    "subtitle": "Ótimos currículos são notados mais rápido. Por isso mantemos as coisas simples — um pagamento, acesso total, resultados reais.",
+    "features": {
+      "unlimitedAnalysis": "Análise Ilimitada",
+      "aiImprovements": "Melhorias com IA",
+      "cleanPDF": "Download de PDF limpo",
+      "prioritySupport": "Suporte prioritário por e-mail"
+    },
+    "pricing": {
+      "period": "Acesso de 3 Meses",
+      "price": "$40",
+      "description": "Procurar emprego já é estressante o suficiente. Por isso tornamos o pagamento simples — uma vez, sem renovação, nada para lembrar."
+    },
+    "buttons": {
+      "continue": "Começar Agora",
+      "processing": "Processando..."
+    },
+    "bottomNote": "Garantia de reembolso de 14 dias"
+  },
   "export": {
     "title": "Exportar",
     "pageTitle": "Currículo",

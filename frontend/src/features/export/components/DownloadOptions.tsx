@@ -7,7 +7,7 @@ import Button from '@mui/material/Button';
 import DownloadIcon from '@mui/icons-material/Download';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useTranslation } from 'react-i18next';
-import PaywallModal from '../../../shared/components/PaywallModal';
+import { useNavigate } from 'react-router-dom';
 import { COLORS } from '../../../shared/theme/theme';
 import { ga4Service } from '../../../shared/services/ga4Service';
 
@@ -18,7 +18,7 @@ interface DownloadOptionsProps {
 
 const DownloadOptions: React.FC<DownloadOptionsProps> = ({ onExportPDF, isPremium = false }) => {
   const { t } = useTranslation();
-  const [isPaywallModalOpen, setIsPaywallModalOpen] = useState(false);
+  const navigate = useNavigate();
   const [isWatermarkedExporting, setIsWatermarkedExporting] = useState(false);
   const [isCleanExporting, setIsCleanExporting] = useState(false);
 
@@ -53,18 +53,9 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({ onExportPDF, isPremiu
         setIsCleanExporting(false);
       }
     } else {
-      // For regular users, show paywall
-      setIsPaywallModalOpen(true);
+      // For regular users, navigate to upgrade page
+      navigate('/upgrade');
     }
-  };
-
-  const handleClosePaywallModal = () => {
-    setIsPaywallModalOpen(false);
-  };
-
-  const handlePaywallSuccess = () => {
-    setIsPaywallModalOpen(false);
-    // After successful payment, additional logic can be executed here
   };
 
   return (
@@ -269,13 +260,6 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({ onExportPDF, isPremiu
           </CardContent>
         </Card>
       </Box>
-
-      {/* Paywall Modal */}
-      <PaywallModal 
-        open={isPaywallModalOpen} 
-        onClose={handleClosePaywallModal}
-        onSuccess={handlePaywallSuccess}
-      />
     </>
   );
 };
