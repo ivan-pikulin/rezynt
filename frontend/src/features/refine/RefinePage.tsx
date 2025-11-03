@@ -7,7 +7,6 @@ import Fade from '@mui/material/Fade';
 import Zoom from '@mui/material/Zoom';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
-import RefreshIcon from '@mui/icons-material/Refresh';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -475,7 +474,7 @@ const RefinePage: React.FC = () => {
             position: 'relative',
             overflow: 'hidden'
           }}>
-            {/* Fixed Score bar and Refresh button */}
+            {/* Fixed Score bar with Re-analyze button */}
             <Box sx={{ 
               flexShrink: 0,
               bgcolor: '#F5F7FA',
@@ -483,57 +482,17 @@ const RefinePage: React.FC = () => {
             }}>
               {/* Score bar */}
               {analysis && (
-                <Box sx={{ p: 2, pb: 1 }}>
+                <Box sx={{ pt: 2, px: 2, pb: 1 }}>
                   <ScoreBar
                     score={analysis.score}
                     label={analysis.label}
                     subtitle={analysis.subtitle}
                     marketingText={marketingText}
+                    onRefresh={handleRefreshAnalysis}
+                    isRefreshing={isRefreshingAnalysis}
                   />
                 </Box>
               )}
-              
-              {/* Refresh Analysis Button */}
-              <Box sx={{ px: 2, pb: 2 }}>
-                <button
-                  onClick={handleRefreshAnalysis}
-                  disabled={isRefreshingAnalysis}
-                  style={{
-                    width: '100%',
-                    backgroundColor: 'transparent',
-                    color: isRefreshingAnalysis ? COLORS.button.primary.backgroundDisabled : COLORS.button.primary.background,
-                    fontSize: '13px',
-                    fontWeight: 500,
-                    padding: '8px 12px',
-                    borderRadius: '6px',
-                    border: `1px solid ${isRefreshingAnalysis ? COLORS.button.primary.backgroundDisabled : COLORS.button.primary.background}`,
-                    cursor: isRefreshingAnalysis ? 'not-allowed' : 'pointer',
-                    textTransform: 'none',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px',
-                    transition: 'all 0.2s ease-in-out',
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!isRefreshingAnalysis) {
-                      e.currentTarget.style.backgroundColor = COLORS.primary.ultraLight;
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!isRefreshingAnalysis) {
-                      e.currentTarget.style.backgroundColor = 'transparent';
-                    }
-                  }}
-                >
-                  {isRefreshingAnalysis ? (
-                    <CircularProgress size={14} sx={{ color: COLORS.button.primary.backgroundDisabled }} />
-                  ) : (
-                    <RefreshIcon sx={{ fontSize: '16px' }} />
-                  )}
-                  {isRefreshingAnalysis ? 'Analyzing...' : 'Refresh Analysis'}
-                </button>
-              </Box>
             </Box>
 
             {/* Scrollable improvement sections */}

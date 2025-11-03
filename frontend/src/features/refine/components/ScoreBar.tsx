@@ -1,15 +1,18 @@
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import CircularProgress from '@mui/material/CircularProgress';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import React, { useState, useEffect } from 'react';
 import CountUp from 'react-countup';
-import { getScoreColor } from '../../../shared/theme/theme';
+import { getScoreColor, COLORS } from '../../../shared/theme/theme';
 
 type ScoreBarProps = {
   score: number; // 0-100
   label: string;
   subtitle: string;
   marketingText: string;
+  onRefresh?: () => void;
+  isRefreshing?: boolean;
 };
 
 const clamp = (value: number, min: number, max: number) => {
@@ -17,7 +20,7 @@ const clamp = (value: number, min: number, max: number) => {
   return Math.min(max, Math.max(min, value));
 };
 
-const ScoreBar: React.FC<ScoreBarProps> = ({ score, label, subtitle, marketingText }) => {
+const ScoreBar: React.FC<ScoreBarProps> = ({ score, label, subtitle, marketingText, onRefresh, isRefreshing = false }) => {
   const normalized = clamp(score, 0, 100);
   const scoreColor = getScoreColor(normalized).main;
   
@@ -43,7 +46,7 @@ const ScoreBar: React.FC<ScoreBarProps> = ({ score, label, subtitle, marketingTe
     scoreCard: {
       backgroundColor: 'white',
       borderRadius: '8px',
-      boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+      boxShadow: '0 2px 8px 0 rgba(0, 0, 0, 0.08)',
       padding: '12px',
       display: 'flex',
       flexDirection: 'column' as const,
@@ -88,7 +91,7 @@ const ScoreBar: React.FC<ScoreBarProps> = ({ score, label, subtitle, marketingTe
   };
 
   return (
-    <Box sx={styles.scoreCard}>
+    <Box sx={{ ...styles.scoreCard, position: 'relative' }}>
       <Box sx={styles.circularScore}>
         <Box sx={styles.scoreCircle}>
           {/* Background gray ring */}
@@ -163,6 +166,54 @@ const ScoreBar: React.FC<ScoreBarProps> = ({ score, label, subtitle, marketingTe
           <Typography sx={styles.statusSubtext}>{subtitle}</Typography>
         </Box>
       </Box>
+      
+      {/* Re-analyze button in the bottom right corner */}
+      {onRefresh && (
+        <Box
+          sx={{
+            position: 'absolute',
+            bottom: '8px',
+            right: '8px',
+          }}
+        >
+          <button
+            onClick={onRefresh}
+            disabled={isRefreshing}
+            style={{
+              backgroundColor: 'transparent',
+              color: isRefreshing ? COLORS.button.primary.backgroundDisabled : COLORS.button.primary.background,
+              fontSize: '11px',
+              fontWeight: 500,
+              padding: '4px 8px',
+              borderRadius: '4px',
+              border: `1px solid ${isRefreshing ? COLORS.button.primary.backgroundDisabled : COLORS.button.primary.background}`,
+              cursor: isRefreshing ? 'not-allowed' : 'pointer',
+              textTransform: 'none',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              transition: 'all 0.2s ease-in-out',
+            }}
+            onMouseEnter={(e) => {
+              if (!isRefreshing) {
+                e.currentTarget.style.backgroundColor = COLORS.primary.ultraLight;
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!isRefreshing) {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }
+            }}
+          >
+            {isRefreshing ? (
+              <CircularProgress size={10} sx={{ color: COLORS.button.primary.backgroundDisabled }} />
+            ) : (
+              <RefreshIcon sx={{ fontSize: '12px' }} />
+            )}
+            Re-analyze
+          </button>
+        </Box>
+      )}
     </Box>
   );
 };

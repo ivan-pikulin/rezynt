@@ -63,7 +63,7 @@ const ImprovementSections: React.FC<Props> = ({ sections, onNavigateToField }) =
   };
 
   return (
-    <Box sx={{ p: { xs: 1, md: 1.5 }, overflow: 'auto' }}>
+    <Box sx={{ pt: 1, px: 2, pb: 2, overflow: 'auto' }}>
       {sections.map((s) => {
         const pct = s.percentage;
         const color = statusToColor[s.status as keyof typeof statusToColor];
@@ -75,8 +75,8 @@ const ImprovementSections: React.FC<Props> = ({ sections, onNavigateToField }) =
         const breakdownCard = {
           backgroundColor: 'white',
           borderRadius: '8px',
-          boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-          marginBottom: '12px',
+          boxShadow: '0 2px 8px 0 rgba(0, 0, 0, 0.08)',
+          marginBottom: '8px',
         };
 
         const breakdownTitle = {
@@ -133,7 +133,7 @@ const ImprovementSections: React.FC<Props> = ({ sections, onNavigateToField }) =
             expanded={expandedSections.has(s.id)}
             onChange={handleAccordionChange(s.id)}
             key={s.id}
-            sx={{ ...breakdownCard, boxShadow: 'none', ...accordionSx }}
+            sx={{ ...breakdownCard, ...accordionSx }}
           >
             <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color: '#6b7280' }}/>}>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: '6px', width: '100%' }}>
