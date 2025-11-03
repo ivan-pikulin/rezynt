@@ -287,6 +287,10 @@
     "steps": {
       "question": "Já tem um currículo?",
       "result": "Obtenha uma versão polida e pronta para ATS em minutos"
+    },
+    "existingResume": {
+      "message": "Você já tem um currículo",
+      "action": "Continuar editando"
     }
   },
   "resumes": {

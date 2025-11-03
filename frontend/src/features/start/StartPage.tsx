@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import Header from '../../shared/components/Header/Header';
 import StartOptions from './components/StartOptions';
 import { useUser } from '../../shared/hooks';
+import { useResumeQuery } from '../../shared/hooks/useResumeQuery';
 import { COLORS } from '../../shared/theme/theme';
 import PaywallModal from '../../shared/components/PaywallModal';
 import { resumeApi } from '../../shared/services/api';
@@ -16,6 +17,9 @@ const StartPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user } = useUser();
+  // Check for resume - use guest mode if user is not registered
+  const isGuest = !user?.is_registered;
+  const { resume } = useResumeQuery(isGuest);
   const [showPaywall, setShowPaywall] = React.useState(false);
   const [isProcessingUpload, setIsProcessingUpload] = useState(false);
   const [uploadMessage, setUploadMessage] = useState('');
@@ -140,6 +144,22 @@ const StartPage: React.FC = () => {
     return true;
   };
 
+  // Check if resume has any meaningful content
+  const hasResumeContent = () => {
+    if (!resume) return false;
+    
+    // Check if resume has at least one of these filled
+    const hasContent = 
+      (resume.personal_info?.first_name && resume.personal_info.first_name.trim().length > 0) ||
+      (resume.personal_info?.last_name && resume.personal_info.last_name.trim().length > 0) ||
+      (resume.professional_summary && resume.professional_summary.trim().length > 0) ||
+      (resume.skills && resume.skills.length > 0) ||
+      (resume.work_experience && resume.work_experience.length > 0) ||
+      (resume.education && resume.education.length > 0);
+    
+    return hasContent;
+  };
+
   return (
     <Box sx={{ 
       minHeight: '100vh', 
@@ -191,15 +211,47 @@ const StartPage: React.FC = () => {
             </Typography>
           </Box>
         ) : (
-          <StartOptions 
-            onGuardStartFromScratch={guardStartFromScratch}
-            onGuardUploadResume={guardUploadResume}
-            isProcessingUpload={isProcessingUpload}
-            uploadMessage={uploadMessage}
-            uploadError={uploadError}
-            onClearError={() => setUploadError(null)}
-            isStartFromScratchDisabled={!!taskId}
-          />
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, width: '100%', maxWidth: 900 }}>
+            <StartOptions 
+              onGuardStartFromScratch={guardStartFromScratch}
+              onGuardUploadResume={guardUploadResume}
+              isProcessingUpload={isProcessingUpload}
+              uploadMessage={uploadMessage}
+              uploadError={uploadError}
+              onClearError={() => setUploadError(null)}
+              isStartFromScratchDisabled={!!taskId}
+            />
+            
+            {/* Message about existing resume */}
+            {hasResumeContent() && (
+              <Box sx={{ mt: 2, textAlign: 'center' }}>
+                <Typography 
+                  variant="body2" 
+                  sx={{ 
+                    color: COLORS.resume.text.secondary,
+                    fontSize: '14px'
+                  }}
+                >
+                  {t('start.existingResume.message')}.{' '}
+                  <Typography
+                    component="span"
+                    onClick={() => navigate('/refine')}
+                    sx={{
+                      color: COLORS.button.primary.background,
+                      cursor: 'pointer',
+                      textDecoration: 'underline',
+                      fontSize: '14px',
+                      '&:hover': {
+                        color: COLORS.button.primary.backgroundHover
+                      }
+                    }}
+                  >
+                    {t('start.existingResume.action')}
+                  </Typography>
+                </Typography>
+              </Box>
+            )}
+          </Box>
         )}
       </Box>
       <PaywallModal 

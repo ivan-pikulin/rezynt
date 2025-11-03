@@ -292,6 +292,10 @@
     "steps": {
       "question": "Already have a resume?",
       "result": "Get a polished, ATS-ready version in minutes"
+    },
+    "existingResume": {
+      "message": "You already have a resume",
+      "action": "Continue editing"
     }
   },
   "resumes": {
