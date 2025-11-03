@@ -398,6 +398,15 @@
       "error": "Failed to update password",
       "mismatch": "Passwords do not match"
     },
+    "logout": {
+      "title": "Logout",
+      "description": "Sign out of your account",
+      "button": "Sign Out",
+      "modalTitle": "Confirm Logout",
+      "modalText": "Are you sure you want to sign out?",
+      "modalConfirm": "Sign Out",
+      "modalCancel": "Cancel"
+    },
     "deleteAccount": {
       "title": "Delete Account",
       "warning": "Warning: Account deletion will anonymize your data and prevent you from logging in again. Your data will be anonymized for analytics purposes but you will no longer have access to your account.",

@@ -13,7 +13,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children, 
   requireAuth = true 
 }) => {
-  const { isAuthenticated, isLoading } = useAuthContext();
+  const { isAuthenticated, isLoading, user } = useAuthContext();
   const location = useLocation();
 
   if (isLoading) {
@@ -34,8 +34,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  if (!requireAuth && isAuthenticated) {
-    // If user is authenticated but trying to access auth page
+  if (!requireAuth && isAuthenticated && user?.is_registered) {
+    // If user is authenticated AND registered, redirect away from auth pages
+    // Guest users (not registered) should still be able to access login/signup
     return <Navigate to="/" replace />;
   }
 

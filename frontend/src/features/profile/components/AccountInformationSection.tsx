@@ -17,9 +17,17 @@ export const AccountInformationSection: React.FC<AccountInformationSectionProps>
   const { t } = useTranslation();
   const [firstName, setFirstName] = useState(user.first_name || '');
   const [lastName, setLastName] = useState(user.last_name || '');
+  const [email, setEmail] = useState(user.email || '');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Update local state when user prop changes
+  React.useEffect(() => {
+    setFirstName(user.first_name || '');
+    setLastName(user.last_name || '');
+    setEmail(user.email || '');
+  }, [user]);
 
   const inputStyles = {
     '& .MuiOutlinedInput-root': {
@@ -55,7 +63,8 @@ export const AccountInformationSection: React.FC<AccountInformationSectionProps>
     try {
       const updatedUser = await userApi.updateCurrentUser({
         first_name: firstName,
-        last_name: lastName
+        last_name: lastName,
+        email: email
       });
       onUpdate(updatedUser);
       setSuccess(true);
@@ -109,18 +118,14 @@ export const AccountInformationSection: React.FC<AccountInformationSectionProps>
 
           <TextField
             label={t('profileSettings.accountInfo.email')}
-            value={user.email}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             fullWidth
             size="small"
             variant="outlined"
-            disabled
-            helperText="Email cannot be changed"
-            sx={{
-              ...inputStyles,
-              '& .MuiInputBase-input.Mui-disabled': {
-                WebkitTextFillColor: '#9ca3af',
-              },
-            }}
+            type="email"
+            required
+            sx={inputStyles}
           />
 
           {success && (

@@ -8,6 +8,7 @@ import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
+import { LoginOutlined as LoginIcon } from '@mui/icons-material';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -51,7 +52,12 @@ const Header: React.FC<HeaderProps> = ({
   };
 
   const handleAvatarClick = () => {
-    navigate('/profile-settings');
+    // If user is not registered (guest), navigate to login
+    if (!user?.is_registered) {
+      navigate('/login');
+    } else {
+      navigate('/profile-settings');
+    }
   };
 
   const handleLogoClick = () => {
@@ -335,29 +341,54 @@ const Header: React.FC<HeaderProps> = ({
           alignItems: 'center',
           justifyContent: 'flex-end'
         }}>
-          <Tooltip title={t('header.profile')}>
-            <IconButton
-              onClick={handleAvatarClick}
-              sx={{
-                p: 0,
-                '&:hover': {
-                  transform: 'scale(1.05)'
-                }
-              }}
-            >
-              <Avatar
+          {user?.is_registered ? (
+            // Registered user - show avatar
+            <Tooltip title={t('header.profile')}>
+              <IconButton
+                onClick={handleAvatarClick}
                 sx={{
-                  width: isMobile ? 'clamp(32px, 9vw, 40px)' : 40,
-                  height: isMobile ? 'clamp(32px, 9vw, 40px)' : 40,
-                  bgcolor: COLORS.primary.main,
-                  fontSize: isMobile ? 'clamp(0.9rem, 3.5vw, 1.2rem)' : '1.2rem',
-                  fontWeight: 600
+                  p: 0,
+                  '&:hover': {
+                    transform: 'scale(1.05)'
+                  }
                 }}
               >
-                {user ? getInitials(user.email) : 'U'}
-              </Avatar>
-            </IconButton>
-          </Tooltip>
+                <Avatar
+                  sx={{
+                    width: isMobile ? 'clamp(32px, 9vw, 40px)' : 40,
+                    height: isMobile ? 'clamp(32px, 9vw, 40px)' : 40,
+                    bgcolor: COLORS.primary.main,
+                    fontSize: isMobile ? 'clamp(0.9rem, 3.5vw, 1.2rem)' : '1.2rem',
+                    fontWeight: 600
+                  }}
+                >
+                  {user?.email ? getInitials(user.email) : 'U'}
+                </Avatar>
+              </IconButton>
+            </Tooltip>
+          ) : (
+            // Guest user - show login icon
+            <Tooltip title={t('header.userSidebar.login')}>
+              <IconButton
+                onClick={handleAvatarClick}
+                sx={{
+                  p: 1,
+                  '&:hover': {
+                    transform: 'scale(1.05)',
+                    bgcolor: 'rgba(0, 0, 0, 0.04)'
+                  }
+                }}
+              >
+                <LoginIcon
+                  sx={{
+                    width: isMobile ? 'clamp(24px, 7vw, 28px)' : 28,
+                    height: isMobile ? 'clamp(24px, 7vw, 28px)' : 28,
+                    color: COLORS.primary.main
+                  }}
+                />
+              </IconButton>
+            </Tooltip>
+          )}
         </Box>
       )}
     </Box>

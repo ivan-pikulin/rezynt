@@ -23,7 +23,7 @@ export class UserApi extends BaseApi {
   /**
    * Update current user profile
    */
-  async updateCurrentUser(data: { first_name?: string; last_name?: string }): Promise<User> {
+  async updateCurrentUser(data: { first_name?: string; last_name?: string; email?: string }): Promise<User> {
     return this.patch<User>('/user/me', data);
   }
 

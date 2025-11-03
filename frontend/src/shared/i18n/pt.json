@@ -392,6 +392,15 @@
       "error": "Falha ao atualizar senha",
       "mismatch": "As senhas não coincidem"
     },
+    "logout": {
+      "title": "Sair",
+      "description": "Desconectar da sua conta",
+      "button": "Sair",
+      "modalTitle": "Confirmar Saída",
+      "modalText": "Tem certeza de que deseja sair?",
+      "modalConfirm": "Sair",
+      "modalCancel": "Cancelar"
+    },
     "deleteAccount": {
       "title": "Excluir Conta",
       "warning": "Atenção: A exclusão da conta anonimizará seus dados e impedirá que você faça login novamente. Seus dados serão anonimizados para fins analíticos, mas você não terá mais acesso à sua conta.",

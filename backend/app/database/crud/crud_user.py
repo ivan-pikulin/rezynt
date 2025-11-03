@@ -92,6 +92,13 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             update_data = obj_in
         else:
             update_data = obj_in.model_dump(exclude_unset=True)
+        
+        # Check email uniqueness if email is being updated
+        if update_data.get("email") and update_data["email"] != db_obj.email:
+            existing_user = await self.get_by_email(db, email=update_data["email"])
+            if existing_user and existing_user.id != db_obj.id:
+                raise ValueError("User with this email already exists")
+        
         if update_data.get("password"):
             hashed_password = get_password_hash(update_data["password"])
             del update_data["password"]

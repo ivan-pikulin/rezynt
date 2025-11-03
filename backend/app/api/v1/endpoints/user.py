@@ -24,15 +24,21 @@ async def update_user_me(
     current_user: CurrentUser,
 ) -> user_schemas.UserPublic:
     """
-    Update current user profile (first_name, last_name, etc).
+    Update current user profile (first_name, last_name, email, etc).
     """
-    user = await user_crud.update(db, db_obj=current_user, obj_in=user_update)
-    if not user:
+    try:
+        user = await user_crud.update(db, db_obj=current_user, obj_in=user_update)
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found"
+            )
+        return user
+    except ValueError as e:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found"
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
         )
-    return user
 
 
 @router.post("/change-password", response_model=dict)
