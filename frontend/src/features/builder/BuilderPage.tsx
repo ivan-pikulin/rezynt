@@ -4,15 +4,14 @@ import {
   Container, 
   Button, 
   Paper,
-  LinearProgress,
   Typography,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import LightbulbIcon from '@mui/icons-material/Lightbulb';
-import VisibilityIcon from '@mui/icons-material/Visibility';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '../../shared/hooks/useAuth';
 import { useBuilder } from './hooks/useBuilder';
 import { BUILDER_STEPS } from './types/builder';
 import { ContactInfoStep } from './components/ContactInfoStep';
@@ -27,6 +26,8 @@ import Header from '../../shared/components/Header/Header';
 export const BuilderPage: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { isAuthenticated } = useAuth();
   const {
     state,
     updateField,
@@ -36,7 +37,6 @@ export const BuilderPage: React.FC = () => {
     canGoNext,
     canGoBack,
     getNextStepLabel,
-    getProgress,
     clearBuilder,
   } = useBuilder();
 
@@ -53,6 +53,23 @@ export const BuilderPage: React.FC = () => {
     if (step) {
       goToStep(step.id);
     }
+  };
+
+  const getStepHeaderInfo = () => {
+    // Map step IDs to translation keys
+    const stepKeyMap: Record<string, string> = {
+      'contact-info': 'contactInfo',
+      'work-experience': 'workExperience',
+      'education': 'education',
+      'skills': 'skills',
+      'summary': 'summary'
+    };
+    
+    const stepKey = stepKeyMap[state.currentStep];
+    return {
+      title: t(`builder.${stepKey}.title`),
+      description: t(`builder.${stepKey}.description`)
+    };
   };
 
   const renderStepContent = () => {
@@ -78,6 +95,16 @@ export const BuilderPage: React.FC = () => {
       const { resumeApi } = await import('../../shared/services/api');
       await resumeApi.updateResume(state);
       
+      // Update React Query cache with fresh data to prevent loading screen
+      const cacheKey = isAuthenticated ? 'user' : 'guest';
+      queryClient.setQueryData(['resume', cacheKey], state);
+      
+      // Also update guest localStorage if needed
+      if (!isAuthenticated) {
+        const { guestResumeService } = await import('../../shared/services/guestResumeService');
+        guestResumeService.update(state);
+      }
+      
       // Clear localStorage after successful save
       clearBuilder();
       
@@ -91,7 +118,12 @@ export const BuilderPage: React.FC = () => {
   };
 
   return (
-    <Box sx={{ minHeight: '100vh', backgroundColor: COLORS.grey[50] }}>
+    <Box sx={{ 
+      height: '100vh', 
+      backgroundColor: COLORS.grey[50],
+      display: 'flex',
+      flexDirection: 'column'
+    }}>
       <Header 
         activeStep={currentStepIndex}
         customSteps={customSteps}
@@ -101,28 +133,68 @@ export const BuilderPage: React.FC = () => {
         onBack={canGoBack() ? goToPreviousStep : undefined}
       />
 
-      <Container maxWidth="xl" sx={{ py: 4 }}>
-        <Box sx={{ display: 'flex', gap: 3, alignItems: 'flex-start' }}>
+      <Container 
+        maxWidth="xl" 
+        sx={{ 
+          py: 4,
+          flex: 1,
+          display: 'flex',
+          overflow: 'hidden'
+        }}
+      >
+        <Box sx={{ display: 'flex', gap: 3, width: '100%', height: '100%' }}>
           {/* Left Side - Form */}
-          <Box sx={{ flex: 1 }}>
+          <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
             <Paper 
               sx={{ 
                 p: 4, 
                 borderRadius: '16px',
                 boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-                minHeight: '500px',
+                flex: 1,
+                overflow: 'hidden',
+                display: 'flex',
+                flexDirection: 'column'
               }}
             >
-              {renderStepContent()}
+              {/* Fixed Header */}
+              <Box sx={{ flexShrink: 0, mb: 3 }}>
+                <Typography 
+                  variant="h5" 
+                  sx={{ 
+                    fontWeight: 600, 
+                    mb: 1,
+                    color: COLORS.resume.text.primary,
+                    fontSize: '1.5rem',
+                  }}
+                >
+                  {getStepHeaderInfo().title}
+                </Typography>
+                
+                <Typography 
+                  variant="body2" 
+                  sx={{ 
+                    color: COLORS.resume.text.secondary,
+                    fontSize: '14px',
+                  }}
+                >
+                  {getStepHeaderInfo().description}
+                </Typography>
+              </Box>
+
+              {/* Scrollable Content */}
+              <Box sx={{ flex: 1, overflow: 'auto' }}>
+                {renderStepContent()}
+              </Box>
 
               {/* Navigation Buttons */}
               <Box 
                   sx={{ 
                     display: 'flex', 
                     justifyContent: 'space-between',
-                    mt: 4,
+                    mt: 'auto',
                     pt: 3,
                     borderTop: `1px solid ${COLORS.common.border}`,
+                    flexShrink: 0
                   }}
                 >
                   <Button
@@ -175,94 +247,20 @@ export const BuilderPage: React.FC = () => {
           <Box 
             sx={{ 
               width: 400,
-              position: 'sticky',
-              top: 80,
-              display: { xs: 'none', lg: 'block' },
+              display: { xs: 'none', lg: 'flex' },
+              flexDirection: 'column',
+              height: '100%'
             }}
           >
-            {/* Tips Button */}
-            <Button
-              variant="contained"
-              startIcon={<LightbulbIcon />}
-              fullWidth
-              sx={{ 
-                mb: 2,
-                borderRadius: '8px',
-                textTransform: 'none',
-                backgroundColor: COLORS.button.primary.background,
-                '&:hover': {
-                  backgroundColor: COLORS.button.primary.backgroundHover,
-                },
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
               }}
             >
-              {t('builder.preview.tips')}
-            </Button>
-
-            {/* Resume Preview */}
-            <Paper 
-              sx={{ 
-                p: 2,
-                borderRadius: '12px',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-                mb: 2,
-                maxHeight: 'calc(100vh - 280px)',
-                overflow: 'auto',
-              }}
-            >
-              <Box 
-                sx={{ 
-                  transform: 'scale(0.4)',
-                  transformOrigin: 'top left',
-                  width: '250%',
-                  height: '1000px',
-                  pointerEvents: 'none',
-                }}
-              >
-                <ResumeRenderer data={state} templateId="nume" />
-              </Box>
-            </Paper>
-
-            {/* Progress Bar */}
-            <Box sx={{ mb: 2 }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                <Typography variant="caption" sx={{ color: COLORS.resume.text.secondary }}>
-                  {t('builder.preview.progress')}
-                </Typography>
-                <Typography variant="caption" sx={{ fontWeight: 600 }}>
-                  {getProgress()}%
-                </Typography>
-              </Box>
-              <LinearProgress 
-                variant="determinate" 
-                value={getProgress()} 
-                sx={{
-                  height: 8,
-                  borderRadius: 4,
-                  backgroundColor: COLORS.grey[200],
-                  '& .MuiLinearProgress-bar': {
-                    backgroundColor: COLORS.success.main,
-                    borderRadius: 4,
-                  },
-                }}
-              />
+              <ResumeRenderer data={state} templateId="nume" scale={0.35} />
             </Box>
-
-            {/* Preview Button */}
-            <Button
-              variant="contained"
-              startIcon={<VisibilityIcon />}
-              fullWidth
-              sx={{ 
-                borderRadius: '8px',
-                textTransform: 'none',
-                backgroundColor: COLORS.button.primary.background,
-                '&:hover': {
-                  backgroundColor: COLORS.button.primary.backgroundHover,
-                },
-              }}
-            >
-              {t('builder.preview.preview')}
-            </Button>
           </Box>
         </Box>
       </Container>

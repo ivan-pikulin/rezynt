@@ -97,29 +97,6 @@ export const EducationStep: React.FC<EducationStepProps> = ({ state, onUpdate })
 
   return (
     <Box sx={{ maxWidth: 800, margin: '0 auto' }}>
-      <Typography 
-        variant="h5" 
-        sx={{ 
-          fontWeight: 600, 
-          mb: 1,
-          color: COLORS.resume.text.primary,
-          fontSize: '1.5rem',
-        }}
-      >
-        {t('builder.education.title')}
-      </Typography>
-      
-      <Typography 
-        variant="body2" 
-        sx={{ 
-          mb: 3,
-          color: COLORS.resume.text.secondary,
-          fontSize: '14px',
-        }}
-      >
-        {t('builder.education.description')}
-      </Typography>
-
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         {(state.education || []).map((edu, index) => (
           <Paper 

@@ -165,29 +165,6 @@ export const WorkExperienceStep: React.FC<WorkExperienceStepProps> = ({ state, o
 
   return (
     <Box sx={{ maxWidth: 800, margin: '0 auto' }}>
-      <Typography 
-        variant="h5" 
-        sx={{ 
-          fontWeight: 600, 
-          mb: 1,
-          color: COLORS.resume.text.primary,
-          fontSize: '1.5rem',
-        }}
-      >
-        {t('builder.workExperience.title')}
-      </Typography>
-      
-      <Typography 
-        variant="body2" 
-        sx={{ 
-          mb: 3,
-          color: COLORS.resume.text.secondary,
-          fontSize: '14px',
-        }}
-      >
-        {t('builder.workExperience.description')}
-      </Typography>
-
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         {(state.work_experience || []).map((exp, index) => (
           <Paper 

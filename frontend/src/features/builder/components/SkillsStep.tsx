@@ -75,29 +75,6 @@ export const SkillsStep: React.FC<SkillsStepProps> = ({ state, onUpdate }) => {
 
   return (
     <Box sx={{ maxWidth: 800, margin: '0 auto' }}>
-      <Typography 
-        variant="h5" 
-        sx={{ 
-          fontWeight: 600, 
-          mb: 1,
-          color: COLORS.resume.text.primary,
-          fontSize: '1.5rem',
-        }}
-      >
-        {t('builder.skills.title')}
-      </Typography>
-      
-      <Typography 
-        variant="body2" 
-        sx={{ 
-          mb: 3,
-          color: COLORS.resume.text.secondary,
-          fontSize: '14px',
-        }}
-      >
-        {t('builder.skills.description')}
-      </Typography>
-
       <Box sx={{ mb: 3 }}>
         <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
           <SimpleInput

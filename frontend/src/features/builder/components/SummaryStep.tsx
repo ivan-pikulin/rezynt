@@ -14,29 +14,6 @@ export const SummaryStep: React.FC<SummaryStepProps> = ({ state, onUpdate }) => 
 
   return (
     <Box sx={{ maxWidth: 800, margin: '0 auto' }}>
-      <Typography 
-        variant="h5" 
-        sx={{ 
-          fontWeight: 600, 
-          mb: 1,
-          color: COLORS.resume.text.primary,
-          fontSize: '1.5rem',
-        }}
-      >
-        {t('builder.summary.title')}
-      </Typography>
-      
-      <Typography 
-        variant="body2" 
-        sx={{ 
-          mb: 3,
-          color: COLORS.resume.text.secondary,
-          fontSize: '14px',
-        }}
-      >
-        {t('builder.summary.description')}
-      </Typography>
-
       <textarea
         placeholder={t('builder.summary.placeholder')}
         value={state.professional_summary || ''}
