@@ -44,7 +44,7 @@ const ScoreBar: React.FC<ScoreBarProps> = ({ score, label, subtitle, marketingTe
       backgroundColor: 'white',
       borderRadius: '8px',
       boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-      padding: '16px',
+      padding: '12px',
       display: 'flex',
       flexDirection: 'column' as const,
       alignItems: 'center',
@@ -52,22 +52,22 @@ const ScoreBar: React.FC<ScoreBarProps> = ({ score, label, subtitle, marketingTe
     circularScore: {
       display: 'flex',
       alignItems: 'center',
-      gap: '16px',
+      gap: '12px',
       width: '100%',
     },
     scoreCircle: {
       position: 'relative' as const,
-      width: '120px',
-      height: '120px',
+      width: '80px',
+      height: '80px',
     },
     scoreNumber: {
-      fontSize: '26px',
+      fontSize: '20px',
       fontWeight: 600,
       color: scoreColor,
       lineHeight: 1,
     },
     scoreLabel: {
-      fontSize: '14px',
+      fontSize: '12px',
       color: '#6b7280',
       lineHeight: 1,
     },
@@ -77,12 +77,12 @@ const ScoreBar: React.FC<ScoreBarProps> = ({ score, label, subtitle, marketingTe
       alignItems: 'flex-start',
     },
     statusText: {
-      fontSize: '20px',
+      fontSize: '16px',
       fontWeight: 600,
       color: '#1f2937',
     },
     statusSubtext: {
-      fontSize: '14px',
+      fontSize: '13px',
       color: '#6b7280',
     },
   };
@@ -95,8 +95,8 @@ const ScoreBar: React.FC<ScoreBarProps> = ({ score, label, subtitle, marketingTe
           <CircularProgress
             variant="determinate"
             value={100}
-            size={120}
-            thickness={6}
+            size={80}
+            thickness={5}
             sx={{
               position: 'absolute',
               color: '#e5e7eb',
@@ -109,8 +109,8 @@ const ScoreBar: React.FC<ScoreBarProps> = ({ score, label, subtitle, marketingTe
           <CircularProgress
             variant="determinate"
             value={animatedProgress}
-            size={120}
-            thickness={6}
+            size={80}
+            thickness={5}
             sx={{
               position: 'absolute',
               color: scoreColor,

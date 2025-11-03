@@ -4,7 +4,7 @@ import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AnalysisSection } from '../../../shared/services/api/types';
 import ImprovementPoint from './ImprovementPoint';
 import { COLORS } from '../../../shared/theme/theme';
@@ -17,9 +17,9 @@ type Props = {
 const accordionSx = {
   '&:before': { display: 'none' },
   '& .MuiAccordionSummary-root': { 
-    minHeight: '48px',
-    padding: '12px 16px',
-    '&.Mui-expanded': { minHeight: '48px', padding: '12px 16px' }
+    minHeight: '44px',
+    padding: '10px 12px',
+    '&.Mui-expanded': { minHeight: '44px', padding: '10px 12px' }
   },
   '& .MuiAccordionSummary-content': { margin: 0 },
 };
@@ -43,14 +43,27 @@ const statusToText = {
 };
 
 const ImprovementSections: React.FC<Props> = ({ sections, onNavigateToField }) => {
-  const [expandedSection, setExpandedSection] = useState<string | false>(false);
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
+
+  // Initialize all sections as expanded when sections change
+  useEffect(() => {
+    setExpandedSections(new Set(sections.map(s => s.id)));
+  }, [sections]);
 
   const handleAccordionChange = (panelId: string) => (_event: React.SyntheticEvent, isExpanded: boolean) => {
-    setExpandedSection(isExpanded ? panelId : false);
+    setExpandedSections(prev => {
+      const newSet = new Set(prev);
+      if (isExpanded) {
+        newSet.add(panelId);
+      } else {
+        newSet.delete(panelId);
+      }
+      return newSet;
+    });
   };
 
   return (
-    <Box sx={{ p: { xs: 1, md: 2 }, overflow: 'auto' }}>
+    <Box sx={{ p: { xs: 1, md: 1.5 }, overflow: 'auto' }}>
       {sections.map((s) => {
         const pct = s.percentage;
         const color = statusToColor[s.status as keyof typeof statusToColor];
@@ -63,30 +76,30 @@ const ImprovementSections: React.FC<Props> = ({ sections, onNavigateToField }) =
           backgroundColor: 'white',
           borderRadius: '8px',
           boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-          marginBottom: '16px',
+          marginBottom: '12px',
         };
 
         const breakdownTitle = {
           display: 'flex',
           alignItems: 'center',
-          gap: '8px',
+          gap: '6px',
         };
 
         const breakdownName = {
-          fontSize: '18px',
+          fontSize: '16px',
           fontWeight: 500,
           color: '#1f2937',
         };
 
         const breakdownCount = {
-          fontSize: '14px',
+          fontSize: '13px',
           color: '#6b7280',
         };
 
         const breakdownProgress = {
           display: 'flex',
           alignItems: 'center',
-          gap: '8px',
+          gap: '6px',
         };
 
         const progressBar = {
@@ -117,13 +130,13 @@ const ImprovementSections: React.FC<Props> = ({ sections, onNavigateToField }) =
 
         return (
           <Accordion 
-            expanded={expandedSection === s.id}
+            expanded={expandedSections.has(s.id)}
             onChange={handleAccordionChange(s.id)}
             key={s.id}
             sx={{ ...breakdownCard, boxShadow: 'none', ...accordionSx }}
           >
             <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color: '#6b7280' }}/>}>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: '6px', width: '100%' }}>
                 <Box sx={breakdownTitle}>
                   <Typography sx={breakdownName}>{s.title}</Typography>
                   <Typography sx={breakdownCount}>
@@ -145,9 +158,9 @@ const ImprovementSections: React.FC<Props> = ({ sections, onNavigateToField }) =
                 </Box>
               </Box>
             </AccordionSummary>
-            <AccordionDetails sx={{ padding: '8px 16px 16px' }}>
+            <AccordionDetails sx={{ padding: '6px 12px 12px' }}>
               {s.improvement_points.length === 0 ? (
-                <Typography sx={{ fontSize: '14px', color: '#6b7280', textAlign: 'center', padding: '16px' }}>
+                <Typography sx={{ fontSize: '14px', color: '#6b7280', textAlign: 'center', padding: '12px' }}>
                   No issues found in this section. Great job!
                 </Typography>
               ) : (
