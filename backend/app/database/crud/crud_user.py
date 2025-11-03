@@ -190,6 +190,10 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             elif code_type == 'password_reset':
                 user.password_reset_token = token
                 user.password_reset_code = code
+            elif code_type == 'email_change':
+                # Reuse verification_token and verification_code for email change
+                user.verification_token = token
+                user.verification_code = code
             await db.commit()
             await db.refresh(user)
         return user

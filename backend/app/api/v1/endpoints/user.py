@@ -51,7 +51,6 @@ async def update_user_me(
                 service = UserService(db)
                 is_valid = await service.verify_email_change_code(
                     user_id=current_user.id,
-                    email=user_update.email,
                     code=user_update.verification_code
                 )
                 
@@ -65,6 +64,9 @@ async def update_user_me(
                 update_data = user_update.model_dump(exclude={'verification_code'}, exclude_unset=True)
                 update_data['is_verified'] = True
                 user = await user_crud.update(db, db_obj=current_user, obj_in=update_data)
+                
+                # Clear verification code after successful email change
+                await user_crud.set_verification_data(db, user_id=user.id, token='', code='', code_type='email_change')
         else:
             # Email not changed - update other fields normally
             update_data = user_update.model_dump(exclude={'verification_code'}, exclude_unset=True)

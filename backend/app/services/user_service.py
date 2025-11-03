@@ -192,10 +192,10 @@ class UserService:
             self.logger.error(f"Failed to send email change code: {e}")
             return False, ""
     
-    async def verify_email_change_code(self, user_id: int, email: str, code: str) -> bool:
+    async def verify_email_change_code(self, user_id: int, code: str) -> bool:
         """Verify the email change code"""
         # Verify code against stored code in database
-        user = await user_crud.verify_code(self.db, email=email, code=code, code_type='email_change', user_id=user_id)
+        user = await user_crud.verify_code(self.db, code=code, code_type='email_change', user_id=user_id)
         return user is not None
 
     async def get_user_by_email(self, email: str) -> Optional[User]:

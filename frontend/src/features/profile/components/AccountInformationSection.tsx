@@ -78,8 +78,9 @@ export const AccountInformationSection: React.FC<AccountInformationSectionProps>
         onUpdate(updatedUser);
         setSuccess(true);
         setTimeout(() => setSuccess(false), 3000);
-      } catch (err) {
-        setError(t('profileSettings.accountInfo.error'));
+      } catch (err: any) {
+        const errorMessage = err.response?.data?.detail || err.message || t('profileSettings.accountInfo.error');
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
@@ -98,8 +99,9 @@ export const AccountInformationSection: React.FC<AccountInformationSectionProps>
         onUpdate(updatedUser);
         setSuccess(true);
         setTimeout(() => setSuccess(false), 3000);
-      } catch (err) {
-        setError(t('profileSettings.accountInfo.error'));
+      } catch (err: any) {
+        const errorMessage = err.response?.data?.detail || err.message || t('profileSettings.accountInfo.error');
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
@@ -116,7 +118,8 @@ export const AccountInformationSection: React.FC<AccountInformationSectionProps>
           setIsEmailChangePending(true);
           setError(null);
         } catch (err: any) {
-          setError(err.message || t('profileSettings.accountInfo.error'));
+          const errorMessage = err.response?.data?.detail || err.message || t('profileSettings.accountInfo.error');
+          setError(errorMessage);
         } finally {
           setIsSendingCode(false);
         }
@@ -138,10 +141,11 @@ export const AccountInformationSection: React.FC<AccountInformationSectionProps>
         setVerificationCode('');
         setTimeout(() => setSuccess(false), 3000);
       } catch (err: any) {
-        if (err.message?.includes('Invalid verification code') || err.message?.includes('Verification code required')) {
+        const errorMessage = err.response?.data?.detail || err.message || t('profileSettings.accountInfo.error');
+        if (errorMessage.includes('Invalid verification code') || errorMessage.includes('Verification code required')) {
           setError(t('profileSettings.accountInfo.invalidCode'));
         } else {
-          setError(err.message || t('profileSettings.accountInfo.error'));
+          setError(errorMessage);
         }
       } finally {
         setLoading(false);
@@ -159,7 +163,8 @@ export const AccountInformationSection: React.FC<AccountInformationSectionProps>
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
     } catch (err: any) {
-      setError(err.message || t('profileSettings.accountInfo.error'));
+      const errorMessage = err.response?.data?.detail || err.message || t('profileSettings.accountInfo.error');
+      setError(errorMessage);
     } finally {
       setIsSendingCode(false);
     }
