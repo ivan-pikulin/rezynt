@@ -327,6 +327,12 @@ const RefinePage: React.FC = () => {
       console.error('❌ editorRef.current is null!');
     }
   };
+  
+  // Handle fix applied - update resume and add to history
+  const handleFixApplied = (updatedResume: Resume) => {
+    console.log('🔧 Fix applied, updating resume');
+    handleResumeUpdate(updatedResume, true); // Add to history
+  };
 
   const handleNext = () => {
     navigate('/export');
@@ -494,6 +500,8 @@ const RefinePage: React.FC = () => {
             }}>
               <ImprovementSections 
                 sections={analysis?.sections || []} 
+                resume={localResume || resume}
+                onFixApplied={handleFixApplied}
                 onNavigateToField={handleNavigateToField}
               />
             </Box>

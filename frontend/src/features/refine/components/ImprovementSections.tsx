@@ -5,12 +5,14 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import React, { useState, useEffect } from 'react';
-import { AnalysisSection } from '../../../shared/services/api/types';
+import { AnalysisSection, Resume } from '../../../shared/services/api/types';
 import ImprovementPoint from './ImprovementPoint';
 import { COLORS } from '../../../shared/theme/theme';
 
 type Props = {
   sections: AnalysisSection[];
+  resume: Resume;
+  onFixApplied?: (updatedResume: Resume) => void;
   onNavigateToField?: (fieldPath: string) => void;
 };
 
@@ -42,7 +44,7 @@ const statusToText = {
   Strong: COLORS.success.text,
 };
 
-const ImprovementSections: React.FC<Props> = ({ sections, onNavigateToField }) => {
+const ImprovementSections: React.FC<Props> = ({ sections, resume, onFixApplied, onNavigateToField }) => {
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
 
   // Initialize all sections as expanded when sections change
@@ -168,6 +170,8 @@ const ImprovementSections: React.FC<Props> = ({ sections, onNavigateToField }) =
                   <ImprovementPoint 
                     key={point.id} 
                     point={point}
+                    resume={resume}
+                    onFixApplied={onFixApplied}
                     onNavigateToField={onNavigateToField}
                   />
                 ))

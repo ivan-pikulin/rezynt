@@ -43,7 +43,7 @@ Set has_fix to true and provide the professional summary in fixed_text."""
             fix_suggestion = None
             if fix_response.has_fix and fix_response.fixed_text:
                 fix_suggestion = FixSuggestion(
-                    type="add" if not summary else "replace",
+                    type="replace",
                     field_path="professional_summary",
                     new_content=fix_response.fixed_text
                 )

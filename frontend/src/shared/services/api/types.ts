@@ -183,6 +183,13 @@ export interface TaskStatus {
 }
 
 // Analysis types
+export interface FixSuggestion {
+  type: 'replace' | 'add' | 'delete';
+  field_path: string;
+  original_content?: string; // Filled by frontend from resume
+  new_content?: string;
+}
+
 export interface ImprovementPoint {
   id: string;
   rule_id: string;
@@ -192,9 +199,7 @@ export interface ImprovementPoint {
   description: string;
   score_impact: number;
   severity: 'high' | 'medium' | 'low';
-  check_type: 'mechanical' | 'llm' | 'llm_assisted';
-  action_type: 'go_to_edit' | 'fix' | 'both';
-  fix_suggestion?: string;
+  fix_suggestion?: FixSuggestion;
   metadata?: Record<string, any>;
 }
 
@@ -216,15 +221,4 @@ export interface AnalysisResult {
   total_improvements: number;
   potential_score: number;
   generated_at: string;
-}
-
-export interface ApplyFixRequest {
-  point_id: string;
-  field_path: string;
-}
-
-export interface ApplyFixResponse {
-  original: string;
-  fixed: string;
-  field_path: string;
 }

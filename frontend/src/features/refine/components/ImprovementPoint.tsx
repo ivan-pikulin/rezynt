@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
-import CircularProgress from '@mui/material/CircularProgress';
-import { ImprovementPoint as ImprovementPointType } from '../../../shared/services/api/types';
-import { analysisApi } from '../../../shared/services/api';
+import { ImprovementPoint as ImprovementPointType, Resume } from '../../../shared/services/api/types';
 import { COLORS } from '../../../shared/theme/theme';
+import DiffView from './DiffView';
+import { getFieldValue, applyFixToResume } from '../utils/resumeFieldPath';
 
 interface Props {
   point: ImprovementPointType;
-  onFixApplied?: (pointId: string, fixed: string) => void;
+  resume: Resume;
+  onFixApplied?: (updatedResume: Resume) => void;
   onNavigateToField?: (fieldPath: string) => void;
 }
 
@@ -19,22 +20,61 @@ const severityColors = {
   low: COLORS.severity.low.main,
 };
 
-const ImprovementPoint: React.FC<Props> = ({ point, onFixApplied, onNavigateToField }) => {
-  const [isFixing, setIsFixing] = useState(false);
-  const [fixed, setFixed] = useState<string | null>(null);
+const ImprovementPoint: React.FC<Props> = ({ point, resume, onFixApplied, onNavigateToField }) => {
+  const [applied, setApplied] = useState(false);
+  
+  // Check if fix is available
+  const hasFix = !!point.fix_suggestion?.new_content;
+  
+  // Get original and new content for diff display
+  const { originalContent, newContent } = useMemo(() => {
+    if (!point.fix_suggestion?.new_content) {
+      return { originalContent: undefined, newContent: undefined };
+    }
+    
+    const newContent = point.fix_suggestion.new_content;
+    let originalContent: string | undefined;
+    
+    switch (point.fix_suggestion.type) {
+      case 'replace':
+        // Get current value from resume
+        originalContent = getFieldValue(resume, point.field_path) || '(empty)';
+        break;
+      
+      case 'add':
+        // For additions, show current array values or "None"
+        const currentValue = getFieldValue(resume, point.field_path);
+        if (currentValue) {
+          originalContent = `Current: ${currentValue}`;
+        } else {
+          originalContent = '(no items yet)';
+        }
+        break;
+      
+      case 'delete':
+        // For deletions, show what will be removed
+        originalContent = getFieldValue(resume, point.field_path) || '(empty)';
+        break;
+    }
+    
+    return { originalContent, newContent };
+  }, [resume, point.fix_suggestion, point.field_path]);
 
-  const handleFix = async () => {
-    setIsFixing(true);
-    try {
-      const response = await analysisApi.applyFix(point.id, point.field_path);
-      setFixed(response.fixed);
-      if (onFixApplied) {
-        onFixApplied(point.id, response.fixed);
-      }
-    } catch (error) {
-      console.error('Error applying fix:', error);
-    } finally {
-      setIsFixing(false);
+  const handleApplyFix = () => {
+    if (!point.fix_suggestion || !onFixApplied) return;
+    
+    // Apply fix to resume
+    const updatedResume = applyFixToResume(resume, point.fix_suggestion);
+    
+    // Update resume and navigate to field
+    onFixApplied(updatedResume);
+    setApplied(true);
+    
+    // Navigate to the field
+    if (onNavigateToField) {
+      setTimeout(() => {
+        onNavigateToField(point.field_path);
+      }, 100);
     }
   };
 
@@ -103,6 +143,14 @@ const ImprovementPoint: React.FC<Props> = ({ point, onFixApplied, onNavigateToFi
             {point.description}
           </Typography>
           
+          {/* Show diff if fix suggestion available */}
+          {hasFix && originalContent && newContent && (
+            <DiffView 
+              original={originalContent} 
+              updated={newContent} 
+            />
+          )}
+          
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', marginTop: '8px' }}>
             <Typography
               sx={{
@@ -115,81 +163,42 @@ const ImprovementPoint: React.FC<Props> = ({ point, onFixApplied, onNavigateToFi
             </Typography>
             
             <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-              {(point.action_type === 'fix' || point.action_type === 'both') && (
+              {hasFix && (
                 <Button
                   size="small"
                   variant="contained"
-                  onClick={handleFix}
-                  disabled={isFixing || fixed !== null}
+                  onClick={handleApplyFix}
+                  disabled={applied}
                   sx={{
                     fontSize: '11px',
                     textTransform: 'none',
                     padding: '2px 8px',
                     minWidth: 'auto',
-                    backgroundColor: fixed ? COLORS.success.main : COLORS.button.primary.background,
+                    backgroundColor: applied ? COLORS.success.main : COLORS.button.primary.background,
                     '&:hover': {
-                      backgroundColor: fixed ? COLORS.success.dark : COLORS.button.primary.backgroundHover,
+                      backgroundColor: applied ? COLORS.success.dark : COLORS.button.primary.backgroundHover,
                     },
                   }}
                 >
-                  {isFixing ? (
-                    <CircularProgress size={12} sx={{ color: 'white' }} />
-                  ) : fixed ? (
-                    '✓ Fixed'
-                  ) : (
-                    'Fix'
-                  )}
+                  {applied ? '✓ Applied' : 'Apply Fix'}
                 </Button>
               )}
               
-              {(point.action_type === 'go_to_edit' || point.action_type === 'both') && (
-                <Button
-                  size="small"
-                  variant="outlined"
-                  onClick={handleGoToEdit}
-                  sx={{
-                    fontSize: '11px',
-                    textTransform: 'none',
-                    padding: '2px 8px',
-                    minWidth: 'auto',
-                  }}
-                >
-                  Go to Edit
-                </Button>
-              )}
+              <Button
+                size="small"
+                variant="outlined"
+                onClick={handleGoToEdit}
+                sx={{
+                  fontSize: '11px',
+                  textTransform: 'none',
+                  padding: '2px 8px',
+                  minWidth: 'auto',
+                }}
+              >
+                Go to Edit
+              </Button>
             </Box>
           </Box>
-          
-          {fixed && (
-            <Box
-              sx={{
-                marginTop: '8px',
-                padding: '8px',
-                backgroundColor: '#f0fdf4',
-                borderRadius: '4px',
-                border: '1px solid #86efac',
-              }}
-            >
-              <Typography
-                sx={{
-                  fontSize: '12px',
-                  color: '#166534',
-                  fontWeight: 500,
-                  marginBottom: '4px',
-                }}
-              >
-                Suggested fix:
-              </Typography>
-              <Typography
-                sx={{
-                  fontSize: '12px',
-                  color: '#15803d',
-                }}
-              >
-                {fixed}
-              </Typography>
-            </Box>
-          )}
         </Box>
       </Box>
     </Box>

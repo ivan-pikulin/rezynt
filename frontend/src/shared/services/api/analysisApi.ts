@@ -1,5 +1,5 @@
 import { BaseApi } from './baseApi';
-import { AnalysisResult, ApplyFixRequest, ApplyFixResponse } from './types';
+import { AnalysisResult } from './types';
 
 export class AnalysisApi extends BaseApi {
   /**
@@ -14,17 +14,6 @@ export class AnalysisApi extends BaseApi {
    */
   async refreshAnalysis(): Promise<AnalysisResult> {
     return this.post<AnalysisResult>('/analysis/refresh');
-  }
-
-  /**
-   * Apply LLM fix for a specific improvement point
-   */
-  async applyFix(pointId: string, fieldPath: string): Promise<ApplyFixResponse> {
-    const request: ApplyFixRequest = {
-      point_id: pointId,
-      field_path: fieldPath,
-    };
-    return this.post<ApplyFixResponse>('/analysis/fix', request);
   }
 }
 
