@@ -2,7 +2,7 @@
 <feature>
     <info>
         <name>Export Feature</name>
-        <desc>Export resume to PDF format with download options using backend PDF generation. Loads real resume data from API to ensure current user data is exported. Uses WeasyPrint for high-quality PDF generation with better CSS support. Includes success page after download completion. Optimized for mobile devices with responsive design.</desc>
+        <desc>Export resume to PDF format with download options using backend PDF generation. Loads real resume data from API to ensure current user data is exported. Uses WeasyPrint for high-quality PDF generation with better CSS support. Includes success page after download completion. Optimized for mobile devices with responsive design. Displays all four available resume templates with adaptive grid layout: 2 columns on mobile, 4 columns in one row on desktop.</desc>
         <tech>React, TypeScript, Material-UI, WeasyPrint, Backend PDF Generation, Responsive Design, API Integration</tech>
     </info>
 
@@ -22,7 +22,7 @@
     </folder_structure>
 
     <components>
-        <component name="ExportPage" desc="Export page with template selection and two download actions: TXT (direct) and PDF (opens paywall). Uses real resume data and selected template for preview and export.">
+        <component name="ExportPage" desc="Export page with template selection and two download actions: TXT (direct) and PDF (opens upgrade page). Uses real resume data and selected template for preview and export. Shows all four templates with responsive grid layout.">
             <props>
                 <prop name="resumeId" type="string" desc="Resume ID from URL parameters"/>
                 <prop name="resume" type="Resume" desc="Loaded resume data from API"/>
@@ -35,18 +35,18 @@
             </props>
             <features>
                 <feature name="resume_loading" desc="Loads real resume data from API using resumeId parameter"/>
-                <feature name="template_selection" desc="Displays template selector allowing user to choose template"/>
+                <feature name="template_selection" desc="Displays all four templates with responsive grid: 2 columns (mobile), 4 columns in one row (desktop)"/>
                 <feature name="txt_export" desc="Exports resume content as plain TXT on the client side"/>
-                <feature name="pdf_paywall" desc="PDF button opens paywall modal rather than exporting directly"/>
+                <feature name="pdf_paywall" desc="PDF button navigates to upgrade page"/>
                 <feature name="success_page" desc="Shows success page after successful export"/>
                 <feature name="error_handling" desc="Handles loading and export errors with user-friendly messages"/>
                 <feature name="responsive_design" desc="Mobile-optimized layout with adaptive padding and spacing"/>
                 <feature name="auth_based_layout" desc="Unified layout for both guests and authenticated users"/>
-                <feature name="hero_header" desc="Top header with headline and subtext guiding the user"/>
+                <feature name="hero_header" desc="Top header with headline 'We tested thousands of CV templates — these four perform the best'"/>
             </features>
         </component>
 
-        <component name="TemplateSelectionCards" desc="Three-card template chooser with thumbnail, description bullets, radio, and select action.">
+        <component name="TemplateSelectionCards" desc="Four-card template chooser with thumbnail preview. Uses all four available templates: nume (Classic), vero (Elegant), luma (Modern), alto (Professional). Responsive grid layout: 2 columns on mobile/small screens, 4 columns in one row on desktop.">
             <props>
                 <prop name="selectedTemplateId" type="string" desc="Currently selected template ID"/>
                 <prop name="onSelect" type="(TemplateConfig) => void" desc="Handler when a template is chosen"/>
@@ -55,7 +55,9 @@
             <features>
                 <feature name="thumbnails" desc="Shows live preview thumbnails of each template"/>
                 <feature name="descriptions" desc="Static descriptive text and bullet points per template"/>
-                <feature name="selection" desc="Radio + button to select a template"/>
+                <feature name="selection" desc="Clickable card to select a template"/>
+                <feature name="responsive_grid" desc="Adaptive grid: 2 columns (mobile/sm), 4 columns in one row on desktop (md+) with flexible width 200-220px"/>
+                <feature name="all_templates" desc="Displays all four available templates: nume, vero, luma, alto"/>
             </features>
         </component>
         

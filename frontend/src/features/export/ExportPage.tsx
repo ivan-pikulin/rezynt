@@ -304,14 +304,14 @@ const ExportPage: React.FC = () => {
         gap: { xs: 2, sm: 3, md: 4 }
       }}>
         {/* Header */}
-        <Box sx={{ width: '100%', maxWidth: 1100, textAlign: 'center' }}>
+        <Box sx={{ width: '100%', maxWidth: 1200, textAlign: 'center' }}>
           <Typography variant="h5" sx={{ fontWeight: 700, mb: 0.5, fontSize: { xs: '1.1rem', sm: '1.25rem' } }}>
-            We tested thousands of CV templates — these three perform the best.
+            We tested thousands of CV templates — these four perform the best.
           </Typography>
         </Box>
 
         {/* Template selection cards */}
-        <Box sx={{ width: '100%', maxWidth: 1100 }}>
+        <Box sx={{ width: '100%', maxWidth: 1200 }}>
           {displayData && (
             <TemplateSelectionCards
               selectedTemplateId={selectedTemplate?.id}

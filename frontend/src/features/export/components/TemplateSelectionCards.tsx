@@ -30,19 +30,28 @@ const descriptions: Array<{ title: string; subtitle: string; bullets: string[] }
     title: 'Modern',
     subtitle: 'Clean, contemporary design that stands out in any industry',
     bullets: ['ATS safe', 'Print-ready', 'Clean typography', 'Easy to scan']
+  },
+  {
+    title: 'Professional',
+    subtitle: 'Sophisticated template with bold header design',
+    bullets: ['ATS safe', 'Print-ready', 'Executive look', 'Distinguished style']
   }
 ];
 
 const TemplateSelectionCards: React.FC<TemplateSelectionCardsProps> = ({ selectedTemplateId, onSelect, resumeData }) => {
-  // Use specific three templates and exclude the Sidebar variant
-  const templates = ['nume', 'vero', 'alto']
+  // Use all four templates
+  const templates = ['nume', 'vero', 'luma', 'alto']
     .map(id => TemplateService.getTemplateById(id)!)
     .filter(Boolean);
 
   return (
     <Box sx={{ 
       display: 'grid', 
-      gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 220px)' },
+      gridTemplateColumns: { 
+        xs: 'repeat(2, 1fr)',  // 2 columns on mobile
+        sm: 'repeat(2, 1fr)',  // 2 columns on small screens
+        md: 'repeat(4, minmax(200px, 220px))'  // 4 columns on desktop (always in one row)
+      },
       justifyContent: { xs: 'stretch', md: 'center' },
       gap: 2 
     }}>
