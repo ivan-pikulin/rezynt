@@ -127,7 +127,6 @@ const ExperienceEditor = forwardRef<ExperienceEditorHandle, ExperienceEditorProp
   
   // Sync with prop changes (important for undo/redo)
   useEffect(() => {
-    console.log('💼 ExperienceEditor: syncing with prop', { count: experience.length });
     setLocalExperience(experience);
     
     // Rebuild form data from prop

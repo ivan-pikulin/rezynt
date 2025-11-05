@@ -135,17 +135,11 @@ const RefinePage: React.FC = () => {
   // Track unsaved changes
   useEffect(() => {
     if (!localResume || !lastSavedResume) {
-      console.log('💾 Unsaved changes check: skipped (no resume data)');
       setHasUnsavedChanges(false);
       return;
     }
     
     const hasChanges = JSON.stringify(localResume) !== JSON.stringify(lastSavedResume);
-    console.log('💾 Unsaved changes check:', {
-      hasChanges,
-      localResumeHash: JSON.stringify(localResume).substring(0, 100),
-      lastSavedResumeHash: JSON.stringify(lastSavedResume).substring(0, 100)
-    });
     setHasUnsavedChanges(hasChanges);
   }, [localResume, lastSavedResume]);
   

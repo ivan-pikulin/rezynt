@@ -83,7 +83,6 @@ const EducationEditor = forwardRef<EducationEditorHandle, EducationEditorProps>(
   
   // Sync with prop changes (important for undo/redo)
   useEffect(() => {
-    console.log('🎓 EducationEditor: syncing with prop', { count: education.length });
     setLocalEducation(education);
     
     // Rebuild form data from prop

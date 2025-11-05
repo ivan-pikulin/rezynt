@@ -128,11 +128,6 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
   });
 
   useEffect(() => {
-    console.log('🔄 EditorAccordion: resume prop changed, updating local state', {
-      experienceCount: resume.work_experience?.length,
-      educationCount: resume.education?.length
-    });
-    
     // Always update localResume when resume prop changes
     // This is important for undo/redo to work properly
     setLocalResume(resume);
@@ -180,8 +175,6 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
 
   // Navigate to specific field based on field_path
   useImperativeHandle(ref, () => {
-    console.log('🔧 useImperativeHandle creating handle object');
-    
     const navigateToField = (fieldPath: string) => {
       console.log('📍 EditorAccordion.navigateToField called:', fieldPath);
       
