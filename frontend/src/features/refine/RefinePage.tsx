@@ -551,7 +551,8 @@ const RefinePage: React.FC = () => {
             flex: 1, 
             minWidth: 0, 
             position: 'relative',
-            display: { xs: mobileTab === 'editor' ? 'block' : 'none', md: 'block' }
+            display: { xs: mobileTab === 'editor' ? 'block' : 'none', md: 'block' },
+            overflow: 'auto'
           }}>
             <EditorAccordion 
               ref={editorRef}
