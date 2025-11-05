@@ -1,4 +1,5 @@
 """Scoring calculations for resume analysis"""
+import math
 from typing import List, Tuple
 
 from app.schemas.analysis import AnalysisSection, ImprovementPoint
@@ -10,7 +11,17 @@ def calculate_section_score(
     max_section_score: int
 ) -> Tuple[int, int]:
     """
-    Calculate section score based on improvement points.
+    Calculate section score using exponential decay formula.
+    
+    Score starts at max_section_score and decreases exponentially based on penalties.
+    The more issues found, the lower the score, but it never reaches zero.
+    
+    Formula: score = MIN + (MAX - MIN) * exp(-k * penalty_ratio)
+    
+    Where:
+    - penalty_ratio = total_penalty / expected_max_penalty
+    - k = decay coefficient (higher = faster drop near max score)
+    - MIN = minimum asymptotic score (floor)
     
     Args:
         improvement_points: List of detected issues
@@ -20,9 +31,31 @@ def calculate_section_score(
         (current_score, total_impact): Current score and total potential gain
     """
     total_impact = sum(point.score_impact for point in improvement_points)
-    current_score = max(0, max_section_score - total_impact)
     
-    return current_score, total_impact
+    if total_impact == 0:
+        return max_section_score, 0
+    
+    # Get configuration from AnalysisConfig
+    MIN_SCORE_RATIO = AnalysisConfig.MIN_SCORE_RATIO
+    DECAY_COEFFICIENT = AnalysisConfig.DECAY_COEFFICIENT
+    
+    # Expected max penalty is roughly 1.5x the section max
+    # (assumes you could have more issues than the max score)
+    expected_max_penalty = max_section_score * 1.5
+    
+    # Calculate penalty ratio (0 to 1+)
+    penalty_ratio = total_impact / expected_max_penalty
+    
+    # Calculate minimum score
+    min_score = max_section_score * MIN_SCORE_RATIO
+    
+    # Exponential decay formula
+    # When penalty_ratio = 0 → score = max_section_score
+    # When penalty_ratio increases → score drops quickly at first, then slowly
+    # When penalty_ratio → infinity → score → min_score
+    current_score = min_score + (max_section_score - min_score) * math.exp(-DECAY_COEFFICIENT * penalty_ratio)
+    
+    return int(current_score), total_impact
 
 
 def calculate_overall_score(sections: List[AnalysisSection]) -> int:

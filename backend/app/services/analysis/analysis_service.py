@@ -121,7 +121,22 @@ class AnalysisService:
         label, subtitle = AnalysisConfig.get_score_label(score)
         
         # Calculate potential score if all improvements applied
-        potential_score = min(100, score + sum(p.score_impact for p in all_points))
+        # With exponential decay formula, fixing all issues means score approaches maximum
+        # Recalculate each section as if it had no issues (penalty = 0)
+        potential_sections = []
+        for section in sections:
+            # If all issues in this section are fixed, score = max_section_score
+            max_section_score = AnalysisConfig.MAX_SECTION_SCORES.get(section.id, 100)
+            potential_section = AnalysisSection(
+                id=section.id,
+                title=section.title,
+                current_points=max_section_score,
+                max_points=max_section_score,
+                improvement_points=[]
+            )
+            potential_sections.append(potential_section)
+        
+        potential_score = calculate_overall_score(potential_sections)
         
         return AnalysisResult(
             score=score,
