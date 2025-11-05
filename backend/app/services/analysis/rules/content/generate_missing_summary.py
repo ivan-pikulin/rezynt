@@ -18,7 +18,7 @@ class GenerateMissingSummaryRule(BaseRule):
     async def check(self, resume: dict) -> List[ImprovementPoint]:
         """Generate summary via LLM if missing."""
         points = []
-        summary = resume.get('professional_summary', '').strip()
+        summary = (resume.get('professional_summary') or '').strip()
 
         # Only generate if summary is completely missing
         if not summary or len(summary) < 20:

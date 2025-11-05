@@ -42,7 +42,7 @@ class ResumeLengthRule(BaseRule):
         if total_words < AnalysisConfig.MIN_RESUME_WORDS:
             # Find first empty field to fill
             field_path = "professional_summary"
-            if resume.get('professional_summary', '').strip():
+            if (resume.get('professional_summary') or '').strip():
                 # If summary exists, check work experience
                 experiences = resume.get('work_experience', [])
                 if experiences:

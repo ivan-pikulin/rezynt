@@ -21,7 +21,7 @@ class SummaryLengthRule(BaseRule):
     async def check(self, resume: dict) -> List[ImprovementPoint]:
         """Check summary length and generate fixes if needed."""
         points = []
-        summary = resume.get('professional_summary', '').strip()
+        summary = (resume.get('professional_summary') or '').strip()
 
         # Skip if summary is missing completely (handled by missing_required_fields)
         if not summary or len(summary) < 20:

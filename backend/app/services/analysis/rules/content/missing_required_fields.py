@@ -22,7 +22,8 @@ class MissingRequiredFieldsRule(BaseRule):
         contacts = personal_info.get('contacts', {})
 
         # 1. Check first name
-        if not personal_info.get('first_name', '').strip():
+        first_name = personal_info.get('first_name') or ''
+        if not first_name.strip():
             points.append(self.create_point(
                 field_path="personal_info.first_name",
                 title="Missing First Name",
@@ -31,7 +32,8 @@ class MissingRequiredFieldsRule(BaseRule):
             ))
 
         # 2. Check last name
-        if not personal_info.get('last_name', '').strip():
+        last_name = personal_info.get('last_name') or ''
+        if not last_name.strip():
             points.append(self.create_point(
                 field_path="personal_info.last_name",
                 title="Missing Last Name",
@@ -40,7 +42,8 @@ class MissingRequiredFieldsRule(BaseRule):
             ))
 
         # 3. Check job title (desired position)
-        if not personal_info.get('job_title', '').strip():
+        job_title = personal_info.get('job_title') or ''
+        if not job_title.strip():
             points.append(self.create_point(
                 field_path="personal_info.job_title",
                 title="Missing Job Title",
@@ -49,7 +52,8 @@ class MissingRequiredFieldsRule(BaseRule):
             ))
 
         # 4. Check city
-        if not personal_info.get('city', '').strip():
+        city = personal_info.get('city') or ''
+        if not city.strip():
             points.append(self.create_point(
                 field_path="personal_info.city",
                 title="Missing City",
@@ -58,7 +62,8 @@ class MissingRequiredFieldsRule(BaseRule):
             ))
 
         # 5. Check email
-        if not contacts.get('email', '').strip():
+        email = contacts.get('email') or ''
+        if not email.strip():
             points.append(self.create_point(
                 field_path="personal_info.contacts.email",
                 title="Missing Email Address",
@@ -67,7 +72,8 @@ class MissingRequiredFieldsRule(BaseRule):
             ))
 
         # 6. Check phone
-        if not contacts.get('phone', '').strip():
+        phone = contacts.get('phone') or ''
+        if not phone.strip():
             points.append(self.create_point(
                 field_path="personal_info.contacts.phone",
                 title="Missing Phone Number",
@@ -77,11 +83,11 @@ class MissingRequiredFieldsRule(BaseRule):
 
         # 7. Check minimum contacts (at least 2)
         available_contacts = sum([
-            bool(contacts.get('email', '').strip()),
-            bool(contacts.get('phone', '').strip()),
-            bool(contacts.get('linkedin', '').strip()),
-            bool(contacts.get('telegram', '').strip()),
-            bool(contacts.get('github', '').strip()),
+            bool((contacts.get('email') or '').strip()),
+            bool((contacts.get('phone') or '').strip()),
+            bool((contacts.get('linkedin') or '').strip()),
+            bool((contacts.get('telegram') or '').strip()),
+            bool((contacts.get('github') or '').strip()),
         ])
 
         if available_contacts < 2:
@@ -93,7 +99,7 @@ class MissingRequiredFieldsRule(BaseRule):
             ))
 
         # 8. Check professional summary (mechanical check only)
-        summary = resume.get('professional_summary', '').strip()
+        summary = (resume.get('professional_summary') or '').strip()
         if not summary:
             points.append(self.create_point(
                 field_path="professional_summary",
