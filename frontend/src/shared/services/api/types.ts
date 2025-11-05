@@ -186,8 +186,8 @@ export interface TaskStatus {
 export interface FixSuggestion {
   type: 'replace' | 'add' | 'delete';
   field_path: string;
-  original_content?: string; // Filled by frontend from resume
-  new_content?: string;
+  original_content?: string | string[]; // Original value from backend
+  new_content?: string | string[];
 }
 
 export interface ImprovementPoint {

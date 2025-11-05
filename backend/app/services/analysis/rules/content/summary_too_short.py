@@ -46,6 +46,7 @@ If you cannot expand it meaningfully, set has_fix to false and explain in reason
                 fix_suggestion = FixSuggestion(
                     type="replace",
                     field_path="professional_summary",
+                    original_content=summary,
                     new_content=fix_response.fixed_text
                 )
             

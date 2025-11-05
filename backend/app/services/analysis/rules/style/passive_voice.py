@@ -45,6 +45,7 @@ Set has_fix to true and provide the active voice version in fixed_text."""
                         fix_suggestion = FixSuggestion(
                             type="replace",
                             field_path=f"work_experience[{i}].achievements[{j}]",
+                            original_content=achievement,
                             new_content=fix_response.fixed_text
                         )
                     

@@ -37,20 +37,34 @@ const ImprovementPoint: React.FC<Props> = ({ point, resume, onFixApplied, onNavi
   const hasFix = !!point.fix_suggestion?.new_content;
   const isFixed = point.is_fixed || false;
   
+  // Helper to normalize content to string for DiffView
+  const normalizeContent = (content: string | string[] | undefined): string | undefined => {
+    if (!content) return undefined;
+    if (Array.isArray(content)) {
+      return content.join(', ');
+    }
+    return content;
+  };
+
   // Get original and new content for diff display
   const { originalContent, newContent, shouldShowItemsList } = useMemo(() => {
     if (!point.fix_suggestion?.new_content) {
       return { originalContent: undefined, newContent: undefined, shouldShowItemsList: false };
     }
     
-    const newContent = point.fix_suggestion.new_content;
+    const rawNewContent = point.fix_suggestion.new_content;
+    const rawOriginalContent = point.fix_suggestion.original_content;
     let originalContent: string | undefined;
+    let newContent: string | undefined;
     let shouldShowItemsList = false;
     
     switch (point.fix_suggestion.type) {
       case 'replace':
-        // Get current value from resume
-        originalContent = getFieldValue(resume, point.field_path) || '(empty)';
+        // Use original_content from backend if available, otherwise fallback to resume
+        const backendOriginal = normalizeContent(rawOriginalContent);
+        const resumeOriginal = normalizeContent(getFieldValue(resume, point.field_path));
+        originalContent = backendOriginal || resumeOriginal || '(empty)';
+        newContent = normalizeContent(rawNewContent);
         break;
       
       case 'add':
@@ -62,11 +76,13 @@ const ImprovementPoint: React.FC<Props> = ({ point, resume, onFixApplied, onNavi
         } else {
           originalContent = undefined;
         }
+        newContent = normalizeContent(rawNewContent);
         break;
       
       case 'delete':
         // For deletions, show what will be removed
-        originalContent = getFieldValue(resume, point.field_path) || '(empty)';
+        originalContent = normalizeContent(rawOriginalContent) || normalizeContent(getFieldValue(resume, point.field_path)) || '(empty)';
+        newContent = undefined;
         break;
     }
     

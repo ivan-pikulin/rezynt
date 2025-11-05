@@ -1,4 +1,4 @@
-import { Resume } from '../../../shared/services/api/types';
+import { Resume, FixSuggestion } from '../../../shared/services/api/types';
 
 /**
  * Get value from resume by field path
@@ -126,7 +126,7 @@ export function addToArrayField(resume: Resume, fieldPath: string, value: string
  */
 export function applyFixToResume(
   resume: Resume,
-  fixSuggestion: { type: 'replace' | 'add' | 'delete'; field_path: string; new_content?: string }
+  fixSuggestion: FixSuggestion
 ): Resume {
   if (!fixSuggestion.new_content) {
     return resume;
@@ -137,7 +137,11 @@ export function applyFixToResume(
       return setFieldValue(resume, fixSuggestion.field_path, fixSuggestion.new_content);
     
     case 'add':
-      return addToArrayField(resume, fixSuggestion.field_path, fixSuggestion.new_content);
+      // For add, new_content should be a string (comma-separated for parsing)
+      const contentToAdd = Array.isArray(fixSuggestion.new_content) 
+        ? fixSuggestion.new_content.join(', ')
+        : fixSuggestion.new_content;
+      return addToArrayField(resume, fixSuggestion.field_path, contentToAdd);
     
     case 'delete':
       // TODO: Implement delete if needed

@@ -32,6 +32,7 @@ class JobTitleCapitalizationRule(BaseRule):
                     fix_suggestion = FixSuggestion(
                         type="replace",
                         field_path=f"work_experience[{i}].job_title",
+                        original_content=job_title,
                         new_content=job_title.title()
                     )
                     

@@ -54,6 +54,7 @@ Set has_fix to true and provide the suggested specific title in fixed_text."""
                     fix_suggestion = FixSuggestion(
                         type="replace",
                         field_path=f"work_experience[{i}].job_title",
+                        original_content=original_title,
                         new_content=fix_response.fixed_text
                     )
                 

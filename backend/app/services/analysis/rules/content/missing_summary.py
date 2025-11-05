@@ -45,6 +45,7 @@ Set has_fix to true and provide the professional summary in fixed_text."""
                 fix_suggestion = FixSuggestion(
                     type="replace",
                     field_path="professional_summary",
+                    original_content=summary if summary else None,
                     new_content=fix_response.fixed_text
                 )
             

@@ -46,10 +46,13 @@ Set has_fix to true and provide comma-separated curated skills in fixed_text."""
             
             fix_suggestion = None
             if fix_response.has_fix and fix_response.fixed_text:
+                # Parse skills as list (comma-separated from LLM response)
+                new_skills_list = [s.strip() for s in fix_response.fixed_text.split(',')]
                 fix_suggestion = FixSuggestion(
                     type="replace",
                     field_path="skills",
-                    new_content=fix_response.fixed_text
+                    original_content=skills,
+                    new_content=new_skills_list
                 )
             
             points.append(self.create_point(

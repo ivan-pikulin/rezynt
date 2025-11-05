@@ -1,7 +1,6 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import { COLORS } from '../../../shared/theme/theme';
+import DiffMatchPatch from 'diff-match-patch';
 
 interface Props {
   original: string;
@@ -9,81 +8,76 @@ interface Props {
 }
 
 /**
- * Display diff between original and updated text (git-style)
+ * Display inline diff between original and updated text
+ * Removed parts are shown with strikethrough in red, added parts highlighted in green
  */
 const DiffView: React.FC<Props> = ({ original, updated }) => {
+  const diffParts = useMemo(() => {
+    const dmp = new DiffMatchPatch();
+    const diffs = dmp.diff_main(original, updated);
+    dmp.diff_cleanupSemantic(diffs);
+    return diffs;
+  }, [original, updated]);
+
   return (
     <Box
       sx={{
         marginTop: '8px',
         borderRadius: '6px',
-        overflow: 'hidden',
         border: '1px solid #e5e7eb',
+        padding: '12px',
         fontSize: '12px',
         fontFamily: 'monospace',
+        whiteSpace: 'pre-wrap',
+        wordBreak: 'break-word',
+        lineHeight: 1.6,
       }}
     >
-      {/* Original (removed) */}
-      <Box
-        sx={{
-          backgroundColor: '#fef2f2',
-          padding: '8px 12px',
-          borderLeft: '3px solid #ef4444',
-        }}
-      >
-        <Typography
-          sx={{
-            fontSize: '11px',
-            fontWeight: 600,
-            color: '#991b1b',
-            marginBottom: '4px',
-          }}
-        >
-          - Original
-        </Typography>
-        <Typography
-          sx={{
-            fontSize: '12px',
-            color: '#7f1d1d',
-            fontFamily: 'inherit',
-            whiteSpace: 'pre-wrap',
-            wordBreak: 'break-word',
-          }}
-        >
-          {original}
-        </Typography>
-      </Box>
-
-      {/* Updated (added) */}
-      <Box
-        sx={{
-          backgroundColor: '#f0fdf4',
-          padding: '8px 12px',
-          borderLeft: '3px solid #22c55e',
-        }}
-      >
-        <Typography
-          sx={{
-            fontSize: '11px',
-            fontWeight: 600,
-            color: '#166534',
-            marginBottom: '4px',
-          }}
-        >
-          + Suggested
-        </Typography>
-        <Typography
-          sx={{
-            fontSize: '12px',
-            color: '#14532d',
-            fontFamily: 'inherit',
-            whiteSpace: 'pre-wrap',
-            wordBreak: 'break-word',
-          }}
-        >
-          {updated}
-        </Typography>
-      </Box>
+      {diffParts.map((part, index) => {
+        const [operation, text] = part;
+        
+        // -1 = deletion, 0 = no change, 1 = addition
+        if (operation === -1) {
+          // Removed text: strikethrough with red color and light red background
+          return (
+            <Box
+              key={index}
+              component="del"
+              sx={{
+                color: '#991b1b',
+                backgroundColor: '#fef2f2',
+                textDecoration: 'line-through',
+                padding: '0 2px',
+              }}
+            >
+              {text}
+            </Box>
+          );
+        } else if (operation === 1) {
+          // Added text: green color with light green background
+          return (
+            <Box
+              key={index}
+              component="ins"
+              sx={{
+                color: '#166534',
+                backgroundColor: '#f0fdf4',
+                textDecoration: 'none',
+                padding: '0 2px',
+              }}
+            >
+              {text}
+            </Box>
+          );
+        } else {
+          // Unchanged text
+          return (
+            <Box key={index} component="span" sx={{ color: '#374151' }}>
+              {text}
+            </Box>
+          );
+        }
+      })}
     </Box>
   );
 };

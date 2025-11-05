@@ -39,6 +39,7 @@ Set has_fix to true and provide the version without pronouns in fixed_text."""
                 fix_suggestion = FixSuggestion(
                     type="replace",
                     field_path="professional_summary",
+                    original_content=summary,
                     new_content=fix_response.fixed_text
                 )
             
@@ -67,6 +68,7 @@ Set has_fix to true and provide the version without pronouns in fixed_text."""
                         fix_suggestion = FixSuggestion(
                             type="replace",
                             field_path=f"work_experience[{i}].achievements[{j}]",
+                            original_content=achievement,
                             new_content=fix_response.fixed_text
                         )
                     

@@ -53,6 +53,7 @@ If not possible, set has_fix to false and explain why in reasoning."""
                         fix_suggestion = FixSuggestion(
                             type="replace",
                             field_path=f"work_experience[{i}].achievements[{j}]",
+                            original_content=achievement,
                             new_content=fix_response.fixed_text
                         )
                     

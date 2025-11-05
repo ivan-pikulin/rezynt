@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Dict, List, Literal, Optional
+from typing import Any, Dict, List, Literal, Optional, Union
 
 from pydantic import BaseModel
 
@@ -8,8 +8,8 @@ class FixSuggestion(BaseModel):
     """Structured fix suggestion that can be auto-applied"""
     type: Literal['replace', 'add', 'delete']  # Type of fix operation
     field_path: str  # Exact JSON path to field
-    original_content: Optional[str] = None  # Not set by backend, frontend retrieves from resume by field_path
-    new_content: Optional[str] = None  # New value (for replace/add)
+    original_content: Optional[Union[str, List[str]]] = None  # Original value before fix (for diff display)
+    new_content: Optional[Union[str, List[str]]] = None  # New value (for replace/add)
 
 
 class ImprovementPoint(BaseModel):
