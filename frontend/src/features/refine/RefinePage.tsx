@@ -333,9 +333,27 @@ const RefinePage: React.FC = () => {
   };
   
   // Handle fix applied - update resume and add to history
-  const handleFixApplied = (updatedResume: Resume) => {
-    console.log('🔧 Fix applied, updating resume');
+  const handleFixApplied = async (updatedResume: Resume) => {
     handleResumeUpdate(updatedResume, true); // Add to history
+    
+    // Auto-save to server if authenticated
+    if (isAuthenticated) {
+      try {
+        const { resumeApi } = await import('../../shared/services/api');
+        await resumeApi.updateResume(updatedResume);
+        
+        // Update cache and timestamp
+        updateResumeInCache(updatedResume);
+        setLastSavedResume(updatedResume);
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        setLastSaveTime(`${hours}:${minutes}:${seconds}`);
+      } catch (error) {
+        console.error('Error auto-saving resume:', error);
+      }
+    }
   };
 
   const handleNext = () => {

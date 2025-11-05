@@ -6,8 +6,9 @@ import { Resume } from '../../../shared/services/api/types';
  * - "professional_summary" → resume.professional_summary
  * - "work_experience[0].job_title" → resume.work_experience[0].job_title
  * - "work_experience[1].achievements[2]" → resume.work_experience[1].achievements[2]
+ * - "skills" → resume.skills (can return array)
  */
-export function getFieldValue(resume: Resume, fieldPath: string): string | undefined {
+export function getFieldValue(resume: Resume, fieldPath: string): any {
   try {
     const parts = fieldPath.split(/\.|\[|\]/).filter(Boolean);
     let current: any = resume;
@@ -19,7 +20,8 @@ export function getFieldValue(resume: Resume, fieldPath: string): string | undef
       current = current[part];
     }
     
-    return typeof current === 'string' ? current : undefined;
+    // Return the value as is (can be string, array, object, etc.)
+    return current;
   } catch (error) {
     console.error('Error getting field value:', error, fieldPath);
     return undefined;
@@ -81,12 +83,26 @@ export function addToArrayField(resume: Resume, fieldPath: string, value: string
           current[part] = [];
         }
         
-        // Add values (handle comma-separated for skills)
+        // Add values with duplicate check (handle comma-separated for skills)
         if (value.includes(',')) {
           const newItems = value.split(',').map(s => s.trim()).filter(Boolean);
-          current[part].push(...newItems);
+          // Only add items that don't already exist (case-insensitive)
+          const itemsToAdd = newItems.filter(newItem => 
+            !current[part].some((existingItem: any) => 
+              typeof existingItem === 'string' && 
+              existingItem.toLowerCase() === newItem.toLowerCase()
+            )
+          );
+          current[part].push(...itemsToAdd);
         } else {
-          current[part].push(value);
+          // Check if item already exists (case-insensitive)
+          const exists = current[part].some((existingItem: any) => 
+            typeof existingItem === 'string' && 
+            existingItem.toLowerCase() === value.toLowerCase()
+          );
+          if (!exists) {
+            current[part].push(value);
+          }
         }
       } else {
         // Navigate deeper

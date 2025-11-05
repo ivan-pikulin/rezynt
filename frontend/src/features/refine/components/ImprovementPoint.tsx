@@ -1,8 +1,9 @@
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import confetti from 'canvas-confetti';
 import { ImprovementPoint as ImprovementPointType, Resume } from '../../../shared/services/api/types';
 import { analysisApi } from '../../../shared/services/api';
@@ -28,6 +29,8 @@ const ImprovementPoint: React.FC<Props> = ({ point, resume, onFixApplied, onNavi
   const [applied, setApplied] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [isMarkingFixed, setIsMarkingFixed] = useState(false);
+  const [addedItems, setAddedItems] = useState<Set<number>>(new Set());
+  const [animatingItems, setAnimatingItems] = useState<Set<number>>(new Set());
   const buttonRef = useRef<HTMLButtonElement>(null);
   
   // Check if fix is available and if already marked as fixed
@@ -35,13 +38,14 @@ const ImprovementPoint: React.FC<Props> = ({ point, resume, onFixApplied, onNavi
   const isFixed = point.is_fixed || false;
   
   // Get original and new content for diff display
-  const { originalContent, newContent } = useMemo(() => {
+  const { originalContent, newContent, shouldShowItemsList } = useMemo(() => {
     if (!point.fix_suggestion?.new_content) {
-      return { originalContent: undefined, newContent: undefined };
+      return { originalContent: undefined, newContent: undefined, shouldShowItemsList: false };
     }
     
     const newContent = point.fix_suggestion.new_content;
     let originalContent: string | undefined;
+    let shouldShowItemsList = false;
     
     switch (point.fix_suggestion.type) {
       case 'replace':
@@ -50,12 +54,13 @@ const ImprovementPoint: React.FC<Props> = ({ point, resume, onFixApplied, onNavi
         break;
       
       case 'add':
-        // For additions, show current array values or "None"
+        // For additions, always show items list with individual Add buttons
+        shouldShowItemsList = true;
         const currentValue = getFieldValue(resume, point.field_path);
-        if (currentValue) {
-          originalContent = `Current: ${currentValue}`;
+        if (Array.isArray(currentValue) && currentValue.length > 0) {
+          originalContent = `Current: ${currentValue.join(', ')}`;
         } else {
-          originalContent = '(no items yet)';
+          originalContent = undefined;
         }
         break;
       
@@ -65,8 +70,41 @@ const ImprovementPoint: React.FC<Props> = ({ point, resume, onFixApplied, onNavi
         break;
     }
     
-    return { originalContent, newContent };
+    return { originalContent, newContent, shouldShowItemsList };
   }, [resume, point.fix_suggestion, point.field_path]);
+  
+  // Parse items to add from newContent (always for type='add')
+  const itemsToAdd = useMemo(() => {
+    if (!shouldShowItemsList || !newContent) return [];
+    // Split by comma and trim whitespace
+    return newContent.split(',').map(item => item.trim()).filter(item => item.length > 0);
+  }, [shouldShowItemsList, newContent]);
+
+  // Check which items are already in resume on mount/update
+  useEffect(() => {
+    if (!shouldShowItemsList || itemsToAdd.length === 0) return;
+    
+    // Get current value from resume
+    const currentValue = getFieldValue(resume, point.field_path);
+    
+    if (Array.isArray(currentValue) && currentValue.length > 0) {
+      // Check which suggested items are already in the resume
+      const alreadyAddedIndices = new Set<number>();
+      itemsToAdd.forEach((item, index) => {
+        // Check if this item exists in current resume values (case-insensitive)
+        if (currentValue.some((existingItem: any) => 
+          typeof existingItem === 'string' && 
+          existingItem.toLowerCase().trim() === item.toLowerCase().trim()
+        )) {
+          alreadyAddedIndices.add(index);
+        }
+      });
+      
+      if (alreadyAddedIndices.size > 0) {
+        setAddedItems(alreadyAddedIndices);
+      }
+    }
+  }, [resume, point.field_path, shouldShowItemsList, itemsToAdd]);
 
   // Celebration effect on fix applied
   const celebrate = () => {
@@ -106,8 +144,8 @@ const ImprovementPoint: React.FC<Props> = ({ point, resume, onFixApplied, onNavi
     // Show celebration effect
     celebrate();
     
-    // Update resume and navigate to field
-    onFixApplied(updatedResume);
+    // Update resume and wait for save to complete
+    await onFixApplied(updatedResume);
     
     // Small delay for visual feedback
     setTimeout(async () => {
@@ -147,22 +185,61 @@ const ImprovementPoint: React.FC<Props> = ({ point, resume, onFixApplied, onNavi
     }
   };
 
-  const handleGoToEdit = () => {
-    console.log('🎯 Go to Edit clicked:', {
-      pointId: point.id,
-      fieldPath: point.field_path,
-      title: point.title
+  const handleAddSingleItem = async (item: string, index: number) => {
+    if (!point.fix_suggestion || !onFixApplied || animatingItems.has(index)) return;
+    
+    // Mark item as animating
+    setAnimatingItems(prev => new Set(prev).add(index));
+    
+    // Add single item to resume
+    const { addToArrayField } = await import('../utils/resumeFieldPath');
+    const updatedResume = addToArrayField(resume, point.field_path, item);
+    
+    // Show mini celebration
+    confetti({
+      particleCount: 15,
+      angle: 90,
+      spread: 45,
+      origin: { x: 0.5, y: 0.5 },
+      colors: ['#10b981', '#34d399', '#6ee7b7'],
     });
     
-    console.log('🔗 onNavigateToField exists:', !!onNavigateToField);
-    console.log('🔗 onNavigateToField type:', typeof onNavigateToField);
+    // Update resume and wait for save to complete
+    await onFixApplied(updatedResume);
     
+    // Navigate to the field
     if (onNavigateToField) {
-      console.log('📞 Calling onNavigateToField with:', point.field_path);
       onNavigateToField(point.field_path);
-      console.log('✅ onNavigateToField called successfully');
-    } else {
-      console.error('❌ onNavigateToField is not defined!');
+    }
+    
+    // Mark item as added after animation
+    setTimeout(() => {
+      setAddedItems(prev => new Set(prev).add(index));
+      setAnimatingItems(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(index);
+        return newSet;
+      });
+      
+      // If all items are added, mark as fixed
+      if (addedItems.size + 1 === itemsToAdd.length) {
+        setTimeout(async () => {
+          try {
+            await analysisApi.markFixed(point.id, true);
+            if (onFixMarked) {
+              onFixMarked();
+            }
+          } catch (error) {
+            console.error('Failed to mark fix as applied:', error);
+          }
+        }, 300);
+      }
+    }, 300);
+  };
+
+  const handleGoToEdit = () => {
+    if (onNavigateToField) {
+      onNavigateToField(point.field_path);
     }
   };
 
@@ -239,8 +316,90 @@ const ImprovementPoint: React.FC<Props> = ({ point, resume, onFixApplied, onNavi
             {point.description}
           </Typography>
           
-          {/* Show diff if fix suggestion available and not fixed */}
-          {hasFix && originalContent && newContent && !isFixed && (
+          {/* Show beautiful list for adding items */}
+          {hasFix && shouldShowItemsList && !isFixed && itemsToAdd.length > 0 && (
+            <Box sx={{ 
+              marginTop: '8px',
+              padding: '12px',
+              backgroundColor: '#f0fdf4',
+              borderRadius: '6px',
+              borderLeft: `3px solid ${COLORS.success.main}`,
+            }}>
+              <Typography sx={{ 
+                fontSize: '12px', 
+                fontWeight: 600, 
+                color: COLORS.success.main,
+                marginBottom: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}>
+                <AddCircleOutlineIcon sx={{ fontSize: '16px' }} />
+                Items to add:
+              </Typography>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                {itemsToAdd.map((item, index) => {
+                  const isAdded = addedItems.has(index);
+                  const isAnimating = animatingItems.has(index);
+                  
+                  return (
+                    <Box 
+                      key={index}
+                      sx={{ 
+                        display: 'flex', 
+                        alignItems: 'center',
+                        gap: '6px',
+                        padding: '4px 8px',
+                        backgroundColor: isAdded ? '#dcfce7' : 'white',
+                        borderRadius: '4px',
+                        fontSize: '12px',
+                        color: isAdded ? COLORS.success.main : '#1f2937',
+                        transition: 'all 0.3s ease',
+                        opacity: isAdded ? 0.7 : 1,
+                      }}
+                    >
+                      <Box sx={{ 
+                        width: '4px', 
+                        height: '4px', 
+                        borderRadius: '50%', 
+                        backgroundColor: COLORS.success.main,
+                        flexShrink: 0
+                      }} />
+                      <Box sx={{ flex: 1, textDecoration: isAdded ? 'line-through' : 'none' }}>
+                        {item}
+                      </Box>
+                      {!isAdded && (
+                        <Button
+                          size="small"
+                          onClick={() => handleAddSingleItem(item, index)}
+                          disabled={isAnimating}
+                          sx={{
+                            fontSize: '10px',
+                            textTransform: 'none',
+                            padding: '1px 6px',
+                            minWidth: 'auto',
+                            backgroundColor: COLORS.button.primary.background,
+                            color: 'white',
+                            '&:hover': {
+                              backgroundColor: COLORS.button.primary.backgroundHover,
+                            },
+                          }}
+                        >
+                          {isAnimating ? '...' : 'Add'}
+                        </Button>
+                      )}
+                      {isAdded && (
+                        <CheckCircleIcon sx={{ fontSize: '14px', color: COLORS.success.main }} />
+                      )}
+                    </Box>
+                  );
+                })}
+              </Box>
+            </Box>
+          )}
+          
+          {/* Show diff for other cases */}
+          {hasFix && originalContent && newContent && !isFixed && !shouldShowItemsList && (
             <DiffView 
               original={originalContent} 
               updated={newContent} 
