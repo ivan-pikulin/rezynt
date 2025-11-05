@@ -1,7 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
+import confetti from 'canvas-confetti';
 import { ImprovementPoint as ImprovementPointType, Resume } from '../../../shared/services/api/types';
 import { COLORS } from '../../../shared/theme/theme';
 import DiffView from './DiffView';
@@ -22,6 +23,8 @@ const severityColors = {
 
 const ImprovementPoint: React.FC<Props> = ({ point, resume, onFixApplied, onNavigateToField }) => {
   const [applied, setApplied] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const buttonRef = useRef<HTMLButtonElement>(null);
   
   // Check if fix is available
   const hasFix = !!point.fix_suggestion?.new_content;
@@ -60,22 +63,57 @@ const ImprovementPoint: React.FC<Props> = ({ point, resume, onFixApplied, onNavi
     return { originalContent, newContent };
   }, [resume, point.fix_suggestion, point.field_path]);
 
+  // Celebration effect on fix applied
+  const celebrate = () => {
+    if (!buttonRef.current) return;
+    
+    const rect = buttonRef.current.getBoundingClientRect();
+    const x = (rect.left + rect.width / 2) / window.innerWidth;
+    const y = (rect.top + rect.height / 2) / window.innerHeight;
+
+    // First burst
+    confetti({
+      particleCount: 25,
+      angle: 60,
+      spread: 55,
+      origin: { x, y },
+      colors: ['#10b981', '#34d399', '#6ee7b7'],
+    });
+    
+    // Second burst
+    confetti({
+      particleCount: 25,
+      angle: 120,
+      spread: 55,
+      origin: { x, y },
+      colors: ['#10b981', '#34d399', '#6ee7b7'],
+    });
+  };
+
   const handleApplyFix = () => {
-    if (!point.fix_suggestion || !onFixApplied) return;
+    if (!point.fix_suggestion || !onFixApplied || isAnimating) return;
+    
+    setIsAnimating(true);
     
     // Apply fix to resume
     const updatedResume = applyFixToResume(resume, point.fix_suggestion);
     
+    // Show celebration effect
+    celebrate();
+    
     // Update resume and navigate to field
     onFixApplied(updatedResume);
-    setApplied(true);
     
-    // Navigate to the field
-    if (onNavigateToField) {
-      setTimeout(() => {
+    // Small delay for visual feedback
+    setTimeout(() => {
+      setApplied(true);
+      setIsAnimating(false);
+      
+      // Navigate to the field
+      if (onNavigateToField) {
         onNavigateToField(point.field_path);
-      }, 100);
-    }
+      }
+    }, 300);
   };
 
   const handleGoToEdit = () => {
@@ -165,22 +203,29 @@ const ImprovementPoint: React.FC<Props> = ({ point, resume, onFixApplied, onNavi
             <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
               {hasFix && (
                 <Button
+                  ref={buttonRef}
                   size="small"
                   variant="contained"
                   onClick={handleApplyFix}
-                  disabled={applied}
+                  disabled={applied || isAnimating}
                   sx={{
                     fontSize: '11px',
                     textTransform: 'none',
                     padding: '2px 8px',
                     minWidth: 'auto',
                     backgroundColor: applied ? COLORS.success.main : COLORS.button.primary.background,
+                    transition: 'all 0.3s ease',
+                    transform: isAnimating ? 'scale(1.05)' : 'scale(1)',
                     '&:hover': {
                       backgroundColor: applied ? COLORS.success.dark : COLORS.button.primary.backgroundHover,
+                      transform: applied ? 'scale(1)' : 'scale(1.05)',
+                    },
+                    '&:active': {
+                      transform: 'scale(0.95)',
                     },
                   }}
                 >
-                  {applied ? '✓ Applied' : 'Apply Fix'}
+                  {applied ? '✓ Applied' : isAnimating ? 'Applying...' : 'Apply Fix'}
                 </Button>
               )}
               
