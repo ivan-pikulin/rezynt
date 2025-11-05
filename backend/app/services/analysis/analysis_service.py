@@ -121,17 +121,15 @@ class AnalysisService:
         label, subtitle = AnalysisConfig.get_score_label(score)
         
         # Calculate potential score if all improvements applied
-        # With exponential decay formula, fixing all issues means score approaches maximum
-        # Recalculate each section as if it had no issues (penalty = 0)
+        # Each section would be at 100 if all issues are fixed
         potential_sections = []
         for section in sections:
-            # If all issues in this section are fixed, score = max_section_score
-            max_section_score = AnalysisConfig.MAX_SECTION_SCORES.get(section.id, 100)
+            # If all issues in this section are fixed, score = 100
             potential_section = AnalysisSection(
                 id=section.id,
                 title=section.title,
-                current_points=max_section_score,
-                max_points=max_section_score,
+                current_points=100,
+                max_points=100,
                 percentage=100,
                 status="Strong",
                 improvement_points=[]
@@ -170,14 +168,10 @@ class AnalysisService:
             ('style', 'Style & Grammar')
         ]:
             points_list = section_points[section_id]
-            max_points = AnalysisConfig.MAX_SECTION_SCORES[section_id]
             
-            current_points, total_impact = calculate_section_score(
-                points_list, 
-                max_points
-            )
+            current_points, total_impact = calculate_section_score(points_list)
             
-            percentage = int((current_points / max_points) * 100) if max_points > 0 else 100
+            percentage = current_points  # Score is already 0-100
             
             # Determine status
             status = get_section_status(percentage)
@@ -186,7 +180,7 @@ class AnalysisService:
                 id=section_id,
                 title=section_title,
                 current_points=current_points,
-                max_points=max_points,
+                max_points=100,
                 percentage=percentage,
                 status=status,
                 improvement_points=points_list
