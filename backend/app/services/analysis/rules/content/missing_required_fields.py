@@ -88,13 +88,13 @@ class MissingRequiredFieldsRule(BaseRule):
             points.append(self.create_point(
                 field_path="personal_info.contacts",
                 title="Insufficient Contact Methods",
-                description=f"Add at least 2 ways to contact you (currently {available_contacts}). Consider adding: email, phone, LinkedIn, Telegram, or GitHub profile",
+                description=f"Add at least 2 ways to contact you (currently {available_contacts}).",
                 metadata={"severity": "medium", "score_impact": 4}
             ))
 
         # 8. Check professional summary (mechanical check only)
         summary = resume.get('professional_summary', '').strip()
-        if not summary or len(summary) < 20:
+        if not summary:
             points.append(self.create_point(
                 field_path="professional_summary",
                 title="Missing Professional Summary",

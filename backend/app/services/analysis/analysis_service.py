@@ -100,15 +100,25 @@ class AnalysisService:
         Returns:
             AnalysisResult with score, sections, and improvement points with embedded fixes
         """
+        # Debug: log resume structure
+        print(f"Analyzing resume with keys: {resume.keys() if resume else 'None'}")
+        if resume:
+            print(f"  - personal_info: {resume.get('personal_info', {}).keys() if resume.get('personal_info') else 'None'}")
+            print(f"  - work_experience: {len(resume.get('work_experience', []))} items")
+            print(f"  - education: {len(resume.get('education', []))} items")
+        
         # Run all rules
         all_points = []
         for rule in self.rules:
             try:
                 points = await rule.check(resume)
                 all_points.extend(points)
+                print(f"✓ Rule {rule.rule_id} completed: {len(points)} points")
             except Exception as e:
                 # Log error but continue with other rules
-                print(f"Error in rule {rule.rule_id}: {e}")
+                import traceback
+                print(f"✗ Error in rule {rule.rule_id}: {e}")
+                print(traceback.format_exc())
                 continue
         
         # Group points by section
