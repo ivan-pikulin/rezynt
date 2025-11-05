@@ -1,62 +1,80 @@
 """Rule 3.6: Personal Pronouns"""
 import re
-from typing import List, Optional
+from typing import List
 
-from app.schemas.analysis import ImprovementPoint
+from app.schemas.analysis import FixSuggestion, ImprovementPoint
 from app.services.analysis.rules.base import BaseRule
 from app.services.analysis.llm_helper import llm_helper
 
 
 class PersonalPronounsRule(BaseRule):
-    """Detects and removes personal pronouns."""
+    """Detects and removes personal pronouns via LLM."""
     
     def __init__(self):
         super().__init__()
         self.section_id = "style"
         self.severity = "medium"
         self.score_impact = 3
-        self.check_type = "mechanical"
-        self.action_type = "fix"
     
     async def check(self, resume: dict) -> List[ImprovementPoint]:
-        """Check for personal pronouns."""
+        """Detect personal pronouns and generate versions without them."""
         points = []
         
         pronoun_pattern = r'\b(I|me|my|mine|we|our|ours)\b'
         
         # Check summary
         summary = resume.get('professional_summary', '')
-        if re.search(pronoun_pattern, summary, re.IGNORECASE):
+        if summary and re.search(pronoun_pattern, summary, re.IGNORECASE):
+            # Generate fix via LLM with Structured Outputs
+            prompt = f"""Remove personal pronouns (I, me, my, mine, we, our, ours) from this text while maintaining clarity.
+
+Original: "{summary}"
+
+Set has_fix to true and provide the version without pronouns in fixed_text."""
+            
+            fix_response = await llm_helper.call_llm_structured(prompt)
+            
+            fix_suggestion = None
+            if fix_response.has_fix and fix_response.fixed_text:
+                fix_suggestion = FixSuggestion(
+                    type="replace",
+                    field_path="professional_summary",
+                    new_content=fix_response.fixed_text
+                )
+            
             points.append(self.create_point(
                 field_path="professional_summary",
                 title="Contains Personal Pronouns",
                 description="Remove personal pronouns from summary",
-                metadata={"original_text": summary}
+                fix_suggestion=fix_suggestion
             ))
         
         # Check achievements
         for i, exp in enumerate(resume.get('work_experience', [])):
-            pronoun_count = 0
-            
             for j, achievement in enumerate(exp.get('achievements', [])):
                 if re.search(pronoun_pattern, achievement, re.IGNORECASE):
-                    pronoun_count += 1
-            
-            if pronoun_count > 0:
-                points.append(self.create_point(
-                    field_path=f"work_experience[{i}].achievements",
-                    title="Contains Personal Pronouns",
-                    description=f"Remove pronouns from {pronoun_count} bullet(s)"
-                ))
+                    # Generate fix via LLM with Structured Outputs
+                    prompt = f"""Remove personal pronouns (I, me, my, mine, we, our, ours) from this text while maintaining clarity.
+
+Original: "{achievement}"
+
+Set has_fix to true and provide the version without pronouns in fixed_text."""
+                    
+                    fix_response = await llm_helper.call_llm_structured(prompt)
+                    
+                    fix_suggestion = None
+                    if fix_response.has_fix and fix_response.fixed_text:
+                        fix_suggestion = FixSuggestion(
+                            type="replace",
+                            field_path=f"work_experience[{i}].achievements[{j}]",
+                            new_content=fix_response.fixed_text
+                        )
+                    
+                    points.append(self.create_point(
+                        field_path=f"work_experience[{i}].achievements[{j}]",
+                        title="Contains Personal Pronouns",
+                        description="Remove personal pronouns",
+                        fix_suggestion=fix_suggestion
+                    ))
         
         return points
-    
-    async def get_fix(self, context: dict) -> Optional[str]:
-        """LLM removes pronouns."""
-        original = context.get("original_text")
-        
-        if not original:
-            return None
-        
-        return await llm_helper.remove_pronouns(original)
-

@@ -15,8 +15,6 @@ class EmploymentGapsRule(BaseRule):
         self.section_id = "ats"
         self.severity = "medium"
         self.score_impact = 3
-        self.check_type = "llm_assisted"
-        self.action_type = "go_to_edit"
     
     def _parse_date(self, date_str: str) -> datetime:
         """Parse date string using common formats."""

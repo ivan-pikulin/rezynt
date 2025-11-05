@@ -4,6 +4,14 @@ from typing import Any, Dict, List, Literal, Optional
 from pydantic import BaseModel
 
 
+class FixSuggestion(BaseModel):
+    """Structured fix suggestion that can be auto-applied"""
+    type: Literal['replace', 'add', 'delete']  # Type of fix operation
+    field_path: str  # Exact JSON path to field
+    original_content: Optional[str] = None  # Not set by backend, frontend retrieves from resume by field_path
+    new_content: Optional[str] = None  # New value (for replace/add)
+
+
 class ImprovementPoint(BaseModel):
     """Single improvement suggestion for resume analysis"""
     id: str  # Unique point ID (e.g., "exp_0_no_achievements")
@@ -14,9 +22,7 @@ class ImprovementPoint(BaseModel):
     description: str  # Detailed description of the issue
     score_impact: int  # Points added if fixed (0-10)
     severity: Literal['high', 'medium', 'low']  # Severity level
-    check_type: Literal['mechanical', 'llm', 'llm_assisted']  # How the check is performed
-    action_type: Literal['go_to_edit', 'fix', 'both']  # Available user actions
-    fix_suggestion: Optional[str] = None  # LLM-generated fix (if available)
+    fix_suggestion: Optional[FixSuggestion] = None  # Structured fix (if available)
     metadata: Optional[Dict[str, Any]] = None  # Additional context
 
 
@@ -40,17 +46,4 @@ class AnalysisResult(BaseModel):
     total_improvements: int  # Total number of suggestions
     potential_score: int  # Score if all improvements applied
     generated_at: datetime  # Timestamp
-
-
-class ApplyFixRequest(BaseModel):
-    """Request schema for applying a fix to an improvement point"""
-    point_id: str  # ID of the improvement point
-    field_path: str  # Field path to apply the fix
-
-
-class ApplyFixResponse(BaseModel):
-    """Response schema for applied fix"""
-    original: str  # Original text
-    fixed: str  # Fixed text
-    field_path: str  # Field path where fix was applied
 

@@ -26,9 +26,7 @@ from app.services.analysis.rules.content import (
 from app.services.analysis.rules.ats import (
     JobTitleCapitalizationRule,
     MissingKeywordsRule,
-    InvalidDatesRule,
     EmploymentGapsRule,
-    InconsistentDateFormatsRule,
     MissingExperienceLocationRule,
     SkillsNotInExperienceRule,
     ResumeLengthRule,
@@ -72,12 +70,10 @@ class AnalysisService:
             TooManySkillsRule(),
             MissingContactsRule(),
             
-            # ATS Optimization rules (9 rules)
+            # ATS Optimization rules (7 rules)
             JobTitleCapitalizationRule(),
             MissingKeywordsRule(),
-            InvalidDatesRule(),
             EmploymentGapsRule(),
-            InconsistentDateFormatsRule(),
             MissingExperienceLocationRule(),
             SkillsNotInExperienceRule(),
             ResumeLengthRule(),
@@ -99,11 +95,14 @@ class AnalysisService:
         """
         Analyze resume and return complete analysis result.
         
+        Fixes are now generated during analysis and included in ImprovementPoints
+        as FixSuggestion objects.
+        
         Args:
             resume: Resume data dictionary
             
         Returns:
-            AnalysisResult with score, sections, and improvement points
+            AnalysisResult with score, sections, and improvement points with embedded fixes
         """
         # Run all rules
         all_points = []
@@ -181,46 +180,6 @@ class AnalysisService:
             ))
         
         return sections
-    
-    async def apply_fix(self, point_id: str, field_path: str, resume: dict) -> dict:
-        """
-        Apply a fix for a specific improvement point.
-        
-        Args:
-            point_id: ID of the improvement point
-            field_path: Field path where the issue was found
-            resume: Resume data
-            
-        Returns:
-            Dictionary with original and fixed text
-        """
-        # Find the rule that generated this point
-        rule_id = point_id.split('_')[0] if '_' in point_id else point_id
-        
-        for rule in self.rules:
-            if rule.rule_id == rule_id or rule.__class__.__name__ == rule_id:
-                # Re-run the rule to get context
-                points = await rule.check(resume)
-                
-                # Find the specific point
-                point = next((p for p in points if p.id == point_id), None)
-                
-                if point and point.metadata:
-                    # Call get_fix with the metadata as context
-                    fixed_text = await rule.get_fix(point.metadata)
-                    
-                    if fixed_text:
-                        return {
-                            "original": point.metadata.get("original_text", ""),
-                            "fixed": fixed_text,
-                            "field_path": field_path
-                        }
-        
-        return {
-            "original": "",
-            "fixed": "",
-            "field_path": field_path
-        }
 
 
 # Singleton instance

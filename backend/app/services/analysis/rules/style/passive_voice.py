@@ -1,24 +1,22 @@
 """Rule 3.5: Passive Voice"""
-from typing import List, Optional
+from typing import List
 
-from app.schemas.analysis import ImprovementPoint
+from app.schemas.analysis import FixSuggestion, ImprovementPoint
 from app.services.analysis.rules.base import BaseRule
 from app.services.analysis.llm_helper import llm_helper
 
 
 class PassiveVoiceRule(BaseRule):
-    """Detects passive voice and converts to active."""
+    """Detects passive voice and converts to active via LLM."""
     
     def __init__(self):
         super().__init__()
         self.section_id = "style"
         self.severity = "medium"
         self.score_impact = 4
-        self.check_type = "llm"
-        self.action_type = "fix"
     
     async def check(self, resume: dict) -> List[ImprovementPoint]:
-        """Detect passive voice patterns."""
+        """Detect passive voice and generate active voice versions."""
         points = []
         
         # Common passive voice indicators
@@ -29,30 +27,33 @@ class PassiveVoiceRule(BaseRule):
         ]
         
         for i, exp in enumerate(resume.get('work_experience', [])):
-            passive_achievements = []
-            
             for j, achievement in enumerate(exp.get('achievements', [])):
                 ach_lower = achievement.lower()
                 
                 if any(indicator in ach_lower for indicator in passive_indicators):
-                    passive_achievements.append((j, achievement))
-            
-            if passive_achievements:
-                points.append(self.create_point(
-                    field_path=f"work_experience[{i}].achievements",
-                    title="Uses Passive Voice",
-                    description=f"Convert {len(passive_achievements)} bullet(s) to active voice",
-                    metadata={"passive_achievements": passive_achievements}
-                ))
+                    # Generate fix via LLM with Structured Outputs
+                    prompt = f"""Convert this resume bullet from passive voice to active voice.
+
+Original: "{achievement}"
+
+Set has_fix to true and provide the active voice version in fixed_text."""
+                    
+                    fix_response = await llm_helper.call_llm_structured(prompt)
+                    
+                    fix_suggestion = None
+                    if fix_response.has_fix and fix_response.fixed_text:
+                        fix_suggestion = FixSuggestion(
+                            type="replace",
+                            field_path=f"work_experience[{i}].achievements[{j}]",
+                            new_content=fix_response.fixed_text
+                        )
+                    
+                    points.append(self.create_point(
+                        field_path=f"work_experience[{i}].achievements[{j}]",
+                        title="Uses Passive Voice",
+                        description="Convert to active voice for stronger impact",
+                        fix_suggestion=fix_suggestion
+                    ))
         
         return points
-    
-    async def get_fix(self, context: dict) -> Optional[str]:
-        """LLM converts to active voice."""
-        original = context.get("original_text")
-        
-        if not original:
-            return None
-        
-        return await llm_helper.remove_passive_voice(original)
 

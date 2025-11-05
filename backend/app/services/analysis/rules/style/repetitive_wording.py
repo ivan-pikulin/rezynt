@@ -1,10 +1,9 @@
 """Rule 3.3: Repetitive Wording"""
 from collections import Counter
-from typing import List, Optional
+from typing import List
 
 from app.schemas.analysis import ImprovementPoint
 from app.services.analysis.rules.base import BaseRule
-from app.services.analysis.llm_helper import llm_helper
 
 
 class RepetitiveWordingRule(BaseRule):
@@ -15,8 +14,6 @@ class RepetitiveWordingRule(BaseRule):
         self.section_id = "style"
         self.severity = "low"
         self.score_impact = 2
-        self.check_type = "llm_assisted"
-        self.action_type = "fix"
     
     async def check(self, resume: dict) -> List[ImprovementPoint]:
         """Check for repeated phrases."""
@@ -48,7 +45,7 @@ class RepetitiveWordingRule(BaseRule):
                     field_path="professional_summary",
                     title="Repetitive Wording",
                     description=f"Vary wording - '{repeated_phrases[0]}' repeated multiple times",
-                    metadata={"repeated_phrases": repeated_phrases[:3], "original_text": summary_text}
+                    metadata={"repeated_phrases": repeated_phrases[:3]}
                 ))
             
             if experience_text:
@@ -60,9 +57,4 @@ class RepetitiveWordingRule(BaseRule):
                 ))
         
         return points
-    
-    async def get_fix(self, context: dict) -> Optional[str]:
-        """LLM suggests varied wording."""
-        # This would need more context to fix properly
-        return None
 

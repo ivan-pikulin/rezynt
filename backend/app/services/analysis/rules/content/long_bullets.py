@@ -1,25 +1,23 @@
 """Rule 1.7: Long Achievement Bullets"""
-from typing import List, Optional
+from typing import List
 
-from app.schemas.analysis import ImprovementPoint
+from app.schemas.analysis import FixSuggestion, ImprovementPoint
 from app.services.analysis.rules.base import BaseRule
 from app.services.analysis.llm_helper import llm_helper
 
 
 class LongBulletsRule(BaseRule):
-    """Detects and shortens overly long achievement bullets."""
+    """Detects and shortens overly long achievement bullets via LLM."""
     
     def __init__(self):
         super().__init__()
         self.section_id = "content"
         self.severity = "low"
         self.score_impact = 2
-        self.check_type = "llm_assisted"
-        self.action_type = "fix"
         self.max_words = 25
     
     async def check(self, resume: dict) -> List[ImprovementPoint]:
-        """Mechanical detection - simple word count."""
+        """Detect long bullets and generate shortened versions."""
         points = []
         
         for i, exp in enumerate(resume.get('work_experience', [])):
@@ -27,28 +25,29 @@ class LongBulletsRule(BaseRule):
                 word_count = len(achievement.split())
                 
                 if word_count > self.max_words:
+                    # Generate fix via LLM with Structured Outputs
+                    prompt = f"""Shorten this resume bullet to under {self.max_words} words while preserving key impact and achievements.
+
+Original ({word_count} words): "{achievement}"
+
+Set has_fix to true and provide the shortened text in fixed_text."""
+                    
+                    fix_response = await llm_helper.call_llm_structured(prompt, max_tokens=200)
+                    
+                    fix_suggestion = None
+                    if fix_response.has_fix and fix_response.fixed_text:
+                        fix_suggestion = FixSuggestion(
+                            type="replace",
+                            field_path=f"work_experience[{i}].achievements[{j}]",
+                            new_content=fix_response.fixed_text
+                        )
+                    
                     points.append(self.create_point(
                         field_path=f"work_experience[{i}].achievements[{j}]",
                         title="Bullet Too Long",
                         description=f"Shorten bullet ({word_count} words → <{self.max_words} words)",
-                        metadata={
-                            "original_text": achievement,
-                            "word_count": word_count
-                        }
+                        fix_suggestion=fix_suggestion
                     ))
         
         return points
-    
-    async def get_fix(self, context: dict) -> Optional[str]:
-        """LLM generates shortened version."""
-        original_text = context.get("original_text")
-        
-        if not original_text:
-            return None
-        
-        return await llm_helper.shorten_text(
-            text=original_text,
-            max_words=self.max_words,
-            preserve_meaning=True
-        )
 

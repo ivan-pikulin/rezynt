@@ -13,8 +13,6 @@ class MissingAchievementsRule(BaseRule):
         self.section_id = "content"
         self.severity = "high"
         self.score_impact = 8
-        self.check_type = "mechanical"
-        self.action_type = "go_to_edit"
     
     async def check(self, resume: dict) -> List[ImprovementPoint]:
         """Check for missing achievements in work experience."""

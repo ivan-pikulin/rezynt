@@ -8,8 +8,8 @@ class BaseRule(ABC):
     """
     Base class for all analysis rules.
     
-    Each rule can use mechanical checks, LLM, or a combination - it's up to the implementation.
-    The check_type and action_type are metadata for UI/monitoring purposes only.
+    Rules detect issues and generate structured fixes directly in the check() method.
+    Fixes are included as FixSuggestion objects in ImprovementPoints.
     """
     
     def __init__(self):
@@ -17,45 +17,26 @@ class BaseRule(ABC):
         self.section_id = "content"  # Override in subclass: 'content', 'ats', 'style'
         self.severity = "medium"  # Override: 'high', 'medium', 'low'
         self.score_impact = 3  # Override: 1-10
-        self.check_type = "mechanical"  # Metadata: 'mechanical', 'llm', 'llm_assisted'
-        self.action_type = "go_to_edit"  # Metadata: 'go_to_edit', 'fix', 'both'
     
     @abstractmethod
     async def check(self, resume: dict) -> List[ImprovementPoint]:
         """
-        Detect issues in the resume.
+        Detect issues in the resume and generate fixes in one pass.
+        
+        Each ImprovementPoint should include fix_suggestion if auto-fix is available.
         
         Can use any approach:
         - Pure mechanical checks (regex, length, etc.)
-        - LLM-based detection
+        - LLM-based detection and fix generation
         - Hybrid approach
         
         Args:
             resume: Resume data dictionary
             
         Returns:
-            List of detected improvement points
+            List of detected improvement points with embedded fix_suggestions
         """
         pass
-    
-    async def get_fix(self, context: dict) -> Optional[str]:
-        """
-        Generate a fix suggestion (optional).
-        
-        Can return:
-        - None: No auto-fix available (user must edit manually)
-        - str: Simple mechanical fix
-        - str: LLM-generated fix
-        
-        This method is called only when user clicks "Fix" button.
-        
-        Args:
-            context: Context including original_text and other metadata
-            
-        Returns:
-            Fixed text or None if no auto-fix available
-        """
-        return None
     
     def create_point(
         self, 
@@ -88,8 +69,6 @@ class BaseRule(ABC):
             description=description,
             score_impact=self.score_impact,
             severity=self.severity,
-            check_type=self.check_type,
-            action_type=self.action_type,
             **kwargs
         )
 

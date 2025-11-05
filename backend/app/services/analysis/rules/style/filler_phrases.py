@@ -1,24 +1,22 @@
 """Rule 3.4: Filler Phrases"""
-from typing import List, Optional
+from typing import List
 
-from app.schemas.analysis import ImprovementPoint
+from app.schemas.analysis import FixSuggestion, ImprovementPoint
 from app.services.analysis.rules.base import BaseRule
 from app.services.analysis.llm_helper import llm_helper
 
 
 class FillerPhrasesRule(BaseRule):
-    """Detects and removes filler phrases."""
+    """Detects and removes filler phrases via LLM."""
     
     def __init__(self):
         super().__init__()
         self.section_id = "style"
         self.severity = "low"
         self.score_impact = 2
-        self.check_type = "llm"
-        self.action_type = "fix"
     
     async def check(self, resume: dict) -> List[ImprovementPoint]:
-        """Check for filler phrases."""
+        """Detect filler phrases and generate cleaner versions."""
         points = []
         
         filler_phrases = [
@@ -41,22 +39,30 @@ class FillerPhrasesRule(BaseRule):
                 found_fillers = [filler for filler in filler_phrases if filler in ach_lower]
                 
                 if found_fillers:
+                    # Generate fix via LLM with Structured Outputs
+                    prompt = f"""Remove filler phrases to make this text more concise and impactful.
+
+Original: "{achievement}"
+Filler phrases to remove: {', '.join(found_fillers)}
+
+Set has_fix to true and provide the improved text in fixed_text."""
+                    
+                    fix_response = await llm_helper.call_llm_structured(prompt)
+                    
+                    fix_suggestion = None
+                    if fix_response.has_fix and fix_response.fixed_text:
+                        fix_suggestion = FixSuggestion(
+                            type="replace",
+                            field_path=f"work_experience[{i}].achievements[{j}]",
+                            new_content=fix_response.fixed_text
+                        )
+                    
                     points.append(self.create_point(
                         field_path=f"work_experience[{i}].achievements[{j}]",
                         title="Contains Filler Phrases",
                         description=f"Remove filler phrase: '{found_fillers[0]}'",
-                        metadata={"original_text": achievement, "fillers": found_fillers}
+                        fix_suggestion=fix_suggestion
                     ))
         
         return points
-    
-    async def get_fix(self, context: dict) -> Optional[str]:
-        """LLM removes filler phrases."""
-        original = context.get("original_text")
-        fillers = context.get("fillers", [])
-        
-        if not original or not fillers:
-            return None
-        
-        return await llm_helper.remove_filler(original, fillers)
 

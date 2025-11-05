@@ -1,24 +1,22 @@
 """Rule 3.8: Missing Action Verbs"""
-from typing import List, Optional
+from typing import List
 
-from app.schemas.analysis import ImprovementPoint
+from app.schemas.analysis import FixSuggestion, ImprovementPoint
 from app.services.analysis.rules.base import BaseRule
 from app.services.analysis.llm_helper import llm_helper
 
 
 class MissingActionVerbsRule(BaseRule):
-    """Detects bullets not starting with strong action verbs."""
+    """Detects bullets not starting with strong action verbs and fixes them via LLM."""
     
     def __init__(self):
         super().__init__()
         self.section_id = "style"
         self.severity = "medium"
         self.score_impact = 4
-        self.check_type = "llm"
-        self.action_type = "fix"
     
     async def check(self, resume: dict) -> List[ImprovementPoint]:
-        """Check if bullets start with action verbs."""
+        """Detect bullets without action verbs and generate improved versions."""
         points = []
         
         # Strong action verbs (past and present tense)
@@ -31,8 +29,6 @@ class MissingActionVerbsRule(BaseRule):
         ]
         
         for i, exp in enumerate(resume.get('work_experience', [])):
-            weak_bullets = []
-            
             for j, achievement in enumerate(exp.get('achievements', [])):
                 # Skip empty or whitespace-only achievements
                 if not achievement or not achievement.strip():
@@ -45,24 +41,28 @@ class MissingActionVerbsRule(BaseRule):
                 first_word = words[0].lower().strip('.,;:-')
                 
                 if first_word not in action_verbs:
-                    weak_bullets.append((j, achievement))
-            
-            if len(weak_bullets) >= 2:
-                points.append(self.create_point(
-                    field_path=f"work_experience[{i}].achievements",
-                    title="Missing Action Verbs",
-                    description=f"{len(weak_bullets)} bullets don't start with action verbs",
-                    metadata={"weak_bullets": weak_bullets[:3]}
-                ))
+                    # Generate fix via LLM with Structured Outputs
+                    prompt = f"""Rewrite this bullet to start with a strong action verb.
+
+Original: "{achievement}"
+
+Set has_fix to true and provide the improved text in fixed_text."""
+                    
+                    fix_response = await llm_helper.call_llm_structured(prompt)
+                    
+                    fix_suggestion = None
+                    if fix_response.has_fix and fix_response.fixed_text:
+                        fix_suggestion = FixSuggestion(
+                            type="replace",
+                            field_path=f"work_experience[{i}].achievements[{j}]",
+                            new_content=fix_response.fixed_text
+                        )
+                    
+                    points.append(self.create_point(
+                        field_path=f"work_experience[{i}].achievements[{j}]",
+                        title="Missing Action Verb",
+                        description="Start with a strong action verb",
+                        fix_suggestion=fix_suggestion
+                    ))
         
         return points
-    
-    async def get_fix(self, context: dict) -> Optional[str]:
-        """LLM adds action verbs."""
-        original = context.get("original_text")
-        
-        if not original:
-            return None
-        
-        return await llm_helper.improve_verb(original)
-

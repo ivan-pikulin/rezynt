@@ -1,24 +1,22 @@
 """Rule 3.2: Weak Action Verbs"""
-from typing import List, Optional
+from typing import List
 
-from app.schemas.analysis import ImprovementPoint
+from app.schemas.analysis import FixSuggestion, ImprovementPoint
 from app.services.analysis.rules.base import BaseRule
 from app.services.analysis.llm_helper import llm_helper
 
 
 class WeakVerbsRule(BaseRule):
-    """Detects weak action verbs and suggests improvements."""
+    """Detects weak action verbs and suggests improvements via LLM."""
     
     def __init__(self):
         super().__init__()
         self.section_id = "style"
         self.severity = "medium"
         self.score_impact = 4
-        self.check_type = "llm"
-        self.action_type = "fix"
     
     async def check(self, resume: dict) -> List[ImprovementPoint]:
-        """Detect weak verbs in achievements."""
+        """Detect weak verbs and generate improved versions."""
         points = []
         
         weak_verbs = [
@@ -28,8 +26,6 @@ class WeakVerbsRule(BaseRule):
         ]
         
         for i, exp in enumerate(resume.get('work_experience', [])):
-            weak_achievements = []
-            
             for j, achievement in enumerate(exp.get('achievements', [])):
                 ach_lower = achievement.lower()
                 found_weak = None
@@ -40,25 +36,30 @@ class WeakVerbsRule(BaseRule):
                         break
                 
                 if found_weak:
-                    weak_achievements.append((j, achievement, found_weak))
-            
-            # If multiple weak verbs found, create improvement point
-            if len(weak_achievements) >= 2:
-                points.append(self.create_point(
-                    field_path=f"work_experience[{i}].achievements",
-                    title="Uses Weak Verbs",
-                    description=f"Replace weak verbs with stronger alternatives in {len(weak_achievements)} bullets",
-                    metadata={"weak_achievements": weak_achievements}
-                ))
+                    # Generate fix via LLM with Structured Outputs
+                    prompt = f"""Replace weak verbs with strong, impactful action verbs in this resume bullet.
+
+Achievement: "{achievement}"
+Weak verb detected: "{found_weak}"
+
+Set has_fix to true and provide the improved text in fixed_text."""
+                    
+                    fix_response = await llm_helper.call_llm_structured(prompt)
+                    
+                    fix_suggestion = None
+                    if fix_response.has_fix and fix_response.fixed_text:
+                        fix_suggestion = FixSuggestion(
+                            type="replace",
+                            field_path=f"work_experience[{i}].achievements[{j}]",
+                            new_content=fix_response.fixed_text
+                        )
+                    
+                    points.append(self.create_point(
+                        field_path=f"work_experience[{i}].achievements[{j}]",
+                        title="Uses Weak Verb",
+                        description=f"Replace '{found_weak}' with a stronger action verb",
+                        fix_suggestion=fix_suggestion
+                    ))
         
         return points
-    
-    async def get_fix(self, context: dict) -> Optional[str]:
-        """LLM improves verbs."""
-        original = context.get("original_text")
-        
-        if not original:
-            return None
-        
-        return await llm_helper.improve_verb(original)
 

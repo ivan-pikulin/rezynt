@@ -1,8 +1,7 @@
 from .analysis import (
     AnalysisResult,
     AnalysisSection,
-    ApplyFixRequest,
-    ApplyFixResponse,
+    FixSuggestion,
     ImprovementPoint,
 )
 from .resume import (
@@ -69,7 +68,6 @@ __all__ = [
     # Analysis schemas
     "AnalysisResult",
     "AnalysisSection",
-    "ApplyFixRequest",
-    "ApplyFixResponse",
+    "FixSuggestion",
     "ImprovementPoint",
 ] 

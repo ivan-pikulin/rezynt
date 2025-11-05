@@ -13,8 +13,6 @@ class MissingFieldOfStudyRule(BaseRule):
         self.section_id = "content"
         self.severity = "medium"
         self.score_impact = 4
-        self.check_type = "mechanical"
-        self.action_type = "go_to_edit"
     
     async def check(self, resume: dict) -> List[ImprovementPoint]:
         """Mechanical check for field_of_study."""

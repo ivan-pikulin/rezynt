@@ -13,8 +13,6 @@ class MissingCompanyDescriptionRule(BaseRule):
         self.section_id = "content"
         self.severity = "low"
         self.score_impact = 3
-        self.check_type = "mechanical"
-        self.action_type = "go_to_edit"
     
     async def check(self, resume: dict) -> List[ImprovementPoint]:
         """Mechanical check for description field."""
