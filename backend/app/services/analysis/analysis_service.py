@@ -132,6 +132,8 @@ class AnalysisService:
                 title=section.title,
                 current_points=max_section_score,
                 max_points=max_section_score,
+                percentage=100,
+                status="Strong",
                 improvement_points=[]
             )
             potential_sections.append(potential_section)
