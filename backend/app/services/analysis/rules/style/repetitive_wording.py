@@ -49,8 +49,16 @@ class RepetitiveWordingRule(BaseRule):
                 ))
             
             if experience_text:
+                # Find first work experience with achievements to point to
+                field_path = "work_experience[0].achievements"
+                experiences = resume.get('work_experience', [])
+                for i, exp in enumerate(experiences):
+                    if exp.get('achievements') and len(exp.get('achievements', [])) > 0:
+                        field_path = f"work_experience[{i}].achievements[0]"
+                        break
+                
                 points.append(self.create_point(
-                    field_path="work_experience",
+                    field_path=field_path,
                     title="Repetitive Wording",
                     description=f"Vary wording - '{repeated_phrases[0]}' repeated {bigram_counts[repeated_phrases[0]]} times",
                     metadata={"repeated_phrases": repeated_phrases[:3]}

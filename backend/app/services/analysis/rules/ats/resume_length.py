@@ -40,14 +40,28 @@ class ResumeLengthRule(BaseRule):
         
         # Check against thresholds
         if total_words < AnalysisConfig.MIN_RESUME_WORDS:
+            # Find first empty field to fill
+            field_path = "professional_summary"
+            if resume.get('professional_summary', '').strip():
+                # If summary exists, check work experience
+                experiences = resume.get('work_experience', [])
+                if experiences:
+                    for i, exp in enumerate(experiences):
+                        if not exp.get('achievements') or len(exp.get('achievements', [])) == 0:
+                            field_path = f"work_experience[{i}].achievements"
+                            break
+            
             points.append(self.create_point(
-                field_path="resume",
+                field_path=field_path,
                 title="Resume Too Short",
                 description=f"Resume is too brief ({total_words} words) - add more details"
             ))
         elif total_words > AnalysisConfig.MAX_RESUME_WORDS:
+            # Point to first work experience to condense
+            field_path = "work_experience[0].achievements" if resume.get('work_experience') else "professional_summary"
+            
             points.append(self.create_point(
-                field_path="resume",
+                field_path=field_path,
                 title="Resume Too Long",
                 description=f"Resume is too long ({total_words} words) - consider condensing"
             ))

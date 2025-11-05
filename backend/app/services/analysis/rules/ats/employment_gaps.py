@@ -42,6 +42,9 @@ class EmploymentGapsRule(BaseRule):
         if len(experiences) < 2:
             return points
         
+        # Create a map of experience to original index
+        exp_to_index = {id(exp): idx for idx, exp in enumerate(experiences)}
+        
         # Sort by start_date
         def get_sort_date(exp):
             try:
@@ -69,8 +72,11 @@ class EmploymentGapsRule(BaseRule):
                 
                 # Flag if gap > configured threshold
                 if gap_months > AnalysisConfig.EMPLOYMENT_GAP_MONTHS:
+                    # Point to the later job (current) where user can add explanation
+                    current_index = exp_to_index[id(current)]
+                    
                     points.append(self.create_point(
-                        field_path="work_experience",
+                        field_path=f"work_experience[{current_index}].short_description",
                         title="Employment Gap Detected",
                         description=f"{gap_months}-month gap detected - consider adding explanation",
                         metadata={"gap_months": gap_months}
