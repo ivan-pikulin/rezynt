@@ -16,12 +16,10 @@ from app.services.analysis.rules.content import (
     MissingDegreeRule,
     MissingFieldOfStudyRule,
     LongBulletsRule,
-    MissingSummaryRule,
-    SummaryTooShortRule,
-    SummaryTooLongRule,
-    TooFewSkillsRule,
-    TooManySkillsRule,
-    MissingContactsRule,
+    MissingRequiredFieldsRule,
+    GenerateMissingSummaryRule,
+    SummaryLengthRule,
+    SkillsCountRule,
 )
 from app.services.analysis.rules.ats import (
     JobTitleCapitalizationRule,
@@ -55,7 +53,9 @@ class AnalysisService:
     def _load_rules(self) -> List[BaseRule]:
         """Load and instantiate all rule classes."""
         return [
-            # Content & Structure rules (13 rules)
+            # Content & Structure rules (11 rules - consolidated from 13)
+            MissingRequiredFieldsRule(),  # Must run first - mechanical checks for missing fields
+            GenerateMissingSummaryRule(),  # LLM-powered summary generation (runs after mechanical check)
             MissingAchievementsRule(),
             MissingCompanyDescriptionRule(),
             AchievementsWithoutMetricsRule(),
@@ -63,13 +63,9 @@ class AnalysisService:
             MissingDegreeRule(),
             MissingFieldOfStudyRule(),
             LongBulletsRule(),
-            MissingSummaryRule(),
-            SummaryTooShortRule(),
-            SummaryTooLongRule(),
-            TooFewSkillsRule(),
-            TooManySkillsRule(),
-            MissingContactsRule(),
-            
+            SummaryLengthRule(),  # Checks existing summaries (too short/long)
+            SkillsCountRule(),
+
             # ATS Optimization rules (7 rules)
             JobTitleCapitalizationRule(),
             MissingKeywordsRule(),
@@ -78,7 +74,7 @@ class AnalysisService:
             SkillsNotInExperienceRule(),
             ResumeLengthRule(),
             GenericJobTitlesRule(),
-            
+
             # Style & Grammar rules (9 rules)
             InconsistentVerbTenseRule(),
             WeakVerbsRule(),

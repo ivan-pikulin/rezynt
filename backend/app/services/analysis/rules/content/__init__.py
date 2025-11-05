@@ -6,12 +6,10 @@ from .missing_company_description import MissingCompanyDescriptionRule
 from .missing_degree import MissingDegreeRule
 from .missing_field_of_study import MissingFieldOfStudyRule
 from .long_bullets import LongBulletsRule
-from .missing_summary import MissingSummaryRule
-from .summary_too_short import SummaryTooShortRule
-from .summary_too_long import SummaryTooLongRule
-from .too_few_skills import TooFewSkillsRule
-from .too_many_skills import TooManySkillsRule
-from .missing_contacts import MissingContactsRule
+from .missing_required_fields import MissingRequiredFieldsRule
+from .generate_missing_summary import GenerateMissingSummaryRule
+from .summary_length import SummaryLengthRule
+from .skills_count import SkillsCountRule
 
 __all__ = [
     'MissingAchievementsRule',
@@ -21,11 +19,9 @@ __all__ = [
     'MissingDegreeRule',
     'MissingFieldOfStudyRule',
     'LongBulletsRule',
-    'MissingSummaryRule',
-    'SummaryTooShortRule',
-    'SummaryTooLongRule',
-    'TooFewSkillsRule',
-    'TooManySkillsRule',
-    'MissingContactsRule',
+    'MissingRequiredFieldsRule',
+    'GenerateMissingSummaryRule',
+    'SummaryLengthRule',
+    'SkillsCountRule',
 ]
 

@@ -46,8 +46,10 @@ Experience highlights: {exp_text[:500]}
 Task:
 1. Identify 3-5 missing industry-standard keywords/technologies for this role
 2. If found, set has_fix to true and in fixed_text provide JSON with:
-   - missing_keywords: list of keyword strings
-   - suggested_addition: comma-separated string of keywords to add
+   - missing_keywords: list of keyword strings (each starting with capital letter)
+   - suggested_addition: comma-separated string of keywords to add (each starting with capital letter)
+
+Format: Capitalize first letter of each skill/keyword (e.g., "Python", "Machine Learning", "Docker").
 
 If no keywords are missing, set has_fix to false and explain in reasoning."""
         
