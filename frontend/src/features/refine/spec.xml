@@ -203,28 +203,67 @@
         <component name="ImprovementSections" desc="Container for improvement categories with expandable sections">
             <props>
                 <prop name="sections" type="AnalysisSection[]" desc="Array of improvement sections"/>
+                <prop name="resume" type="Resume" desc="Resume data passed to ImprovementPoint components"/>
+                <prop name="onFixApplied" type="function" desc="Callback when fix is applied"/>
                 <prop name="onNavigateToField" type="function" desc="Callback for navigating to editor field"/>
+                <prop name="onFixMarked" type="function" desc="Callback when fix is marked/unmarked as fixed"/>
             </props>
             <features>
-                <feature name="section_expansion" desc="Only one section can be expanded at a time"/>
+                <feature name="section_expansion" desc="All sections expanded by default"/>
                 <feature name="progress_display" desc="Shows percentage and status for each section"/>
                 <feature name="improvement_points" desc="Lists improvement points for each section"/>
-                <feature name="navigation_delegation" desc="Passes onNavigateToField to child ImprovementPoint components"/>
+                <feature name="props_delegation" desc="Passes all callbacks to child ImprovementPoint components">
+                    <detail desc="onFixApplied for applying fixes"/>
+                    <detail desc="onNavigateToField for field navigation"/>
+                    <detail desc="onFixMarked for marking fixes as applied"/>
+                </feature>
             </features>
         </component>
 
-        <component name="ImprovementPoint" desc="Individual improvement point with action buttons">
+        <component name="ImprovementPoint" desc="Individual improvement point with action buttons and fix tracking">
             <props>
-                <prop name="point" type="ImprovementPoint" desc="Improvement point data"/>
+                <prop name="point" type="ImprovementPoint" desc="Improvement point data with is_fixed flag"/>
+                <prop name="resume" type="Resume" desc="Resume data for showing diff"/>
                 <prop name="onFixApplied" type="function" desc="Callback when fix is applied"/>
                 <prop name="onNavigateToField" type="function" desc="Callback for navigating to editor field"/>
+                <prop name="onFixMarked" type="function" desc="Callback when fix is marked/unmarked as fixed"/>
             </props>
             <features>
                 <feature name="severity_display" desc="Shows severity with color-coded border and icon"/>
-                <feature name="action_buttons" desc="Conditional rendering of Go to Edit and Fix buttons based on action_type"/>
+                <feature name="action_buttons" desc="Conditional rendering of Go to Edit, Apply Fix, and Mark as Fixed buttons">
+                    <detail desc="Apply Fix button: Only shown if fix_suggestion exists and not already fixed"/>
+                    <detail desc="Mark as Fixed button: Always shown, toggles between Mark/Unmark state"/>
+                    <detail desc="Go to Edit button: Always shown for manual navigation to editor"/>
+                </feature>
                 <feature name="field_navigation" desc="Go to Edit button calls onNavigateToField with point.field_path"/>
-                <feature name="ai_fix" desc="Fix button calls API to apply AI-generated fix"/>
-                <feature name="fix_display" desc="Shows suggested fix after applying"/>
+                <feature name="ai_fix" desc="Apply Fix button applies AI-generated fix and automatically marks as fixed"/>
+                <feature name="fix_tracking" desc="Track which improvement points have been fixed">
+                    <implementation>
+                        - is_fixed flag from ImprovementPoint type
+                        - Mark as Fixed button calls analysisApi.markFixed()
+                        - Persisted in backend User.analysis_result JSONB
+                        - Triggers onFixMarked callback to reload analysis
+                    </implementation>
+                </feature>
+                <feature name="fixed_display_format" desc="Special styling for fixed improvement points">
+                    <styling>
+                        - Green background (#f0fdf4) instead of white
+                        - Green left border (COLORS.success.main)
+                        - Reduced opacity (0.85) for subtle dimmed effect
+                        - Green "Fixed" badge overlay with CheckCircleIcon in top-right
+                        - Title text: strikethrough + green color (#15803d)
+                        - Description text: green color (#15803d)
+                        - Point indicator: green dot instead of severity color
+                        - Score impact: green color with checkmark prefix
+                        - Hide diff view when marked as fixed
+                        - Mark as Fixed button changes to green contained variant
+                    </styling>
+                </feature>
+                <feature name="diff_view" desc="Shows diff between original and suggested content">
+                    <detail desc="Uses DiffView component to show before/after comparison"/>
+                    <detail desc="Hidden when improvement is marked as fixed"/>
+                </feature>
+                <feature name="celebration_effect" desc="Confetti animation when fix is applied"/>
             </features>
         </component>
     </components>
@@ -273,6 +312,23 @@
         </endpoint>
         <endpoint name="exportPDF" method="POST" path="/resume/export-pdf">
             <desc>Export resume to PDF with template_slug in request body</desc>
+        </endpoint>
+        <endpoint name="getAnalysis" method="GET" path="/analysis/">
+            <desc>Get analysis for current user's resume. Returns stored analysis if available, otherwise generates new one.</desc>
+            <response_model>AnalysisResult</response_model>
+        </endpoint>
+        <endpoint name="refreshAnalysis" method="POST" path="/analysis/refresh">
+            <desc>Force regenerate analysis regardless of stored result</desc>
+            <response_model>AnalysisResult</response_model>
+        </endpoint>
+        <endpoint name="markFixed" method="POST" path="/analysis/mark-fixed">
+            <desc>Mark an improvement point as fixed or unfixed</desc>
+            <request>
+                <field name="point_id" type="string" required="true"/>
+                <field name="is_fixed" type="boolean" default="true"/>
+            </request>
+            <response_model>AnalysisResult</response_model>
+            <note>Updates User.analysis_result JSONB field to persist fix status</note>
         </endpoint>
     </api>
 

@@ -82,6 +82,45 @@
             </endpoints>
         </module>
         
+        <module name="analysis">
+            <description>Resume analysis endpoints for scoring and improvement suggestions</description>
+            <endpoints>
+                <endpoint path="/analysis/" method="GET" description="Get analysis for current user's resume. Returns stored analysis if available, otherwise generates new one.">
+                    <response_model>AnalysisResult</response_model>
+                    <caching>Returns cached analysis if available in User.analysis_result</caching>
+                </endpoint>
+                <endpoint path="/analysis/refresh" method="POST" description="Force regenerate analysis regardless of stored result. Saves new result to database.">
+                    <response_model>AnalysisResult</response_model>
+                    <note>Always regenerates analysis from scratch</note>
+                </endpoint>
+                <endpoint path="/analysis/mark-fixed" method="POST" description="Mark an improvement point as fixed or unfixed. Updates the is_fixed flag in the stored analysis result.">
+                    <request_body>
+                        <field name="point_id" type="string" required="true" description="Unique ID of improvement point"/>
+                        <field name="is_fixed" type="boolean" default="true" description="Whether the fix has been applied"/>
+                    </request_body>
+                    <response_model>AnalysisResult</response_model>
+                    <note>Updates analysis_result JSONB field in User model</note>
+                </endpoint>
+            </endpoints>
+            <features>
+                <feature name="Improvement Tracking" description="Track which improvement points have been fixed">
+                    <implementation>
+                        - is_fixed flag added to ImprovementPoint schema
+                        - Flag is persisted in User.analysis_result JSONB field
+                        - Frontend can mark points as fixed/unfixed via API
+                        - Fixed points display with special styling (green background, checkmark badge)
+                    </implementation>
+                </feature>
+                <feature name="Analysis Caching" description="Analysis results are cached in database">
+                    <implementation>
+                        - Stored in User.analysis_result JSONB field
+                        - Includes generated_at timestamp
+                        - GET /analysis/ returns cached result if available
+                        - POST /analysis/refresh forces regeneration
+                    </implementation>
+                </feature>
+            </features>
+        </module>
 
         
         <module name="chat">

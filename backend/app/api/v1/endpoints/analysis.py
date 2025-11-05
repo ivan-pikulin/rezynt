@@ -2,6 +2,7 @@
 from typing import Any
 
 from fastapi import APIRouter, HTTPException, status
+from pydantic import BaseModel
 
 from app.api.deps import AsyncDB, CurrentUser
 from app.database.crud.crud_user import user_crud
@@ -9,6 +10,12 @@ from app.schemas.analysis import AnalysisResult
 from app.services.analysis.analysis_service import analysis_service
 
 router = APIRouter()
+
+
+class MarkFixedRequest(BaseModel):
+    """Request model for marking improvement point as fixed"""
+    point_id: str
+    is_fixed: bool = True
 
 
 @router.get("/", response_model=AnalysisResult)
@@ -79,4 +86,31 @@ async def refresh_analysis(
     )
     
     return analysis_result
+
+
+@router.post("/mark-fixed", response_model=AnalysisResult)
+async def mark_improvement_fixed(
+    db: AsyncDB,
+    current_user: CurrentUser,
+    request: MarkFixedRequest,
+) -> Any:
+    """
+    Mark an improvement point as fixed or unfixed.
+    Updates the is_fixed flag in the stored analysis result.
+    """
+    # Update the improvement point
+    updated_analysis = await user_crud.mark_improvement_fixed(
+        db,
+        user_id=current_user.id,
+        point_id=request.point_id,
+        is_fixed=request.is_fixed
+    )
+    
+    if not updated_analysis:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Analysis or improvement point not found"
+        )
+    
+    return AnalysisResult(**updated_analysis)
 

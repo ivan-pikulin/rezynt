@@ -290,6 +290,16 @@ const RefinePage: React.FC = () => {
     }
   }, [resume]);
 
+  // Reload analysis from backend (after marking fix as applied)
+  const handleFixMarked = async () => {
+    try {
+      const updatedAnalysis = await analysisApi.getAnalysis();
+      setAnalysis(updatedAnalysis);
+    } catch (error) {
+      console.error('Error reloading analysis after marking fix:', error);
+    }
+  };
+
   // Refresh analysis handler
   const handleRefreshAnalysis = async () => {
     if (!resume) return;
@@ -497,6 +507,7 @@ const RefinePage: React.FC = () => {
                 resume={localResume || resume}
                 onFixApplied={handleFixApplied}
                 onNavigateToField={handleNavigateToField}
+                onFixMarked={handleFixMarked}
               />
             </Box>
 

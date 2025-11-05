@@ -201,6 +201,7 @@ export interface ImprovementPoint {
   severity: 'high' | 'medium' | 'low';
   fix_suggestion?: FixSuggestion;
   metadata?: Record<string, any>;
+  is_fixed?: boolean; // Flag indicating if fix has been applied
 }
 
 export interface AnalysisSection {

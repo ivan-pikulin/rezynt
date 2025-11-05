@@ -274,6 +274,38 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             await db.refresh(user)
         return user
 
+    async def mark_improvement_fixed(self, db: AsyncSession, *, user_id: int, point_id: str, is_fixed: bool = True) -> Optional[Dict[str, Any]]:
+        """
+        Mark an improvement point as fixed/unfixed in stored analysis result.
+        Updates the is_fixed flag for the specified improvement point.
+        """
+        user = await self.get(db, id=user_id)
+        if not user or not user.analysis_result:
+            return None
+        
+        # Deep copy to avoid mutation issues
+        import copy
+        analysis_data = copy.deepcopy(user.analysis_result)
+        
+        # Find and update the improvement point in all sections
+        updated = False
+        for section in analysis_data.get('sections', []):
+            for point in section.get('improvement_points', []):
+                if point.get('id') == point_id:
+                    point['is_fixed'] = is_fixed
+                    updated = True
+                    break
+            if updated:
+                break
+        
+        if updated:
+            user.analysis_result = analysis_data
+            await db.commit()
+            await db.refresh(user)
+            return user.analysis_result
+        
+        return None
+
     async def change_password(self, db: AsyncSession, *, user_id: int, current_password: str, new_password: str) -> Optional[User]:
         """
         Change user password after verifying current password.

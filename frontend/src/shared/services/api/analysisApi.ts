@@ -15,6 +15,16 @@ export class AnalysisApi extends BaseApi {
   async refreshAnalysis(): Promise<AnalysisResult> {
     return this.post<AnalysisResult>('/analysis/refresh');
   }
+
+  /**
+   * Mark improvement point as fixed or unfixed
+   */
+  async markFixed(pointId: string, isFixed: boolean = true): Promise<AnalysisResult> {
+    return this.post<AnalysisResult>('/analysis/mark-fixed', {
+      point_id: pointId,
+      is_fixed: isFixed,
+    });
+  }
 }
 
 export const analysisApi = new AnalysisApi();

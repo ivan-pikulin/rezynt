@@ -14,6 +14,7 @@ type Props = {
   resume: Resume;
   onFixApplied?: (updatedResume: Resume) => void;
   onNavigateToField?: (fieldPath: string) => void;
+  onFixMarked?: () => void;
 };
 
 const accordionSx = {
@@ -44,7 +45,7 @@ const statusToText = {
   Strong: COLORS.success.text,
 };
 
-const ImprovementSections: React.FC<Props> = ({ sections, resume, onFixApplied, onNavigateToField }) => {
+const ImprovementSections: React.FC<Props> = ({ sections, resume, onFixApplied, onNavigateToField, onFixMarked }) => {
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
 
   // Initialize all sections as expanded when sections change
@@ -173,6 +174,7 @@ const ImprovementSections: React.FC<Props> = ({ sections, resume, onFixApplied, 
                     resume={resume}
                     onFixApplied={onFixApplied}
                     onNavigateToField={onNavigateToField}
+                    onFixMarked={onFixMarked}
                   />
                 ))
               )}
