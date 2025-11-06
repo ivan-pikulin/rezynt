@@ -106,16 +106,24 @@ class AnalysisService:
         print("=" * 60)
         print(f"Resume keys: {list(resume.keys()) if resume else 'None'}")
         if resume:
-            print(f"  - professional_summary: {type(resume.get('professional_summary'))} = {resume.get('professional_summary')}")
-            print(f"  - personal_info: {type(resume.get('personal_info'))}")
-            if resume.get('personal_info'):
-                pi = resume.get('personal_info', {})
-                print(f"    - first_name: {pi.get('first_name')}")
-                print(f"    - last_name: {pi.get('last_name')}")
-                print(f"    - contacts: {pi.get('contacts')}")
-            print(f"  - work_experience: {type(resume.get('work_experience'))} (length: {len(resume.get('work_experience', []))})")
-            print(f"  - education: {type(resume.get('education'))} (length: {len(resume.get('education', []))})")
-            print(f"  - skills: {type(resume.get('skills'))} (length: {len(resume.get('skills', []))})")
+            prof_summary = resume.get('professional_summary')
+            print(f"  - professional_summary: {type(prof_summary)} = {prof_summary}")
+            
+            personal_info = resume.get('personal_info')
+            print(f"  - personal_info: {type(personal_info)}")
+            if personal_info:
+                print(f"    - first_name: {personal_info.get('first_name')}")
+                print(f"    - last_name: {personal_info.get('last_name')}")
+                print(f"    - contacts: {personal_info.get('contacts')}")
+            
+            work_exp = resume.get('work_experience') or []
+            print(f"  - work_experience: {type(work_exp)} (length: {len(work_exp)})")
+            
+            education = resume.get('education') or []
+            print(f"  - education: {type(education)} (length: {len(education)})")
+            
+            skills = resume.get('skills') or []
+            print(f"  - skills: {type(skills)} (length: {len(skills)})")
         print("=" * 60)
         
         # Run all rules
