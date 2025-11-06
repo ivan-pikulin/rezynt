@@ -19,6 +19,7 @@ import {
 import { WorkExperience } from '../../../shared/services/api/types';
 import { COLORS } from '../../../shared/theme/theme';
 import { pulseElement } from '../utils/pulseAnimation';
+import { addButtonStyle } from '../styles/buttonStyles';
 
 // Simple input component
 const SimpleInput: React.FC<{
@@ -546,9 +547,11 @@ const ExperienceEditor = forwardRef<ExperienceEditorHandle, ExperienceEditorProp
               ))}
                 <Button
                 id={`experience-${index}-add-achievement-btn`}
-                size="small"
+                variant="outlined"
                 startIcon={<AddIcon />}
                 onClick={() => handleAddAchievement(index)}
+                fullWidth
+                sx={addButtonStyle}
               >
                 {t('refine.editor.addAchievement')}
                 </Button>
@@ -559,11 +562,11 @@ const ExperienceEditor = forwardRef<ExperienceEditorHandle, ExperienceEditorProp
 
         <Button
           ref={addButtonRef}
-        variant="outlined"
+          variant="outlined"
           startIcon={<AddIcon />}
           onClick={handleAddExperience}
-        fullWidth
-        sx={{ mt: 2 }}
+          fullWidth
+          sx={addButtonStyle}
         >
           {t('refine.editor.addExperience')}
         </Button>

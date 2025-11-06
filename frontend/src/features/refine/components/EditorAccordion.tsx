@@ -26,6 +26,7 @@ import EducationEditor, { EducationEditorHandle } from './EducationEditor';
 import ExperienceEditor, { ExperienceEditorHandle } from './ExperienceEditor';
 import SkillsEditor from './SkillsEditor';
 import { pulseElement } from '../utils/pulseAnimation';
+import { addButtonStyle } from '../styles/buttonStyles';
 
 // Contact configuration
 const CONTACT_CONFIGS = [
@@ -544,17 +545,11 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
                 <>
                   <Button
                     ref={addContactButtonRef}
-                    size="small"
+                    variant="outlined"
                     startIcon={<AddIcon />}
                     onClick={(e) => setContactMenuAnchor(e.currentTarget)}
-                    sx={{
-                      textTransform: 'none',
-                      justifyContent: 'flex-start',
-                      color: COLORS.primary.main,
-                      '&:hover': {
-                        backgroundColor: 'rgba(37, 99, 235, 0.04)',
-                      },
-                    }}
+                    fullWidth
+                    sx={addButtonStyle}
                   >
                     Add contact
                   </Button>

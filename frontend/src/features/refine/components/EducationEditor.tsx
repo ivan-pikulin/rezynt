@@ -16,6 +16,7 @@ import {
 import { Education } from '../../../shared/services/api/types';
 import { COLORS } from '../../../shared/theme/theme';
 import { pulseElement } from '../utils/pulseAnimation';
+import { addButtonStyle } from '../styles/buttonStyles';
 
 // Simple input component
 const SimpleInput: React.FC<{
@@ -414,9 +415,11 @@ const EducationEditor = forwardRef<EducationEditorHandle, EducationEditorProps>(
                 </Box>
               ))}
               <Button
-                size="small"
+                variant="outlined"
                 startIcon={<AddIcon />}
                 onClick={() => handleAddCourse(index)}
+                fullWidth
+                sx={addButtonStyle}
               >
                 {t('refine.editor.addCourse', 'Add Course')}
               </Button>
@@ -431,7 +434,7 @@ const EducationEditor = forwardRef<EducationEditorHandle, EducationEditorProps>(
         startIcon={<AddIcon />}
         onClick={handleAddEducation}
         fullWidth
-        sx={{ mt: 2 }}
+        sx={addButtonStyle}
       >
         {t('refine.editor.addEducation')}
       </Button>
