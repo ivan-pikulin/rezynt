@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useImperativeHandle, forwardRef } from 'react';
+import React, { useState, useEffect, useImperativeHandle, forwardRef, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Box,
@@ -15,6 +15,7 @@ import {
 } from '@mui/icons-material';
 import { Education } from '../../../shared/services/api/types';
 import { COLORS } from '../../../shared/theme/theme';
+import { pulseElement } from '../utils/pulseAnimation';
 
 // Simple input component
 const SimpleInput: React.FC<{
@@ -59,7 +60,8 @@ interface EducationEditorProps {
 }
 
 export interface EducationEditorHandle {
-  navigateToField: (index: number, fieldName: string) => void;
+  navigateToField: (index: number, fieldName: string, hasNewSuffix?: boolean) => void;
+  pulseAddButton: () => void;
 }
 
 interface EducationFormData {
@@ -80,6 +82,7 @@ const EducationEditor = forwardRef<EducationEditorHandle, EducationEditorProps>(
   const { t } = useTranslation();
   const [localEducation, setLocalEducation] = useState<Education[]>(education);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+  const addButtonRef = useRef<HTMLButtonElement>(null);
   
   // Sync with prop changes (important for undo/redo)
   useEffect(() => {
@@ -123,10 +126,15 @@ const EducationEditor = forwardRef<EducationEditorHandle, EducationEditorProps>(
     setExpandedIndex(index === false ? null : index);
   };
 
-  // Expose navigation method
+  // Expose navigation methods
   useImperativeHandle(ref, () => ({
-    navigateToField: (index: number, fieldName: string) => {
-      console.log('🎓 EducationEditor.navigateToField called:', { index, fieldName });
+    pulseAddButton: () => {
+      if (addButtonRef.current) {
+        pulseElement(addButtonRef.current);
+      }
+    },
+    navigateToField: (index: number, fieldName: string, hasNewSuffix: boolean = false) => {
+      console.log('🎓 EducationEditor.navigateToField called:', { index, fieldName, hasNewSuffix });
       
       // Expand the accordion for this education entry
       setExpandedIndex(index);
@@ -418,6 +426,7 @@ const EducationEditor = forwardRef<EducationEditorHandle, EducationEditorProps>(
       ))}
       
       <Button
+        ref={addButtonRef}
         variant="outlined"
         startIcon={<AddIcon />}
         onClick={handleAddEducation}

@@ -48,7 +48,7 @@ class ResumeLengthRule(BaseRule):
                 if experiences:
                     for i, exp in enumerate(experiences):
                         if not exp.get('achievements') or len(exp.get('achievements', [])) == 0:
-                            field_path = f"work_experience[{i}].achievements"
+                            field_path = f"work_experience[{i}].achievements.new"
                             break
             
             points.append(self.create_point(

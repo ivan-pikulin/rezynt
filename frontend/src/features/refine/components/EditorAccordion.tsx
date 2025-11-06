@@ -25,6 +25,7 @@ import { COLORS } from '../../../shared/theme/theme';
 import EducationEditor, { EducationEditorHandle } from './EducationEditor';
 import ExperienceEditor, { ExperienceEditorHandle } from './ExperienceEditor';
 import SkillsEditor from './SkillsEditor';
+import { pulseElement } from '../utils/pulseAnimation';
 
 // Contact configuration
 const CONTACT_CONFIGS = [
@@ -95,6 +96,7 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
   
   const experienceEditorRef = useRef<ExperienceEditorHandle>(null);
   const educationEditorRef = useRef<EducationEditorHandle>(null);
+  const addContactButtonRef = useRef<HTMLButtonElement>(null);
 
   const [formData, setFormData] = useState({
     professional_summary: resume.professional_summary || '',
@@ -178,8 +180,12 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
     const navigateToField = (fieldPath: string) => {
       console.log('📍 EditorAccordion.navigateToField called:', fieldPath);
       
+      // Check for .new suffix (indicates pulse add button)
+      const hasNewSuffix = fieldPath.endsWith('.new');
+      const cleanPath = hasNewSuffix ? fieldPath.replace(/\.new$/, '') : fieldPath;
+      
       // Parse field_path (e.g., "work_experience[0].achievements", "professional_summary", "personal_info.email")
-      const parts = fieldPath.split('.');
+      const parts = cleanPath.split('.');
       const mainFieldWithIndex = parts[0]; // e.g., "work_experience[0]"
       const mainField = mainFieldWithIndex.split('[')[0]; // e.g., "work_experience"
       
@@ -194,6 +200,7 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
         mainField,
         arrayIndex,
         subField,
+        hasNewSuffix,
         fullPath: fieldPath
       });
       
@@ -223,12 +230,20 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
         setTimeout(() => {
           if (mainField === 'work_experience' && arrayIndex !== null && experienceEditorRef.current) {
             // Navigate to specific experience field
-            console.log('➡️ Delegating to ExperienceEditor:', { arrayIndex, subField });
-            experienceEditorRef.current.navigateToField(arrayIndex, subField || 'job_title');
+            console.log('➡️ Delegating to ExperienceEditor:', { arrayIndex, subField, hasNewSuffix });
+            experienceEditorRef.current.navigateToField(arrayIndex, subField || 'job_title', hasNewSuffix);
+          } else if (mainField === 'work_experience' && arrayIndex === null && hasNewSuffix && experienceEditorRef.current) {
+            // .new suffix without index - pulse Add Experience button
+            console.log('➡️ Pulsing Add Experience button (.new suffix)');
+            experienceEditorRef.current.pulseAddButton();
           } else if (mainField === 'education' && arrayIndex !== null && educationEditorRef.current) {
             // Navigate to specific education field
-            console.log('➡️ Delegating to EducationEditor:', { arrayIndex, subField });
-            educationEditorRef.current.navigateToField(arrayIndex, subField || 'degree');
+            console.log('➡️ Delegating to EducationEditor:', { arrayIndex, subField, hasNewSuffix });
+            educationEditorRef.current.navigateToField(arrayIndex, subField || 'degree', hasNewSuffix);
+          } else if (mainField === 'education' && arrayIndex === null && hasNewSuffix && educationEditorRef.current) {
+            // .new suffix without index - pulse Add Education button
+            console.log('➡️ Pulsing Add Education button (.new suffix)');
+            educationEditorRef.current.pulseAddButton();
           } else {
             console.log('➡️ Navigating to simple field:', { accordionId, mainField, subField });
             // For simple fields, just scroll to accordion and focus on field
@@ -241,10 +256,25 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
             setTimeout(() => {
               let fieldId = '';
               if (mainField === 'personal_info' && subField) {
-                // Special case: just 'contacts' without specific field - focus on first contact field
-                if (subField === 'contacts') {
-                  fieldId = 'personal-email'; // Default to email field
-                  console.log('🔑 Field path ends with "contacts", focusing on first field:', fieldId);
+                // Special case: 'contacts' with .new suffix - pulse Add Contact button
+                if (subField === 'contacts' && hasNewSuffix) {
+                  console.log('🔑 Field path is "contacts.new", pulsing Add Contact button');
+                  console.log('🔍 addContactButtonRef.current exists:', !!addContactButtonRef.current);
+                  
+                  if (addContactButtonRef.current) {
+                    console.log('✅ Found Add Contact button, pulsing...');
+                    pulseElement(addContactButtonRef.current);
+                  } else {
+                    console.log('❌ Add Contact button ref not found');
+                  }
+                  return; // Don't try to focus on field
+                } else if (subField === 'contacts') {
+                  // Just 'contacts' without .new - scroll to contacts section
+                  const element = document.getElementById('accordion-personal');
+                  if (element) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }
+                  return;
                 } else {
                   // Handle nested contacts fields: contacts.email -> email
                   const actualField = subField.includes('contacts.') 
@@ -513,6 +543,7 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
               {visibleContacts.size < CONTACT_CONFIGS.length && (
                 <>
                   <Button
+                    ref={addContactButtonRef}
                     size="small"
                     startIcon={<AddIcon />}
                     onClick={(e) => setContactMenuAnchor(e.currentTarget)}

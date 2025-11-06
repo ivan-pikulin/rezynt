@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useImperativeHandle, forwardRef } from 'react';
+import React, { useState, useEffect, useImperativeHandle, forwardRef, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Box,
@@ -18,6 +18,7 @@ import {
 } from '@mui/icons-material';
 import { WorkExperience } from '../../../shared/services/api/types';
 import { COLORS } from '../../../shared/theme/theme';
+import { pulseElement } from '../utils/pulseAnimation';
 
 // Simple input component
 const SimpleInput: React.FC<{
@@ -101,7 +102,8 @@ interface ExperienceEditorProps {
 }
 
 export interface ExperienceEditorHandle {
-  navigateToField: (index: number, fieldName: string) => void;
+  navigateToField: (index: number, fieldName: string, hasNewSuffix?: boolean) => void;
+  pulseAddButton: () => void;
 }
 
 interface ExperienceFormData {
@@ -124,6 +126,7 @@ const ExperienceEditor = forwardRef<ExperienceEditorHandle, ExperienceEditorProp
   const { t } = useTranslation();
   const [localExperience, setLocalExperience] = useState<WorkExperience[]>(experience);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+  const addButtonRef = useRef<HTMLButtonElement>(null);
   
   // Sync with prop changes (important for undo/redo)
   useEffect(() => {
@@ -182,10 +185,15 @@ const ExperienceEditor = forwardRef<ExperienceEditorHandle, ExperienceEditorProp
     setExpandedIndex(index === false ? null : index);
   };
 
-  // Expose navigation method
+  // Expose navigation methods
   useImperativeHandle(ref, () => ({
-    navigateToField: (index: number, fieldName: string) => {
-      console.log('📝 ExperienceEditor.navigateToField called:', { index, fieldName });
+    pulseAddButton: () => {
+      if (addButtonRef.current) {
+        pulseElement(addButtonRef.current);
+      }
+    },
+    navigateToField: (index: number, fieldName: string, hasNewSuffix: boolean = false) => {
+      console.log('📝 ExperienceEditor.navigateToField called:', { index, fieldName, hasNewSuffix });
       
       // Check if accordion is already expanded
       const wasExpanded = expandedIndex === index;
@@ -203,52 +211,24 @@ const ExperienceEditor = forwardRef<ExperienceEditorHandle, ExperienceEditorProp
         // try to focus on the first item or the add button if no items exist
         let fieldId = `experience-${index}-${fieldName}`;
         
-        // If it's an array field, try the first item
-        if (['achievements', 'technologies_tools'].includes(fieldName)) {
+        // If it's an array field with .new suffix, always pulse add button
+        if (['achievements', 'technologies_tools'].includes(fieldName) && hasNewSuffix) {
+          const addButtonId = `experience-${index}-add-${fieldName === 'achievements' ? 'achievement' : 'technology'}-btn`;
+          const addButton = document.getElementById(addButtonId);
+          
+          if (addButton) {
+            console.log('🎯 .new suffix detected, pulsing Add button:', addButtonId);
+            pulseElement(addButton);
+            return;
+          }
+        }
+        
+        // If it's an array field without .new, try the first item
+        if (['achievements', 'technologies_tools'].includes(fieldName) && !hasNewSuffix) {
           const firstItemId = `${fieldId}-0`;
           const firstItem = document.getElementById(firstItemId);
           if (firstItem) {
             fieldId = firstItemId;
-          } else {
-            // No items exist, navigate to "Add" button instead
-            const addButtonId = `experience-${index}-add-${fieldName === 'achievements' ? 'achievement' : 'technology'}-btn`;
-            const addButton = document.getElementById(addButtonId);
-            
-            if (addButton) {
-              console.log('🎯 No items found, navigating to Add button:', addButtonId);
-              
-              addButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
-              
-              // Pulse animation for button (2 pulses) - after scroll completes
-              setTimeout(() => {
-                const originalTransform = addButton.style.transform;
-                const originalTransition = addButton.style.transition;
-                
-                addButton.style.transition = 'transform 0.3s ease-in-out';
-                
-                // First pulse
-                addButton.style.transform = 'scale(1.1)';
-                setTimeout(() => {
-                  addButton.style.transform = 'scale(1)';
-                  
-                  // Second pulse
-                  setTimeout(() => {
-                    addButton.style.transform = 'scale(1.1)';
-                    setTimeout(() => {
-                      addButton.style.transform = 'scale(1)';
-                      
-                      // Clean up
-                      setTimeout(() => {
-                        addButton.style.transform = originalTransform;
-                        addButton.style.transition = originalTransition;
-                      }, 300);
-                    }, 300);
-                  }, 300);
-                }, 300);
-              }, 500);
-              
-              return;
-            }
           }
         }
         
@@ -578,11 +558,12 @@ const ExperienceEditor = forwardRef<ExperienceEditorHandle, ExperienceEditorProp
       ))}
 
         <Button
-        variant="outlined"
+          ref={addButtonRef}
+          variant="outlined"
           startIcon={<AddIcon />}
           onClick={handleAddExperience}
-        fullWidth
-        sx={{ mt: 2 }}
+          fullWidth
+          sx={{ mt: 2 }}
         >
           {t('refine.editor.addExperience')}
         </Button>

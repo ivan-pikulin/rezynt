@@ -27,7 +27,7 @@ class MissingAchievementsRule(BaseRule):
             if (not achievements or len(achievements) == 0) and (not responsibilities or len(responsibilities) == 0):
                 job_title = exp.get('job_title', 'this role')
                 points.append(self.create_point(
-                    field_path=f"work_experience[{i}].achievements",
+                    field_path=f"work_experience[{i}].achievements.new",
                     title="Missing Achievements",
                     description=f"Add quantifiable achievements for {job_title}"
                 ))

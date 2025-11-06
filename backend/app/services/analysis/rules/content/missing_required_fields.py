@@ -92,7 +92,7 @@ class MissingRequiredFieldsRule(BaseRule):
 
         if available_contacts < 2:
             points.append(self.create_point(
-                field_path="personal_info.contacts",
+                field_path="personal_info.contacts.new",
                 title="Insufficient Contact Methods",
                 description=f"Add at least 2 ways to contact you (currently {available_contacts}).",
                 metadata={"severity": "medium", "score_impact": 4}
@@ -122,7 +122,7 @@ class MissingRequiredFieldsRule(BaseRule):
 These experiences demonstrate your skills and initiative to potential employers."""
 
             points.append(self.create_point(
-                field_path="work_experience",
+                field_path="work_experience.new",
                 title="Missing Work Experience",
                 description=description,
                 metadata={"severity": "high", "score_impact": 8}
@@ -132,7 +132,7 @@ These experiences demonstrate your skills and initiative to potential employers.
         education = resume.get('education', [])
         if len(education) == 0:
             points.append(self.create_point(
-                field_path="education",
+                field_path="education.new",
                 title="Missing Education",
                 description="Add your educational background (university degree, college, professional courses, certifications, or relevant training programs)",
                 metadata={"severity": "high", "score_impact": 7}
