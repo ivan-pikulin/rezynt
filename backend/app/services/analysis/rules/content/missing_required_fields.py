@@ -41,13 +41,13 @@ class MissingRequiredFieldsRule(BaseRule):
                 metadata={"severity": "high", "score_impact": 8}
             ))
 
-        # 3. Check job title (desired position)
-        job_title = personal_info.get('job_title') or ''
-        if not job_title.strip():
+        # 3. Check current role (desired position)
+        current_role = personal_info.get('current_role') or ''
+        if not current_role.strip():
             points.append(self.create_point(
-                field_path="personal_info.job_title",
-                title="Missing Job Title",
-                description="Add your target job title or desired position to help employers understand your career goals",
+                field_path="personal_info.current_role",
+                title="Missing Current Role",
+                description="Add your current role or target job title to help employers understand your career goals",
                 metadata={"severity": "high", "score_impact": 7}
             ))
 
@@ -65,7 +65,7 @@ class MissingRequiredFieldsRule(BaseRule):
         email = contacts.get('email') or ''
         if not email.strip():
             points.append(self.create_point(
-                field_path="personal_info.contacts.email",
+                field_path="personal_info.contacts.new",
                 title="Missing Email Address",
                 description="Add your email address - this is essential for employers to contact you",
                 metadata={"severity": "high", "score_impact": 8}
@@ -75,7 +75,7 @@ class MissingRequiredFieldsRule(BaseRule):
         phone = contacts.get('phone') or ''
         if not phone.strip():
             points.append(self.create_point(
-                field_path="personal_info.contacts.phone",
+                field_path="personal_info.contacts.new",
                 title="Missing Phone Number",
                 description="Add your phone number to provide an additional contact method",
                 metadata={"severity": "medium", "score_impact": 5}
