@@ -18,8 +18,8 @@ class MissingCompanyDescriptionRule(BaseRule):
         """Mechanical check for description field."""
         points = []
         
-        for i, exp in enumerate(resume.get('work_experience', [])):
-            description = exp.get('short_description', '').strip()
+        for i, exp in enumerate(resume.get('work_experience') or []):
+            description = (exp.get('short_description') or '').strip()
             if not description or len(description) < 10:
                 company = exp.get('company', 'the company')
                 points.append(self.create_point(

@@ -109,7 +109,7 @@ class MissingRequiredFieldsRule(BaseRule):
             ))
 
         # 9. Check work experience
-        work_exp = resume.get('work_experience', [])
+        work_exp = resume.get('work_experience') or []
         if len(work_exp) == 0:
             description = """Add your work experience to showcase your professional background. If you don't have formal work experience yet, consider including:
 • Personal projects or side projects
@@ -129,7 +129,7 @@ These experiences demonstrate your skills and initiative to potential employers.
             ))
 
         # 10. Check education
-        education = resume.get('education', [])
+        education = resume.get('education') or []
         if len(education) == 0:
             points.append(self.create_point(
                 field_path="education.new",

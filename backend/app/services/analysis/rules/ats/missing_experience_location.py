@@ -18,9 +18,9 @@ class MissingExperienceLocationRule(BaseRule):
         """Check for missing city/country."""
         points = []
         
-        for i, exp in enumerate(resume.get('work_experience', [])):
-            city = exp.get('city', '').strip()
-            country = exp.get('country', '').strip()
+        for i, exp in enumerate(resume.get('work_experience') or []):
+            city = (exp.get('city') or '').strip()
+            country = (exp.get('country') or '').strip()
             
             if not city and not country:
                 company = exp.get('company', 'this position')

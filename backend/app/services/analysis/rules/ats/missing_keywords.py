@@ -29,10 +29,10 @@ class MissingKeywordsRule(BaseRule):
         job_title = latest_job.get('job_title', 'Professional')
         
         # Prepare context
-        summary = resume.get('professional_summary', '')
-        skills = resume.get('skills', [])
+        summary = resume.get('professional_summary') or ''
+        skills = resume.get('skills') or []
         exp_text = " ".join([
-            " ".join(exp.get('achievements', [])) 
+            " ".join(exp.get('achievements') or []) 
             for exp in work_exp[:3]
         ])
         

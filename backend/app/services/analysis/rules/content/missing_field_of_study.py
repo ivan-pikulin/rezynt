@@ -18,8 +18,8 @@ class MissingFieldOfStudyRule(BaseRule):
         """Mechanical check for field_of_study."""
         points = []
         
-        for i, edu in enumerate(resume.get('education', [])):
-            field = edu.get('field_of_study', '').strip()
+        for i, edu in enumerate(resume.get('education') or []):
+            field = (edu.get('field_of_study') or '').strip()
             if not field:
                 points.append(self.create_point(
                     field_path=f"education[{i}].field_of_study",

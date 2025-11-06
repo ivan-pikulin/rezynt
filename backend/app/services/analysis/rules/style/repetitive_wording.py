@@ -20,11 +20,11 @@ class RepetitiveWordingRule(BaseRule):
         points = []
         
         # Collect text from each section separately
-        summary_text = resume.get('professional_summary', '')
+        summary_text = resume.get('professional_summary') or ''
         
         experience_text = ''
-        for exp in resume.get('work_experience', []):
-            experience_text += ' ' + ' '.join(exp.get('achievements', []))
+        for exp in resume.get('work_experience') or []:
+            experience_text += ' ' + ' '.join(exp.get('achievements') or [])
         
         # Check all text for repetition
         all_text = summary_text + ' ' + experience_text

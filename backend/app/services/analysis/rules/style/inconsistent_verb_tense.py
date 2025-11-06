@@ -19,9 +19,9 @@ class InconsistentVerbTenseRule(BaseRule):
         """Detect tense issues and generate correctly-tensed versions."""
         points = []
         
-        for i, exp in enumerate(resume.get('work_experience', [])):
+        for i, exp in enumerate(resume.get('work_experience') or []):
             # Determine if current position
-            end_date = exp.get('end_date', '').lower()
+            end_date = (exp.get('end_date') or '').lower()
             is_current = end_date in ['present', 'current', 'now', ''] or not end_date
             
             achievements = exp.get('achievements', [])

@@ -28,7 +28,7 @@ class BuzzwordsRule(BaseRule):
         ]
         
         # Check professional summary
-        summary_text = resume.get('professional_summary', '')
+        summary_text = resume.get('professional_summary') or ''
         summary_buzzwords = [bw for bw in buzzwords if bw in summary_text.lower()]
         
         if summary_buzzwords:

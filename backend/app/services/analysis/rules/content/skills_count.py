@@ -21,12 +21,12 @@ class SkillsCountRule(BaseRule):
     async def check(self, resume: dict) -> List[ImprovementPoint]:
         """Check skills count and generate suggestions via LLM."""
         points = []
-        skills = resume.get('skills', [])
+        skills = resume.get('skills') or []
 
         # Too few skills
         if len(skills) < self.min_skills:
             import json
-            work_exp = resume.get('work_experience', [])
+            work_exp = resume.get('work_experience') or []
             exp_summary = []
             for exp in work_exp[:3]:
                 exp_summary.append({

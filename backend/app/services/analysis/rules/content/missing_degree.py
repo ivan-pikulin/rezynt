@@ -18,8 +18,8 @@ class MissingDegreeRule(BaseRule):
         """Mechanical check for degree field."""
         points = []
         
-        for i, edu in enumerate(resume.get('education', [])):
-            degree = edu.get('degree', '').strip()
+        for i, edu in enumerate(resume.get('education') or []):
+            degree = (edu.get('degree') or '').strip()
             if not degree:
                 institution = edu.get('institution', 'this program')
                 points.append(self.create_point(

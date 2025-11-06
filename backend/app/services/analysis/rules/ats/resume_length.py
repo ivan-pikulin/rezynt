@@ -23,20 +23,20 @@ class ResumeLengthRule(BaseRule):
         total_words = 0
         
         # Summary
-        total_words += len(resume.get('professional_summary', '').split())
+        total_words += len((resume.get('professional_summary') or '').split())
         
         # Skills
-        total_words += len(resume.get('skills', []))
+        total_words += len(resume.get('skills') or [])
         
         # Experience
-        for exp in resume.get('work_experience', []):
-            total_words += len(exp.get('short_description', '').split())
-            for ach in exp.get('achievements', []):
+        for exp in resume.get('work_experience') or []:
+            total_words += len((exp.get('short_description') or '').split())
+            for ach in exp.get('achievements') or []:
                 total_words += len(ach.split())
         
         # Education
-        for edu in resume.get('education', []):
-            total_words += len(' '.join(edu.get('relevant_courses', [])).split())
+        for edu in resume.get('education') or []:
+            total_words += len(' '.join(edu.get('relevant_courses') or []).split())
         
         # Check against thresholds
         if total_words < AnalysisConfig.MIN_RESUME_WORDS:

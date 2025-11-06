@@ -24,9 +24,9 @@ class GenerateMissingSummaryRule(BaseRule):
         if not summary or len(summary) < 20:
             # Generate summary via LLM
             import json
-            work_exp = resume.get('work_experience', [])
-            education = resume.get('education', [])
-            skills = resume.get('skills', [])
+            work_exp = resume.get('work_experience') or []
+            education = resume.get('education') or []
+            skills = resume.get('skills') or []
             years = len(work_exp) * 2  # Rough estimate
 
             prompt = f"""Generate a professional summary (150-200 characters) for this resume based on the candidate's experience and skills.
