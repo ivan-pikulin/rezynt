@@ -40,6 +40,9 @@ const RefinePage: React.FC = () => {
   const [isRefreshingAnalysis, setIsRefreshingAnalysis] = useState(false);
   const editorRef = useRef<EditorAccordionHandle>(null);
   
+  // Track dismissed/applied improvement points for dynamic score recalculation
+  const [dismissedPointIds, setDismissedPointIds] = useState<Set<string>>(new Set());
+  
   // Auto-save state
   const [lastSavedResume, setLastSavedResume] = useState<Resume | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
@@ -282,7 +285,19 @@ const RefinePage: React.FC = () => {
   useEffect(() => {
     if (resume) {
       analysisApi.getAnalysis()
-        .then(setAnalysis)
+        .then((data) => {
+          setAnalysis(data);
+          // Initialize dismissed set with all already fixed points from backend
+          const alreadyFixed = new Set<string>();
+          data.sections.forEach((section: any) => {
+            section.improvement_points.forEach((point: any) => {
+              if (point.is_fixed) {
+                alreadyFixed.add(point.id);
+              }
+            });
+          });
+          setDismissedPointIds(alreadyFixed);
+        })
         .catch((error) => {
           console.error('Error loading analysis:', error);
           setAnalysis(null);
@@ -290,13 +305,66 @@ const RefinePage: React.FC = () => {
     }
   }, [resume]);
 
-  // Reload analysis from backend (after marking fix as applied)
-  const handleFixMarked = async () => {
+  // Recalculate score dynamically based on dismissed points
+  const recalculateScore = (baseAnalysis: any, dismissedIds: Set<string>) => {
+    if (!baseAnalysis) return null;
+    
+    // Calculate total penalty from dismissed points
+    let totalDismissedPenalty = 0;
+    baseAnalysis.sections.forEach((section: any) => {
+      section.improvement_points.forEach((point: any) => {
+        if (dismissedIds.has(point.id)) {
+          totalDismissedPenalty += point.score_impact || 0;
+        }
+      });
+    });
+    
+    // New score = old score + recovered penalty (but cap at 100)
+    const newScore = Math.min(100, baseAnalysis.score + totalDismissedPenalty);
+    
+    // Determine new label based on score
+    let newLabel = 'Weak';
+    let newSubtitle = "Let's work on it!";
+    if (newScore >= 90) {
+      newLabel = 'Excellent';
+      newSubtitle = 'Outstanding resume!';
+    } else if (newScore >= 80) {
+      newLabel = 'Strong';
+      newSubtitle = 'Almost perfect!';
+    } else if (newScore >= 60) {
+      newLabel = 'Good';
+      newSubtitle = 'Looking solid!';
+    } else if (newScore >= 40) {
+      newLabel = 'Fair';
+      newSubtitle = "You're on the right track!";
+    }
+    
+    return {
+      ...baseAnalysis,
+      score: newScore,
+      label: newLabel,
+      subtitle: newSubtitle,
+    };
+  };
+
+  // Handle fix marked - recalculate score dynamically without reloading
+  const handleFixMarked = async (pointId: string) => {
     try {
-      const updatedAnalysis = await analysisApi.getAnalysis();
-      setAnalysis(updatedAnalysis);
+      // Mark as fixed in backend
+      await analysisApi.markFixed(pointId, true);
+      
+      // Add to dismissed set and recalculate score locally
+      const newDismissedIds = new Set(dismissedPointIds);
+      newDismissedIds.add(pointId);
+      setDismissedPointIds(newDismissedIds);
+      
+      // Recalculate score dynamically
+      if (analysis) {
+        const updatedAnalysis = recalculateScore(analysis, newDismissedIds);
+        setAnalysis(updatedAnalysis);
+      }
     } catch (error) {
-      console.error('Error reloading analysis after marking fix:', error);
+      console.error('Error marking fix:', error);
     }
   };
 
@@ -308,6 +376,16 @@ const RefinePage: React.FC = () => {
     try {
       const newAnalysis = await analysisApi.refreshAnalysis();
       setAnalysis(newAnalysis);
+      // Re-initialize dismissed points with fixed points from fresh analysis
+      const alreadyFixed = new Set<string>();
+      newAnalysis.sections.forEach((section: any) => {
+        section.improvement_points.forEach((point: any) => {
+          if (point.is_fixed) {
+            alreadyFixed.add(point.id);
+          }
+        });
+      });
+      setDismissedPointIds(alreadyFixed);
     } catch (error) {
       console.error('Error refreshing analysis:', error);
     } finally {
@@ -333,8 +411,20 @@ const RefinePage: React.FC = () => {
   };
   
   // Handle fix applied - update resume and add to history
-  const handleFixApplied = async (updatedResume: Resume) => {
+  const handleFixApplied = async (updatedResume: Resume, appliedPointId?: string) => {
     handleResumeUpdate(updatedResume, true); // Add to history
+    
+    // If point ID provided, mark it as dismissed and recalculate score
+    if (appliedPointId) {
+      const newDismissedIds = new Set(dismissedPointIds);
+      newDismissedIds.add(appliedPointId);
+      setDismissedPointIds(newDismissedIds);
+      
+      if (analysis) {
+        const updatedAnalysis = recalculateScore(analysis, newDismissedIds);
+        setAnalysis(updatedAnalysis);
+      }
+    }
     
     // Auto-save to server if authenticated
     if (isAuthenticated) {
@@ -526,6 +616,7 @@ const RefinePage: React.FC = () => {
                 onFixApplied={handleFixApplied}
                 onNavigateToField={handleNavigateToField}
                 onFixMarked={handleFixMarked}
+                dismissedPointIds={dismissedPointIds}
               />
             </Box>
 

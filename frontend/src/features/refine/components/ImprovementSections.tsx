@@ -12,9 +12,10 @@ import { COLORS } from '../../../shared/theme/theme';
 type Props = {
   sections: AnalysisSection[];
   resume: Resume;
-  onFixApplied?: (updatedResume: Resume) => void;
+  onFixApplied?: (updatedResume: Resume, pointId?: string) => void;
   onNavigateToField?: (fieldPath: string) => void;
-  onFixMarked?: () => void;
+  onFixMarked?: (pointId: string) => void;
+  dismissedPointIds?: Set<string>;
 };
 
 const accordionSx = {
@@ -45,7 +46,7 @@ const statusToText = {
   Strong: COLORS.success.text,
 };
 
-const ImprovementSections: React.FC<Props> = ({ sections, resume, onFixApplied, onNavigateToField, onFixMarked }) => {
+const ImprovementSections: React.FC<Props> = ({ sections, resume, onFixApplied, onNavigateToField, onFixMarked, dismissedPointIds }) => {
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
 
   // Initialize all sections as expanded when sections change
@@ -175,6 +176,7 @@ const ImprovementSections: React.FC<Props> = ({ sections, resume, onFixApplied, 
                     onFixApplied={onFixApplied}
                     onNavigateToField={onNavigateToField}
                     onFixMarked={onFixMarked}
+                    isDismissed={dismissedPointIds?.has(point.id) || false}
                   />
                 ))
               )}

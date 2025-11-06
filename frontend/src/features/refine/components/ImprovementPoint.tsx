@@ -14,9 +14,10 @@ import { getFieldValue, applyFixToResume } from '../utils/resumeFieldPath';
 interface Props {
   point: ImprovementPointType;
   resume: Resume;
-  onFixApplied?: (updatedResume: Resume) => void;
+  onFixApplied?: (updatedResume: Resume, pointId?: string) => void;
   onNavigateToField?: (fieldPath: string) => void;
-  onFixMarked?: () => void; // Callback to refresh analysis after marking as fixed
+  onFixMarked?: (pointId: string) => void; // Callback to recalculate score after marking as fixed
+  isDismissed?: boolean; // Whether this point has been dismissed/applied
 }
 
 const severityColors = {
@@ -25,17 +26,15 @@ const severityColors = {
   low: COLORS.severity.low.main,
 };
 
-const ImprovementPoint: React.FC<Props> = ({ point, resume, onFixApplied, onNavigateToField, onFixMarked }) => {
-  const [applied, setApplied] = useState(false);
+const ImprovementPoint: React.FC<Props> = ({ point, resume, onFixApplied, onNavigateToField, onFixMarked, isDismissed = false }) => {
   const [isAnimating, setIsAnimating] = useState(false);
   const [isMarkingFixed, setIsMarkingFixed] = useState(false);
   const [addedItems, setAddedItems] = useState<Set<number>>(new Set());
   const [animatingItems, setAnimatingItems] = useState<Set<number>>(new Set());
   const buttonRef = useRef<HTMLButtonElement>(null);
   
-  // Check if fix is available and if already marked as fixed
+  // Check if fix is available
   const hasFix = !!point.fix_suggestion?.new_content;
-  const isFixed = point.is_fixed || false;
   
   // Helper to normalize content to string for DiffView
   const normalizeContent = (content: string | string[] | undefined): string | undefined => {
@@ -161,22 +160,14 @@ const ImprovementPoint: React.FC<Props> = ({ point, resume, onFixApplied, onNavi
     celebrate();
     
     // Update resume and wait for save to complete
-    await onFixApplied(updatedResume);
+    await onFixApplied(updatedResume, point.id);
     
     // Small delay for visual feedback
     setTimeout(async () => {
-      setApplied(true);
       setIsAnimating(false);
       
-      // Mark as fixed in backend
-      try {
-        await analysisApi.markFixed(point.id, true);
-        if (onFixMarked) {
-          onFixMarked();
-        }
-      } catch (error) {
-        console.error('Failed to mark fix as applied:', error);
-      }
+      // Note: Already marked as dismissed via onFixApplied callback
+      // No need to call onFixMarked here as it's already handled
       
       // Navigate to the field
       if (onNavigateToField) {
@@ -186,13 +177,14 @@ const ImprovementPoint: React.FC<Props> = ({ point, resume, onFixApplied, onNavi
   };
 
   const handleToggleFixed = async () => {
-    if (isMarkingFixed) return;
+    if (isMarkingFixed || isDismissed) return; // Block if already dismissed
     
     setIsMarkingFixed(true);
     try {
-      await analysisApi.markFixed(point.id, !isFixed);
+      // Always mark as fixed (true) since button is disabled if already dismissed
+      await analysisApi.markFixed(point.id, true);
       if (onFixMarked) {
-        onFixMarked();
+        onFixMarked(point.id);
       }
     } catch (error) {
       console.error('Failed to toggle fixed status:', error);
@@ -221,7 +213,7 @@ const ImprovementPoint: React.FC<Props> = ({ point, resume, onFixApplied, onNavi
     });
     
     // Update resume and wait for save to complete
-    await onFixApplied(updatedResume);
+    await onFixApplied(updatedResume, point.id);
     
     // Navigate to the field
     if (onNavigateToField) {
@@ -243,7 +235,7 @@ const ImprovementPoint: React.FC<Props> = ({ point, resume, onFixApplied, onNavi
           try {
             await analysisApi.markFixed(point.id, true);
             if (onFixMarked) {
-              onFixMarked();
+              onFixMarked(point.id);
             }
           } catch (error) {
             console.error('Failed to mark fix as applied:', error);
@@ -260,21 +252,21 @@ const ImprovementPoint: React.FC<Props> = ({ point, resume, onFixApplied, onNavi
   };
 
   return (
-    <Box
-      sx={{
-        padding: '12px',
-        backgroundColor: isFixed ? '#f0fdf4' : 'white',
-        borderRadius: '6px',
-        borderLeft: `3px solid ${isFixed ? COLORS.success.main : severityColors[point.severity]}`,
-        marginBottom: '8px',
-        boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-        opacity: isFixed ? 0.85 : 1,
-        transition: 'all 0.3s ease',
-        position: 'relative',
-      }}
-    >
-      {/* Fixed badge overlay */}
-      {isFixed && (
+      <Box
+        sx={{
+          padding: '12px',
+          backgroundColor: isDismissed ? '#f0fdf4' : 'white',
+          borderRadius: '6px',
+          borderLeft: `3px solid ${isDismissed ? COLORS.success.main : severityColors[point.severity]}`,
+          marginBottom: '8px',
+          boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+          opacity: isDismissed ? 0.85 : 1,
+          transition: 'all 0.3s ease',
+          position: 'relative',
+        }}
+      >
+        {/* Fixed badge overlay */}
+        {isDismissed && (
         <Box
           sx={{
             position: 'absolute',
@@ -300,22 +292,22 @@ const ImprovementPoint: React.FC<Props> = ({ point, resume, onFixApplied, onNavi
         <Box
           sx={{
             width: '8px',
-            height: '8px',
-            borderRadius: '50%',
-            backgroundColor: isFixed ? COLORS.success.main : severityColors[point.severity],
-            marginTop: '6px',
-            flexShrink: 0,
+              height: '8px',
+              borderRadius: '50%',
+              backgroundColor: isDismissed ? COLORS.success.main : severityColors[point.severity],
+              marginTop: '6px',
+              flexShrink: 0,
           }}
         />
         
         <Box sx={{ flex: 1 }}>
           <Typography
             sx={{
-              fontSize: '14px',
-              fontWeight: 600,
-              color: isFixed ? '#15803d' : '#1f2937',
-              marginBottom: '4px',
-              textDecoration: isFixed ? 'line-through' : 'none',
+                fontSize: '14px',
+                fontWeight: 600,
+                color: isDismissed ? '#15803d' : '#1f2937',
+                marginBottom: '4px',
+                textDecoration: isDismissed ? 'line-through' : 'none',
             }}
           >
             {point.title}
@@ -325,7 +317,7 @@ const ImprovementPoint: React.FC<Props> = ({ point, resume, onFixApplied, onNavi
             sx={{
               fontSize: '13px',
               fontWeight: 400,
-              color: isFixed ? '#15803d' : '#6b7280',
+              color: isDismissed ? '#15803d' : '#6b7280',
               marginBottom: '4px',
             }}
           >
@@ -333,7 +325,7 @@ const ImprovementPoint: React.FC<Props> = ({ point, resume, onFixApplied, onNavi
           </Typography>
           
           {/* Show beautiful list for adding items */}
-          {hasFix && shouldShowItemsList && !isFixed && itemsToAdd.length > 0 && (
+          {hasFix && shouldShowItemsList && !isDismissed && itemsToAdd.length > 0 && (
             <Box sx={{ 
               marginTop: '8px',
               padding: '12px',
@@ -415,7 +407,7 @@ const ImprovementPoint: React.FC<Props> = ({ point, resume, onFixApplied, onNavi
           )}
           
           {/* Show diff for other cases */}
-          {hasFix && originalContent && newContent && !isFixed && !shouldShowItemsList && (
+          {hasFix && originalContent && newContent && !isDismissed && !shouldShowItemsList && (
             <DiffView 
               original={originalContent} 
               updated={newContent} 
@@ -427,57 +419,64 @@ const ImprovementPoint: React.FC<Props> = ({ point, resume, onFixApplied, onNavi
               sx={{
                 fontSize: '11px',
                 fontWeight: 600,
-                color: isFixed ? COLORS.success.main : '#6b7fd7',
+                color: isDismissed ? COLORS.success.main : '#6b7fd7',
               }}
             >
-              {isFixed ? '✓ ' : '+'}
+              {isDismissed ? '✓ ' : '+'}
               {point.score_impact} points
             </Typography>
             
             <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-              {/* Apply Fix button - only show if not already fixed */}
-              {hasFix && !isFixed && (
+              {/* Apply Fix button - only show if not dismissed */}
+              {hasFix && !isDismissed && (
                 <Button
                   ref={buttonRef}
                   size="small"
                   variant="contained"
                   onClick={handleApplyFix}
-                  disabled={applied || isAnimating}
+                  disabled={isDismissed || isAnimating}
                   sx={{
                     fontSize: '11px',
                     textTransform: 'none',
                     padding: '2px 8px',
                     minWidth: 'auto',
-                    backgroundColor: applied ? COLORS.success.main : COLORS.button.primary.background,
+                    backgroundColor: isDismissed ? COLORS.success.main : COLORS.button.primary.background,
                     transition: 'all 0.3s ease',
                     transform: isAnimating ? 'scale(1.05)' : 'scale(1)',
                     '&:hover': {
-                      backgroundColor: applied ? COLORS.success.dark : COLORS.button.primary.backgroundHover,
-                      transform: applied ? 'scale(1)' : 'scale(1.05)',
+                      backgroundColor: isDismissed ? COLORS.success.dark : COLORS.button.primary.backgroundHover,
+                      transform: isDismissed ? 'scale(1)' : 'scale(1.05)',
                     },
                     '&:active': {
                       transform: 'scale(0.95)',
                     },
                   }}
                 >
-                  {applied ? '✓ Applied' : isAnimating ? 'Applying...' : 'Apply Fix'}
+                  {isDismissed ? '✓ Applied' : isAnimating ? 'Applying...' : 'Apply Fix'}
                 </Button>
               )}
               
               {/* Toggle fixed status button */}
               <Button
                 size="small"
-                variant="outlined"
+                variant={isDismissed ? "contained" : "outlined"}
                 onClick={handleToggleFixed}
-                disabled={isMarkingFixed}
+                disabled={isMarkingFixed || isDismissed}
                 sx={{
                   fontSize: '11px',
                   textTransform: 'none',
                   padding: '2px 8px',
                   minWidth: 'auto',
+                  ...(isDismissed && {
+                    backgroundColor: COLORS.success.main,
+                    color: 'white',
+                    '&:hover': {
+                      backgroundColor: COLORS.success.dark,
+                    },
+                  }),
                 }}
               >
-                {isMarkingFixed ? '...' : isFixed ? 'Unmark' : 'Mark as Fixed'}
+                {isDismissed ? '✓ Fixed' : isMarkingFixed ? '...' : 'Mark as Fixed'}
               </Button>
               
               {/* Go to Edit button - show always */}
