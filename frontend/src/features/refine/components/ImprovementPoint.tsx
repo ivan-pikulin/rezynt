@@ -252,20 +252,20 @@ const ImprovementPoint: React.FC<Props> = ({ point, resume, onFixApplied, onNavi
   };
 
   return (
-      <Box
-        sx={{
-          padding: '12px',
+    <Box
+      sx={{
+        padding: '12px',
           backgroundColor: isDismissed ? '#f0fdf4' : 'white',
-          borderRadius: '6px',
+        borderRadius: '6px',
           borderLeft: `3px solid ${isDismissed ? COLORS.success.main : severityColors[point.severity]}`,
-          marginBottom: '8px',
-          boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+        marginBottom: '8px',
+        boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
           opacity: isDismissed ? 0.85 : 1,
-          transition: 'all 0.3s ease',
-          position: 'relative',
-        }}
-      >
-        {/* Fixed badge overlay */}
+        transition: 'all 0.3s ease',
+        position: 'relative',
+      }}
+    >
+      {/* Fixed badge overlay */}
         {isDismissed && (
         <Box
           sx={{
@@ -292,21 +292,21 @@ const ImprovementPoint: React.FC<Props> = ({ point, resume, onFixApplied, onNavi
         <Box
           sx={{
             width: '8px',
-              height: '8px',
-              borderRadius: '50%',
+            height: '8px',
+            borderRadius: '50%',
               backgroundColor: isDismissed ? COLORS.success.main : severityColors[point.severity],
-              marginTop: '6px',
-              flexShrink: 0,
+            marginTop: '6px',
+            flexShrink: 0,
           }}
         />
         
         <Box sx={{ flex: 1 }}>
           <Typography
             sx={{
-                fontSize: '14px',
-                fontWeight: 600,
+              fontSize: '14px',
+              fontWeight: 600,
                 color: isDismissed ? '#15803d' : '#1f2937',
-                marginBottom: '4px',
+              marginBottom: '4px',
                 textDecoration: isDismissed ? 'line-through' : 'none',
             }}
           >

@@ -559,11 +559,11 @@ const ExperienceEditor = forwardRef<ExperienceEditorHandle, ExperienceEditorProp
 
         <Button
           ref={addButtonRef}
-          variant="outlined"
+        variant="outlined"
           startIcon={<AddIcon />}
           onClick={handleAddExperience}
-          fullWidth
-          sx={{ mt: 2 }}
+        fullWidth
+        sx={{ mt: 2 }}
         >
           {t('refine.editor.addExperience')}
         </Button>

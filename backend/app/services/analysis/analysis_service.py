@@ -100,15 +100,38 @@ class AnalysisService:
         Returns:
             AnalysisResult with score, sections, and improvement points with embedded fixes
         """
+        # Log resume structure for debugging
+        print("=" * 60)
+        print("📋 ANALYZING RESUME")
+        print("=" * 60)
+        print(f"Resume keys: {list(resume.keys()) if resume else 'None'}")
+        if resume:
+            print(f"  - professional_summary: {type(resume.get('professional_summary'))} = {resume.get('professional_summary')}")
+            print(f"  - personal_info: {type(resume.get('personal_info'))}")
+            if resume.get('personal_info'):
+                pi = resume.get('personal_info', {})
+                print(f"    - first_name: {pi.get('first_name')}")
+                print(f"    - last_name: {pi.get('last_name')}")
+                print(f"    - contacts: {pi.get('contacts')}")
+            print(f"  - work_experience: {type(resume.get('work_experience'))} (length: {len(resume.get('work_experience', []))})")
+            print(f"  - education: {type(resume.get('education'))} (length: {len(resume.get('education', []))})")
+            print(f"  - skills: {type(resume.get('skills'))} (length: {len(resume.get('skills', []))})")
+        print("=" * 60)
+        
         # Run all rules
         all_points = []
         for rule in self.rules:
             try:
                 points = await rule.check(resume)
                 all_points.extend(points)
+                if len(points) > 0:
+                    print(f"✓ {rule.rule_id}: {len(points)} points")
             except Exception as e:
-                # Log error but continue with other rules
-                print(f"Error in rule {rule.rule_id}: {e}")
+                # Log error with more details
+                import traceback
+                print(f"✗ Error in rule {rule.rule_id}: {e}")
+                print(f"  Type: {type(e).__name__}")
+                print(traceback.format_exc())
                 continue
         
         # Group points by section

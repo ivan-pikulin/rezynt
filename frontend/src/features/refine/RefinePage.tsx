@@ -361,7 +361,7 @@ const RefinePage: React.FC = () => {
       // Recalculate score dynamically
       if (analysis) {
         const updatedAnalysis = recalculateScore(analysis, newDismissedIds);
-        setAnalysis(updatedAnalysis);
+      setAnalysis(updatedAnalysis);
       }
     } catch (error) {
       console.error('Error marking fix:', error);
