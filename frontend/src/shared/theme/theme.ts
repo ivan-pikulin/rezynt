@@ -175,14 +175,14 @@ const COLORS = {
   },
   score: {
     excellent: {
-      main: '#10b981',    // Green - 90-100
-      background: '#d1fae5',
-      text: '#065f46'
-    },
-    strong: {
-      main: '#22c55e',    // Light green - 76-89
+      main: '#22c55e',    // Light green - 90-100
       background: '#dcfce7',
       text: '#166534'
+    },
+    strong: {
+      main: '#84cc16',    // Lime green - 76-89
+      background: '#ecfccb',
+      text: '#3f6212'
     },
     good: {
       main: '#eab308',    // Yellow - 61-75
