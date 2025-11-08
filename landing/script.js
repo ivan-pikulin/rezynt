@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add loading state to CTA buttons
     const ctaLinks = document.querySelectorAll('a[href*="app.rezynt.com"]');
     ctaLinks.forEach(link => {
-        link.addEventListener('click', function() {
+        link.addEventListener('click', function(e) {
             const originalText = this.textContent;
             this.textContent = 'Loading...';
             this.style.opacity = '0.7';
@@ -79,6 +79,34 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 2000);
         });
     });
+
+    // Drop zone functionality
+    const dropZone = document.querySelector('.drop-zone');
+    if (dropZone) {
+        dropZone.addEventListener('click', function() {
+            // Redirect to app start page
+            window.location.href = 'https://app.rezynt.com/start';
+        });
+
+        // Drag and drop handlers
+        dropZone.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.style.background = '#f0f4ff';
+            this.style.borderColor = '#5B6ACF';
+        });
+
+        dropZone.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            this.style.background = '#fefefe';
+            this.style.borderColor = '#8B7355';
+        });
+
+        dropZone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            // Redirect to app start page with uploaded file
+            window.location.href = 'https://app.rezynt.com/start';
+        });
+    }
 });
 
 // Add some dynamic content updates

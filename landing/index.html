@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ATS-optimized resume in 5 minutes - Rezynt</title>
     <meta name="description" content="Turn job hunting into job winning. AI helps shape your story into what hiring managers actually want to hear.">
+    <link rel="icon" type="image/x-icon" href="/public/favicon.ico">
+    <link rel="icon" type="image/png" sizes="192x192" href="/public/logo192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/public/logo512.png">
+    <link rel="apple-touch-icon" href="/public/logo192.png">
+    <link rel="manifest" href="/public/manifest.json">
+    <meta name="theme-color" content="#6b7fd7">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&display=swap" rel="stylesheet">
@@ -16,12 +22,7 @@
         <div class="container">
             <div class="nav">
                 <div class="logo">
-                    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="20" cy="20" r="20" fill="#5B6ACF"/>
-                        <path d="M15 12h10c2.2 0 4 1.8 4 4v8c0 2.2-1.8 4-4 4H15c-2.2 0-4-1.8-4-4v-8c0-2.2 1.8-4 4-4z" fill="white"/>
-                        <path d="M18 18h4v2h-4v-2zm0 4h6v2h-6v-2z" fill="#5B6ACF"/>
-                    </svg>
-                    <span class="logo-text">Rezynt</span>
+                    <img src="/public/rezynt-logo-with-name.svg" alt="Rezynt" class="logo-img">
                 </div>
             </div>
         </div>
@@ -34,62 +35,83 @@
                 <div class="hero-text">
                     <div class="hero-badge">AI RESUME BUILDER</div>
                     <h1 class="hero-title">ATS-optimized resume in 5 minutes</h1>
-                    <p class="hero-subtitle">Turn job hunting into job winning. AI helps shape your story into what hiring managers actually want to hear.</p>
-                    <a href="https://app.rezynt.com" class="cta-button" target="_blank">Try for free</a>
+                    <p class="hero-subtitle"><span class="highlight">Turn job hunting into job winning.</span> AI helps shape your story into what hiring managers actually want to hear.</p>
+                    <label class="hero-upload-area" id="hero-drop-area" for="hero-upload" tabindex="0" role="button" aria-describedby="hero-upload-hint">
+                        <span class="hero-upload-area__title">Upgrade your resume</span>
+                        <span class="hero-upload-area__subtitle" id="hero-upload-hint">Just click or drop your resume to get started</span>
+                        <input type="file" id="hero-upload" class="hero-upload-area__input" accept=".txt,.md,.doc,.docx,.pdf" aria-describedby="hero-upload-hint" />
+                        <div class="hero-upload-area__filename" id="hero-file-name" aria-live="polite"></div>
+                        <div class="hero-upload-area__spinner" id="hero-upload-spinner" aria-hidden="true"></div>
+                    </label>
                 </div>
                 <div class="hero-image">
-                    <div class="mockup-container">
-                        <div class="laptop-mockup">
-                            <div class="laptop-screen">
-                                <div class="app-interface">
-                                    <div class="chat-section">
-                                        <div class="chat-header">
-                                            <div class="logo-small">
-                                                <svg width="20" height="20" viewBox="0 0 40 40" fill="none">
-                                                    <circle cx="20" cy="20" r="20" fill="#5B6ACF"/>
-                                                    <path d="M15 12h10c2.2 0 4 1.8 4 4v8c0 2.2-1.8 4-4 4H15c-2.2 0-4-1.8-4-4v-8c0-2.2 1.8-4 4-4z" fill="white"/>
-                                                </svg>
-                                                <span>Rezynt</span>
-                                            </div>
-                                            <div class="steps">
-                                                <span class="step active">1</span>
-                                                <span class="step">2</span>
-                                                <span class="step">3</span>
-                                                <span class="step">4</span>
-                                            </div>
-                                        </div>
-                                        <div class="chat-messages">
-                                            <div class="message ai">Great! Let me ask you a few specific questions to help create your resume. What was your exact job title at SpaceX and how many years did you work there?</div>
-                                            <div class="message user">I was the CEO and Chief Engineer at SpaceX from 2002 to present</div>
-                                            <div class="message ai">Perfect! Now, what are the top 3 specific achievements you're most proud of at SpaceX? Please include numbers or metrics if possible.</div>
-                                            <div class="message user">First successful landing of an orbital rocket booster in 2015, reducing launch costs by 90%, and successfully launching over 200 missions including crewed flights to ISS</div>
-                                            <div class="message ai">Excellent! What specific technical skills and technologies did you use most frequently in your role? For example, programming languages, tools, or methodologies.</div>
-                                        </div>
-                                        <div class="chat-input">
-                                            <input type="text" placeholder="Type your message...">
-                                            <button class="send-btn">→</button>
-                                        </div>
-                                    </div>
-                                    <div class="resume-preview">
-                                        <div class="resume-header">ELON MUSK</div>
-                                        <div class="resume-content">
-                                            <div class="resume-section">
-                                                <h3>EXPERIENCE</h3>
-                                                <div class="job-entry">
-                                                    <div class="job-title">CEO and Chief Engineer</div>
-                                                    <div class="company">SpaceX • 2002 - Present</div>
-                                                    <ul class="achievements">
-                                                        <li>Led successful development and landing of orbital rocket booster in 2015, reducing launch costs by 90%</li>
-                                                        <li>Successfully executed over 200 missions including crewed flights to International Space Station</li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                    <div class="resume-showcase">
+                        <!-- Resume preview -->
+                        <div class="resume-preview-main">
+                            <img src="/public/project-manager-resume-professional.png" alt="Professional Resume Example" class="resume-image">
+                            
+                            <!-- Sticker badges -->
+                            <div class="sticker-badge sticker-top">
+                                <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                                    <path d="M16.7 5.3l-9.4 9.4-4-4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span>ATS Compliant</span>
+                            </div>
+                            <div class="sticker-badge sticker-bottom">
+                                <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                                    <path d="M16.7 5.3l-9.4 9.4-4-4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span>5 min Readiness</span>
                             </div>
                         </div>
+                        
+                        <!-- Score badge -->
+                        <div class="score-badge">
+                            <img src="/public/score-badge-excelent.png" alt="94 Score Excellent" class="score-badge-img">
+                        </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Already Have Resume Section -->
+    <section class="resume-upload-section" aria-labelledby="resume-upload-title">
+        <div class="resume-steps">
+            <div class="resume-steps__container">
+                <!-- Step 1: Question -->
+                <div class="step step--side">
+                    <p class="step-text" id="resume-upload-title">Already have a resume?</p>
+                </div>
+
+                <!-- Arrow -->
+                <div class="arrow" aria-hidden="true">
+                    <svg class="arrow__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 33.36 12.49">
+                        <path d="m 158.23742,166.89056 c 0.068,-0.29 0.44081,-1.13427 0.68432,-1.54963 0.55907,-0.95363 1.18087,-1.66565 2.09299,-2.39671 3.05776,-2.45077 6.04892,-4.04449 9.36336,-4.98889 4.17843,-1.19057 8.38065,-1.0655 12.18533,0.36269 0.89031,0.3342 2.37369,1.07655 3.24263,1.62276 1.12076,0.70451 1.98178,1.37102 3.3175,2.56806 l 0.30876,0.27671 -0.20168,-0.36389 c -0.61035,-1.10125 -1.67463,-2.72931 -3.17869,-4.86255 -0.78707,-1.11631 -1.25749,-1.79003 -2.01543,-2.88642 l -0.10786,-0.15602 0.18074,0.14922 c 0.93689,0.77352 3.47117,3.25914 4.39084,4.30654 0.9952,1.1334 1.96374,2.45976 2.46188,3.37138 0.4464,0.81694 0.6775,1.83914 0.60848,2.69139 -0.0191,0.23599 -0.041,0.42907 -0.0487,0.42907 -0.008,0 -0.16539,-0.0789 -0.35048,-0.17541 -0.34907,-0.18195 -2.84625,-1.01532 -4.22138,-1.40878 -1.45574,-0.41652 -3.07522,-0.74894 -4.42818,-0.90896 -0.91988,-0.10879 -1.99985,-0.15827 -3.53652,-0.16202 -1.06329,-0.003 -1.52003,-0.0199 -1.43403,-0.0542 0.3698,-0.14778 2.31797,-0.58582 3.20229,-0.72003 1.05975,-0.16082 2.4774,-0.20357 3.53652,-0.10664 1.34643,0.12323 2.91481,0.43193 3.81609,0.75109 0.39136,0.13859 0.36042,0.0887 -0.14947,-0.24091 -2.96782,-1.91867 -6.05902,-3.05043 -9.43947,-3.45601 -0.81687,-0.098 -2.50741,-0.10885 -3.38049,-0.0217 -3.79035,0.37841 -7.75177,1.96543 -11.15563,4.46916 -0.21453,0.1578 -0.80326,0.60933 -1.30829,1.0034 -0.50503,0.39406 -1.13692,0.85838 -1.4042,1.03182 -0.55471,0.35995 -1.64645,0.92495 -2.41025,1.24738 -0.28605,0.12074 -0.55081,0.24444 -0.58836,0.27488 -0.0546,0.0443 -0.0611,0.0249 -0.0326,-0.0968 z" transform="translate(-158.22,-154.52)" />
+                    </svg>
+                </div>
+
+                <!-- Step 2: Upload -->
+                <div class="step step--upload">
+                    <label class="upload-area" id="resume-drop-area" for="resume-upload" tabindex="0" role="button" aria-describedby="resume-upload-hint">
+                        <span class="upload-area__title">Drop it in — we'll do the hard part</span>
+                        <span class="upload-area__subtitle" id="resume-upload-hint">Click or drop your resume to get started</span>
+                        <input type="file" id="resume-upload" class="upload-area__input" accept=".txt,.md,.doc,.docx,.pdf" aria-describedby="resume-upload-hint" />
+                        <div class="upload-area__filename" id="resume-file-name" aria-live="polite"></div>
+                        <div class="upload-area__spinner" id="upload-spinner" aria-hidden="true"></div>
+                    </label>
+                </div>
+
+                <!-- Arrow -->
+                <div class="arrow" aria-hidden="true">
+                    <svg class="arrow__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 33.36 12.49">
+                        <path d="m 158.23742,166.89056 c 0.068,-0.29 0.44081,-1.13427 0.68432,-1.54963 0.55907,-0.95363 1.18087,-1.66565 2.09299,-2.39671 3.05776,-2.45077 6.04892,-4.04449 9.36336,-4.98889 4.17843,-1.19057 8.38065,-1.0655 12.18533,0.36269 0.89031,0.3342 2.37369,1.07655 3.24263,1.62276 1.12076,0.70451 1.98178,1.37102 3.3175,2.56806 l 0.30876,0.27671 -0.20168,-0.36389 c -0.61035,-1.10125 -1.67463,-2.72931 -3.17869,-4.86255 -0.78707,-1.11631 -1.25749,-1.79003 -2.01543,-2.88642 l -0.10786,-0.15602 0.18074,0.14922 c 0.93689,0.77352 3.47117,3.25914 4.39084,4.30654 0.9952,1.1334 1.96374,2.45976 2.46188,3.37138 0.4464,0.81694 0.6775,1.83914 0.60848,2.69139 -0.0191,0.23599 -0.041,0.42907 -0.0487,0.42907 -0.008,0 -0.16539,-0.0789 -0.35048,-0.17541 -0.34907,-0.18195 -2.84625,-1.01532 -4.22138,-1.40878 -1.45574,-0.41652 -3.07522,-0.74894 -4.42818,-0.90896 -0.91988,-0.10879 -1.99985,-0.15827 -3.53652,-0.16202 -1.06329,-0.003 -1.52003,-0.0199 -1.43403,-0.0542 0.3698,-0.14778 2.31797,-0.58582 3.20229,-0.72003 1.05975,-0.16082 2.4774,-0.20357 3.53652,-0.10664 1.34643,0.12323 2.91481,0.43193 3.81609,0.75109 0.39136,0.13859 0.36042,0.0887 -0.14947,-0.24091 -2.96782,-1.91867 -6.05902,-3.05043 -9.43947,-3.45601 -0.81687,-0.098 -2.50741,-0.10885 -3.38049,-0.0217 -3.79035,0.37841 -7.75177,1.96543 -11.15563,4.46916 -0.21453,0.1578 -0.80326,0.60933 -1.30829,1.0034 -0.50503,0.39406 -1.13692,0.85838 -1.4042,1.03182 -0.55471,0.35995 -1.64645,0.92495 -2.41025,1.24738 -0.28605,0.12074 -0.55081,0.24444 -0.58836,0.27488 -0.0546,0.0443 -0.0611,0.0249 -0.0326,-0.0968 z" transform="translate(-158.22,-154.52)" />
+                    </svg>
+                </div>
+
+                <!-- Step 3: AI Analysis -->
+                <div class="step step--side">
+                    <p class="step-text">Get a polished, ATS-ready version in minutes</p>
                 </div>
             </div>
         </div>
@@ -103,8 +125,10 @@
                 <div class="pain-item">
                     <div class="pain-icon">
                         <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
-                            <circle cx="40" cy="40" r="40" fill="#5B6ACF"/>
-                            <path d="M30 35h20v10H30V35zm5-10h10v5H35v-5z" fill="white"/>
+                            <rect x="25" y="35" width="30" height="20" rx="2" fill="#2d3748"/>
+                            <circle cx="40" cy="25" r="8" fill="#2d3748"/>
+                            <rect x="32" y="33" width="16" height="2" fill="#2d3748"/>
+                            <path d="M35 20 L35 15 M45 20 L45 15" stroke="#2d3748" stroke-width="2"/>
                         </svg>
                     </div>
                     <h3>WRITING THAT GOES NOWHERE</h3>
@@ -113,9 +137,7 @@
                 <div class="pain-item">
                     <div class="pain-icon">
                         <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
-                            <circle cx="40" cy="40" r="40" fill="#5B6ACF"/>
-                            <circle cx="40" cy="40" r="15" fill="white"/>
-                            <circle cx="40" cy="40" r="8" fill="#5B6ACF"/>
+                            <circle cx="40" cy="40" r="20" stroke="#2d3748" stroke-width="3" fill="none" stroke-dasharray="8 4"/>
                         </svg>
                     </div>
                     <h3>NO CALLS, NO INTERVIEWS</h3>
@@ -124,9 +146,11 @@
                 <div class="pain-item">
                     <div class="pain-icon">
                         <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
-                            <circle cx="40" cy="40" r="40" fill="#5B6ACF"/>
-                            <circle cx="40" cy="40" r="25" stroke="white" stroke-width="3" fill="none"/>
-                            <path d="M40 20v20l15 10" stroke="white" stroke-width="3"/>
+                            <circle cx="40" cy="40" r="15" fill="#2d3748"/>
+                            <circle cx="40" cy="40" r="12" stroke="white" stroke-width="2" fill="#2d3748"/>
+                            <path d="M40 35 L40 40 L44 44" stroke="white" stroke-width="2"/>
+                            <rect x="38" y="20" width="4" height="8" fill="#2d3748"/>
+                            <path d="M45 18 L48 15 L51 18" fill="#d32f2f"/>
                         </svg>
                     </div>
                     <h3>TIME IS MONEY — AND YOU'RE LOSING BOTH</h3>
@@ -143,80 +167,37 @@
         </div>
     </section>
 
-    <!-- Upload Options Section -->
-    <section class="upload-options">
-        <div class="container">
-            <h2 class="section-title">Start from scratch or upload your resume</h2>
-            <div class="options-grid">
-                <div class="option-card">
-                    <div class="phone-mockup">
-                        <div class="phone-screen">
-                            <div class="app-steps">
-                                <div class="step-indicator">
-                                    <span class="step-dot active">1</span>
-                                    <span class="step-dot">2</span>
-                                    <span class="step-dot">3</span>
-                                    <span class="step-dot">4</span>
-                                </div>
-                                <div class="step-content">
-                                    <h3>Start</h3>
-                                    <div class="option-item">
-                                        <div class="option-icon">✏️</div>
-                                        <div class="option-text">
-                                            <h4>Start from Scratch</h4>
-                                            <p>Create your resume from the beginning with AI assistance</p>
-                                        </div>
-                                        <button class="option-btn">Get Started</button>
-                                    </div>
-                                    <div class="option-item">
-                                        <div class="option-icon">📄</div>
-                                        <div class="option-text">
-                                            <h4>Upload Your Resume</h4>
-                                            <p>Upload your existing resume and let AI enhance it</p>
-                                        </div>
-                                        <button class="option-btn secondary">Upload File</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="option-benefits">
-                    <div class="benefit">
-                        <div class="benefit-icon">✓</div>
-                        <div>
-                            <h4>UPLOAD YOUR EXISTING RESUME</h4>
-                            <p>Bring in what you already have — our AI will analyze it and turn it into something stronger, faster.</p>
-                        </div>
-                    </div>
-                    <div class="benefit">
-                        <div class="benefit-icon">✓</div>
-                        <div>
-                            <h4>OR START FROM A BLANK SLATE</h4>
-                            <p>No resume? No problem. Start fresh and let the AI guide you step by step through building it.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+    <!-- Upload Options Section - Removed -->
 
     <!-- Process Section -->
     <section class="process">
         <div class="container">
-            <h2 class="section-title">Answer questions instead of writing</h2>
+            <h2 class="section-title">Your Next Job Starts in 4 Steps</h2>
+            <p class="process-subtitle">Let AI build your resume, highlight your strengths, and help you stand out — fast.</p>
             <div class="process-content">
-                <div class="phone-mockup-large">
-                    <div class="phone-screen">
-                        <div class="chat-interface">
-                            <div class="chat-header">
-                                <span class="back-btn">← Chats</span>
-                                <span class="chat-title">BrightTech</span>
-                                <span class="status">Online</span>
+                <div class="laptop-mockup-small">
+                    <div class="laptop-screen-small">
+                        <div class="ai-writer-interface">
+                            <div class="interface-header">
+                                <div class="logo-small">
+                                    <img src="/public/rezynt-logo-with-name.svg" alt="Rezynt" class="logo-small-img">
+                                </div>
+                                <div class="ai-writer-title">
+                                    <span>AI Writer</span>
+                                    <span class="rating">⭐ 12/20</span>
+                                </div>
                             </div>
-                            <div class="chat-message">
-                                <p>Hi Alex, we just finished reviewing your application — it's exactly what we're looking for.</p>
-                                <p>When can you start? We don't want to miss the chance to have you on board.</p>
+                            <div class="chat-messages-small">
+                                <div class="message user-msg">Here is my resume, what do you think about it?</div>
+                                <div class="message ai-msg">Hello! I have analyzed your resume. It is quite good, but there are some areas for improvement. First, I noticed that your experience section primarily highlights your competition wins and two job positions. Have you worked anywhere else? Even unofficially, part-time, freelancing, internships, or volunteering? Adding more experiences could strengthen your resume significantly...</div>
+                            </div>
+                            <div class="resume-preview-small">
+                                <h4>Ilya GRINYUK</h4>
+                                <div class="resume-sections">
+                                    <div class="section">PROFESSIONAL SUMMARY</div>
+                                    <div class="section">EXPERIENCE</div>
+                                    <div class="section">EDUCATION</div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -249,29 +230,6 @@
                             <h3>DOWNLOAD YOUR PDF</h3>
                             <p>Get a ready-to-send resume in seconds.</p>
                         </div>
-                    </div>
-                </div>
-            </div>
-            <div class="process-benefits">
-                <div class="benefit">
-                    <div class="benefit-icon">✓</div>
-                    <div>
-                        <h4>NO WRITING FROM SCRATCH</h4>
-                        <p>Forget staring at a blank page — just answer a few smart questions in a simple chat.</p>
-                    </div>
-                </div>
-                <div class="benefit">
-                    <div class="benefit-icon">✓</div>
-                    <div>
-                        <h4>LET AI HANDLE THE HARD PART</h4>
-                        <p>It turns your answers into strong, professional bullet points — instantly.</p>
-                    </div>
-                </div>
-                <div class="benefit">
-                    <div class="benefit-icon">✓</div>
-                    <div>
-                        <h4>FOCUS ON WHAT MATTERS</h4>
-                        <p>No need to sell yourself. Just be honest — AI will do the rest.</p>
                     </div>
                 </div>
             </div>
@@ -435,68 +393,51 @@
             <p class="pricing-subtitle">Choose your pricing plan to begin</p>
             <div class="pricing-grid">
                 <div class="pricing-card">
-                    <div class="plan-icon">📄</div>
+                    <div class="plan-icon">
+                        <svg width="60" height="60" viewBox="0 0 60 60" fill="none">
+                            <rect x="15" y="10" width="30" height="40" rx="2" stroke="#2d3748" stroke-width="2" fill="white"/>
+                            <line x1="20" y1="18" x2="40" y2="18" stroke="#2d3748" stroke-width="2"/>
+                            <line x1="20" y1="24" x2="35" y2="24" stroke="#2d3748" stroke-width="1"/>
+                            <line x1="20" y1="28" x2="35" y2="28" stroke="#2d3748" stroke-width="1"/>
+                        </svg>
+                    </div>
                     <h3>STARTER</h3>
-                    <div class="price">$0/month</div>
+                    <div class="price">$0</div>
                     <div class="features-list">
                         <div class="feature-row">
                             <span class="feature-name">AI Resume Builder</span>
-                            <span class="feature-value">✓ Limited</span>
+                            <span class="feature-value">Limited</span>
                         </div>
                         <div class="feature-row">
                             <span class="feature-name">Resume Upload</span>
-                            <span class="feature-value">✓ One upload</span>
+                            <span class="feature-value">One upload</span>
                         </div>
                         <div class="feature-row">
                             <span class="feature-name">ATS Optimization</span>
-                            <span class="feature-value">✗ No optimization</span>
+                            <span class="feature-value feature-no">✗ No optimization</span>
                         </div>
                         <div class="feature-row">
                             <span class="feature-name">Edit & Customize</span>
-                            <span class="feature-value">✓ Manual only</span>
+                            <span class="feature-value">Manual only</span>
                         </div>
                         <div class="feature-row">
                             <span class="feature-name">Export to PDF</span>
-                            <span class="feature-value">✓ Watermarked</span>
+                            <span class="feature-value">Watermarked</span>
                         </div>
                     </div>
                     <button class="plan-button">Start now</button>
                 </div>
                 
                 <div class="pricing-card featured">
-                    <div class="plan-icon">⚡</div>
-                    <h3>PRO</h3>
-                    <div class="price">$24/month</div>
-                    <div class="features-list">
-                        <div class="feature-row">
-                            <span class="feature-name">AI Resume Builder</span>
-                            <span class="feature-value">✓ Full access</span>
-                        </div>
-                        <div class="feature-row">
-                            <span class="feature-name">Resume Upload</span>
-                            <span class="feature-value">✓ Unlimited</span>
-                        </div>
-                        <div class="feature-row">
-                            <span class="feature-name">ATS Optimization</span>
-                            <span class="feature-value">✓ Included</span>
-                        </div>
-                        <div class="feature-row">
-                            <span class="feature-name">Edit & Customize</span>
-                            <span class="feature-value">✓ AI suggestions</span>
-                        </div>
-                        <div class="feature-row">
-                            <span class="feature-name">Export to PDF</span>
-                            <span class="feature-value">✓ Clean export</span>
-                        </div>
+                    <div class="plan-icon">
+                        <svg width="60" height="60" viewBox="0 0 60 60" fill="none">
+                            <path d="M30 10 L45 20 V40 L30 50 L15 40 V20 Z" fill="#ffc107" stroke="#f57c00" stroke-width="2"/>
+                            <rect x="25" y="24" width="10" height="12" fill="#f57c00"/>
+                            <path d="M30 24 V18 M27 18 H33" stroke="#f57c00" stroke-width="2"/>
+                        </svg>
                     </div>
-                    <button class="plan-button">Unlock</button>
-                </div>
-                
-                <div class="pricing-card">
-                    <div class="plan-icon">💼</div>
-                    <h3>MASTER</h3>
-                    <div class="price">Pay for a year</div>
-                    <div class="price-detail">$6/month</div>
+                    <h3>PRO</h3>
+                    <div class="price">$60/year</div>
                     <div class="features-list">
                         <div class="feature-row">
                             <span class="feature-name">AI Resume Builder</span>
@@ -525,6 +466,219 @@
         </div>
     </section>
 
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-top">
+                <div class="footer-logo">
+                    <img src="/public/rezynt-logo-with-name.svg" alt="Rezynt" class="footer-logo-img">
+                </div>
+                <p class="footer-copyright">© All rights reserved</p>
+            </div>
+            <div class="footer-divider"></div>
+            <div class="footer-bottom">
+                <div class="footer-contact">
+                    <a href="mailto:team@rezynt.com">team@rezynt.com</a>
+                </div>
+                <div class="footer-links">
+                    <a href="/privacy-policy">Privacy Policy</a>
+                    <a href="/terms-of-service">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        (function() {
+            'use strict';
+
+            // Configuration
+            const CONFIG = {
+              uploadUrl: 'https://app.rezynt.com/api/v1/resume/temp-upload',
+              redirectBase: 'https://app.rezynt.com/signup?temp_file_id='
+            };
+
+            // Factory function to create upload component
+            function createUploadComponent(config) {
+                const elements = {
+                    dropArea: document.getElementById(config.dropAreaId),
+                    fileInput: document.getElementById(config.fileInputId),
+                    fileNameDisplay: document.getElementById(config.fileNameDisplayId),
+                    spinner: document.getElementById(config.spinnerId)
+                };
+
+                // Skip if elements don't exist
+                if (!elements.dropArea || !elements.fileInput) return null;
+
+                let isDragOver = false;
+                let isProcessing = false;
+
+                const utils = {
+                    showMessage: (message, isError = false) => {
+                        if (elements.fileNameDisplay) {
+                            elements.fileNameDisplay.textContent = message;
+                            elements.fileNameDisplay.className = `${config.classPrefix}__filename${isError ? ` ${config.classPrefix}__filename--error` : ''}`;
+                        }
+                    },
+
+                    updateDragState: (isDragging) => {
+                        isDragOver = isDragging;
+                        elements.dropArea.classList.toggle(`${config.classPrefix}--dragover`, isDragging);
+                    },
+
+                    setLoadingState: (isLoading) => {
+                        elements.dropArea.classList.toggle(`${config.classPrefix}--loading`, isLoading);
+                        if (elements.spinner) {
+                            elements.spinner.classList.toggle(`${config.classPrefix}__spinner--visible`, isLoading);
+                        }
+
+                        if (isLoading) {
+                            utils.showMessage('Processing your resume...');
+                        } else {
+                            utils.showMessage('');
+                        }
+                    },
+
+                    isAllowedFile: (file) => {
+                        const allowed = ['pdf','doc','docx'];
+                        const name = (file.name || '').toLowerCase();
+                        const ext = name.split('.').pop();
+                        return allowed.includes(ext);
+                    },
+
+                    onUploadSuccess: (fileId) => {
+                        isProcessing = false;
+                        utils.setLoadingState(false);
+                        window.location.assign(CONFIG.redirectBase + encodeURIComponent(fileId));
+                    },
+
+                    onUploadError: (message) => {
+                        isProcessing = false;
+                        utils.showMessage(message || 'Upload failed. Please try again.', true);
+                        utils.setLoadingState(false);
+                    }
+                };
+
+                const upload = {
+                    startUpload: async (file) => {
+                        try {
+                            const formData = new FormData();
+                            formData.append('file', file);
+
+                            const response = await fetch(CONFIG.uploadUrl, {
+                                method: 'POST',
+                                body: formData
+                            });
+
+                            if (!response.ok) {
+                                let errText = 'Upload failed. Please try again.';
+                                try {
+                                    const data = await response.json();
+                                    if (data && (data.message || data.error)) {
+                                        errText = data.message || data.error;
+                                    }
+                                } catch (_) {}
+                                return utils.onUploadError(errText);
+                            }
+
+                            const json = await response.json();
+                            if (!json || !json.file_id) {
+                                return utils.onUploadError('Upload successful, but file_id is missing.');
+                            }
+
+                            utils.onUploadSuccess(json.file_id);
+                        } catch (e) {
+                            utils.onUploadError('Network error during upload.');
+                        }
+                    }
+                };
+
+                const handlers = {
+                    beginUploadFlow: (file) => {
+                        if (!file) return;
+                        if (!utils.isAllowedFile(file)) {
+                            utils.showMessage('Allowed formats: pdf, docx, doc', true);
+                            return;
+                        }
+                        if (isProcessing) return;
+                        isProcessing = true;
+                        utils.showMessage(`Uploading ${file.name}...`);
+                        utils.setLoadingState(true);
+                        upload.startUpload(file);
+                    },
+
+                    handleFileChange: (event) => {
+                        const file = event.target.files[0];
+                        handlers.beginUploadFlow(file);
+                    },
+
+                    handleDragEnter: (event) => { event.preventDefault(); utils.updateDragState(true); },
+                    handleDragOver: (event) => { event.preventDefault(); utils.updateDragState(true); },
+                    handleDragLeave: (event) => { 
+                        event.preventDefault(); 
+                        if (!event.relatedTarget || !elements.dropArea.contains(event.relatedTarget)) { 
+                            utils.updateDragState(false); 
+                        } 
+                    },
+
+                    handleDrop: (event) => {
+                        event.preventDefault();
+                        utils.updateDragState(false);
+                        const files = event.dataTransfer.files;
+                        handlers.beginUploadFlow(files && files[0]);
+                    },
+
+                    handleKeyDown: (event) => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                            event.preventDefault();
+                            elements.fileInput.click();
+                        }
+                    }
+                };
+
+                // Initialize
+                elements.dropArea.addEventListener('keydown', handlers.handleKeyDown);
+                elements.fileInput.addEventListener('change', handlers.handleFileChange);
+
+                ['dragenter', 'dragover'].forEach(eventName => {
+                    elements.dropArea.addEventListener(eventName, handlers.handleDragEnter);
+                });
+                ['dragleave', 'drop'].forEach(eventName => {
+                    elements.dropArea.addEventListener(eventName, handlers.handleDragLeave);
+                });
+                elements.dropArea.addEventListener('drop', handlers.handleDrop);
+
+                return { utils, elements };
+            }
+
+            // Initialize both upload components
+            const init = () => {
+                // Hero upload component
+                createUploadComponent({
+                    dropAreaId: 'hero-drop-area',
+                    fileInputId: 'hero-upload',
+                    fileNameDisplayId: 'hero-file-name',
+                    spinnerId: 'hero-upload-spinner',
+                    classPrefix: 'hero-upload-area'
+                });
+
+                // Resume section upload component
+                createUploadComponent({
+                    dropAreaId: 'resume-drop-area',
+                    fileInputId: 'resume-upload',
+                    fileNameDisplayId: 'resume-file-name',
+                    spinnerId: 'upload-spinner',
+                    classPrefix: 'upload-area'
+                });
+            };
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+        })();
+    </script>
     <script src="script.js"></script>
 </body>
 </html>
