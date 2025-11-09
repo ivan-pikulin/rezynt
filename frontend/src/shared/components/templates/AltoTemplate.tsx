@@ -303,8 +303,8 @@ export class AltoTemplate extends BaseTemplate {
                   marginBottom: '8px',
                   fontWeight: '500'
                 }}
-              >
-                {exp.company} {exp.location ? `| ${exp.location}` : ''}
+                >
+                {exp.company} {(exp.city || exp.country) ? `| ${[exp.city, exp.country].filter(Boolean).join(', ')}` : ''}
               </Typography>
               <Box component="ul" sx={{ 
                 margin: 0, 

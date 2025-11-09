@@ -50,19 +50,28 @@ export class VeroTemplate extends BaseTemplate {
           >
             {this.getFullName()}
           </Typography>
-          {data.contacts?.map((contact, index) => (
-            <Typography 
-              key={index}
-              variant="body1" 
-              sx={{ 
-                fontSize: '14px',
-                marginBottom: '4px',
-                color: '#333'
-              }}
-            >
-              {contact}
-            </Typography>
-          ))}
+          <Box sx={{ marginTop: '8px' }}>
+            {data.personal_info?.contacts?.email && (
+              <Typography variant="body1" sx={{ fontSize: '14px', marginBottom: '4px', color: '#333' }}>
+                {data.personal_info.contacts.email}
+              </Typography>
+            )}
+            {data.personal_info?.contacts?.phone && (
+              <Typography variant="body1" sx={{ fontSize: '14px', marginBottom: '4px', color: '#333' }}>
+                {data.personal_info.contacts.phone}
+              </Typography>
+            )}
+            {data.personal_info?.contacts?.linkedin && (
+              <Typography variant="body1" sx={{ fontSize: '14px', marginBottom: '4px', color: '#333' }}>
+                {data.personal_info.contacts.linkedin}
+              </Typography>
+            )}
+            {data.personal_info?.contacts?.website && (
+              <Typography variant="body1" sx={{ fontSize: '14px', marginBottom: '4px', color: '#333' }}>
+                {data.personal_info.contacts.website}
+              </Typography>
+            )}
+          </Box>
         </Box>
 
         {/* Professional Summary */}
@@ -212,7 +221,7 @@ export class VeroTemplate extends BaseTemplate {
               marginLeft: '10px'
             }} />
           </Box>
-          {data.experience?.map((exp, index) => (
+          {data.work_experience?.map((exp, index) => (
             <Box key={index} sx={{ marginBottom: '20px' }}>
               <Box sx={{ 
                 display: 'flex', 
@@ -250,7 +259,7 @@ export class VeroTemplate extends BaseTemplate {
                   fontWeight: '500'
                 }}
               >
-                {exp.company} {exp.location ? `| ${exp.location}` : ''}
+                {exp.company} {(exp.city || exp.country) ? `| ${[exp.city, exp.country].filter(Boolean).join(', ')}` : ''}
               </Typography>
               <Box component="ul" sx={{ 
                 margin: 0, 
@@ -336,7 +345,7 @@ export class VeroTemplate extends BaseTemplate {
                     fontStyle: 'italic'
                   }}
                 >
-                  {this.formatDate(edu.graduation_date || '')}
+                  {this.formatDate(edu.end_date || '')}
                 </Typography>
               </Box>
               <Typography 
@@ -347,7 +356,7 @@ export class VeroTemplate extends BaseTemplate {
                   fontWeight: '500'
                 }}
               >
-                {edu.institution} {edu.location ? `, ${edu.location}` : ''}
+                {edu.institution} {(edu.city || edu.country) ? `, ${[edu.city, edu.country].filter(Boolean).join(', ')}` : ''}
               </Typography>
             </Box>
           ))}

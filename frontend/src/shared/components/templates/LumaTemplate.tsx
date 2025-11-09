@@ -204,7 +204,7 @@ export class LumaTemplate extends BaseTemplate {
                     fontFamily: '"Source Sans Pro", Liberation Sans, Arial, sans-serif'
                   }}
                 >
-                  {exp.company} {exp.location ? `| ${exp.location}` : ''}
+                  {exp.company} {(exp.city || exp.country) ? `| ${[exp.city, exp.country].filter(Boolean).join(', ')}` : ''}
                 </Typography>
                 <Box component="ul" sx={{ 
                   margin: 0, 
