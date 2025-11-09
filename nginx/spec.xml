@@ -11,9 +11,9 @@
         <feature>
             <name>SSL/TLS Termination</name>
             <description>
-                - SSL certificate management for rezynt.com and www.rezynt.com
-                - Automatic HTTP to HTTPS redirect for main domain
-                - HTTP support for app.rezynt.com subdomain
+                - SSL certificate management for rezynt.com, www.rezynt.com, and app.rezynt.com
+                - Automatic HTTP to HTTPS redirect for all domains
+                - Separate SSL certificates for main domain and app subdomain
                 - Modern SSL configuration with TLS 1.2/1.3
                 - HSTS header for enhanced security
             </description>
@@ -68,8 +68,14 @@
         </domains>
         
         <ssl_certificates>
-            <path>/etc/letsencrypt/live/rezynt.com/fullchain.pem</path>
-            <private_key>/etc/letsencrypt/live/rezynt.com/privkey.pem</private_key>
+            <main_domain>
+                <path>/etc/letsencrypt/live/rezynt.com/fullchain.pem</path>
+                <private_key>/etc/letsencrypt/live/rezynt.com/privkey.pem</private_key>
+            </main_domain>
+            <app_subdomain>
+                <path>/etc/letsencrypt/live/app.rezynt.com/fullchain.pem</path>
+                <private_key>/etc/letsencrypt/live/app.rezynt.com/privkey.pem</private_key>
+            </app_subdomain>
         </ssl_certificates>
         
         <upstream_services>
@@ -96,8 +102,13 @@
             <block>
                 <name>App Subdomain</name>
                 <domains>app.rezynt.com</domains>
-                <ssl>disabled</ssl>
-                <http_redirect>disabled</http_redirect>
+                <ssl>enabled</ssl>
+                <http_redirect>enabled</http_redirect>
+                <upstreams>
+                    <upstream path="/" target="frontend"/>
+                    <upstream path="/api" target="backend"/>
+                    <upstream path="/docs" target="backend"/>
+                </upstreams>
             </block>
         </server_blocks>
     </configuration>
@@ -109,23 +120,58 @@
             <port>443:443</port>
         </ports>
         <volumes>
-            <volume>./nginx.conf:/etc/nginx/nginx.conf:ro</volume>
-            <volume>/etc/letsencrypt/live/rezynt.com/fullchain.pem:/etc/nginx/ssl/rezynt.com/fullchain.pem:ro</volume>
-            <volume>/etc/letsencrypt/live/rezynt.com/privkey.pem:/etc/nginx/ssl/rezynt.com/privkey.pem:ro</volume>
+            <volume>./nginx/nginx.conf:/etc/nginx/nginx.conf:ro</volume>
+            <volume>letsencrypt:/etc/letsencrypt:ro</volume>
+            <volume>certbot-www:/var/www/certbot:ro</volume>
         </volumes>
+        <depends_on>
+            <service>backend</service>
+            <service>frontend</service>
+            <service>landing</service>
+        </depends_on>
     </deployment>
     
     <maintenance>
         <ssl_renewal>
-            <method>Let's Encrypt with certbot</method>
-            <frequency>90 days</frequency>
-            <automation>cron job</automation>
+            <method>Let's Encrypt with certbot container</method>
+            <frequency>Automatic renewal every 12 hours</frequency>
+            <automation>Docker container with certbot/certbot:latest</automation>
+            <webroot>/var/www/certbot</webroot>
         </ssl_renewal>
         
         <monitoring>
             <health_check>/health</health_check>
-            <ssl_check>/usr/local/bin/check-ssl.sh</ssl_check>
+            <ssl_check>check-ssl.sh script in nginx directory</ssl_check>
             <log_location>/var/log/nginx/</log_location>
         </monitoring>
     </maintenance>
+    
+    <landing_configuration>
+        <name>Landing Page Nginx Config</name>
+        <file>landing.conf</file>
+        <description>
+            Separate nginx configuration for the landing page container.
+            Serves static HTML/CSS/JS files built from the landing/ directory.
+        </description>
+        <features>
+            <feature>Static file serving from /usr/share/nginx/html</feature>
+            <feature>Health check endpoint at /health</feature>
+            <feature>Static asset caching (30 days for images, CSS, JS)</feature>
+            <feature>SPA fallback to index.html for routing</feature>
+        </features>
+        <deployment>
+            <build_process>
+                Built using Vite during GitHub Actions deployment.
+                Output directory: landing_html/
+                Copied to server via SCP and mounted to landing container.
+            </build_process>
+            <container>
+                <image>nginx:alpine</image>
+                <volumes>
+                    <volume>./landing_html:/usr/share/nginx/html:ro</volume>
+                    <volume>./nginx/landing.conf:/etc/nginx/conf.d/default.conf:ro</volume>
+                </volumes>
+            </container>
+        </deployment>
+    </landing_configuration>
 </specification> 

@@ -1,1 +1,4 @@
 .env
+
+# Landing build output
+landing_html/

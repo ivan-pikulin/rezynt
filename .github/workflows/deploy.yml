@@ -12,6 +12,29 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+          cache-dependency-path: landing/yarn.lock
+      
+      - name: Build Landing Page
+        run: |
+          cd landing
+          yarn install --frozen-lockfile
+          yarn build
+      
+      - name: Copy Landing Build to Server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ vars.SSH_HOST }}
+          username: ${{ vars.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "landing_html/*"
+          target: "/root/rezynt/"
+          strip_components: 0
+      
       - name: Deploy to Server
         uses: appleboy/ssh-action@v1.0.0
         with:
