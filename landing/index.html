@@ -43,6 +43,7 @@
                         <div class="hero-upload-area__filename" id="hero-file-name" aria-live="polite"></div>
                         <div class="hero-upload-area__spinner" id="hero-upload-spinner" aria-hidden="true"></div>
                     </label>
+                    <p class="hero-upload-note">Do not have a resume? <a href="https://app.rezynt.com/start" class="hero-upload-note__link">Build it from scratch!</a></p>
                 </div>
                 <div class="hero-image">
                     <div class="resume-showcase">
@@ -75,86 +76,33 @@
         </div>
     </section>
 
-    <!-- Already Have Resume Section -->
-    <section class="resume-upload-section" aria-labelledby="resume-upload-title">
-        <div class="resume-steps">
-            <div class="resume-steps__container">
-                <!-- Step 1: Question -->
-                <div class="step step--side">
-                    <p class="step-text" id="resume-upload-title">Already have a resume?</p>
-                </div>
-
-                <!-- Arrow -->
-                <div class="arrow" aria-hidden="true">
-                    <svg class="arrow__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 33.36 12.49">
-                        <path d="m 158.23742,166.89056 c 0.068,-0.29 0.44081,-1.13427 0.68432,-1.54963 0.55907,-0.95363 1.18087,-1.66565 2.09299,-2.39671 3.05776,-2.45077 6.04892,-4.04449 9.36336,-4.98889 4.17843,-1.19057 8.38065,-1.0655 12.18533,0.36269 0.89031,0.3342 2.37369,1.07655 3.24263,1.62276 1.12076,0.70451 1.98178,1.37102 3.3175,2.56806 l 0.30876,0.27671 -0.20168,-0.36389 c -0.61035,-1.10125 -1.67463,-2.72931 -3.17869,-4.86255 -0.78707,-1.11631 -1.25749,-1.79003 -2.01543,-2.88642 l -0.10786,-0.15602 0.18074,0.14922 c 0.93689,0.77352 3.47117,3.25914 4.39084,4.30654 0.9952,1.1334 1.96374,2.45976 2.46188,3.37138 0.4464,0.81694 0.6775,1.83914 0.60848,2.69139 -0.0191,0.23599 -0.041,0.42907 -0.0487,0.42907 -0.008,0 -0.16539,-0.0789 -0.35048,-0.17541 -0.34907,-0.18195 -2.84625,-1.01532 -4.22138,-1.40878 -1.45574,-0.41652 -3.07522,-0.74894 -4.42818,-0.90896 -0.91988,-0.10879 -1.99985,-0.15827 -3.53652,-0.16202 -1.06329,-0.003 -1.52003,-0.0199 -1.43403,-0.0542 0.3698,-0.14778 2.31797,-0.58582 3.20229,-0.72003 1.05975,-0.16082 2.4774,-0.20357 3.53652,-0.10664 1.34643,0.12323 2.91481,0.43193 3.81609,0.75109 0.39136,0.13859 0.36042,0.0887 -0.14947,-0.24091 -2.96782,-1.91867 -6.05902,-3.05043 -9.43947,-3.45601 -0.81687,-0.098 -2.50741,-0.10885 -3.38049,-0.0217 -3.79035,0.37841 -7.75177,1.96543 -11.15563,4.46916 -0.21453,0.1578 -0.80326,0.60933 -1.30829,1.0034 -0.50503,0.39406 -1.13692,0.85838 -1.4042,1.03182 -0.55471,0.35995 -1.64645,0.92495 -2.41025,1.24738 -0.28605,0.12074 -0.55081,0.24444 -0.58836,0.27488 -0.0546,0.0443 -0.0611,0.0249 -0.0326,-0.0968 z" transform="translate(-158.22,-154.52)" />
-                    </svg>
-                </div>
-
-                <!-- Step 2: Upload -->
-                <div class="step step--upload">
-                    <label class="upload-area" id="resume-drop-area" for="resume-upload" tabindex="0" role="button" aria-describedby="resume-upload-hint">
-                        <span class="upload-area__title">Drop it in — we'll do the hard part</span>
-                        <span class="upload-area__subtitle" id="resume-upload-hint">Click or drop your resume to get started</span>
-                        <input type="file" id="resume-upload" class="upload-area__input" accept=".txt,.md,.doc,.docx,.pdf" aria-describedby="resume-upload-hint" />
-                        <div class="upload-area__filename" id="resume-file-name" aria-live="polite"></div>
-                        <div class="upload-area__spinner" id="upload-spinner" aria-hidden="true"></div>
-                    </label>
-                </div>
-
-                <!-- Arrow -->
-                <div class="arrow" aria-hidden="true">
-                    <svg class="arrow__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 33.36 12.49">
-                        <path d="m 158.23742,166.89056 c 0.068,-0.29 0.44081,-1.13427 0.68432,-1.54963 0.55907,-0.95363 1.18087,-1.66565 2.09299,-2.39671 3.05776,-2.45077 6.04892,-4.04449 9.36336,-4.98889 4.17843,-1.19057 8.38065,-1.0655 12.18533,0.36269 0.89031,0.3342 2.37369,1.07655 3.24263,1.62276 1.12076,0.70451 1.98178,1.37102 3.3175,2.56806 l 0.30876,0.27671 -0.20168,-0.36389 c -0.61035,-1.10125 -1.67463,-2.72931 -3.17869,-4.86255 -0.78707,-1.11631 -1.25749,-1.79003 -2.01543,-2.88642 l -0.10786,-0.15602 0.18074,0.14922 c 0.93689,0.77352 3.47117,3.25914 4.39084,4.30654 0.9952,1.1334 1.96374,2.45976 2.46188,3.37138 0.4464,0.81694 0.6775,1.83914 0.60848,2.69139 -0.0191,0.23599 -0.041,0.42907 -0.0487,0.42907 -0.008,0 -0.16539,-0.0789 -0.35048,-0.17541 -0.34907,-0.18195 -2.84625,-1.01532 -4.22138,-1.40878 -1.45574,-0.41652 -3.07522,-0.74894 -4.42818,-0.90896 -0.91988,-0.10879 -1.99985,-0.15827 -3.53652,-0.16202 -1.06329,-0.003 -1.52003,-0.0199 -1.43403,-0.0542 0.3698,-0.14778 2.31797,-0.58582 3.20229,-0.72003 1.05975,-0.16082 2.4774,-0.20357 3.53652,-0.10664 1.34643,0.12323 2.91481,0.43193 3.81609,0.75109 0.39136,0.13859 0.36042,0.0887 -0.14947,-0.24091 -2.96782,-1.91867 -6.05902,-3.05043 -9.43947,-3.45601 -0.81687,-0.098 -2.50741,-0.10885 -3.38049,-0.0217 -3.79035,0.37841 -7.75177,1.96543 -11.15563,4.46916 -0.21453,0.1578 -0.80326,0.60933 -1.30829,1.0034 -0.50503,0.39406 -1.13692,0.85838 -1.4042,1.03182 -0.55471,0.35995 -1.64645,0.92495 -2.41025,1.24738 -0.28605,0.12074 -0.55081,0.24444 -0.58836,0.27488 -0.0546,0.0443 -0.0611,0.0249 -0.0326,-0.0968 z" transform="translate(-158.22,-154.52)" />
-                    </svg>
-                </div>
-
-                <!-- Step 3: AI Analysis -->
-                <div class="step step--side">
-                    <p class="step-text">Get a polished, ATS-ready version in minutes</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
     <!-- Pain Points Section -->
     <section class="pain-points">
         <div class="container">
-            <h2 class="section-title">The job search shouldn't feel this painful</h2>
-            <div class="pain-grid">
-                <div class="pain-item">
-                    <div class="pain-icon">
-                        <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
-                            <rect x="25" y="35" width="30" height="20" rx="2" fill="#2d3748"/>
-                            <circle cx="40" cy="25" r="8" fill="#2d3748"/>
-                            <rect x="32" y="33" width="16" height="2" fill="#2d3748"/>
-                            <path d="M35 20 L35 15 M45 20 L45 15" stroke="#2d3748" stroke-width="2"/>
-                        </svg>
+            <div class="pain-visual">
+                <h2 class="section-title">The job search shouldn't feel this painful</h2>
+                <div class="pain-grid">
+                    <div class="pain-item">
+                        <div class="pain-icon">
+                            <img src="/public/job-search-frustration.png" alt="Writing that goes nowhere" class="pain-icon-img">
+                        </div>
+                        <h3>WRITING THAT GOES NOWHERE</h3>
+                        <p>You spend hours trying to write the perfect resume — rewriting, second-guessing, starting over. It still doesn't feel right.</p>
                     </div>
-                    <h3>WRITING THAT GOES NOWHERE</h3>
-                    <p>You spend hours trying to write the perfect resume — rewriting, second-guessing, starting over. It still doesn't feel right.</p>
-                </div>
-                <div class="pain-item">
-                    <div class="pain-icon">
-                        <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
-                            <circle cx="40" cy="40" r="20" stroke="#2d3748" stroke-width="3" fill="none" stroke-dasharray="8 4"/>
-                        </svg>
+                    <div class="pain-item">
+                        <div class="pain-icon">
+                            <img src="/public/no-response-call.png" alt="No calls, no interviews" class="pain-icon-img">
+                        </div>
+                        <h3>NO CALLS, NO INTERVIEWS</h3>
+                        <p>You send it out again and again. Days pass. Nothing. Not even a rejection. Just silence.</p>
                     </div>
-                    <h3>NO CALLS, NO INTERVIEWS</h3>
-                    <p>You send it out again and again. Days pass. Nothing. Not even a rejection. Just silence.</p>
-                </div>
-                <div class="pain-item">
-                    <div class="pain-icon">
-                        <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
-                            <circle cx="40" cy="40" r="15" fill="#2d3748"/>
-                            <circle cx="40" cy="40" r="12" stroke="white" stroke-width="2" fill="#2d3748"/>
-                            <path d="M40 35 L40 40 L44 44" stroke="white" stroke-width="2"/>
-                            <rect x="38" y="20" width="4" height="8" fill="#2d3748"/>
-                            <path d="M45 18 L48 15 L51 18" fill="#d32f2f"/>
-                        </svg>
+                    <div class="pain-item">
+                        <div class="pain-icon">
+                            <img src="/public/hourglass-money-loss.png" alt="Time is money" class="pain-icon-img">
+                        </div>
+                        <h3>TIME IS MONEY — AND YOU'RE LOSING BOTH</h3>
+                        <p>Every day without a job offer is a missed paycheck — and it's draining your motivation.</p>
                     </div>
-                    <h3>TIME IS MONEY — AND YOU'RE LOSING BOTH</h3>
-                    <p>Every day without a job offer is a missed paycheck — and it's draining your motivation.</p>
                 </div>
             </div>
         </div>
@@ -167,219 +115,125 @@
         </div>
     </section>
 
-    <!-- Upload Options Section - Removed -->
-
     <!-- Process Section -->
     <section class="process">
         <div class="container">
-            <h2 class="section-title">Your Next Job Starts in 4 Steps</h2>
-            <p class="process-subtitle">Let AI build your resume, highlight your strengths, and help you stand out — fast.</p>
-            <div class="process-content">
-                <div class="laptop-mockup-small">
-                    <div class="laptop-screen-small">
-                        <div class="ai-writer-interface">
-                            <div class="interface-header">
-                                <div class="logo-small">
-                                    <img src="/public/rezynt-logo-with-name.svg" alt="Rezynt" class="logo-small-img">
-                                </div>
-                                <div class="ai-writer-title">
-                                    <span>AI Writer</span>
-                                    <span class="rating">⭐ 12/20</span>
-                                </div>
-                            </div>
-                            <div class="chat-messages-small">
-                                <div class="message user-msg">Here is my resume, what do you think about it?</div>
-                                <div class="message ai-msg">Hello! I have analyzed your resume. It is quite good, but there are some areas for improvement. First, I noticed that your experience section primarily highlights your competition wins and two job positions. Have you worked anywhere else? Even unofficially, part-time, freelancing, internships, or volunteering? Adding more experiences could strengthen your resume significantly...</div>
-                            </div>
-                            <div class="resume-preview-small">
-                                <h4>Ilya GRINYUK</h4>
-                                <div class="resume-sections">
-                                    <div class="section">PROFESSIONAL SUMMARY</div>
-                                    <div class="section">EXPERIENCE</div>
-                                    <div class="section">EDUCATION</div>
-                                </div>
-                            </div>
-                        </div>
+            <div class="process-visual">
+                <h2 class="section-title">Your Next Job Starts in 4 Steps</h2>
+                <p class="process-subtitle">Let AI build your resume, highlight your strengths, and help you stand out — fast.</p>
+                
+                <!-- Corner texts -->
+                <div class="corner-text corner-top-left">
+                    <span class="corner-number">1</span>
+                    <h3>Upload Your Resume</h3>
+                    <p>Start with your current resume or build one from scratch.</p>
+                </div>
+                
+                <div class="corner-text corner-top-right">
+                    <span class="corner-number">2</span>
+                    <h3>Get Instant Score & Suggestions</h3>
+                    <p>AI reviews your resume in seconds — running 200+ checks and highlighting exactly what to fix and how.</p>
+                </div>
+                
+                <!-- Central illustration -->
+                <div class="central-illustration">
+                    <div class="resume-preview">
+                        <img src="/public/project-manager-resume-professional.png" alt="Resume preview" class="resume-img">
+                    </div>
+                    
+                    <!-- Score badges overlays -->
+                    <div class="score-overlay score-low">
+                        <img src="/public/score-badge-weak.png" alt="Initial score" class="score-badge-overlay-img">
+                    </div>
+                    
+                    <div class="score-overlay score-high">
+                        <img src="/public/score-badge-excelent.png" alt="Improved score" class="score-badge-overlay-img">
+                    </div>
+                    
+                    <!-- Improvement suggestion -->
+                    <div class="improvement-overlay">
+                        <img src="/public/improvement-missing-skills.png" alt="Improvement suggestion" class="improvement-img">
                     </div>
                 </div>
-                <div class="process-steps">
-                    <div class="process-step">
-                        <div class="step-number">1</div>
-                        <div class="step-content">
-                            <h3>ANSWER A FEW QUESTIONS</h3>
-                            <p>Skip the blank page — just respond.</p>
-                        </div>
-                    </div>
-                    <div class="process-step">
-                        <div class="step-number">2</div>
-                        <div class="step-content">
-                            <h3>LET RESUME WRITE ITSELF</h3>
-                            <p>AI turns your answers into a polished draft.</p>
-                        </div>
-                    </div>
-                    <div class="process-step">
-                        <div class="step-number">3</div>
-                        <div class="step-content">
-                            <h3>REVIEW & FINE-TUNE</h3>
-                            <p>Make quick edits or tweak your tone.</p>
-                        </div>
-                    </div>
-                    <div class="process-step">
-                        <div class="step-number">4</div>
-                        <div class="step-content">
-                            <h3>DOWNLOAD YOUR PDF</h3>
-                            <p>Get a ready-to-send resume in seconds.</p>
-                        </div>
-                    </div>
+                
+                <div class="corner-text corner-bottom-left">
+                    <span class="corner-number">3</span>
+                    <h3>Apply Fixes Effortlessly</h3>
+                    <p>Apply AI-powered suggestions with a click. For incomplete sections, we'll highlight what's missing and help you fill it in — your resume updates instantly.</p>
+                </div>
+                
+                <div class="corner-text corner-bottom-right">
+                    <span class="corner-number">4</span>
+                    <h3>Choose Template & Download</h3>
+                    <p>Choose from our proven, high-converting templates and export your upgraded resume as a polished PDF.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- ATS Optimization Section -->
-    <section class="ats-section">
+    <!-- What You Get Section -->
+    <section class="what-you-get">
         <div class="container">
-            <h2 class="section-title">Get ATS-optimized text automatically</h2>
-            <div class="ats-content">
-                <div class="phone-mockup">
-                    <div class="phone-screen">
-                        <div class="resume-preview-header">Resume Preview ✕</div>
-                        <div class="resume-document">
-                            <div class="resume-sidebar">
-                                <div class="profile-section">
-                                    <h3>PHYLLIS SERGEEVICH IVAN</h3>
-                                    <div class="contact-info">
-                                        <p>📧 phyllis@email.com</p>
-                                        <p>📱 +1 (555) 123-4567</p>
-                                        <p>📍 San Francisco, CA</p>
-                                        <p>🔗 linkedin.com/in/phyllis</p>
-                                    </div>
-                                </div>
-                                <div class="skills-section">
-                                    <h4>SKILLS</h4>
-                                    <ul>
-                                        <li>Python</li>
-                                        <li>JavaScript</li>
-                                        <li>React</li>
-                                        <li>Node.js</li>
-                                        <li>AWS</li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="resume-main">
-                                <div class="experience-section">
-                                    <h4>EXPERIENCE</h4>
-                                    <div class="job">
-                                        <h5>Senior Software Engineer</h5>
-                                        <p class="company">TechCorp • 2020 - Present</p>
-                                        <ul>
-                                            <li>Led development of microservices architecture serving 1M+ users</li>
-                                            <li>Reduced system latency by 40% through database optimization</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <div class="education-section">
-                                    <h4>EDUCATION</h4>
-                                    <p><strong>B.S. Computer Science</strong></p>
-                                    <p>Stanford University • 2016-2020</p>
-                                </div>
-                            </div>
-                        </div>
+            <h2 class="section-title">What You Get</h2>
+            
+            <div class="benefits-grid">
+                <div class="benefit-item">
+                    <div class="benefit-icon">
+                        <img src="/public/resume-lightning-icon.png" alt="Resume in Minutes" />
+                    </div>
+                    <div class="benefit-content">
+                        <h3>Resume in Minutes</h3>
+                        <p>Create or improve your resume from upload to perfection in under 5 minutes.</p>
                     </div>
                 </div>
-                <div class="ats-benefits">
-                    <div class="benefit">
-                        <div class="benefit-icon">✓</div>
-                        <div>
-                            <h4>BEAT THE RESUME FILTERS</h4>
-                            <p>Your resume is written to pass Applicant Tracking Systems — no manual tweaking needed.</p>
-                        </div>
+                
+                <div class="benefit-item">
+                    <div class="benefit-icon">
+                        <img src="/public/ai-robot-edit-icon.png" alt="AI Resume Rewrite" />
                     </div>
-                    <div class="benefit">
-                        <div class="benefit-icon">✓</div>
-                        <div>
-                            <h4>SPEAK THE HIRING LANGUAGE</h4>
-                            <p>AI uses wording that hiring managers and recruiters expect to see — tailored to your role.</p>
-                        </div>
-                    </div>
-                    <div class="benefit">
-                        <div class="benefit-icon">✓</div>
-                        <div>
-                            <h4>MORE VISIBILITY, MORE INTERVIEWS</h4>
-                            <p>Get noticed by the right people with optimized content that stands out.</p>
-                        </div>
+                    <div class="benefit-content">
+                        <h3>AI Resume Rewrite</h3>
+                        <p>Transform your existing resume into a recruiter-magnet version using advanced AI rewriting.</p>
                     </div>
                 </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Features Section -->
-    <section class="features">
-        <div class="container">
-            <h2 class="section-title">Simplify your job hunt with Rezynt</h2>
-            <div class="features-grid">
-                <div class="feature">
-                    <div class="feature-icon">💬</div>
-                    <h3>SMART CHAT INTERFACE</h3>
-                    <p>Experience a friendly AI that chats with you like a career coach — intuitive, human, and always on point.</p>
-                </div>
-                <div class="feature">
-                    <div class="feature-icon">👁️</div>
-                    <h3>INSTANT RESUME PREVIEWS</h3>
-                    <p>See your resume take shape as you go. No waiting, no surprises — just clear, editable previews.</p>
-                </div>
-                <div class="feature">
-                    <div class="feature-icon">✏️</div>
-                    <h3>BUILT-IN WRITING ASSISTANT</h3>
-                    <p>Polish any section with AI-powered suggestions that make your experience shine without overselling.</p>
-                </div>
-                <div class="feature">
-                    <div class="feature-icon">🔧</div>
-                    <h3>FLEXIBLE EDITING TOOLS</h3>
-                    <p>Tweak wording, rearrange sections, or rewrite any line — you stay in control of your final resume.</p>
-                </div>
-                <div class="feature">
-                    <div class="feature-icon">📄</div>
-                    <h3>MODERN, PROFESSIONAL TEMPLATES</h3>
-                    <p>Choose from clean, recruiter-tested templates that make your resume stand out instantly.</p>
-                </div>
-                <div class="feature">
-                    <div class="feature-icon">💾</div>
-                    <h3>PROGRESS AUTOSAVE</h3>
-                    <p>Never lose your work — everything's saved automatically, so you can stop and continue anytime.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- CTA Section -->
-    <section class="final-cta">
-        <div class="container">
-            <div class="cta-content">
-                <div class="cta-text">
-                    <h2>Unlock interviews the easy way—try Rezynt today.</h2>
-                    <p>Generate a fully optimized resume in 5 minutes, beat the bots, and focus on landing offers instead of fighting templates.</p>
-                    <a href="https://app.rezynt.com" class="cta-button" target="_blank">Try it for free</a>
-                </div>
-                <div class="cta-phones">
-                    <div class="phone-mockup">
-                        <div class="phone-screen success">
-                            <div class="success-icon">✓</div>
-                            <h3>Download Complete!</h3>
-                            <p>Your resume is ready to connect you with your next opportunity</p>
-                            <button class="back-btn">← Back</button>
-                        </div>
+                
+                <div class="benefit-item">
+                    <div class="benefit-icon">
+                        <img src="/public/resume-insights-lamp-icon.png" alt="Instant Resume Insights" />
                     </div>
-                    <div class="phone-mockup offset">
-                        <div class="phone-screen chat">
-                            <div class="chat-header">← Chats</div>
-                            <div class="chat-title">BrightTech</div>
-                            <div class="chat-message">
-                                <p>Hi Alex, we just finished reviewing your application — it's exactly what we're looking for.</p>
-                                <p>When can you start? We don't want to miss the chance to have you on board.</p>
-                            </div>
-                        </div>
+                    <div class="benefit-content">
+                        <h3>Instant Resume Insights</h3>
+                        <p>Get real-time clarity on weak points: missing skills, poor phrasing, or structure issues.</p>
+                    </div>
+                </div>
+                
+                <div class="benefit-item">
+                    <div class="benefit-icon">
+                        <img src="/public/resume-magicwand-icon.png" alt="One-Click Polishing" />
+                    </div>
+                    <div class="benefit-content">
+                        <h3>One-Click Polishing</h3>
+                        <p>Fix grammar, tone, and flow instantly with automatic AI enhancements.</p>
+                    </div>
+                </div>
+                
+                <div class="benefit-item">
+                    <div class="benefit-icon">
+                        <img src="/public/resume-key-icon.png" alt="ATS Keyword Optimization" />
+                    </div>
+                    <div class="benefit-content">
+                        <h3>ATS Keyword Optimization</h3>
+                        <p>AI scans job listings and adjusts your wording to boost interview chances.</p>
+                    </div>
+                </div>
+                
+                <div class="benefit-item">
+                    <div class="benefit-icon">
+                        <img src="/public/resume-target-icon.png" alt="Performance-Backed Templates" />
+                    </div>
+                    <div class="benefit-content">
+                        <h3>Performance-Backed Templates</h3>
+                        <p>Use layouts designed from resumes that actually landed interviews.</p>
                     </div>
                 </div>
             </div>
@@ -389,78 +243,48 @@
     <!-- Pricing Section -->
     <section class="pricing">
         <div class="container">
-            <h2 class="section-title">Get your ATS-optimized resume now</h2>
-            <p class="pricing-subtitle">Choose your pricing plan to begin</p>
-            <div class="pricing-grid">
-                <div class="pricing-card">
-                    <div class="plan-icon">
-                        <svg width="60" height="60" viewBox="0 0 60 60" fill="none">
-                            <rect x="15" y="10" width="30" height="40" rx="2" stroke="#2d3748" stroke-width="2" fill="white"/>
-                            <line x1="20" y1="18" x2="40" y2="18" stroke="#2d3748" stroke-width="2"/>
-                            <line x1="20" y1="24" x2="35" y2="24" stroke="#2d3748" stroke-width="1"/>
-                            <line x1="20" y1="28" x2="35" y2="28" stroke="#2d3748" stroke-width="1"/>
-                        </svg>
-                    </div>
-                    <h3>STARTER</h3>
-                    <div class="price">$0</div>
-                    <div class="features-list">
-                        <div class="feature-row">
-                            <span class="feature-name">AI Resume Builder</span>
-                            <span class="feature-value">Limited</span>
-                        </div>
-                        <div class="feature-row">
-                            <span class="feature-name">Resume Upload</span>
-                            <span class="feature-value">One upload</span>
-                        </div>
-                        <div class="feature-row">
-                            <span class="feature-name">ATS Optimization</span>
-                            <span class="feature-value feature-no">✗ No optimization</span>
-                        </div>
-                        <div class="feature-row">
-                            <span class="feature-name">Edit & Customize</span>
-                            <span class="feature-value">Manual only</span>
-                        </div>
-                        <div class="feature-row">
-                            <span class="feature-name">Export to PDF</span>
-                            <span class="feature-value">Watermarked</span>
+            <div class="pricing-header">
+                <h2 class="pricing-title">Ready to land your next interview?</h2>
+                <p class="pricing-subtitle">Get your ATS-optimized resume today.</p>
+            </div>
+            
+            <div class="pricing-card">
+                <div class="pricing-card-left">
+                    <div class="pricing-resume-preview">
+                        <img src="/public/project-manager-resume-professional.png" alt="Professional Resume Example" class="pricing-resume-image">
+                        <div class="pricing-score-badge">
+                            <img src="/public/score-badge-excelent.png" alt="Excellent Score" class="pricing-score-img">
                         </div>
                     </div>
-                    <button class="plan-button">Start now</button>
                 </div>
                 
-                <div class="pricing-card featured">
-                    <div class="plan-icon">
-                        <svg width="60" height="60" viewBox="0 0 60 60" fill="none">
-                            <path d="M30 10 L45 20 V40 L30 50 L15 40 V20 Z" fill="#ffc107" stroke="#f57c00" stroke-width="2"/>
-                            <rect x="25" y="24" width="10" height="12" fill="#f57c00"/>
-                            <path d="M30 24 V18 M27 18 H33" stroke="#f57c00" stroke-width="2"/>
-                        </svg>
+                <div class="pricing-card-right">
+                    <div class="pricing-price">
+                        <span class="price-amount">$40</span>
+                        <span class="price-period">/ 3 months</span>
                     </div>
-                    <h3>PRO</h3>
-                    <div class="price">$60/year</div>
-                    <div class="features-list">
-                        <div class="feature-row">
-                            <span class="feature-name">AI Resume Builder</span>
-                            <span class="feature-value">✓ Full access</span>
+                    <p class="pricing-terms">One-time payment · No auto-renewal · No hidden fees</p>
+                    
+                    <div class="pricing-features">
+                        <div class="feature-item">
+                            <span class="feature-check">✓</span>
+                            <span class="feature-text">Unlimited AI Analysis</span>
                         </div>
-                        <div class="feature-row">
-                            <span class="feature-name">Resume Upload</span>
-                            <span class="feature-value">✓ Unlimited</span>
+                        <div class="feature-item">
+                            <span class="feature-check">✓</span>
+                            <span class="feature-text">Smart improvement suggestions</span>
                         </div>
-                        <div class="feature-row">
-                            <span class="feature-name">ATS Optimization</span>
-                            <span class="feature-value">✓ Included</span>
+                        <div class="feature-item">
+                            <span class="feature-check">✓</span>
+                            <span class="feature-text">Polished PDF download</span>
                         </div>
-                        <div class="feature-row">
-                            <span class="feature-name">Edit & Customize</span>
-                            <span class="feature-value">✓ AI suggestions</span>
-                        </div>
-                        <div class="feature-row">
-                            <span class="feature-name">Export to PDF</span>
-                            <span class="feature-value">✓ Clean export</span>
+                        <div class="feature-item">
+                            <span class="feature-check">✓</span>
+                            <span class="feature-text">Priority support</span>
                         </div>
                     </div>
-                    <button class="plan-button">Unlock</button>
+                    
+                    <button class="pricing-cta">Start Building</button>
                 </div>
             </div>
         </div>
@@ -651,7 +475,7 @@
                 return { utils, elements };
             }
 
-            // Initialize both upload components
+            // Initialize upload component
             const init = () => {
                 // Hero upload component
                 createUploadComponent({
@@ -660,15 +484,6 @@
                     fileNameDisplayId: 'hero-file-name',
                     spinnerId: 'hero-upload-spinner',
                     classPrefix: 'hero-upload-area'
-                });
-
-                // Resume section upload component
-                createUploadComponent({
-                    dropAreaId: 'resume-drop-area',
-                    fileInputId: 'resume-upload',
-                    fileNameDisplayId: 'resume-file-name',
-                    spinnerId: 'upload-spinner',
-                    classPrefix: 'upload-area'
                 });
             };
 

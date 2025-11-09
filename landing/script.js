@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // CTA button hover effects
-    const ctaButtons = document.querySelectorAll('.cta-button, .plan-button');
+    const ctaButtons = document.querySelectorAll('.cta-button, .plan-button, .pricing-cta');
     ctaButtons.forEach(button => {
         button.addEventListener('mouseenter', function() {
             this.style.transform = 'translateY(-2px)';
@@ -49,6 +49,13 @@ document.addEventListener('DOMContentLoaded', function() {
         button.addEventListener('mouseleave', function() {
             this.style.transform = 'translateY(0)';
         });
+        
+        // Add click handler for pricing CTA button
+        if (button.classList.contains('pricing-cta')) {
+            button.addEventListener('click', function() {
+                window.location.href = 'https://app.rezynt.com/start';
+            });
+        }
     });
 
     // Mock typing animation for chat messages
