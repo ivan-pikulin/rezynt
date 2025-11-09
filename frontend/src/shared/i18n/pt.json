@@ -241,6 +241,9 @@
         "testing": "Apenas testando"
       }
     },
+    "analysisBanner": {
+      "processing": "Enquanto analiso seu currículo, pode me contar um pouco sobre sua busca de emprego?"
+    },
     "error": "Falha ao concluir o onboarding. Por favor, tente novamente."
   },
   "payment": {

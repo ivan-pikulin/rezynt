@@ -145,7 +145,7 @@ const Header: React.FC<HeaderProps> = ({
         gap: 0
       }}>
         {isOnboarding ? (
-          /* Onboarding title and subtitle */
+          /* Onboarding title */
           <Box sx={{ textAlign: 'center' }}>
             <Typography 
               variant="h5" 
@@ -155,24 +155,10 @@ const Header: React.FC<HeaderProps> = ({
                 color: COLORS.primary.main,
                 fontSize: isMobile ? '1.25rem' : '1.5rem',
                 textAlign: 'center',
-                mb: 1
               }}
             >
               {onboardingTitle || t('onboarding.title')}
             </Typography>
-            <Typography 
-              variant="body2" 
-              component="p"
-              sx={{
-                fontWeight: 400,
-                color: 'text.secondary',
-                opacity: 0.7,
-              fontSize: isMobile ? '0.875rem' : '1rem',
-              textAlign: 'center'
-            }}
-          >
-            {t('onboarding.subtitle')}
-          </Typography>
           </Box>
         ) : isPro ? (
           /* Tabs for pro users */

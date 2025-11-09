@@ -245,6 +245,9 @@
         "testing": "Just testing"
       }
     },
+    "analysisBanner": {
+      "processing": "While I'm reviewing your resume, can you tell me a bit about your job search?"
+    },
     "error": "Failed to complete onboarding. Please try again."
   }
   ,

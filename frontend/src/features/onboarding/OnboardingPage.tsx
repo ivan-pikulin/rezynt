@@ -1,25 +1,26 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import SmartToyIcon from '@mui/icons-material/SmartToy';
 import {
+  Alert,
   Box,
   Card,
   CardContent,
-  Typography,
-  IconButton,
-  FormControl,
-  FormLabel,
-  RadioGroup,
-  FormControlLabel,
-  Radio,
-  Alert,
   CircularProgress,
+  FormControl,
+  FormControlLabel,
+  IconButton,
+  Radio,
+  RadioGroup,
+  Typography,
 } from '@mui/material';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import { AnimatePresence, motion } from 'framer-motion';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { userApi, OnboardingComplete } from '../../shared/services/api/userApi';
-import { useAuthContext } from '../../shared/contexts/AuthContext';
 import Header from '../../shared/components/Header/Header';
+import { useAuthContext } from '../../shared/contexts/AuthContext';
+import { OnboardingComplete, userApi } from '../../shared/services/api/userApi';
 
 interface OnboardingStep {
   question: string;
@@ -45,6 +46,7 @@ const OnboardingPage: React.FC<OnboardingPageProps> = ({ redirectUrl }) => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>('');
+  const [slideDirection, setSlideDirection] = useState<'left' | 'right'>('left');
   
   // Get task_id from URL parameters
   const taskId = searchParams.get('task_id');
@@ -94,21 +96,16 @@ const OnboardingPage: React.FC<OnboardingPageProps> = ({ redirectUrl }) => {
     },
   ];
 
-  const handleResponseChange = useCallback((field: keyof OnboardingComplete['responses'], value: string) => {
-    setResponses(prev => ({
-      ...prev,
-      [field]: value,
-    }));
-  }, []);
-
   const handleNext = useCallback(() => {
     if (activeStep < steps.length - 1) {
+      setSlideDirection('left');
       setActiveStep(prev => prev + 1);
     }
   }, [activeStep, steps.length]);
 
   const handleBack = useCallback(() => {
     if (activeStep > 0) {
+      setSlideDirection('right');
       setActiveStep(prev => prev - 1);
     }
   }, [activeStep]);
@@ -121,22 +118,32 @@ const OnboardingPage: React.FC<OnboardingPageProps> = ({ redirectUrl }) => {
       const result = await userApi.completeOnboarding({ responses });
       updateUser(result.user);
       
-      // If there's a task_id, redirect to start page with it
-      if (taskId) {
-        navigate(`/start?task_id=${taskId}`, { replace: true });
-      } else if (redirectUrl) {
-        // Navigate to redirect URL if provided
-        navigate(redirectUrl, { replace: true });
-      } else {
-        // Otherwise navigate to home
-        navigate('/', { replace: true });
-      }
+      // Redirect to refine page
+      navigate('/refine', { replace: true });
     } catch (err: any) {
       setError(err.response?.data?.detail || t('onboarding.error'));
     } finally {
       setIsLoading(false);
     }
-  }, [responses, updateUser, navigate, t, redirectUrl, taskId]);
+  }, [responses, updateUser, navigate, t]);
+
+  const handleResponseChange = useCallback((field: keyof OnboardingComplete['responses'], value: string) => {
+    setResponses(prev => ({
+      ...prev,
+      [field]: value,
+    }));
+    
+    // Auto-advance to next step after 500ms delay
+    setTimeout(() => {
+      if (activeStep < steps.length - 1) {
+        setSlideDirection('left');
+        setActiveStep(prev => prev + 1);
+      } else {
+        // On last step, complete onboarding
+        handleComplete();
+      }
+    }, 500);
+  }, [activeStep, steps.length, handleComplete]);
 
   const currentStep = steps[activeStep];
   const isCurrentStepComplete = responses[currentStep.field] !== '';
@@ -194,6 +201,74 @@ const OnboardingPage: React.FC<OnboardingPageProps> = ({ redirectUrl }) => {
           p: 2,
         }}
       >
+        {/* Resume Analysis Banner */}
+        <Card 
+          sx={{ 
+            maxWidth: 600, 
+            width: '100%', 
+            mb: 3,
+            bgcolor: 'primary.light',
+            borderLeft: 6,
+            borderColor: 'primary.main',
+          }}
+        >
+          <CardContent sx={{ py: 2, px: 3, '&:last-child': { pb: 2 } }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.5 }}>
+                <SmartToyIcon 
+                  sx={{ 
+                    color: 'primary.dark', 
+                    fontSize: 28,
+                    animation: 'pulse 2s ease-in-out infinite',
+                    '@keyframes pulse': {
+                      '0%, 100%': {
+                        opacity: 1,
+                      },
+                      '50%': {
+                        opacity: 0.7,
+                      },
+                    },
+                  }} 
+                />
+                <Box sx={{ display: 'flex', gap: 0.3 }}>
+                  {[0, 1, 2].map((index) => (
+                    <Box
+                      key={index}
+                      sx={{
+                        width: 4,
+                        height: 4,
+                        borderRadius: '50%',
+                        bgcolor: 'primary.main',
+                        animation: 'blink 1.4s ease-in-out infinite',
+                        animationDelay: `${index * 0.2}s`,
+                        '@keyframes blink': {
+                          '0%, 80%, 100%': {
+                            opacity: 0.3,
+                            transform: 'scale(1)',
+                          },
+                          '40%': {
+                            opacity: 1,
+                            transform: 'scale(1.2)',
+                          },
+                        },
+                      }}
+                    />
+                  ))}
+                </Box>
+              </Box>
+              <Typography 
+                variant="body1" 
+                sx={{ 
+                  color: 'primary.dark',
+                  fontWeight: 500,
+                }}
+              >
+                {t('onboarding.analysisBanner.processing')}
+              </Typography>
+            </Box>
+          </CardContent>
+        </Card>
+
         {/* Question card */}
         <Card sx={{ maxWidth: 600, width: '100%' }}>
           <CardContent sx={{ p: 4 }}>
@@ -203,31 +278,50 @@ const OnboardingPage: React.FC<OnboardingPageProps> = ({ redirectUrl }) => {
               </Alert>
             )}
 
-            <Box>
-              <Typography variant="h6" gutterBottom sx={{ mb: 3 }}>
-                {currentStep.question}
-              </Typography>
-              
-              <FormControl component="fieldset" sx={{ width: '100%', mb: 3 }}>
-                <RadioGroup
-                  value={responses[currentStep.field]}
-                  onChange={(e) => handleResponseChange(currentStep.field, e.target.value)}
-                  onKeyDown={handleKeyPress}
+            <Box sx={{ position: 'relative', overflow: 'hidden', minHeight: '400px' }}>
+              <AnimatePresence mode="wait" initial={false} custom={slideDirection}>
+                <motion.div
+                  key={activeStep}
+                  custom={slideDirection}
+                  initial={{ x: slideDirection === 'left' ? 300 : -300, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  exit={{ x: slideDirection === 'left' ? -300 : 300, opacity: 0 }}
+                  transition={{
+                    type: 'spring',
+                    stiffness: 300,
+                    damping: 30,
+                  }}
+                  style={{ position: 'absolute', width: '100%' }}
                 >
-                  {currentStep.options.map((option) => (
-                    <FormControlLabel
-                      key={option}
-                      value={option}
-                      control={<Radio />}
-                      label={option}
-                      sx={{ mb: 1 }}
-                    />
-                  ))}
-                </RadioGroup>
-              </FormControl>
+                  <Box>
+                    <Typography variant="h6" gutterBottom sx={{ mb: 3 }}>
+                      {currentStep.question}
+                    </Typography>
+                    
+                    <FormControl component="fieldset" sx={{ width: '100%', mb: 3 }}>
+                      <RadioGroup
+                        value={responses[currentStep.field]}
+                        onChange={(e) => handleResponseChange(currentStep.field, e.target.value)}
+                        onKeyDown={handleKeyPress}
+                      >
+                        {currentStep.options.map((option) => (
+                          <FormControlLabel
+                            key={option}
+                            value={option}
+                            control={<Radio />}
+                            label={option}
+                            sx={{ mb: 1 }}
+                          />
+                        ))}
+                      </RadioGroup>
+                    </FormControl>
+                  </Box>
+                </motion.div>
+              </AnimatePresence>
+            </Box>
 
-              {/* Navigation arrows on card */}
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 3 }}>
+            {/* Navigation arrows on card */}
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 3 }}>
                 {/* Left Arrow - only if not first step */}
                 {activeStep > 0 ? (
                   <IconButton
@@ -263,7 +357,6 @@ const OnboardingPage: React.FC<OnboardingPageProps> = ({ redirectUrl }) => {
                 >
                   {isLoading ? <CircularProgress size={20} color="inherit" /> : <ArrowForwardIcon />}
                 </IconButton>
-              </Box>
             </Box>
           </CardContent>
         </Card>
