@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }, observerOptions);
 
     // Observe elements for animation
-    const animateElements = document.querySelectorAll('.pain-item, .feature, .process-step, .pricing-card');
+    const animateElements = document.querySelectorAll('.pain-item, .benefit-item, .corner-text, .central-illustration, .pricing-card, .hero-image, .solution, .process-subtitle');
     animateElements.forEach(el => {
         el.style.opacity = '0';
         el.style.transform = 'translateY(30px)';
