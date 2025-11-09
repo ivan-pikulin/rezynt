@@ -125,13 +125,9 @@ const OnboardingPage: React.FC<OnboardingPageProps> = ({ redirectUrl }) => {
       
       // Redirect logic:
       // 1. If explicit redirect param - use it
-      // 2. If temp_file_id from landing - go to signup with it
-      // 3. Default - go to refine
+      // 2. Default - go to refine
       if (redirectParam) {
         navigate(redirectParam, { replace: true });
-      } else if (tempFileId) {
-        // User came from landing, need to complete registration
-        navigate(`/signup?temp_file_id=${tempFileId}`, { replace: true });
       } else {
         navigate('/refine', { replace: true });
       }

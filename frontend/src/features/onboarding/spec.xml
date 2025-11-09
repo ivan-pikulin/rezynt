@@ -96,17 +96,16 @@
     <context>AuthContext</context>
     <description>Updates user data in context after successful onboarding completion</description>
     <navigation>
-      <redirect>Redirects based on priority: redirect param > temp_file_id > default refine</redirect>
+      <redirect>Redirects based on priority: redirect param > default refine</redirect>
       <priority>
         <level1>redirect URL parameter or redirectUrl prop</level1>
-        <level2>temp_file_id parameter (from landing page upload) - redirects to signup</level2>
-        <level3>Default redirect to /refine page</level3>
+        <level2>Default redirect to /refine page</level2>
       </priority>
       <usage>
         <scenario name="landing_upload">
           Landing page upload → /temp-upload (file saved) → /onboarding?temp_file_id=xxx
           → useEffect claims file via /resume/claim-temp-file → task starts processing
-          → user completes onboarding → /signup?temp_file_id=xxx
+          → user completes onboarding → /refine
         </scenario>
         <scenario name="start_page_check">StartPage after upload → checks has_completed_onboarding → /onboarding?redirect=/refine → /refine</scenario>
         <scenario name="builder_check">Builder completion → checks has_completed_onboarding → /onboarding?redirect=/refine → /refine</scenario>
