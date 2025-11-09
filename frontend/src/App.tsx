@@ -66,12 +66,8 @@ function AppRoutes() {
         <Route path="/auth/reset-password-verification" element={<PasswordResetVerificationPage />} />
         <Route path="/auth/reset-password" element={<ResetPasswordPage />} />
         
-        {/* Onboarding route */}
-        <Route path="/onboarding" element={
-          <ProtectedRoute requireAuth={true}>
-            <OnboardingPage />
-          </ProtectedRoute>
-        } />
+        {/* Onboarding route - accessible to authenticated users or guests with temp_file_id */}
+        <Route path="/onboarding" element={<OnboardingPage />} />
         
         {/* Publicly accessible creation flow for guests */}
         <Route path="/start" element={

@@ -64,12 +64,19 @@ const StartPage: React.FC = () => {
           const result = await resumeApi.getUploadResult(taskIdParam);
           
           if (result.status === 'completed') {
-            // Success - navigate to refine page
+            // Success - check if onboarding is needed
             clearInterval(interval);
             setIsProcessingUpload(false);
             setUploadError(null);
             
-            navigate('/refine', { replace: true });
+            // Check if user has completed onboarding
+            if (user && !user.has_completed_onboarding) {
+              // Redirect to onboarding with refine as redirect target
+              navigate('/onboarding?redirect=/refine', { replace: true });
+            } else {
+              // Navigate to refine page directly
+              navigate('/refine', { replace: true });
+            }
           } else if (result.status === 'error' || result.state === 'FAILURE') {
             // Error - stop processing and show error
             clearInterval(interval);

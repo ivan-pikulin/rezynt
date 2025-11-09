@@ -21,6 +21,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import Header from '../../shared/components/Header/Header';
 import { useAuthContext } from '../../shared/contexts/AuthContext';
 import { OnboardingComplete, userApi } from '../../shared/services/api/userApi';
+import { resumeApi } from '../../shared/services/api';
 
 interface OnboardingStep {
   question: string;
@@ -47,9 +48,12 @@ const OnboardingPage: React.FC<OnboardingPageProps> = ({ redirectUrl }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>('');
   const [slideDirection, setSlideDirection] = useState<'left' | 'right'>('left');
+  const [tempFileTaskId, setTempFileTaskId] = useState<string | null>(null);
   
-  // Get task_id from URL parameters
-  const taskId = searchParams.get('task_id');
+  // Get redirect parameter from URL or props
+  const redirectParam = searchParams.get('redirect') || redirectUrl;
+  // Get temp_file_id from URL (from landing page upload)
+  const tempFileId = searchParams.get('temp_file_id');
 
   const steps: OnboardingStep[] = [
     {
@@ -115,17 +119,28 @@ const OnboardingPage: React.FC<OnboardingPageProps> = ({ redirectUrl }) => {
     setError('');
 
     try {
+      // Save onboarding to backend (all users are authenticated)
       const result = await userApi.completeOnboarding({ responses });
       updateUser(result.user);
       
-      // Redirect to refine page
-      navigate('/refine', { replace: true });
+      // Redirect logic:
+      // 1. If explicit redirect param - use it
+      // 2. If temp_file_id from landing - go to signup with it
+      // 3. Default - go to refine
+      if (redirectParam) {
+        navigate(redirectParam, { replace: true });
+      } else if (tempFileId) {
+        // User came from landing, need to complete registration
+        navigate(`/signup?temp_file_id=${tempFileId}`, { replace: true });
+      } else {
+        navigate('/refine', { replace: true });
+      }
     } catch (err: any) {
       setError(err.response?.data?.detail || t('onboarding.error'));
     } finally {
       setIsLoading(false);
     }
-  }, [responses, updateUser, navigate, t]);
+  }, [responses, updateUser, navigate, t, redirectParam, tempFileId]);
 
   const handleResponseChange = useCallback((field: keyof OnboardingComplete['responses'], value: string) => {
     setResponses(prev => ({
@@ -177,6 +192,25 @@ const OnboardingPage: React.FC<OnboardingPageProps> = ({ redirectUrl }) => {
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, [activeStep, isCurrentStepComplete, steps.length, handleComplete, handleNext]);
+
+  // Claim temp file when page loads
+  useEffect(() => {
+    if (tempFileId && !tempFileTaskId) {
+      const claimFile = async () => {
+        try {
+          console.log('Claiming temp file:', tempFileId);
+          const result = await resumeApi.claimTempFile(tempFileId);
+          setTempFileTaskId(result.task_id);
+          console.log('File claimed, task started:', result.task_id);
+        } catch (err: any) {
+          console.error('Failed to claim temp file:', err);
+          // Don't block onboarding if file claim fails
+          // User can still complete onboarding and go to signup
+        }
+      };
+      claimFile();
+    }
+  }, [tempFileId, tempFileTaskId]);
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>

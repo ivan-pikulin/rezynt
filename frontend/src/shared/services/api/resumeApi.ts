@@ -47,6 +47,15 @@ export class ResumeApi extends BaseApi {
   }
 
   /**
+   * Claim a temporary uploaded file and start processing
+   */
+  async claimTempFile(tempFileId: string): Promise<{ task_id: string; message: string }> {
+    return this.post<{ task_id: string; message: string }>('/resume/claim-temp-file', { 
+      temp_file_id: tempFileId 
+    });
+  }
+
+  /**
    * Get upload task status
    */
   async getUploadStatus(taskId: string): Promise<TaskStatus> {

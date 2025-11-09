@@ -95,7 +95,39 @@
   <integration>
     <context>AuthContext</context>
     <description>Updates user data in context after successful onboarding completion</description>
-    <navigation>Redirects to /refine page after completion</navigation>
+    <navigation>
+      <redirect>Redirects based on priority: redirect param > temp_file_id > default refine</redirect>
+      <priority>
+        <level1>redirect URL parameter or redirectUrl prop</level1>
+        <level2>temp_file_id parameter (from landing page upload) - redirects to signup</level2>
+        <level3>Default redirect to /refine page</level3>
+      </priority>
+      <usage>
+        <scenario name="landing_upload">
+          Landing page upload → /temp-upload (file saved) → /onboarding?temp_file_id=xxx
+          → useEffect claims file via /resume/claim-temp-file → task starts processing
+          → user completes onboarding → /signup?temp_file_id=xxx
+        </scenario>
+        <scenario name="start_page_check">StartPage after upload → checks has_completed_onboarding → /onboarding?redirect=/refine → /refine</scenario>
+        <scenario name="builder_check">Builder completion → checks has_completed_onboarding → /onboarding?redirect=/refine → /refine</scenario>
+        <scenario name="direct_access">Direct onboarding access (authenticated) → /onboarding → /refine</scenario>
+      </usage>
+      <temp_file_claiming>
+        <trigger>useEffect runs on page load if temp_file_id present</trigger>
+        <api_call>POST /resume/claim-temp-file with temp_file_id</api_call>
+        <backend_actions>
+          <action>Validates temp file exists and not expired</action>
+          <action>Links file to current_user.id</action>
+          <action>Starts process_resume_upload_task with file content</action>
+          <action>Returns task_id for tracking</action>
+        </backend_actions>
+        <state>Saves task_id in component state (tempFileTaskId)</state>
+      </temp_file_claiming>
+      <authentication>
+        <note>All users are always authenticated (even unregistered users with is_registered=False)</note>
+        <behavior>Always saves onboarding responses to backend via API for all users</behavior>
+      </authentication>
+    </navigation>
     <header>
       <component>Header</component>
       <mode>onboarding</mode>

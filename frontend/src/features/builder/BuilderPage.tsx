@@ -12,6 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../../shared/hooks/useAuth';
+import { useUser } from '../../shared/hooks';
 import { useBuilder } from './hooks/useBuilder';
 import { BUILDER_STEPS } from './types/builder';
 import { ContactInfoStep } from './components/ContactInfoStep';
@@ -28,6 +29,7 @@ export const BuilderPage: React.FC = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { isAuthenticated } = useAuth();
+  const { user } = useUser();
   const {
     state,
     updateField,
@@ -108,8 +110,14 @@ export const BuilderPage: React.FC = () => {
       // Clear localStorage after successful save
       clearBuilder();
       
-      // Navigate to refine page
-      navigate('/refine');
+      // Check if authenticated user has completed onboarding
+      if (isAuthenticated && user && !user.has_completed_onboarding) {
+        // Redirect to onboarding with refine as redirect target
+        navigate('/onboarding?redirect=/refine');
+      } else {
+        // Navigate to refine page directly
+        navigate('/refine');
+      }
     } catch (error) {
       console.error('Error saving resume from builder:', error);
       // Still navigate even if save fails (data is in localStorage)

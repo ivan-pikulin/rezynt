@@ -12,9 +12,6 @@ from asgiref.sync import async_to_sync
 # Set up logging
 logger = logging.getLogger(__name__)
 
-
-
-
 @celery_app.task(name="send_confirmation_email_task")
 def send_confirmation_email_task(email: str, token: str, code: str = None):
     """Send confirmation email for registration via EmailService"""

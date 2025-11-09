@@ -8,7 +8,7 @@ from app.database.crud.crud_temp_resume_file import temp_resume_file_crud
 from app.database.crud.crud_user import user_crud
 from app.schemas.resume import PDFExportRequest, ResumeUpdate, ResumeResponse
 from app.services.pdf_service import pdf_service
-from fastapi import APIRouter, File, HTTPException, UploadFile, status
+from fastapi import APIRouter, File, HTTPException, UploadFile, status, Body
 
 router = APIRouter()
 
@@ -183,6 +183,93 @@ async def temp_upload_resume(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to upload file: {str(e)}"
+        )
+
+
+@router.post("/claim-temp-file", response_model=Dict[str, Any])
+async def claim_temp_file(
+    *,
+    db: AsyncDB,
+    current_user: CurrentUser,
+    temp_file_id: str = Body(..., embed=True),
+) -> Dict[str, Any]:
+    """
+    Claim a temporary uploaded file and start processing it.
+    Used when user uploads file from landing page and then opens the app.
+    """
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    logger.info(f"User {current_user.id} claiming temp file: {temp_file_id}")
+    
+    try:
+        # Get the temporary file
+        temp_file = await temp_resume_file_crud.get_by_file_id(db, temp_file_id)
+        
+        if not temp_file:
+            logger.warning(f"Temp file not found: {temp_file_id}")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="File not found or expired"
+            )
+        
+        # Check if file is expired
+        if temp_file.is_expired:
+            logger.warning(f"Temp file expired: {temp_file_id}")
+            raise HTTPException(
+                status_code=status.HTTP_410_GONE,
+                detail="File has expired"
+            )
+        
+        # Check if file is already claimed
+        if temp_file.user_id is not None:
+            logger.warning(f"Temp file already claimed: {temp_file_id} by user {temp_file.user_id}")
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="File has already been claimed"
+            )
+        
+        # Read file content from disk
+        import os
+        if not os.path.exists(temp_file.file_path):
+            logger.error(f"Temp file not found on disk: {temp_file.file_path}")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="File not found on server"
+            )
+        
+        with open(temp_file.file_path, 'rb') as f:
+            file_content = f.read()
+        
+        logger.info(f"File content read, size: {len(file_content)} bytes")
+        
+        # Link file to user
+        await temp_resume_file_crud.link_to_user(db, temp_file_id, current_user.id)
+        logger.info(f"Temp file linked to user {current_user.id}")
+        
+        # Start processing task
+        task = process_resume_upload_task.delay(
+            file_content,
+            temp_file.filename,
+            current_user.id
+        )
+        logger.info(f"Processing task started with ID: {task.id}")
+        
+        # Clean up temp file (optional - можно оставить для отладки)
+        # await temp_resume_file_crud.delete_temp_file(db, temp_file)
+        
+        return {
+            "task_id": task.id,
+            "message": "File claimed and processing started"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error claiming temp file: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to claim file: {str(e)}"
         )
 
 
