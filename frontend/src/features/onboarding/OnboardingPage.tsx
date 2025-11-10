@@ -132,7 +132,15 @@ const OnboardingPage: React.FC<OnboardingPageProps> = ({ redirectUrl }) => {
         navigate('/refine', { replace: true });
       }
     } catch (err: any) {
-      setError(err.response?.data?.detail || t('onboarding.error'));
+      const errorMessage = err.response?.data?.detail || t('onboarding.error');
+      setError(errorMessage);
+      
+      // If onboarding already completed, redirect to refine after showing error
+      if (errorMessage === 'Onboarding already completed') {
+        setTimeout(() => {
+          navigate('/refine', { replace: true });
+        }, 200);
+      }
     } finally {
       setIsLoading(false);
     }

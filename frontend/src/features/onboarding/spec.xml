@@ -25,6 +25,7 @@
         <feature>Validation to ensure all questions are answered</feature>
         <feature>API integration to save responses and mark onboarding complete</feature>
         <feature>Error handling and loading states</feature>
+        <feature>Special handling for "Onboarding already completed" error: shows error message and redirects to /refine after 0.2 seconds</feature>
       </features>
     </component>
   </components>
@@ -89,6 +90,12 @@
           <description>Success message</description>
         </field>
       </response>
+      <errors>
+        <error status="400" detail="Onboarding already completed">
+          <description>User has already completed onboarding</description>
+          <handling>Frontend shows error message and redirects to /refine after 0.2 seconds</handling>
+        </error>
+      </errors>
     </endpoint>
   </api>
   
