@@ -35,19 +35,14 @@ export const useAuth = (): UseAuthReturn => {
         const refreshToken = tokenService.getRefreshToken();
 
         if (!accessToken || !refreshToken) {
-          // No tokens - create guest session
-          console.log('No tokens found, creating guest session...');
+          // No tokens - load current user (will trigger guest session creation in baseApi)
+          console.log('No tokens found, loading user (will create guest session automatically)...');
           try {
-            const { authApi } = await import('../services/api');
-            const guestTokens = await authApi.createGuestSession();
-            tokenService.storeTokens(guestTokens);
-            setIsAuthenticated(true);
-            
-            // Load guest user data
             const userData = await userApi.getCurrentUser();
+            setIsAuthenticated(true);
             setUser(userData);
           } catch (error) {
-            console.error('Error creating guest session:', error);
+            console.error('Error loading user:', error);
             setIsAuthenticated(false);
             setUser(null);
           }
@@ -60,25 +55,12 @@ export const useAuth = (): UseAuthReturn => {
         const currentTime = Date.now() / 1000;
 
         if (tokenData.exp < currentTime) {
-          // Access token expired, try to refresh
+          // Access token expired, try to refresh (or create guest session via baseApi)
           const success = await refreshTokens();
           if (!success) {
-            // Refresh failed - create new guest session
-            console.log('Token refresh failed, creating new guest session...');
-            try {
-              const { authApi } = await import('../services/api');
-              const guestTokens = await authApi.createGuestSession();
-              tokenService.storeTokens(guestTokens);
-              setIsAuthenticated(true);
-              
-              const userData = await userApi.getCurrentUser();
-              setUser(userData);
-            } catch (error) {
-              console.error('Error creating guest session:', error);
-              tokenService.clearTokens();
-              setIsAuthenticated(false);
-              setUser(null);
-            }
+            console.log('Token refresh failed');
+            setIsAuthenticated(false);
+            setUser(null);
           }
         } else {
           setIsAuthenticated(true);
@@ -153,6 +135,7 @@ export const useAuth = (): UseAuthReturn => {
   }, []);
 
   const logout = useCallback(() => {
+    // Clear tokens but always keep guest_id to track returning users
     tokenService.clearTokens();
     setIsAuthenticated(false);
     setUser(null);

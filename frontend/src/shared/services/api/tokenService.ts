@@ -11,6 +11,10 @@ export const tokenService = {
     return token;
   },
 
+  /**
+   * Get guest_id from localStorage.
+   * This ID persists across sessions to track returning guests.
+   */
   getGuestId: (): string | null => {
     return localStorage.getItem('guest_id');
   },
@@ -19,15 +23,15 @@ export const tokenService = {
     localStorage.setItem('guest_id', guestId);
   },
 
-  clearGuestId: () => {
-    localStorage.removeItem('guest_id');
-  },
-
+  /**
+   * Clear authentication tokens but always preserve guest_id.
+   * Guest ID should never be cleared to track returning users across all sessions.
+   */
   clearTokens: () => {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('token_type');
-    localStorage.removeItem('guest_id');
+    // Never remove guest_id - it persists forever to track returning guests
   },
 
   storeTokens: (tokens: TokenResponse) => {

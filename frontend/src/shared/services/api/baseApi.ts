@@ -64,7 +64,11 @@ baseApi.interceptors.response.use(
   async (error: any) => {
     const originalRequest = error.config;
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // Don't retry guest session creation or refresh token requests
+    const isAuthEndpoint = originalRequest.url?.includes('/auth/guest') || 
+                          originalRequest.url?.includes('/auth/refresh');
+
+    if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
       originalRequest._retry = true;
 
       try {
@@ -76,9 +80,20 @@ baseApi.interceptors.response.use(
           // Retry original request with new token
           originalRequest.headers.Authorization = `Bearer ${newTokens.access_token}`;
           return baseApi(originalRequest);
+        } else {
+          // No refresh token - create guest session instead of redirecting to login
+          console.log('No refresh token, creating guest session...');
+          const guestResponse = await baseApi.post('/auth/guest', {});
+          const guestTokens = guestResponse.data;
+          tokenService.storeTokens(guestTokens);
+          
+          // Retry original request with new guest token
+          originalRequest.headers.Authorization = `Bearer ${guestTokens.access_token}`;
+          return baseApi(originalRequest);
         }
       } catch (refreshError) {
-        // If refresh failed, clear tokens and redirect to login
+        // If both refresh and guest session creation failed, clear tokens and redirect to login
+        console.error('Failed to refresh token and create guest session:', refreshError);
         tokenService.clearTokens();
         window.location.href = '/login';
         return Promise.reject(refreshError);
