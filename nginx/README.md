@@ -58,6 +58,8 @@ openssl x509 -in /etc/letsencrypt/live/rezynt.com/fullchain.pem -text -noout
 - `nginx.conf` - Main nginx configuration
 - `check-ssl.sh` - SSL certificate validation script
 - `Dockerfile` - Nginx container configuration
+- `landing.conf` - Configuration for landing page container
+- `POSTHOG_DEPLOYMENT.md` - PostHog reverse proxy deployment guide
 
 ## Health Checks
 
@@ -66,7 +68,9 @@ The nginx configuration includes health check endpoints:
 - `http://localhost/health` - Nginx health check
 - `https://rezynt.com/health` - Public health check
 
-## Security Headers
+## Features
+
+### Security Headers
 
 The configuration includes security headers:
 
@@ -76,6 +80,16 @@ The configuration includes security headers:
 - X-Content-Type-Options
 - Content-Security-Policy
 - Referrer-Policy
+
+### PostHog Analytics Reverse Proxy
+
+Nginx is configured to proxy PostHog analytics through your domain:
+
+- **Endpoint**: `/ingest/` → proxies to PostHog cloud (us.i.posthog.com)
+- **Static Assets**: `/static/` → proxies PostHog JS library (with 1h caching)
+- **Benefits**: Bypasses ad blockers, improves tracking accuracy, first-party cookies
+
+For setup instructions, see `POSTHOG_DEPLOYMENT.md` in this directory or `POSTHOG_SETUP.md` in the root.
 
 ## Troubleshooting
 

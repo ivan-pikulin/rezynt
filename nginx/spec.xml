@@ -58,6 +58,18 @@
                 - Keep-alive connections
             </description>
         </feature>
+        
+        <feature>
+            <name>Analytics Proxy (PostHog)</name>
+            <description>
+                - Reverse proxy for PostHog analytics to bypass ad blockers
+                - /ingest/ endpoint proxies to us.i.posthog.com
+                - /static/ endpoint proxies to us-assets.i.posthog.com/static/
+                - CORS headers configured for cross-origin requests
+                - Static assets cached for 1 hour for better performance
+                - First-party context for improved tracking accuracy
+            </description>
+        </feature>
     </features>
     
     <configuration>
@@ -87,6 +99,9 @@
         <routes>
             <route path="/" target="frontend" description="React SPA (app.rezynt.com)"/>
             <route path="/api" target="backend" description="FastAPI backend (app.rezynt.com)"/>
+            <route path="/docs" target="backend" description="API documentation (app.rezynt.com)"/>
+            <route path="/ingest/" target="us.i.posthog.com" description="PostHog analytics proxy (app.rezynt.com)"/>
+            <route path="/static/" target="us-assets.i.posthog.com" description="PostHog static assets proxy (app.rezynt.com)"/>
             <route path="/" target="landing" description="Landing pages (rezynt.com)"/>
             <route path="/health" target="nginx" description="Health check"/>
         </routes>
@@ -108,6 +123,8 @@
                     <upstream path="/" target="frontend"/>
                     <upstream path="/api" target="backend"/>
                     <upstream path="/docs" target="backend"/>
+                    <upstream path="/ingest/" target="us.i.posthog.com" description="PostHog analytics"/>
+                    <upstream path="/static/" target="us-assets.i.posthog.com" description="PostHog assets"/>
                 </upstreams>
             </block>
         </server_blocks>

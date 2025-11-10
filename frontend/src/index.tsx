@@ -7,12 +7,17 @@ import './shared/i18n';
 import { PostHogProvider } from '@posthog/react';
 import posthog from 'posthog-js';
 
-// Initialize PostHog
+// Initialize PostHog with reverse proxy
 posthog.init(import.meta.env.VITE_PUBLIC_POSTHOG_KEY, {
-  api_host: import.meta.env.VITE_PUBLIC_POSTHOG_HOST,
+  api_host: import.meta.env.VITE_PUBLIC_POSTHOG_HOST || 'https://app.rezynt.com/ingest',
+  ui_host: 'https://us.posthog.com', // for PostHog UI features
   person_profiles: 'identified_only',
   capture_pageview: true,
   capture_pageleave: true,
+  autocapture: true, // Capture clicks and form submissions automatically
+  loaded: (posthog) => {
+    if (import.meta.env.DEV) posthog.debug(); // Enable debug mode in development
+  },
 });
 
 const root = ReactDOM.createRoot(
