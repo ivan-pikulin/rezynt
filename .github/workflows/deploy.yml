@@ -20,6 +20,8 @@ jobs:
           cache-dependency-path: landing/yarn.lock
       
       - name: Build Landing Page
+        env:
+          VITE_PUBLIC_POSTHOG_KEY: ${{ vars.VITE_PUBLIC_POSTHOG_KEY }}
         run: |
           cd landing
           yarn install --frozen-lockfile

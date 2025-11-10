@@ -11,5 +11,14 @@ export default defineConfig({
     outDir: '../landing_html',
     emptyOutDir: true,
     assetsDir: 'assets'
-  }
+  },
+  plugins: [
+    {
+      name: 'replace-posthog-key',
+      transformIndexHtml(html) {
+        const posthogKey = process.env.VITE_PUBLIC_POSTHOG_KEY || 'phc_disabled';
+        return html.replace('__POSTHOG_KEY__', posthogKey);
+      }
+    }
+  ]
 })

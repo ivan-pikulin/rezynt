@@ -63,11 +63,12 @@
             <name>Analytics Proxy (PostHog)</name>
             <description>
                 - Reverse proxy for PostHog analytics to bypass ad blockers
-                - /ingest/ endpoint proxies to us.i.posthog.com
-                - /static/ endpoint proxies to us-assets.i.posthog.com/static/
+                - /ingest/ endpoint proxies to us.i.posthog.com (both app and landing domains)
+                - /static/ endpoint proxies to us-assets.i.posthog.com/static/ (both app and landing domains)
                 - CORS headers configured for cross-origin requests
                 - Static assets cached for 1 hour for better performance
                 - First-party context for improved tracking accuracy
+                - Configured for both app.rezynt.com and rezynt.com domains
             </description>
         </feature>
     </features>
@@ -100,8 +101,8 @@
             <route path="/" target="frontend" description="React SPA (app.rezynt.com)"/>
             <route path="/api" target="backend" description="FastAPI backend (app.rezynt.com)"/>
             <route path="/docs" target="backend" description="API documentation (app.rezynt.com)"/>
-            <route path="/ingest/" target="us.i.posthog.com" description="PostHog analytics proxy (app.rezynt.com)"/>
-            <route path="/static/" target="us-assets.i.posthog.com" description="PostHog static assets proxy (app.rezynt.com)"/>
+            <route path="/ingest/" target="us.i.posthog.com" description="PostHog analytics proxy (both domains)"/>
+            <route path="/static/" target="us-assets.i.posthog.com" description="PostHog static assets proxy (both domains)"/>
             <route path="/" target="landing" description="Landing pages (rezynt.com)"/>
             <route path="/health" target="nginx" description="Health check"/>
         </routes>
@@ -112,7 +113,11 @@
                 <domains>rezynt.com, www.rezynt.com</domains>
                 <ssl>enabled</ssl>
                 <http_redirect>enabled</http_redirect>
-                <upstream>landing</upstream>
+                <upstreams>
+                    <upstream path="/" target="landing"/>
+                    <upstream path="/ingest/" target="us.i.posthog.com" description="PostHog analytics"/>
+                    <upstream path="/static/" target="us-assets.i.posthog.com" description="PostHog assets"/>
+                </upstreams>
             </block>
             <block>
                 <name>App Subdomain</name>
