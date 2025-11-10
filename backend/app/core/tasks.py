@@ -68,6 +68,34 @@ async def _send_password_reset_email_task(email: str, token: str, code: str = No
         return {"status": "error", "email": email, "error": str(e)}
 
 
+@celery_app.task(name="send_onboarding_notification_task")
+def send_onboarding_notification_task(user_email: str, user_id: int, responses: dict):
+    
+    return async_to_sync(_send_onboarding_notification_task)(user_email, user_id, responses)
+
+
+async def _send_onboarding_notification_task(user_email: str, user_id: int, responses: dict):
+    """Async implementation of onboarding notification task"""
+    logger.info(f"Starting onboarding notification task for user {user_email}")
+    
+    try:
+        email_service = EmailService()
+        logger.info("EmailService initialized successfully")
+        
+        success = email_service.send_onboarding_notification(user_email, user_id, responses)
+        
+        if success:
+            logger.info(f"Onboarding notification sent successfully for user {user_email}")
+            return {"status": "success", "user_email": user_email, "user_id": user_id}
+        else:
+            logger.error(f"Failed to send onboarding notification for user {user_email}")
+            return {"status": "error", "user_email": user_email, "error": "Failed to send email"}
+            
+    except Exception as e:
+        logger.error(f"Exception in send_onboarding_notification task: {e}", exc_info=True)
+        return {"status": "error", "user_email": user_email, "error": str(e)}
+
+
 @celery_app.task(name="process_resume_upload_task")
 def process_resume_upload_task(file_content: bytes, filename: str, user_id: int):
     """Process uploaded resume using ParseService"""

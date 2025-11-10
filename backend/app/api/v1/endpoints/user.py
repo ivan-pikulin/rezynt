@@ -2,6 +2,7 @@ from app.api.deps import AsyncDB, CurrentUser, APIKeyVerified
 from app.schemas import user as user_schemas
 from app.database.crud.crud_user import user_crud
 from app.services.user_service import UserService
+from app.core.tasks import send_onboarding_notification_task
 from fastapi import APIRouter, HTTPException, status
 
 router = APIRouter()
@@ -230,6 +231,19 @@ async def complete_onboarding(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found"
         )
+    
+    # Send onboarding notification email asynchronously
+    try:
+        send_onboarding_notification_task.delay(
+            user_email=user.email,
+            user_id=user.id,
+            responses=onboarding_data.responses
+        )
+    except Exception as e:
+        # Don't fail the request if email sending fails
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Failed to send onboarding notification: {e}")
     
     return {
         "user": {

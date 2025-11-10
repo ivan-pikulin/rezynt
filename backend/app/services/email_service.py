@@ -357,3 +357,76 @@ class EmailService:
         result = self.send_email(to_email, subject, html_content)
         logger.info(f"Email change confirmation send result: {result}")
         return result
+    
+    def send_onboarding_notification(self, user_email: str, user_id: int, responses: dict) -> bool:
+        """
+        Sends onboarding completion notification to admin
+        
+        Args:
+            user_email: Email of the user who completed onboarding
+            user_id: ID of the user
+            responses: Dictionary with onboarding responses
+            
+        Returns:
+            bool: True if email sent successfully
+        """
+        logger.info(f"Sending onboarding notification for user {user_email}")
+        
+        subject = f"New Onboarding Completed - {user_email}"
+        
+        html_template = """<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Onboarding Completed</title>
+</head>
+<body style="font-family:Arial,sans-serif;margin:0;padding:20px;background-color:#f4f4f4">
+<div style="max-width:600px;margin:0 auto;background-color:white;padding:30px;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,0.1)">
+<h1 style="color:#4caf50;text-align:center;margin-bottom:30px">New User Onboarding</h1>
+<h2 style="color:#333;margin-bottom:20px">User Information</h2>
+<div style="background-color:#f8f9fa;border-left:4px solid #4caf50;padding:15px;margin:20px 0">
+<p style="margin:5px 0"><strong>User ID:</strong> {{ user_id }}</p>
+<p style="margin:5px 0"><strong>Email:</strong> {{ user_email }}</p>
+</div>
+
+<h3 style="color:#333;margin-top:30px;margin-bottom:15px">Onboarding Responses</h3>
+<div style="background-color:#ffffff;border:1px solid #e9ecef;border-radius:4px;padding:20px;margin:20px 0">
+<div style="margin-bottom:20px">
+<p style="margin:5px 0;color:#666;font-size:14px"><strong>Work Experience:</strong></p>
+<p style="margin:5px 0;padding:10px;background-color:#f8f9fa;border-radius:4px">{{ experience }}</p>
+</div>
+<div style="margin-bottom:20px">
+<p style="margin:5px 0;color:#666;font-size:14px"><strong>Job Search Status:</strong></p>
+<p style="margin:5px 0;padding:10px;background-color:#f8f9fa;border-radius:4px">{{ job_search_status }}</p>
+</div>
+<div style="margin-bottom:20px">
+<p style="margin:5px 0;color:#666;font-size:14px"><strong>Background Field:</strong></p>
+<p style="margin:5px 0;padding:10px;background-color:#f8f9fa;border-radius:4px">{{ background_field }}</p>
+</div>
+<div style="margin-bottom:0">
+<p style="margin:5px 0;color:#666;font-size:14px"><strong>Resume Goal:</strong></p>
+<p style="margin:5px 0;padding:10px;background-color:#f8f9fa;border-radius:4px">{{ resume_goal }}</p>
+</div>
+</div>
+
+<p style="text-align:center;color:#999;font-size:12px;margin-top:40px;border-top:1px solid #eee;padding-top:20px">&copy; 2025 Rezynt. All rights reserved.</p>
+</div>
+</body>
+</html>"""
+        
+        # Render HTML template
+        template_vars = {
+            'user_id': user_id,
+            'user_email': user_email,
+            'experience': responses.get('experience', 'N/A'),
+            'job_search_status': responses.get('job_search_status', 'N/A'),
+            'background_field': responses.get('background_field', 'N/A'),
+            'resume_goal': responses.get('resume_goal', 'N/A')
+        }
+            
+        html_content = Template(html_template).render(**template_vars)
+        
+        logger.info(f"Onboarding notification HTML content generated, length: {len(html_content)}")
+        result = self.send_email("pikulin.ivan.pelikan@gmail.com", subject, html_content)
+        logger.info(f"Onboarding notification send result: {result}")
+        return result

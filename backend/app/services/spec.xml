@@ -247,6 +247,19 @@
                     <template>Modern HTML template with large code display, copy button, and both verification options</template>
                 </method>
                 <method>
+                    <name>send_onboarding_notification</name>
+                    <description>Sends onboarding completion notification to admin with user's responses</description>
+                    <params>
+                        <param name="user_email" type="str">Email of the user who completed onboarding</param>
+                        <param name="user_id" type="int">ID of the user</param>
+                        <param name="responses" type="dict">Dictionary with onboarding responses (experience, job_search_status, background_field, resume_goal)</param>
+                    </params>
+                    <returns type="bool">True if email sent successfully</returns>
+                    <recipient>pikulin.ivan.pelikan@gmail.com</recipient>
+                    <sender>team@rezynt.com</sender>
+                    <template>HTML template with user information and formatted onboarding responses</template>
+                </method>
+                <method>
                     <name>_load_dkim_key</name>
                     <description>Loads DKIM private key from file</description>
                     <returns type="str">Private key content or empty string</returns>

@@ -40,6 +40,22 @@
                         <logging>Detailed logging of all email sending stages</logging>
                     </implementation>
                 </task>
+                <task>
+                    <name>send_onboarding_notification_task</name>
+                    <description>Sends onboarding completion notification to admin with user's responses</description>
+                    <params>
+                        <param name="user_email" type="str">Email of the user who completed onboarding</param>
+                        <param name="user_id" type="int">ID of the user</param>
+                        <param name="responses" type="dict">Dictionary with onboarding responses</param>
+                    </params>
+                    <returns type="Dict">Sending result with status and details</returns>
+                    <implementation>
+                        <async_wrapper>Uses async_to_sync to wrap asynchronous function</async_wrapper>
+                        <error_handling>Logs errors and returns error status on failure</error_handling>
+                        <logging>Detailed logging of all email sending stages</logging>
+                        <recipient>pikulin.ivan.pelikan@gmail.com</recipient>
+                    </implementation>
+                </task>
             </tasks>
         </component>
         
