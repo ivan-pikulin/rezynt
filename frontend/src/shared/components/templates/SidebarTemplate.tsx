@@ -2,7 +2,7 @@ import { Box, Typography } from '@mui/material';
 import React from 'react';
 import { BaseTemplate } from './BaseTemplate';
 
-export class LumaTemplate extends BaseTemplate {
+export class SidebarTemplate extends BaseTemplate {
   renderTemplate(): React.ReactElement {
     const { data } = this.props;
     
@@ -297,4 +297,5 @@ export class LumaTemplate extends BaseTemplate {
       </Box>
     );
   }
-} 
+}
+

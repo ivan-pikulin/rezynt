@@ -104,7 +104,7 @@
                 <step>Storing startup message and conversation_id in resume record</step>
             </steps>
             <data_handling>
-                <experience>Processes dictionaries with keys: job_title, company, location, start_date, end_date, responsibilities</experience>
+                <experience>Processes dictionaries with keys: job_title, company, location, start_date, end_date, achievements</experience>
                 <education>Processes dictionaries with keys: degree, institution, location, graduation_date</education>
                 <error_safety>Uses .get() method for safe access to dictionary keys</error_safety>
                 <platform_integration>Uses PlatformChatflow to get startup message and conversation_id</platform_integration>

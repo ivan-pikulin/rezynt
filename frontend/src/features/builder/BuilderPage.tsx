@@ -290,7 +290,7 @@ export const BuilderPage: React.FC = () => {
                 alignItems: 'center',
               }}
             >
-              <ResumeRenderer data={state} templateId="nume" scale={0.35} />
+              <ResumeRenderer data={state} templateId="clarity" scale={0.35} />
             </Box>
           </Box>
         </Box>

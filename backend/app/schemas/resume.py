@@ -108,7 +108,7 @@ class PDFExportRequest(BaseModel):
     """Schema for PDF export request"""
     html_content: Optional[str] = None
     filename: Optional[str] = None
-    template_slug: Optional[str] = None  # Options: nume, luma, alto, vero
+    template_slug: Optional[str] = None  # Options: clarity, sidebar, professional, frame
 
 
 # OpenAI Structured Output Schema for resume parsing

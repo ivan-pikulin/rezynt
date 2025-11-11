@@ -40,7 +40,7 @@ const descriptions: Array<{ title: string; subtitle: string; bullets: string[] }
 
 const TemplateSelectionCards: React.FC<TemplateSelectionCardsProps> = ({ selectedTemplateId, onSelect, resumeData }) => {
   // Use all four templates
-  const templates = ['nume', 'vero', 'luma', 'alto']
+  const templates = ['clarity', 'frame', 'sidebar', 'professional']
     .map(id => TemplateService.getTemplateById(id)!)
     .filter(Boolean);
 

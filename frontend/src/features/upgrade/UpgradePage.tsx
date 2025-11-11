@@ -93,7 +93,7 @@ export const UpgradePage: React.FC = () => {
               ) : resumeData ? (
                 <ResumeRenderer
                   data={resumeData}
-                  templateId="nume"
+                  templateId="clarity"
                   scale={0.35}
                 />
               ) : null}

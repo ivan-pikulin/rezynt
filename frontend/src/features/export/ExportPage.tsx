@@ -115,7 +115,7 @@ const ExportPage: React.FC = () => {
       const pdfBlob = await exportApi.exportToPDF({
         html_content: fullHtml,
         filename: filename,
-        template_slug: selectedTemplate?.id || 'nume'
+        template_slug: selectedTemplate?.id || 'clarity'
       });
       
       // Download the PDF

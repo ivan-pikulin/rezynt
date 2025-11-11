@@ -10,11 +10,11 @@
         │   ├── ResumeTemplate.tsx # Main template wrapper component
         │   └── templates/ # Template implementations
         │       ├── BaseTemplate.tsx # Abstract base class for all templates
-        │       ├── NumeTemplate.tsx # Classic professional template
-        │       ├── LumaTemplate.tsx # Two-column template with dark sidebar
+        │       ├── ClarityTemplate.tsx # Classic professional template
+        │       ├── SidebarTemplate.tsx # Two-column template with dark sidebar
         │       ├── TeroTemplate.tsx # Modern template with logo and narrow sidebar
-        │       ├── AltoTemplate.tsx # Template with square logo and contact info
-        │       ├── VeroTemplate.tsx # Centered template with horizontal lines
+        │       ├── ProfessionalTemplate.tsx # Template with square logo and contact info
+        │       ├── FrameTemplate.tsx # Centered template with horizontal lines
         │       └── index.ts # Template exports and factory
         ├── hooks/ # Custom hooks for preview operations
         │   └── useTemplate.ts # Hook for template management
@@ -28,11 +28,11 @@
             <component name="PreviewPage" desc="Main preview page with export controls"/>
             <component name="ResumeTemplate" desc="Template wrapper component that renders selected template"/>
             <component name="BaseTemplate" desc="Abstract base class for all resume templates with export methods"/>
-            <component name="NumeTemplate" desc="Classic professional template with clean structure"/>
-            <component name="LumaTemplate" desc="Two-column template with dark sidebar for contacts and skills"/>
+            <component name="ClarityTemplate" desc="Classic professional template with clean structure"/>
+            <component name="SidebarTemplate" desc="Two-column template with dark sidebar for contacts and skills"/>
             <component name="TeroTemplate" desc="Modern template with logo and narrow dark sidebar"/>
-            <component name="AltoTemplate" desc="Template with square logo and contact info in header"/>
-            <component name="VeroTemplate" desc="Centered template with horizontal line separators"/>
+            <component name="ProfessionalTemplate" desc="Template with square logo and contact info in header"/>
+            <component name="FrameTemplate" desc="Centered template with horizontal line separators"/>
         </feature>
         <feature name="templates" desc="Template system for resumes">
             <component name="TemplateService" desc="Service for template management and validation"/>

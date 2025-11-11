@@ -2,7 +2,7 @@ import { Box, Typography } from '@mui/material';
 import React from 'react';
 import { BaseTemplate } from './BaseTemplate';
 
-export class NumeTemplate extends BaseTemplate {
+export class ClarityTemplate extends BaseTemplate {
   renderTemplate(): React.ReactElement {
     const { data } = this.props;
     
@@ -263,4 +263,5 @@ export class NumeTemplate extends BaseTemplate {
       </Box>
     );
   }
-} 
+}
+

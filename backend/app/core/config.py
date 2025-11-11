@@ -92,8 +92,8 @@ class Settings(BaseSettings):
     TEMP_FILE_EXPIRE_HOURS: int = 24
     
     # Template settings
-    VALID_TEMPLATE_SLUGS: List[str] = ["nume", "luma", "alto", "vero"]
-    PREMIUM_TEMPLATE_SLUGS: List[str] = ["luma", "alto"]
+    VALID_TEMPLATE_SLUGS: List[str] = ["clarity", "sidebar", "professional", "frame"]
+    PREMIUM_TEMPLATE_SLUGS: List[str] = ["sidebar", "professional"]
 
     @property
     def sync_database_url(self) -> str:

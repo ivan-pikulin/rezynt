@@ -2,7 +2,7 @@ import { Box, Typography } from '@mui/material';
 import React from 'react';
 import { BaseTemplate } from './BaseTemplate';
 
-export class AltoTemplate extends BaseTemplate {
+export class FrameTemplate extends BaseTemplate {
   renderTemplate(): React.ReactElement {
     const { data } = this.props;
     
@@ -27,119 +27,30 @@ export class AltoTemplate extends BaseTemplate {
           boxSizing: 'border-box'
         }
       }}>
-        {/* Header with Logo, Name and Contact */}
+        {/* Header - Centered Name and Contact */}
         <Box sx={{ 
-          display: 'flex', 
-          justifyContent: 'space-between',
-          alignItems: 'flex-start',
+          textAlign: 'center',
           marginBottom: '40px',
           maxWidth: '100%',
           boxSizing: 'border-box',
           '@media print': {
-            maxWidth: '100%',
             overflow: 'hidden',
             marginBottom: '20px'
           }
         }}>
-          {/* Left side - Logo and Name */}
-          <Box sx={{ 
-            display: 'flex', 
-            alignItems: 'flex-start',
-            flex: '1 1 auto',
-            minWidth: 0,
-            '@media print': {
-              flex: '1 1 auto',
-              minWidth: 0,
-              overflow: 'hidden'
-            }
-          }}>
-            {/* Square Logo */}
-            <Box sx={{
-              width: '60px',
-              height: '60px',
-              border: '2px solid #8B4513',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginRight: '20px',
-              flexShrink: 0,
-              position: 'relative'
-            }}>
-              <Box sx={{
-                position: 'absolute',
-                top: '8px',
-                left: '8px',
-                fontSize: '16px',
-                fontWeight: 'bold',
-                color: '#8B4513'
-              }}>
-                {data.personal_info?.first_name?.charAt(0) || ''}
-              </Box>
-              <Box sx={{
-                position: 'absolute',
-                top: '50%',
-                left: '50%',
-                width: '1px',
-                height: '30px',
-                backgroundColor: '#8B4513',
-                transform: 'translate(-50%, -50%) rotate(45deg)'
-              }} />
-              <Box sx={{
-                position: 'absolute',
-                bottom: '8px',
-                right: '8px',
-                fontSize: '16px',
-                fontWeight: 'bold',
-                color: '#8B4513'
-              }}>
-                {data.personal_info?.last_name?.charAt(0) || ''}
-              </Box>
-            </Box>
-            
-            {/* Name */}
-            <Box sx={{
-              flex: '1 1 auto',
-              minWidth: 0,
-              '@media print': {
-                overflow: 'hidden'
-              }
-            }}>
-              <Typography 
-                variant="h1" 
-                sx={{ 
-                  fontSize: '32px',
-                  fontWeight: 'bold',
-                  color: '#8B4513',
-                  lineHeight: 1.1,
-                  marginBottom: '4px'
-                }}
-              >
-                {data.personal_info?.first_name?.toUpperCase() || ''}
-              </Typography>
-              <Typography 
-                variant="h1" 
-                sx={{ 
-                  fontSize: '32px',
-                  fontWeight: 'bold',
-                  color: '#8B4513',
-                  lineHeight: 1.1
-                }}
-              >
-                {data.personal_info?.last_name?.toUpperCase() || ''}
-              </Typography>
-            </Box>
-          </Box>
-
-          {/* Right side - Contact Info */}
-          <Box sx={{ 
-            textAlign: 'right',
-            flex: '0 0 auto',
-            maxWidth: '40%',
-            '@media print': {
-              maxWidth: '35%',
-              overflow: 'hidden'
-            }
-          }}>
+          <Typography 
+            variant="h1" 
+            sx={{ 
+              fontSize: '36px',
+              fontWeight: 'bold',
+              color: '#8B4513',
+              marginBottom: '12px',
+              lineHeight: 1.1
+            }}
+          >
+            {this.getFullName()}
+          </Typography>
+          <Box sx={{ marginTop: '8px' }}>
             {data.personal_info?.contacts?.email && (
               <Typography variant="body1" sx={{ fontSize: '14px', marginBottom: '4px', color: '#333' }}>
                 {data.personal_info.contacts.email}
@@ -155,29 +66,49 @@ export class AltoTemplate extends BaseTemplate {
                 {data.personal_info.contacts.linkedin}
               </Typography>
             )}
+            {data.personal_info?.contacts?.website && (
+              <Typography variant="body1" sx={{ fontSize: '14px', marginBottom: '4px', color: '#333' }}>
+                {data.personal_info.contacts.website}
+              </Typography>
+            )}
           </Box>
         </Box>
 
         {/* Professional Summary */}
         <Box sx={{ 
           marginBottom: '30px',
+          maxWidth: '100%',
+          boxSizing: 'border-box',
           '@media print': {
+            overflow: 'hidden',
             marginBottom: '15px'
           }
         }}>
-          <Typography 
-            variant="h6" 
-            sx={{ 
-              fontSize: '16px',
-              fontWeight: 'bold',
-              marginBottom: '12px',
-              color: '#2c3e50',
-              textTransform: 'uppercase',
-              letterSpacing: '0.5px'
-            }}
-          >
-            {this.t('templates.sections.professionalSummary')}
-          </Typography>
+          <Box sx={{ 
+            display: 'flex', 
+            alignItems: 'center',
+            marginBottom: '12px'
+          }}>
+            <Typography 
+              variant="h6" 
+              sx={{ 
+                fontSize: '16px',
+                fontWeight: 'bold',
+                color: '#2c3e50',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+                marginRight: '10px'
+              }}
+            >
+              {this.t('templates.sections.professionalSummary')}
+            </Typography>
+            <Box sx={{ 
+              flex: 1, 
+              height: '1px', 
+              backgroundColor: '#ddd',
+              marginLeft: '10px'
+            }} />
+          </Box>
           <Typography 
             variant="body1" 
             sx={{ 
@@ -200,19 +131,31 @@ export class AltoTemplate extends BaseTemplate {
             marginBottom: '15px'
           }
         }}>
-          <Typography 
-            variant="h6" 
-            sx={{ 
-              fontSize: '16px',
-              fontWeight: 'bold',
-              marginBottom: '12px',
-              color: '#2c3e50',
-              textTransform: 'uppercase',
-              letterSpacing: '0.5px'
-            }}
-          >
-            {this.t('templates.sections.skills')}
-          </Typography>
+          <Box sx={{ 
+            display: 'flex', 
+            alignItems: 'center',
+            marginBottom: '12px'
+          }}>
+            <Typography 
+              variant="h6" 
+              sx={{ 
+                fontSize: '16px',
+                fontWeight: 'bold',
+                color: '#2c3e50',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+                marginRight: '10px'
+              }}
+            >
+              {this.t('templates.sections.skills')}
+            </Typography>
+            <Box sx={{ 
+              flex: 1, 
+              height: '1px', 
+              backgroundColor: '#ddd',
+              marginLeft: '10px'
+            }} />
+          </Box>
           <Box sx={{ 
             display: 'grid', 
             gridTemplateColumns: '1fr 1fr',
@@ -253,20 +196,32 @@ export class AltoTemplate extends BaseTemplate {
             marginBottom: '15px'
           }
         }}>
-          <Typography 
-            variant="h6" 
-            sx={{ 
-              fontSize: '16px',
-              fontWeight: 'bold',
-              marginBottom: '12px',
-              color: '#2c3e50',
-              textTransform: 'uppercase',
-              letterSpacing: '0.5px'
-            }}
-          >
-            {this.t('templates.sections.experience')}
-          </Typography>
-          {data.work_experience?.map((exp: any, index: number) => (
+          <Box sx={{ 
+            display: 'flex', 
+            alignItems: 'center',
+            marginBottom: '12px'
+          }}>
+            <Typography 
+              variant="h6" 
+              sx={{ 
+                fontSize: '16px',
+                fontWeight: 'bold',
+                color: '#2c3e50',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+                marginRight: '10px'
+              }}
+            >
+              {this.t('templates.sections.experience')}
+            </Typography>
+            <Box sx={{ 
+              flex: 1, 
+              height: '1px', 
+              backgroundColor: '#ddd',
+              marginLeft: '10px'
+            }} />
+          </Box>
+          {data.work_experience?.map((exp, index) => (
             <Box key={index} sx={{ marginBottom: '20px' }}>
               <Box sx={{ 
                 display: 'flex', 
@@ -303,7 +258,7 @@ export class AltoTemplate extends BaseTemplate {
                   marginBottom: '8px',
                   fontWeight: '500'
                 }}
-                >
+              >
                 {exp.company} {(exp.city || exp.country) ? `| ${[exp.city, exp.country].filter(Boolean).join(', ')}` : ''}
               </Typography>
               <Box component="ul" sx={{ 
@@ -311,7 +266,7 @@ export class AltoTemplate extends BaseTemplate {
                 paddingLeft: '20px',
                 listStyleType: 'disc'
               }}>
-                {exp.achievements?.map((achievement: string, achIndex: number) => (
+                {exp.achievements?.map((achievement, achIndex) => (
                   <Typography 
                     key={achIndex}
                     component="li"
@@ -339,19 +294,31 @@ export class AltoTemplate extends BaseTemplate {
             overflow: 'hidden'
           }
         }}>
-          <Typography 
-            variant="h6" 
-            sx={{ 
-              fontSize: '16px',
-              fontWeight: 'bold',
-              marginBottom: '12px',
-              color: '#2c3e50',
-              textTransform: 'uppercase',
-              letterSpacing: '0.5px'
-            }}
-          >
-            {this.t('templates.sections.education')}
-          </Typography>
+          <Box sx={{ 
+            display: 'flex', 
+            alignItems: 'center',
+            marginBottom: '12px'
+          }}>
+            <Typography 
+              variant="h6" 
+              sx={{ 
+                fontSize: '16px',
+                fontWeight: 'bold',
+                color: '#2c3e50',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+                marginRight: '10px'
+              }}
+            >
+              {this.t('templates.sections.education')}
+            </Typography>
+            <Box sx={{ 
+              flex: 1, 
+              height: '1px', 
+              backgroundColor: '#ddd',
+              marginLeft: '10px'
+            }} />
+          </Box>
           {data.education?.map((edu, index) => (
             <Box key={index} sx={{ marginBottom: '16px' }}>
               <Box sx={{ 
@@ -397,4 +364,5 @@ export class AltoTemplate extends BaseTemplate {
       </Box>
     );
   }
-} 
+}
+

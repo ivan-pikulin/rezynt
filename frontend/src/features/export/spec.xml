@@ -46,7 +46,7 @@
             </features>
         </component>
 
-        <component name="TemplateSelectionCards" desc="Four-card template chooser with thumbnail preview. Uses all four available templates: nume (Classic), vero (Elegant), luma (Modern), alto (Professional). Responsive grid layout: 2 columns on mobile/small screens, 4 columns in one row on desktop.">
+        <component name="TemplateSelectionCards" desc="Four-card template chooser with thumbnail preview. Uses all four available templates: clarity (Clarity), frame (Frame), sidebar (Sidebar), professional (Professional). Responsive grid layout: 2 columns on mobile/small screens, 4 columns in one row on desktop.">
             <props>
                 <prop name="selectedTemplateId" type="string" desc="Currently selected template ID"/>
                 <prop name="onSelect" type="(TemplateConfig) => void" desc="Handler when a template is chosen"/>
@@ -57,7 +57,7 @@
                 <feature name="descriptions" desc="Static descriptive text and bullet points per template"/>
                 <feature name="selection" desc="Clickable card to select a template"/>
                 <feature name="responsive_grid" desc="Adaptive grid: 2 columns (mobile/sm), 4 columns in one row on desktop (md+) with flexible width 200-220px"/>
-                <feature name="all_templates" desc="Displays all four available templates: nume, vero, luma, alto"/>
+                <feature name="all_templates" desc="Displays all four available templates: clarity, frame, sidebar, professional"/>
             </features>
         </component>
         
