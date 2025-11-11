@@ -25,7 +25,7 @@ export const useResumeQuery = (isGuest: boolean = false) => {
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
     refetchOnWindowFocus: false,
-    refetchOnMount: false,
+    refetchOnMount: 'always',
   });
 
   // Function to force data refresh

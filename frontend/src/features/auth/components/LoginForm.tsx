@@ -13,6 +13,7 @@ import { useFormik } from 'formik';
 import * as yup from 'yup';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useQueryClient } from '@tanstack/react-query';
 import { authApi } from '../../../shared/services/api';
 import { LoginCredentials } from '../types/auth';
 import { useAuthContext } from '../../../shared/contexts/AuthContext';
@@ -32,6 +33,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, onSwitchToSignup, onSw
   const [showPassword, setShowPassword] = useState(false);
   const { login } = useAuthContext();
   const [searchParams] = useSearchParams();
+  const queryClient = useQueryClient();
 
   // Check if there's a password reset success message
   const passwordResetSuccess = searchParams.get('message') === 'password_reset_success';
@@ -59,6 +61,9 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, onSwitchToSignup, onSw
       try {
         const tokens = await authApi.login(values);
         login(tokens);
+        
+        // Invalidate resume cache to force fresh data load
+        queryClient.invalidateQueries({ queryKey: ['resume'] });
         
         // Track successful login
         ga4Service.trackLogin('email');

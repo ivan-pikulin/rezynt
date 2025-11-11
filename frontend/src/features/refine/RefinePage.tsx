@@ -33,6 +33,7 @@ const RefinePage: React.FC = () => {
   const { user: authUser, isAuthenticated, isLoading: authLoading } = useAuth();
   
   // No more resume_id in URL - each user has one resume
+  // Wait for auth to load before attempting to load resume
   const { resume, isLoading: loading, error: queryError, updateResumeInCache } = useResumeQuery(false);
   const [analysis, setAnalysis] = useState<{ score: number; label: string; subtitle: string; sections: any[] } | null>(null);
   const [showSaveNotification, setShowSaveNotification] = useState(true);
@@ -488,8 +489,8 @@ const RefinePage: React.FC = () => {
     }
   };
 
-  // If loading, show indicator
-  if (loading) {
+  // If loading (auth or resume), show indicator
+  if (authLoading || loading) {
     return (
       <Box sx={{ 
         height: '100vh', 
