@@ -7,6 +7,7 @@
         <module name="auth">
             <description>Authentication endpoints for user registration, login, email verification, and password reset</description>
             <endpoints>
+                <endpoint path="/auth/guest" method="POST" description="Create guest session without authentication. Returns JWT tokens and guest_id"/>
                 <endpoint path="/auth/signup" method="POST" description="Register new user with email confirmation"/>
                 <endpoint path="/auth/login" method="POST" description="User login with email and password"/>
                 <endpoint path="/auth/confirm-email" method="GET" description="Confirm user email via token and redirect with tokens for auto-login">
@@ -203,6 +204,7 @@
         <type>JWT Token</type>
         <description>Most endpoints require JWT token authentication via Authorization header</description>
         <exceptions>
+            <endpoint path="/auth/guest" description="No authentication required - creates new guest session"/>
             <endpoint path="/auth/signup" description="No authentication required"/>
             <endpoint path="/auth/login" description="No authentication required"/>
             <endpoint path="/auth/confirm-email" description="No authentication required"/>

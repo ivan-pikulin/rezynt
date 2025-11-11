@@ -11,10 +11,6 @@ export const tokenService = {
     return token;
   },
 
-  /**
-   * Get guest_id from localStorage.
-   * This ID persists across sessions to track returning guests.
-   */
   getGuestId: (): string | null => {
     return localStorage.getItem('guest_id');
   },
@@ -23,15 +19,10 @@ export const tokenService = {
     localStorage.setItem('guest_id', guestId);
   },
 
-  /**
-   * Clear authentication tokens but always preserve guest_id.
-   * Guest ID should never be cleared to track returning users across all sessions.
-   */
   clearTokens: () => {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('token_type');
-    // Never remove guest_id - it persists forever to track returning guests
   },
 
   storeTokens: (tokens: TokenResponse) => {
@@ -44,7 +35,7 @@ export const tokenService = {
   },
 
   refreshToken: async (refreshToken: string): Promise<TokenResponse> => {
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/refresh`, {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/auth/refresh`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

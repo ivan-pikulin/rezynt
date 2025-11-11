@@ -35,14 +35,11 @@ export const useAuth = (): UseAuthReturn => {
         const refreshToken = tokenService.getRefreshToken();
 
         if (!accessToken || !refreshToken) {
-          // No tokens - load current user (will trigger guest session creation in baseApi)
-          console.log('No tokens found, loading user (will create guest session automatically)...');
           try {
             const userData = await userApi.getCurrentUser();
             setIsAuthenticated(true);
             setUser(userData);
           } catch (error) {
-            console.error('Error loading user:', error);
             setIsAuthenticated(false);
             setUser(null);
           }
@@ -55,28 +52,23 @@ export const useAuth = (): UseAuthReturn => {
         const currentTime = Date.now() / 1000;
 
         if (tokenData.exp < currentTime) {
-          // Access token expired, try to refresh (or create guest session via baseApi)
           const success = await refreshTokens();
           if (!success) {
-            console.log('Token refresh failed');
             setIsAuthenticated(false);
             setUser(null);
           }
         } else {
           setIsAuthenticated(true);
-          // Token is valid, load user data
           try {
             const userData = await userApi.getCurrentUser();
             setUser(userData);
           } catch (error) {
-            console.error('Error loading user data:', error);
             tokenService.clearTokens();
             setIsAuthenticated(false);
             setUser(null);
           }
         }
       } catch (error) {
-        console.error('Auth check error:', error);
         tokenService.clearTokens();
         setIsAuthenticated(false);
         setUser(null);
@@ -98,12 +90,10 @@ export const useAuth = (): UseAuthReturn => {
       const newTokens = await tokenService.refreshToken(refreshToken);
       tokenService.storeTokens(newTokens);
       setIsAuthenticated(true);
-      // Load user data after token refresh
       try {
         const userData = await userApi.getCurrentUser();
         setUser(userData);
       } catch (error) {
-        console.error('Error loading user data after token refresh:', error);
         tokenService.clearTokens();
         setIsAuthenticated(false);
         setUser(null);
@@ -111,7 +101,6 @@ export const useAuth = (): UseAuthReturn => {
       }
       return true;
     } catch (error) {
-      console.error('Token refresh error:', error);
       tokenService.clearTokens();
       setIsAuthenticated(false);
       setUser(null);
@@ -122,12 +111,10 @@ export const useAuth = (): UseAuthReturn => {
   const login = useCallback(async (tokens: TokenResponse) => {
     tokenService.storeTokens(tokens);
     setIsAuthenticated(true);
-    // Load user data after login
     try {
       const userData = await userApi.getCurrentUser();
       setUser(userData);
     } catch (error) {
-      console.error('Error loading user data after login:', error);
       tokenService.clearTokens();
       setIsAuthenticated(false);
       setUser(null);
@@ -135,7 +122,6 @@ export const useAuth = (): UseAuthReturn => {
   }, []);
 
   const logout = useCallback(() => {
-    // Clear tokens but always keep guest_id to track returning users
     tokenService.clearTokens();
     setIsAuthenticated(false);
     setUser(null);
