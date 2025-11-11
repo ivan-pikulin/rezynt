@@ -20,9 +20,9 @@ from .resume import (
 
 from .token import RefreshRequest, Token, TokenPayload
 from .user import (ChangePasswordRequest, DeleteAccountRequest, EmailVerificationByCode, 
-                   GuestSessionResponse, OnboardingComplete, OnboardingResponse, PasswordResetByCode, 
-                   PasswordResetConfirm, PasswordResetRequest, ResendVerificationCode, SendEmailChangeCode,
-                   User, UserBase, UserCreate, UserInDB, UserInDBBase, UserPremiumUpdate, 
+                   GuestSessionRequest, GuestSessionResponse, OnboardingComplete, OnboardingResponse, 
+                   PasswordResetByCode, PasswordResetConfirm, PasswordResetRequest, ResendVerificationCode, 
+                   SendEmailChangeCode, User, UserBase, UserCreate, UserInDB, UserInDBBase, UserPremiumUpdate, 
                    UserPublic, UserRoleUpdate, UserUpdate, UserUpdateWithCode)
 
 __all__ = [
@@ -40,6 +40,7 @@ __all__ = [
     "OnboardingComplete",
     "ChangePasswordRequest",
     "DeleteAccountRequest",
+    "GuestSessionRequest",
     "GuestSessionResponse",
     # Token schemas
     "Token",
