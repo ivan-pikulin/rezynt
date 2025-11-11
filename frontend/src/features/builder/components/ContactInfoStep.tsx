@@ -56,6 +56,7 @@ export const ContactInfoStep: React.FC<ContactInfoStepProps> = ({ state, onUpdat
     });
   };
 
+
   const handleContactChange = (field: string, value: string) => {
     onUpdate('personal_info', {
       ...state.personal_info,
@@ -93,21 +94,40 @@ export const ContactInfoStep: React.FC<ContactInfoStepProps> = ({ state, onUpdat
                 gap: 0.5,
               }}
             >
-              {t('builder.contactInfo.fullName')}
-              {isFieldValid(getFieldValue('first_name') + getFieldValue('last_name')) && (
+              {t('builder.contactInfo.firstName')}
+              {isFieldValid(getFieldValue('first_name')) && (
                 <CheckCircleIcon sx={{ fontSize: 16, color: COLORS.success.main }} />
               )}
             </Typography>
             <SimpleInput
-              placeholder={t('builder.contactInfo.fullNamePlaceholder')}
-              value={`${getFieldValue('first_name')} ${getFieldValue('last_name')}`.trim()}
-              onChange={(value) => {
-                const parts = value.split(' ');
-                const firstName = parts[0] || '';
-                const lastName = parts.slice(1).join(' ') || '';
-                handlePersonalInfoChange('first_name', firstName);
-                handlePersonalInfoChange('last_name', lastName);
+              placeholder={t('builder.contactInfo.firstNamePlaceholder')}
+              value={getFieldValue('first_name')}
+              onChange={(value) => handlePersonalInfoChange('first_name', value)}
+            />
+          </Box>
+        </Box>
+
+        <Box>
+          <Box sx={{ position: 'relative' }}>
+            <Typography 
+              variant="body2" 
+              sx={{ 
+                mb: 0.5, 
+                fontWeight: 500,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 0.5,
               }}
+            >
+              {t('builder.contactInfo.lastName')}
+              {isFieldValid(getFieldValue('last_name')) && (
+                <CheckCircleIcon sx={{ fontSize: 16, color: COLORS.success.main }} />
+              )}
+            </Typography>
+            <SimpleInput
+              placeholder={t('builder.contactInfo.lastNamePlaceholder')}
+              value={getFieldValue('last_name')}
+              onChange={(value) => handlePersonalInfoChange('last_name', value)}
             />
           </Box>
         </Box>
