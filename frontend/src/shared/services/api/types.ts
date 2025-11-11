@@ -202,6 +202,7 @@ export interface ImprovementPoint {
   fix_suggestion?: FixSuggestion;
   metadata?: Record<string, any>;
   is_fixed?: boolean; // Flag indicating if fix has been applied
+  premium_only?: boolean; // Flag indicating if this point is only for premium users
 }
 
 export interface AnalysisSection {

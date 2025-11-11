@@ -17,6 +17,7 @@ class BaseRule(ABC):
         self.section_id = "content"  # Override in subclass: 'content', 'ats', 'style'
         self.severity = "medium"  # Override: 'high', 'medium', 'low'
         self.score_impact = 3  # Override: 1-10
+        self.premium_only = False  # Override: True for premium-only rules
     
     @abstractmethod
     async def check(self, resume: dict) -> List[ImprovementPoint]:
@@ -52,13 +53,17 @@ class BaseRule(ABC):
             field_path: JSON path to the field (e.g., "work_experience[0].achievements")
             title: Short title of the issue
             description: Detailed description of the issue
-            **kwargs: Additional fields (metadata, fix_suggestion, etc.)
+            **kwargs: Additional fields (metadata, fix_suggestion, premium_only, etc.)
             
         Returns:
             ImprovementPoint instance
         """
         # Generate unique ID from rule_id and field_path
         point_id = f"{self.rule_id}_{field_path.replace('[', '_').replace(']', '').replace('.', '_')}"
+        
+        # Use premium_only from kwargs if provided, otherwise use rule's default
+        if 'premium_only' not in kwargs:
+            kwargs['premium_only'] = self.premium_only
         
         return ImprovementPoint(
             id=point_id,

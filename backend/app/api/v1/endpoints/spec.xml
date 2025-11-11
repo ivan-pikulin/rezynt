@@ -116,6 +116,14 @@
                         - Fixed points display with special styling (green background, checkmark badge)
                     </implementation>
                 </feature>
+                <feature name="Premium-Only Improvements" description="Mark certain improvement points as premium-only">
+                    <implementation>
+                        - premium_only flag added to ImprovementPoint schema (default: False)
+                        - Each rule has self.premium_only property that sets default for all its points
+                        - Individual points can override with premium_only parameter in create_point()
+                        - Frontend receives flag to display premium points differently for non-premium users
+                    </implementation>
+                </feature>
                 <feature name="Analysis Caching" description="Analysis results are cached in database">
                     <implementation>
                         - Stored in User.analysis_result JSONB field

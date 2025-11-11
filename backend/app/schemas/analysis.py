@@ -25,6 +25,7 @@ class ImprovementPoint(BaseModel):
     fix_suggestion: Optional[FixSuggestion] = None  # Structured fix (if available)
     metadata: Optional[Dict[str, Any]] = None  # Additional context
     is_fixed: bool = False  # Flag indicating if fix has been applied
+    premium_only: bool = False  # Flag indicating if this point is only for premium users
 
 
 class AnalysisSection(BaseModel):
