@@ -28,6 +28,10 @@ export const tokenService = {
     localStorage.setItem('guest_id', guestId);
   },
 
+  clearGuestId: () => {
+    localStorage.removeItem('guest_id');
+  },
+
   getOrCreateGuestId: async (): Promise<string> => {
     const existingGuestId = localStorage.getItem('guest_id');
     if (existingGuestId) {
