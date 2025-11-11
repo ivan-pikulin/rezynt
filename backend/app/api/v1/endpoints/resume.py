@@ -421,13 +421,6 @@ async def export_resume_pdf(
             detail=f"Invalid template_slug. Must be one of: {', '.join(settings.VALID_TEMPLATE_SLUGS)}"
         )
     
-    # Check if template is premium and user has access
-    if export_request.template_slug in settings.PREMIUM_TEMPLATE_SLUGS and not current_user.is_premium:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Premium template requires premium subscription"
-        )
-    
     try:
         # Get user's resume data for filename
         resume_data = await user_crud.get_resume_data(db, user_id=current_user.id)

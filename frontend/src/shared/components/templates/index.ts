@@ -17,29 +17,25 @@ export const TEMPLATE_CONFIGS: Record<string, TemplateConfig> = {
     id: 'clarity',
     name: 'Clarity',
     description: 'Classic professional template with clear structure',
-    category: 'classic',
-    isPremium: false
+    category: 'classic'
   },
   frame: {
     id: 'frame',
     name: 'Frame',
     description: 'Centered template with horizontal separators',
-    category: 'classic',
-    isPremium: false
+    category: 'classic'
   },
   sidebar: {
     id: 'sidebar',
     name: 'Sidebar',
     description: 'Two-column template with dark sidebar for contacts and skills',
-    category: 'modern',
-    isPremium: true
+    category: 'modern'
   },
   professional: {
     id: 'professional',
     name: 'Professional',
     description: 'Template with square logo and contact information in header',
-    category: 'modern',
-    isPremium: true
+    category: 'modern'
   }
 };
 

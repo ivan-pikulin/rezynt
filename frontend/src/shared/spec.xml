@@ -362,7 +362,7 @@
           <name>templateId</name>
           <type>string</type>
           <required>false</required>
-          <default>nume</default>
+          <default>clarity</default>
           <description>Template ID for rendering</description>
         </prop>
         
@@ -443,7 +443,7 @@
       
       <features>
         <feature>
-          <name>AltoTemplate</name>
+          <name>ProfessionalTemplate</name>
           <description>
             Template with logo-initials in square frame, positioned to the left of the name.
             Contact information placed to the right. Uses brown color scheme (#8B4513).
@@ -452,7 +452,7 @@
         </feature>
         
         <feature>
-          <name>VeroTemplate</name>
+          <name>FrameTemplate</name>
           <description>
             Centered template with name in center and contact information below.
             Sections separated by horizontal lines. Uses brown color scheme (#8B4513).
@@ -461,7 +461,7 @@
         </feature>
         
         <feature>
-          <name>LumaTemplate</name>
+          <name>SidebarTemplate</name>
           <description>
             Two-column template with dark sidebar (35%) and main content (65%).
             Contacts and skills placed in sidebar. Uses fixed column widths.

@@ -28,7 +28,6 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ open, onClose, onSuccess })
   const features = [
     t('paywall.features.unlimitedAI'),
     t('paywall.features.unlimitedResumes'),
-    t('paywall.features.premiumTemplates'),
     t('paywall.features.cleanPDF')
   ];
 
