@@ -57,7 +57,7 @@
             - Automatically creates first empty experience entry on load
             - Job title, company, location
             - Start/end dates with "current position" option
-            - Multiple responsibilities per position
+            - Multiple achievements per position
             - Add/delete functionality
             - Compact input styling (12px font, #F9FAFB background)
             - H5 title (1.5rem), body2 description (14px)

@@ -266,9 +266,9 @@ export class VeroTemplate extends BaseTemplate {
                 paddingLeft: '20px',
                 listStyleType: 'disc'
               }}>
-                {exp.responsibilities?.map((responsibility, respIndex) => (
+                {exp.achievements?.map((achievement, achIndex) => (
                   <Typography 
-                    key={respIndex}
+                    key={achIndex}
                     component="li"
                     variant="body2" 
                     sx={{ 
@@ -278,7 +278,7 @@ export class VeroTemplate extends BaseTemplate {
                       lineHeight: 1.5
                     }}
                   >
-                    {responsibility}
+                    {achievement}
                   </Typography>
                 ))}
               </Box>

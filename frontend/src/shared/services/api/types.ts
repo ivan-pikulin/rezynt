@@ -111,7 +111,6 @@ export interface WorkExperience {
   country?: string;
   start_date?: string; // Format: "Month YYYY" or "YYYY-MM-DD"
   end_date?: string; // Format: "Month YYYY" or "YYYY-MM-DD" or null for current
-  responsibilities?: string[];
   achievements?: string[];
   technologies_tools?: string[];
 }

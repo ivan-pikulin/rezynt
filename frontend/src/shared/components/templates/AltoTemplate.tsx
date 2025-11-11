@@ -311,9 +311,9 @@ export class AltoTemplate extends BaseTemplate {
                 paddingLeft: '20px',
                 listStyleType: 'disc'
               }}>
-                {exp.responsibilities?.map((responsibility: string, respIndex: number) => (
+                {exp.achievements?.map((achievement: string, achIndex: number) => (
                   <Typography 
-                    key={respIndex}
+                    key={achIndex}
                     component="li"
                     variant="body2" 
                     sx={{ 
@@ -323,7 +323,7 @@ export class AltoTemplate extends BaseTemplate {
                       lineHeight: 1.5
                     }}
                   >
-                    {responsibility}
+                    {achievement}
                   </Typography>
                 ))}
               </Box>

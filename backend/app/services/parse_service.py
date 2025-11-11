@@ -115,7 +115,7 @@ class ParseService:
                         - For dates, use format like "Month YYYY" (e.g., "June 2024") or "YYYY-MM-DD"
                         - Personal info should include: first_name, last_name, current_role, city, country, photo_url (if available)
                         - Contacts should be a nested object with: email, phone, telegram, whatsapp, linkedin, github, website, twitter, instagram
-                        - Work experience should include: job_title, company, short_description, city, country, start_date, end_date, responsibilities (list), achievements (list), technologies_tools (list)
+                        - Work experience should include: job_title, company, short_description, city, country, start_date, end_date, achievements (list), technologies_tools (list)
                         - Education should include: institution, degree, field_of_study, city, country, start_date, end_date, relevant_courses (list)
                         - Languages should be extracted with language name and proficiency level
                         - Awards should include: title, issuer, date, description

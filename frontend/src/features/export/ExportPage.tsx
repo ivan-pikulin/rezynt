@@ -162,8 +162,8 @@ const ExportPage: React.FC = () => {
         if (header) lines.push(`- ${header}`);
         const dates = [exp.start_date, exp.end_date || 'Present'].filter(Boolean).join(' - ');
         if (dates) lines.push(`  ${dates}`);
-        if (Array.isArray(exp.responsibilities)) {
-          exp.responsibilities.forEach((r: string) => lines.push(`  • ${r}`));
+        if (Array.isArray(exp.achievements)) {
+          exp.achievements.forEach((r: string) => lines.push(`  • ${r}`));
         }
       });
     }

@@ -5,7 +5,7 @@
   "location": "San Francisco, CA",
   "start_date": "2022-03-01T00:00:00",
   "end_date": null,
-  "responsibilities": [
+  "achievements": [
     "Led development of microservices architecture serving 1M+ users",
     "Mentored 5 junior developers and conducted code reviews",
     "Implemented CI/CD pipeline reducing deployment time by 60%",

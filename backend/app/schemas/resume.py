@@ -38,7 +38,6 @@ class WorkExperience(BaseModel):
     country: Optional[str] = None
     start_date: Optional[str] = None  # Format: "Month YYYY" or "YYYY-MM-DD"
     end_date: Optional[str] = None  # Format: "Month YYYY" or "YYYY-MM-DD" or null for current
-    responsibilities: Optional[List[str]] = None
     achievements: Optional[List[str]] = None
     technologies_tools: Optional[List[str]] = None
 

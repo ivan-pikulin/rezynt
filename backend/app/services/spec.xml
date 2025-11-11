@@ -427,8 +427,7 @@
                 <schema name="AnalysisResult">Complete analysis result with overall score and sections</schema>
             </schemas>
             <notes>
-                <note>UI change: "responsibilities" renamed to "achievements" in ExperienceEditor for better clarity</note>
-                <note>Backward compatibility: achievements saved as both achievements and responsibilities fields</note>
+                <note>Field naming: work experience uses "achievements" field only (responsibilities field removed)</note>
                 <note>short_description field added to RefinePage ExperienceEditor</note>
                 <note>MissingAchievementsRule restored: navigates to "Add Achievement" button with pulse animation when no achievements exist</note>
                 <note>Removed unused rules: MissingTechnologiesRule, MissingProfessionalLinksRule</note>

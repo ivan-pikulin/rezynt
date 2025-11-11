@@ -136,11 +136,6 @@ const ExperienceEditor = forwardRef<ExperienceEditorHandle, ExperienceEditorProp
     // Rebuild form data from prop
     const newFormData: Record<number, ExperienceFormData> = {};
     experience.forEach((exp, idx) => {
-      const allAchievements = [
-        ...(exp.achievements || []),
-        ...(exp.responsibilities || [])
-      ];
-      
       newFormData[idx] = {
         job_title: exp.job_title || '',
         company: exp.company || '',
@@ -150,7 +145,7 @@ const ExperienceEditor = forwardRef<ExperienceEditorHandle, ExperienceEditorProp
         start_date: exp.start_date || '',
         end_date: exp.end_date || '',
         is_current: !exp.end_date || exp.end_date.toLowerCase() === 'present',
-        achievements: allAchievements,
+        achievements: exp.achievements || [],
         technologies_tools: exp.technologies_tools || []
       };
     });
@@ -160,12 +155,6 @@ const ExperienceEditor = forwardRef<ExperienceEditorHandle, ExperienceEditorProp
   const [formDataArray, setFormDataArray] = useState<Record<number, ExperienceFormData>>(() => {
     const initial: Record<number, ExperienceFormData> = {};
     experience.forEach((exp, idx) => {
-      // Merge responsibilities into achievements for backward compatibility
-      const allAchievements = [
-        ...(exp.achievements || []),
-        ...(exp.responsibilities || [])
-      ].filter((item, index, self) => item && self.indexOf(item) === index); // Remove duplicates
-      
       initial[idx] = {
         job_title: exp.job_title || '',
         company: exp.company || '',
@@ -175,7 +164,7 @@ const ExperienceEditor = forwardRef<ExperienceEditorHandle, ExperienceEditorProp
         start_date: exp.start_date || '',
         end_date: exp.end_date || '',
         is_current: !exp.end_date,
-        achievements: allAchievements,
+        achievements: exp.achievements || [],
         technologies_tools: [...(exp.technologies_tools || [])]
       };
     });
@@ -319,9 +308,7 @@ const ExperienceEditor = forwardRef<ExperienceEditorHandle, ExperienceEditorProp
       country: formData.country?.trim() || undefined,
         start_date: formData.start_date || undefined,
         end_date: formData.is_current ? undefined : (formData.end_date || undefined),
-      // Save achievements as both achievements and responsibilities for backward compatibility
       achievements: filteredAchievements,
-      responsibilities: filteredAchievements,
       technologies_tools: formData.technologies_tools?.filter(t => t.trim()) || undefined
       };
 

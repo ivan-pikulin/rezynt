@@ -102,7 +102,7 @@ export const WorkExperienceStep: React.FC<WorkExperienceStepProps> = ({ state, o
         country: '',
         start_date: '',
         end_date: '',
-        responsibilities: [],
+        achievements: [],
       };
       onUpdate('work_experience', [newExperience]);
     }
@@ -116,7 +116,7 @@ export const WorkExperienceStep: React.FC<WorkExperienceStepProps> = ({ state, o
       country: '',
       start_date: '',
       end_date: '',
-      responsibilities: [],
+      achievements: [],
     };
 
     onUpdate('work_experience', [...(state.work_experience || []), newExperience]);
@@ -137,25 +137,25 @@ export const WorkExperienceStep: React.FC<WorkExperienceStepProps> = ({ state, o
     }
   };
 
-  const handleAddResponsibility = (expIndex: number) => {
+  const handleAddAchievement = (expIndex: number) => {
     const updated = [...(state.work_experience || [])];
-    const responsibilities = [...(updated[expIndex].responsibilities || []), ''];
-    updated[expIndex] = { ...updated[expIndex], responsibilities };
+    const achievements = [...(updated[expIndex].achievements || []), ''];
+    updated[expIndex] = { ...updated[expIndex], achievements };
     onUpdate('work_experience', updated);
   };
 
-  const handleUpdateResponsibility = (expIndex: number, respIndex: number, value: string) => {
+  const handleUpdateAchievement = (expIndex: number, achIndex: number, value: string) => {
     const updated = [...(state.work_experience || [])];
-    const responsibilities = [...(updated[expIndex].responsibilities || [])];
-    responsibilities[respIndex] = value;
-    updated[expIndex] = { ...updated[expIndex], responsibilities };
+    const achievements = [...(updated[expIndex].achievements || [])];
+    achievements[achIndex] = value;
+    updated[expIndex] = { ...updated[expIndex], achievements };
     onUpdate('work_experience', updated);
   };
 
-  const handleDeleteResponsibility = (expIndex: number, respIndex: number) => {
+  const handleDeleteAchievement = (expIndex: number, achIndex: number) => {
     const updated = [...(state.work_experience || [])];
-    const responsibilities = (updated[expIndex].responsibilities || []).filter((_, i) => i !== respIndex);
-    updated[expIndex] = { ...updated[expIndex], responsibilities };
+    const achievements = (updated[expIndex].achievements || []).filter((_, i) => i !== achIndex);
+    updated[expIndex] = { ...updated[expIndex], achievements };
     onUpdate('work_experience', updated);
   };
 
@@ -309,17 +309,17 @@ export const WorkExperienceStep: React.FC<WorkExperienceStepProps> = ({ state, o
                 <Typography variant="body2" sx={{ mb: 1, fontWeight: 500 }}>
                   {t('builder.workExperience.responsibilities')}
                 </Typography>
-                {(exp.responsibilities || []).map((resp, respIndex) => (
-                  <Box key={respIndex} sx={{ display: 'flex', gap: 1, mb: 1 }}>
+                {(exp.achievements || []).map((ach, achIndex) => (
+                  <Box key={achIndex} sx={{ display: 'flex', gap: 1, mb: 1 }}>
                     <SimpleTextarea
                       placeholder={t('builder.workExperience.responsibilityPlaceholder')}
-                      value={resp}
-                      onChange={(value) => handleUpdateResponsibility(index, respIndex, value)}
+                      value={ach}
+                      onChange={(value) => handleUpdateAchievement(index, achIndex, value)}
                       rows={2}
                     />
                     <IconButton 
                       size="small"
-                      onClick={() => handleDeleteResponsibility(index, respIndex)}
+                      onClick={() => handleDeleteAchievement(index, achIndex)}
                       sx={{ color: COLORS.error.main }}
                     >
                       <DeleteIcon fontSize="small" />
@@ -330,7 +330,7 @@ export const WorkExperienceStep: React.FC<WorkExperienceStepProps> = ({ state, o
                   variant="outlined"
                   size="small"
                   startIcon={<AddIcon />}
-                  onClick={() => handleAddResponsibility(index)}
+                  onClick={() => handleAddAchievement(index)}
                   sx={{ mt: 1 }}
                 >
                   {t('builder.workExperience.addResponsibility')}

@@ -1,0 +1,453 @@
+{
+  "$schema": "Resume Data Structure Documentation",
+  "description": "Complete resume data structure for Rezynt AI Resume Builder. This document describes all fields, their types, formats, and usage.",
+  
+  "structure": {
+    "personal_info": {
+      "type": "object",
+      "description": "Personal information of the candidate",
+      "fields": {
+        "first_name": {
+          "type": "string",
+          "optional": true,
+          "description": "Candidate's first name",
+          "example": "John"
+        },
+        "last_name": {
+          "type": "string",
+          "optional": true,
+          "description": "Candidate's last name",
+          "example": "Doe"
+        },
+        "current_role": {
+          "type": "string",
+          "optional": true,
+          "description": "Current job title or professional role",
+          "example": "Senior Software Engineer"
+        },
+        "city": {
+          "type": "string",
+          "optional": true,
+          "description": "City of residence",
+          "example": "San Francisco"
+        },
+        "country": {
+          "type": "string",
+          "optional": true,
+          "description": "Country of residence",
+          "example": "USA"
+        },
+        "photo_url": {
+          "type": "string",
+          "optional": true,
+          "description": "URL to profile photo (stored in MinIO)",
+          "example": "https://storage.example.com/photos/user123.jpg"
+        },
+        "contacts": {
+          "type": "object",
+          "optional": true,
+          "description": "Contact information",
+          "fields": {
+            "email": {
+              "type": "string",
+              "optional": true,
+              "description": "Email address",
+              "example": "john.doe@email.com"
+            },
+            "phone": {
+              "type": "string",
+              "optional": true,
+              "description": "Phone number with country code",
+              "example": "+1 (555) 123-4567"
+            },
+            "telegram": {
+              "type": "string",
+              "optional": true,
+              "description": "Telegram username or link",
+              "example": "@johndoe"
+            },
+            "whatsapp": {
+              "type": "string",
+              "optional": true,
+              "description": "WhatsApp number",
+              "example": "+15551234567"
+            },
+            "linkedin": {
+              "type": "string",
+              "optional": true,
+              "description": "LinkedIn profile URL or username",
+              "example": "linkedin.com/in/johndoe"
+            },
+            "github": {
+              "type": "string",
+              "optional": true,
+              "description": "GitHub profile URL or username",
+              "example": "github.com/johndoe"
+            },
+            "website": {
+              "type": "string",
+              "optional": true,
+              "description": "Personal website URL",
+              "example": "https://johndoe.com"
+            },
+            "twitter": {
+              "type": "string",
+              "optional": true,
+              "description": "Twitter/X username or URL",
+              "example": "@johndoe"
+            },
+            "instagram": {
+              "type": "string",
+              "optional": true,
+              "description": "Instagram username or URL",
+              "example": "@johndoe"
+            }
+          }
+        }
+      }
+    },
+    
+    "professional_summary": {
+      "type": "string",
+      "optional": true,
+      "description": "Professional summary or objective statement. Should be 100-500 characters for optimal length.",
+      "example": "Experienced software engineer with 8+ years of expertise in full-stack development, specializing in Python, React, and cloud technologies. Proven track record of leading teams and delivering scalable solutions.",
+      "constraints": {
+        "min_length": 100,
+        "max_length": 500,
+        "recommended": "Focus on key achievements, skills, and career goals"
+      }
+    },
+    
+    "skills": {
+      "type": "array",
+      "items": "string",
+      "optional": true,
+      "description": "List of professional skills and technologies. Should contain 6-15 skills for optimal resume.",
+      "example": ["Python", "JavaScript", "React", "Node.js", "PostgreSQL", "Docker", "AWS", "Kubernetes"],
+      "constraints": {
+        "min_count": 6,
+        "max_count": 15,
+        "recommended": "Include both technical skills and relevant soft skills"
+      }
+    },
+    
+    "work_experience": {
+      "type": "array",
+      "items": "WorkExperience",
+      "optional": true,
+      "description": "List of work experience entries, ordered from most recent to oldest",
+      "WorkExperience": {
+        "type": "object",
+        "fields": {
+          "job_title": {
+            "type": "string",
+            "optional": true,
+            "description": "Job title or position name",
+            "example": "Senior Software Engineer"
+          },
+          "company": {
+            "type": "string",
+            "optional": true,
+            "description": "Company or organization name",
+            "example": "TechCorp Inc."
+          },
+          "short_description": {
+            "type": "string",
+            "optional": true,
+            "description": "Brief description of the company or project",
+            "example": "Leading tech company specializing in cloud solutions"
+          },
+          "city": {
+            "type": "string",
+            "optional": true,
+            "description": "City where the job is/was located",
+            "example": "San Francisco"
+          },
+          "country": {
+            "type": "string",
+            "optional": true,
+            "description": "Country where the job is/was located",
+            "example": "USA"
+          },
+          "start_date": {
+            "type": "string",
+            "optional": true,
+            "description": "Start date of employment",
+            "format": "YYYY-MM or 'Month YYYY'",
+            "example": "2022-03 or March 2022"
+          },
+          "end_date": {
+            "type": "string",
+            "optional": true,
+            "nullable": true,
+            "description": "End date of employment. Set to null or 'Present' for current positions.",
+            "format": "YYYY-MM or 'Month YYYY' or null",
+            "example": "2024-11 or November 2024 or null"
+          },
+          "achievements": {
+            "type": "array",
+            "items": "string",
+            "optional": true,
+            "description": "List of key achievements and results (NOT responsibilities). Should be 3-8 achievements per position. Each should be impact-oriented with quantifiable metrics.",
+            "example": [
+              "Led development of microservices architecture serving 1M+ users",
+              "Mentored 5 junior developers and conducted code reviews",
+              "Implemented CI/CD pipeline reducing deployment time by 60%",
+              "Optimized database queries improving performance by 40%"
+            ],
+            "constraints": {
+              "min_count": 3,
+              "max_count": 8,
+              "max_words_per_achievement": 25,
+              "recommended": "Use action verbs, include metrics (%, numbers, $), focus on results not duties"
+            }
+          },
+          "technologies_tools": {
+            "type": "array",
+            "items": "string",
+            "optional": true,
+            "description": "Technologies and tools used in this role",
+            "example": ["Python", "Django", "PostgreSQL", "Docker", "AWS"]
+          }
+        }
+      }
+    },
+    
+    "education": {
+      "type": "array",
+      "items": "Education",
+      "optional": true,
+      "description": "List of education entries, ordered from most recent to oldest",
+      "Education": {
+        "type": "object",
+        "fields": {
+          "institution": {
+            "type": "string",
+            "optional": true,
+            "description": "Name of educational institution",
+            "example": "Stanford University"
+          },
+          "degree": {
+            "type": "string",
+            "optional": true,
+            "description": "Degree or certification obtained",
+            "example": "Master of Science in Computer Science"
+          },
+          "field_of_study": {
+            "type": "string",
+            "optional": true,
+            "description": "Field or major of study",
+            "example": "Computer Science"
+          },
+          "city": {
+            "type": "string",
+            "optional": true,
+            "description": "City where institution is located",
+            "example": "Stanford"
+          },
+          "country": {
+            "type": "string",
+            "optional": true,
+            "description": "Country where institution is located",
+            "example": "USA"
+          },
+          "start_date": {
+            "type": "string",
+            "optional": true,
+            "description": "Start date of education",
+            "format": "YYYY-MM or 'Month YYYY'",
+            "example": "2016-09 or September 2016"
+          },
+          "end_date": {
+            "type": "string",
+            "optional": true,
+            "description": "End date or graduation date",
+            "format": "YYYY-MM or 'Month YYYY'",
+            "example": "2018-05 or May 2018"
+          },
+          "relevant_courses": {
+            "type": "array",
+            "items": "string",
+            "optional": true,
+            "description": "List of relevant courses taken",
+            "example": ["Machine Learning", "Distributed Systems", "Algorithms"]
+          }
+        }
+      }
+    },
+    
+    "languages_spoken": {
+      "type": "array",
+      "items": "Language",
+      "optional": true,
+      "description": "List of languages and proficiency levels",
+      "Language": {
+        "type": "object",
+        "fields": {
+          "language": {
+            "type": "string",
+            "optional": true,
+            "description": "Name of the language",
+            "example": "English"
+          },
+          "proficiency": {
+            "type": "string",
+            "optional": true,
+            "description": "Proficiency level",
+            "example": "Native or Fluent or Intermediate or Basic",
+            "enum": ["Native", "Fluent", "Professional", "Intermediate", "Basic"]
+          }
+        }
+      }
+    },
+    
+    "awards": {
+      "type": "array",
+      "items": "Award",
+      "optional": true,
+      "description": "List of awards, honors, and recognitions",
+      "Award": {
+        "type": "object",
+        "fields": {
+          "title": {
+            "type": "string",
+            "optional": true,
+            "description": "Title or name of the award",
+            "example": "Employee of the Year"
+          },
+          "issuer": {
+            "type": "string",
+            "optional": true,
+            "description": "Organization or entity that issued the award",
+            "example": "TechCorp Inc."
+          },
+          "date": {
+            "type": "string",
+            "optional": true,
+            "description": "Date when award was received",
+            "format": "YYYY-MM or 'Month YYYY'",
+            "example": "2023-12 or December 2023"
+          },
+          "description": {
+            "type": "string",
+            "optional": true,
+            "description": "Brief description of the award",
+            "example": "Recognized for exceptional performance and leadership"
+          }
+        }
+      }
+    }
+  },
+  
+  "example_complete_resume": {
+    "personal_info": {
+      "first_name": "John",
+      "last_name": "Doe",
+      "current_role": "Senior Software Engineer",
+      "city": "San Francisco",
+      "country": "USA",
+      "photo_url": null,
+      "contacts": {
+        "email": "john.doe@email.com",
+        "phone": "+1 (555) 123-4567",
+        "linkedin": "linkedin.com/in/johndoe",
+        "github": "github.com/johndoe"
+      }
+    },
+    "professional_summary": "Experienced software engineer with 8+ years of expertise in full-stack development, specializing in Python, React, and cloud technologies. Proven track record of leading teams and delivering scalable solutions.",
+    "skills": [
+      "Python",
+      "JavaScript",
+      "React",
+      "Node.js",
+      "PostgreSQL",
+      "Docker",
+      "AWS",
+      "Kubernetes",
+      "Git",
+      "REST APIs"
+    ],
+    "work_experience": [
+      {
+        "job_title": "Senior Software Engineer",
+        "company": "TechCorp Inc.",
+        "short_description": "Leading tech company in cloud solutions",
+        "city": "San Francisco",
+        "country": "USA",
+        "start_date": "2022-03",
+        "end_date": null,
+        "achievements": [
+          "Led development of microservices architecture serving 1M+ users",
+          "Mentored 5 junior developers and conducted code reviews",
+          "Implemented CI/CD pipeline reducing deployment time by 60%",
+          "Optimized database queries improving performance by 40%"
+        ],
+        "technologies_tools": ["Python", "Django", "PostgreSQL", "Docker", "AWS"]
+      },
+      {
+        "job_title": "Software Engineer",
+        "company": "StartupXYZ",
+        "city": "Palo Alto",
+        "country": "USA",
+        "start_date": "2020-01",
+        "end_date": "2022-02",
+        "achievements": [
+          "Developed full-stack web applications using React and Node.js",
+          "Collaborated with product team to implement 15+ new features",
+          "Reduced page load time by 50% through optimization"
+        ],
+        "technologies_tools": ["React", "Node.js", "MongoDB", "Express"]
+      }
+    ],
+    "education": [
+      {
+        "institution": "Stanford University",
+        "degree": "Master of Science in Computer Science",
+        "field_of_study": "Computer Science",
+        "city": "Stanford",
+        "country": "USA",
+        "start_date": "2016-09",
+        "end_date": "2018-05",
+        "relevant_courses": ["Machine Learning", "Distributed Systems", "Algorithms"]
+      },
+      {
+        "institution": "University of California, Berkeley",
+        "degree": "Bachelor of Science in Computer Engineering",
+        "field_of_study": "Computer Engineering",
+        "city": "Berkeley",
+        "country": "USA",
+        "start_date": "2012-09",
+        "end_date": "2016-05"
+      }
+    ],
+    "languages_spoken": [
+      {
+        "language": "English",
+        "proficiency": "Native"
+      },
+      {
+        "language": "Spanish",
+        "proficiency": "Intermediate"
+      }
+    ],
+    "awards": [
+      {
+        "title": "Employee of the Year",
+        "issuer": "TechCorp Inc.",
+        "date": "2023-12",
+        "description": "Recognized for exceptional performance and leadership"
+      }
+    ]
+  },
+  
+  "notes": {
+    "field_naming": "All fields use snake_case naming convention",
+    "date_formats": "Dates accept either YYYY-MM format or 'Month YYYY' format. Current positions should have end_date as null.",
+    "achievements_vs_responsibilities": "The 'achievements' field replaced the deprecated 'responsibilities' field. Focus on results and impact, not duties.",
+    "optional_fields": "All fields are optional to support partial resume data during building process",
+    "analysis_rules": "The system includes 31 analysis rules that check content quality, ATS optimization, and style issues",
+    "storage": "Resume data is stored in PostgreSQL as JSONB in the User.resume_data field"
+  }
+}
+

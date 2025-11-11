@@ -31,7 +31,7 @@
         "location": "San Francisco, CA",
         "start_date": "2022-03-01T00:00:00",
         "end_date": null,
-        "responsibilities": [
+        "achievements": [
           "Led development of microservices architecture serving 1M+ users",
           "Mentored 5 junior developers and conducted code reviews",
           "Implemented CI/CD pipeline reducing deployment time by 60%",
@@ -44,7 +44,7 @@
         "location": "Palo Alto, CA",
         "start_date": "2020-01-15T00:00:00",
         "end_date": "2022-02-28T00:00:00",
-        "responsibilities": [
+        "achievements": [
           "Developed full-stack web applications using React and Node.js",
           "Collaborated with product team to implement new features",
           "Participated in agile development process with 2-week sprints",
@@ -57,7 +57,7 @@
         "location": "Mountain View, CA",
         "start_date": "2018-06-01T00:00:00",
         "end_date": "2019-12-31T00:00:00",
-        "responsibilities": [
+        "achievements": [
           "Built responsive web interfaces using HTML, CSS, and JavaScript",
           "Worked with REST APIs and JSON data formats",
           "Participated in team meetings and code reviews",

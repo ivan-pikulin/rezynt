@@ -112,7 +112,7 @@
                 <feature name="add_experience" desc="Add new work experience entries"/>
                 <feature name="edit_experience" desc="Edit existing experience details"/>
                 <feature name="delete_experience" desc="Remove experience entries"/>
-                <feature name="responsibilities_management" desc="Manage job responsibilities"/>
+                <feature name="achievements_management" desc="Manage job achievements"/>
                 <feature name="current_position" desc="Mark positions as current"/>
                 <feature name="date_handling" desc="Handle start/end dates"/>
                 <feature name="field_navigation" desc="Navigate to specific fields within nested experience entries"/>
