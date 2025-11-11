@@ -23,6 +23,10 @@ const StartPage: React.FC = () => {
   const [uploadMessage, setUploadMessage] = useState('');
   const [taskId, setTaskId] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  
+  // Determine current page/tab based on URL
+  const currentPath = window.location.pathname;
+  const isOnBuildTab = currentPath === '/build';
 
   // List of messages to display during upload processing
   const uploadMessages = [
@@ -124,16 +128,24 @@ const StartPage: React.FC = () => {
     }
   };
 
-  const handleTabChange = (tab: 'resumes' | 'ai-writer' | 'editor') => {
+  const handleTabChange = (tab: 'resumes' | 'ai-writer' | 'editor' | 'build' | 'analyze' | 'export') => {
     switch (tab) {
-      case 'resumes':
-        // Navigate to editor (user has one resume)
+      case 'build':
+        // Already on build page if premium, otherwise navigate to builder
+        if (currentPath !== '/build') {
+          navigate('/build');
+        }
+        break;
+      case 'analyze':
         navigate('/refine');
         break;
-      case 'ai-writer':
-        navigate('/builder');
+      case 'export':
+        navigate('/export');
         break;
+      case 'resumes':
+      case 'ai-writer':
       case 'editor':
+        // Legacy tabs - navigate to refine
         navigate('/refine');
         break;
     }
@@ -180,7 +192,7 @@ const StartPage: React.FC = () => {
         showLogo={true}
         onStepClick={handleStepClick}
         isProUser={user?.is_premium}
-        currentTab="resumes"
+        currentTab={isOnBuildTab ? 'build' : 'resumes'}
         onTabChange={handleTabChange}
         disableStepsClick={!user}
         customSteps={[t('header.steps.start'), t('header.steps.refine'), t('header.steps.export')]}

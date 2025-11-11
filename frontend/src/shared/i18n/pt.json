@@ -315,7 +315,10 @@
     "tabs": {
       "resumes": "Currículos",
       "aiWriter": "Editor IA",
-      "editor": "Editor"
+      "editor": "Editor",
+      "build": "Construir",
+      "analyze": "Analisar",
+      "export": "Exportar"
     },
     "profile": "Perfil",
     "guestUser": "Usuário Convidado",
@@ -448,7 +451,11 @@
     "title": "Exportar",
     "pageTitle": "Currículo",
     "buttons": {
-      "refine": "Refinar"
+      "refine": "Refinar",
+      "downloadTxt": "Baixar TXT",
+      "downloadPdf": "Baixar PDF",
+      "downloadTxtFree": "Baixar TXT (Grátis)",
+      "upgradeToPdf": "Atualizar para Baixar PDF"
     },
     "download": {
       "watermarked": {

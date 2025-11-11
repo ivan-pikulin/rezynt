@@ -1,24 +1,24 @@
 import Box from '@mui/material/Box';
-import React, { useRef, useState, useEffect } from 'react';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+import React, { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Header from '../../shared/components/Header/Header';
+import RegistrationModal from '../../shared/components/RegistrationModal';
 import ResumeRenderer from '../../shared/components/ResumeRenderer';
-import { useAuth } from '../../shared/hooks/useAuth';
+import GradientSpinnerAnimation from '../../shared/components/GradientSpinnerAnimation';
 import { useAuthContext } from '../../shared/contexts/AuthContext';
+import { useAuth } from '../../shared/hooks/useAuth';
 import { useResumeQuery } from '../../shared/hooks/useResumeQuery';
 import { useTemplate } from '../../shared/hooks/useTemplate';
+import { COLORS } from '../../shared/theme/theme';
 import ErrorMessage from '../refine/components/ErrorMessage';
 import LoadingSpinner from '../refine/components/LoadingSpinner';
 import { convertApiResumeToDisplayData } from '../refine/utils/resumeDataConverter';
 import SuccessPage from './components/SuccessPage';
-import { exportApi } from './exportApi';
-import RegistrationModal from '../../shared/components/RegistrationModal';
-import TemplateSelector from '../refine/components/TemplateSelector';
-import Button from '@mui/material/Button';
-import { COLORS } from '../../shared/theme/theme';
-import Typography from '@mui/material/Typography';
 import TemplateSelectionCards from './components/TemplateSelectionCards';
+import { exportApi } from './exportApi';
 
 const ExportPage: React.FC = () => {
   const { t } = useTranslation();
@@ -31,6 +31,7 @@ const ExportPage: React.FC = () => {
 
   const [showSuccess, setShowSuccess] = useState(false);
   const [showRegistration, setShowRegistration] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
   const { user, isAuthenticated } = useAuthContext();
   const { user: authUser, isAuthenticated: authAuthenticated, isLoading: authLoading } = useAuth();
 
@@ -55,17 +56,21 @@ const ExportPage: React.FC = () => {
     }
   };
 
-  const handleTabChange = (tab: 'resumes' | 'ai-writer' | 'editor') => {
+  const handleTabChange = (tab: 'resumes' | 'ai-writer' | 'editor' | 'build' | 'analyze' | 'export') => {
     switch (tab) {
+      case 'build':
+        navigate('/build');
+        break;
+      case 'analyze':
+        navigate('/refine');
+        break;
+      case 'export':
+        // Already on export page
+        break;
       case 'resumes':
-        // Navigate to editor (user has one resume)
-        navigate('/refine');
-        break;
       case 'ai-writer':
-        navigate('/builder');
-        break;
       case 'editor':
-        navigate('/refine');
+        // Legacy tabs - ignore or redirect
         break;
     }
   };
@@ -74,9 +79,60 @@ const ExportPage: React.FC = () => {
     setShowRegistration(true);
   };
 
-  const handleExportPDF = () => {
-    // Navigate to upgrade page for PDF
-    navigate('/upgrade');
+  const handleExportPDF = async () => {
+    // For premium users - perform real download
+    if (user?.is_premium) {
+      await handleRealPDFDownload();
+    } else {
+      // For non-premium users - navigate to upgrade page
+      navigate('/upgrade');
+    }
+  };
+
+  const handleRealPDFDownload = async () => {
+    if (!resume || !templateContainerRef.current) return;
+    
+    setIsDownloading(true);
+    try {
+      // Get the HTML content from the template container
+      const element = templateContainerRef.current.querySelector('div > div');
+      if (!element) {
+        console.error('Template element not found');
+        setIsDownloading(false);
+        return;
+      }
+
+      // Get full HTML with styles
+      const fullHtml = getFullHTMLWithStyles(element as HTMLElement);
+      
+      // Prepare filename
+      const firstName = resume.personal_info?.first_name || '';
+      const lastName = resume.personal_info?.last_name || '';
+      const fullName = `${firstName} ${lastName}`.trim();
+      const filename = `${(fullName || 'resume').replace(/\s+/g, '_')}.pdf`;
+      
+      // Call API to export PDF
+      const pdfBlob = await exportApi.exportToPDF({
+        html_content: fullHtml,
+        filename: filename,
+        template_slug: selectedTemplate?.id || 'nume'
+      });
+      
+      // Download the PDF
+      const url = window.URL.createObjectURL(pdfBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
+    } catch (error) {
+      console.error('Error exporting PDF:', error);
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   const buildTxtFromDisplayData = (data: any): string => {
@@ -287,7 +343,7 @@ const ExportPage: React.FC = () => {
         onStepClick={handleStepClick}
         allowFirstStepClick={true}
         isProUser={user?.is_premium}
-        currentTab="editor"
+        currentTab="export"
         onTabChange={handleTabChange}
         hideNavigationArrows={true}
         customSteps={[t('header.steps.start'), t('header.steps.refine'), t('header.steps.export')]}
@@ -322,43 +378,69 @@ const ExportPage: React.FC = () => {
         </Box>
 
         <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
-          <Button 
-            variant="outlined"
-            onClick={handleExportTXT}
-            sx={{
-              borderColor: COLORS.grey[600],
-              color: COLORS.grey[700],
-              textTransform: 'none',
-              px: { xs: 2.5, sm: 3 },
-              py: { xs: 1, sm: 1.25 }
-            }}
-          >
-            {t('export.buttons.downloadTxtFree', 'Download TXT (Free)')}
-          </Button>
-          <Button 
-            variant="contained"
-            onClick={handleExportPDF}
-            sx={{
-              bgcolor: COLORS.primary.main,
-              textTransform: 'none',
-              px: { xs: 2.5, sm: 3 },
-              py: { xs: 1, sm: 1.25 },
-              '&:hover': { bgcolor: COLORS.primary.dark },
-              animation: 'pulse 2s ease-in-out infinite',
-              '@keyframes pulse': {
-                '0%, 100%': {
-                  transform: 'scale(1)',
-                  boxShadow: '0 0 0 0 rgba(103, 58, 183, 0.4)'
-                },
-                '50%': {
-                  transform: 'scale(1.05)',
-                  boxShadow: '0 0 20px 5px rgba(103, 58, 183, 0.2)'
-                }
-              }
-            }}
-          >
-            {t('export.buttons.upgradeToPdf', 'Upgrade to Download PDF')}
-          </Button>
+          {user?.is_premium ? (
+            // Premium user - show download PDF button
+            <Button 
+              variant="contained"
+              onClick={handleExportPDF}
+              disabled={isDownloading}
+              sx={{
+                bgcolor: COLORS.primary.main,
+                textTransform: 'none',
+                px: { xs: 2.5, sm: 3 },
+                py: { xs: 1, sm: 1.25 },
+                '&:hover': { bgcolor: COLORS.primary.dark },
+                minWidth: 150
+              }}
+            >
+              {isDownloading ? (
+                <GradientSpinnerAnimation size={20} thickness={3} />
+              ) : (
+                t('export.buttons.downloadPdf', 'Download PDF')
+              )}
+            </Button>
+          ) : (
+            // Non-premium user - show TXT download and upgrade button
+            <>
+              <Button 
+                variant="outlined"
+                onClick={handleExportTXT}
+                sx={{
+                  borderColor: COLORS.grey[600],
+                  color: COLORS.grey[700],
+                  textTransform: 'none',
+                  px: { xs: 2.5, sm: 3 },
+                  py: { xs: 1, sm: 1.25 }
+                }}
+              >
+                {t('export.buttons.downloadTxtFree', 'Download TXT (Free)')}
+              </Button>
+              <Button 
+                variant="contained"
+                onClick={handleExportPDF}
+                sx={{
+                  bgcolor: COLORS.primary.main,
+                  textTransform: 'none',
+                  px: { xs: 2.5, sm: 3 },
+                  py: { xs: 1, sm: 1.25 },
+                  '&:hover': { bgcolor: COLORS.primary.dark },
+                  animation: 'pulse 2s ease-in-out infinite',
+                  '@keyframes pulse': {
+                    '0%, 100%': {
+                      transform: 'scale(1)',
+                      boxShadow: '0 0 0 0 rgba(103, 58, 183, 0.4)'
+                    },
+                    '50%': {
+                      transform: 'scale(1.05)',
+                      boxShadow: '0 0 20px 5px rgba(103, 58, 183, 0.2)'
+                    }
+                  }
+                }}
+              >
+                {t('export.buttons.upgradeToPdf', 'Upgrade to Download PDF')}
+              </Button>
+            </>
+          )}
         </Box>
       </Box>
 

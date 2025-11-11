@@ -469,17 +469,21 @@ const RefinePage: React.FC = () => {
     }
   };
 
-  const handleTabChange = (tab: 'resumes' | 'ai-writer' | 'editor') => {
+  const handleTabChange = (tab: 'resumes' | 'ai-writer' | 'editor' | 'build' | 'analyze' | 'export') => {
     switch (tab) {
+      case 'build':
+        navigate('/build');
+        break;
+      case 'analyze':
+        // Already on analyze page
+        break;
+      case 'export':
+        navigate('/export');
+        break;
       case 'resumes':
-        // Navigate to editor (user has one resume)
-        navigate('/refine');
-        break;
       case 'ai-writer':
-        navigate('/builder');
-        break;
       case 'editor':
-        // Already on editor page
+        // Legacy tabs - ignore or redirect
         break;
     }
   };
@@ -533,7 +537,7 @@ const RefinePage: React.FC = () => {
         onStepClick={handleStepClick}
         allowFirstStepClick={true}
         isProUser={user?.is_premium}
-        currentTab="editor"
+        currentTab="analyze"
         onTabChange={handleTabChange}
         hideNavigationArrows={true}
         customSteps={[t('header.steps.start'), t('header.steps.refine'), t('header.steps.export')]}

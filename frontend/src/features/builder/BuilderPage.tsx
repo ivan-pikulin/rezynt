@@ -125,6 +125,26 @@ export const BuilderPage: React.FC = () => {
     }
   };
 
+  const handleTabChange = (tab: 'resumes' | 'ai-writer' | 'editor' | 'build' | 'analyze' | 'export') => {
+    switch (tab) {
+      case 'build':
+        // Navigate to build page (StartPage for premium users)
+        navigate('/build');
+        break;
+      case 'analyze':
+        navigate('/refine');
+        break;
+      case 'export':
+        navigate('/export');
+        break;
+      case 'resumes':
+      case 'ai-writer':
+      case 'editor':
+        // Legacy tabs - ignore or redirect
+        break;
+    }
+  };
+
   return (
     <Box sx={{ 
       height: '100vh', 
@@ -139,6 +159,9 @@ export const BuilderPage: React.FC = () => {
         allowFirstStepClick={true}
         onNext={canGoNext() ? goToNextStep : undefined}
         onBack={canGoBack() ? goToPreviousStep : undefined}
+        isProUser={user?.is_premium}
+        currentTab="build"
+        onTabChange={handleTabChange}
       />
 
       <Container 

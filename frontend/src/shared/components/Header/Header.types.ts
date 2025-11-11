@@ -15,7 +15,7 @@ export interface HeaderProps {
   // Props for pro users with tabs
   isProUser?: boolean;
   currentTab?: string;
-  onTabChange?: (tab: 'resumes' | 'ai-writer' | 'editor') => void;
+  onTabChange?: (tab: 'resumes' | 'ai-writer' | 'editor' | 'build' | 'analyze' | 'export') => void;
   
   // Props for onboarding mode
   isOnboarding?: boolean;

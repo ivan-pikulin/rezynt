@@ -321,7 +321,10 @@
     "tabs": {
       "resumes": "Resumes",
       "aiWriter": "AI Writer",
-      "editor": "Editor"
+      "editor": "Editor",
+      "build": "Build",
+      "analyze": "Analyze",
+      "export": "Export"
     },
     "profile": "Profile",
     "guestUser": "Guest User",

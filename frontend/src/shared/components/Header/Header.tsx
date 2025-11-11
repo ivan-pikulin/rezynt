@@ -89,7 +89,7 @@ const Header: React.FC<HeaderProps> = ({
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
     if (onTabChange) {
-      onTabChange(newValue as 'resumes' | 'ai-writer' | 'editor');
+      onTabChange(newValue as 'resumes' | 'ai-writer' | 'editor' | 'build' | 'analyze' | 'export');
     }
   };
 
@@ -190,9 +190,9 @@ const Header: React.FC<HeaderProps> = ({
                 }
               }}
             >
-              <Tab label={t('header.tabs.resumes')} value="resumes" />
-              <Tab label={t('header.tabs.aiWriter')} value="ai-writer" />
-              <Tab label={t('header.tabs.editor')} value="editor" />
+              <Tab label={t('header.tabs.build')} value="build" />
+              <Tab label={t('header.tabs.analyze')} value="analyze" />
+              <Tab label={t('header.tabs.export')} value="export" />
             </Tabs>
           </Box>
         ) : (
@@ -334,9 +334,36 @@ const Header: React.FC<HeaderProps> = ({
                 onClick={handleAvatarClick}
                 sx={{
                   p: 0,
+                  position: 'relative',
                   '&:hover': {
                     transform: 'scale(1.05)'
-                  }
+                  },
+                  // Premium glow effect
+                  ...(isPro && {
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      top: '50%',
+                      left: '50%',
+                      transform: 'translate(-50%, -50%)',
+                      width: isMobile ? 'clamp(48px, 13vw, 60px)' : '60px',
+                      height: isMobile ? 'clamp(48px, 13vw, 60px)' : '60px',
+                      borderRadius: '50%',
+                      background: `radial-gradient(circle, ${COLORS.primary.main}40 0%, ${COLORS.primary.main}20 40%, transparent 70%)`,
+                      animation: 'pulse-glow 2s ease-in-out infinite',
+                      zIndex: -1,
+                    },
+                    '@keyframes pulse-glow': {
+                      '0%, 100%': {
+                        opacity: 0.6,
+                        transform: 'translate(-50%, -50%) scale(0.95)',
+                      },
+                      '50%': {
+                        opacity: 1,
+                        transform: 'translate(-50%, -50%) scale(1.1)',
+                      },
+                    },
+                  }),
                 }}
               >
                 <Avatar
@@ -345,7 +372,11 @@ const Header: React.FC<HeaderProps> = ({
                     height: isMobile ? 'clamp(32px, 9vw, 40px)' : 40,
                     bgcolor: COLORS.primary.main,
                     fontSize: isMobile ? 'clamp(0.9rem, 3.5vw, 1.2rem)' : '1.2rem',
-                    fontWeight: 600
+                    fontWeight: 600,
+                    // Premium border
+                    ...(isPro && {
+                      boxShadow: `0 0 0 2px white, 0 0 0 3px ${COLORS.primary.main}, 0 0 12px ${COLORS.primary.main}60`,
+                    }),
                   }}
                 >
                   {user?.email ? getInitials(user.email) : 'U'}

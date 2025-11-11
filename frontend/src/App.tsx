@@ -91,6 +91,11 @@ function AppRoutes() {
             <BuilderPage />
           </PublicOnboardingGuard>
         } />
+        <Route path="/build" element={
+          <PublicOnboardingGuard>
+            <StartPage />
+          </PublicOnboardingGuard>
+        } />
         <Route path="/upgrade" element={
           <PublicOnboardingGuard>
             <UpgradePage />
