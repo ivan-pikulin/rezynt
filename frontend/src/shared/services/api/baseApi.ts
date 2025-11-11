@@ -80,7 +80,8 @@ baseApi.interceptors.response.use(
             return baseApi(originalRequest);
           } catch (refreshTokenError) {
             tokenService.clearTokens();
-            const guestResponse = await baseApi.post('/auth/guest', {});
+            const guestId = await tokenService.getOrCreateGuestId();
+            const guestResponse = await baseApi.post('/auth/guest', { guest_id: guestId });
             const guestTokens = guestResponse.data;
             tokenService.storeTokens(guestTokens);
             originalRequest.headers.Authorization = `Bearer ${guestTokens.access_token}`;
@@ -88,7 +89,8 @@ baseApi.interceptors.response.use(
           }
         } else {
           tokenService.clearTokens();
-          const guestResponse = await baseApi.post('/auth/guest', {});
+          const guestId = await tokenService.getOrCreateGuestId();
+          const guestResponse = await baseApi.post('/auth/guest', { guest_id: guestId });
           const guestTokens = guestResponse.data;
           tokenService.storeTokens(guestTokens);
           originalRequest.headers.Authorization = `Bearer ${guestTokens.access_token}`;

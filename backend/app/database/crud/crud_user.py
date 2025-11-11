@@ -19,9 +19,10 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         result = await db.execute(select(self.model).where(User.guest_id == guest_id))
         return result.scalar_one_or_none()
 
-    async def create_guest(self, db: AsyncSession) -> User:
+    async def create_guest(self, db: AsyncSession, guest_id: Optional[str] = None) -> User:
         """Create a guest user with no email/password"""
-        guest_id = str(uuid.uuid4())
+        if not guest_id:
+            guest_id = str(uuid.uuid4())
         db_obj = User(
             guest_id=guest_id,
             email=None,

@@ -6,7 +6,7 @@ from app.core import security
 from app.core.config import settings
 from app.database.crud import user_crud
 from app.database.crud.crud_temp_resume_file import temp_resume_file_crud
-from app.schemas import RefreshRequest, Token, UserCreate, UserPublic, PasswordResetRequest, PasswordResetConfirm, EmailVerificationByCode, PasswordResetByCode, ResendVerificationCode, GuestSessionResponse
+from app.schemas import RefreshRequest, Token, UserCreate, UserPublic, PasswordResetRequest, PasswordResetConfirm, EmailVerificationByCode, PasswordResetByCode, ResendVerificationCode, GuestSessionRequest, GuestSessionResponse
 from app.services.user_service import UserService
 from fastapi import APIRouter, Body, Depends, HTTPException, status, Response
 from fastapi.security import OAuth2PasswordRequestForm
@@ -18,13 +18,20 @@ router = APIRouter()
 async def create_guest_session(
     *,
     db: AsyncDB,
+    request: GuestSessionRequest = Body(default=GuestSessionRequest()),
 ) -> dict:
     """
     Create a guest session without requiring email/password.
     Returns JWT tokens and guest_id for the session.
+    If guest_id is provided, attempts to find existing guest or creates new one.
     """
-    # Create guest user
-    guest_user = await user_crud.create_guest(db)
+    guest_user = None
+    
+    if request.guest_id:
+        guest_user = await user_crud.get_by_guest_id(db, guest_id=request.guest_id)
+    
+    if not guest_user:
+        guest_user = await user_crud.create_guest(db, guest_id=request.guest_id)
     
     # Generate tokens
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)

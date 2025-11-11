@@ -132,7 +132,11 @@ class DeleteAccountRequest(BaseModel):
     password: str
 
 
-# Guest session schema
+# Guest session schemas
+class GuestSessionRequest(BaseModel):
+    guest_id: Optional[str] = None
+
+
 class GuestSessionResponse(BaseModel):
     access_token: str
     refresh_token: str

@@ -1,4 +1,13 @@
+import FingerprintJS from '@fingerprintjs/fingerprintjs';
 import { TokenResponse } from '../../../features/auth/types/auth';
+
+function generateUUID(): string {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
 
 export const tokenService = {
   getAccessToken: (): string | null => {
@@ -17,6 +26,25 @@ export const tokenService = {
 
   setGuestId: (guestId: string) => {
     localStorage.setItem('guest_id', guestId);
+  },
+
+  getOrCreateGuestId: async (): Promise<string> => {
+    const existingGuestId = localStorage.getItem('guest_id');
+    if (existingGuestId) {
+      return existingGuestId;
+    }
+
+    try {
+      const fp = await FingerprintJS.load();
+      const result = await fp.get();
+      const guestId = result.visitorId;
+      localStorage.setItem('guest_id', guestId);
+      return guestId;
+    } catch (error) {
+      const guestId = generateUUID();
+      localStorage.setItem('guest_id', guestId);
+      return guestId;
+    }
   },
 
   clearTokens: () => {
