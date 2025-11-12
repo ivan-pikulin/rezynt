@@ -1,4 +1,5 @@
 """Main analysis service for resume analysis"""
+import asyncio
 from datetime import datetime
 from typing import List
 
@@ -174,29 +175,39 @@ class AnalysisService:
         
         # Filter rules based on premium status
         rules_to_run = [
-            rule for rule in self.rules 
+            rule for rule in self.rules
             if is_premium or not rule.premium_only
         ]
-        
+
         if not is_premium:
             skipped_count = len(self.rules) - len(rules_to_run)
             print(f"⏭️  Skipping {skipped_count} premium-only rules for non-premium user")
-        
-        # Run filtered rules
-        all_points = []
-        for rule in rules_to_run:
+
+        # Run filtered rules in parallel using asyncio.gather()
+        print(f"🚀 Running {len(rules_to_run)} rules in parallel...")
+
+        async def run_rule_safely(rule: BaseRule) -> List[ImprovementPoint]:
+            """Run a single rule with error handling"""
             try:
                 points = await rule.check(resume)
-                all_points.extend(points)
                 if len(points) > 0:
                     print(f"✓ {rule.rule_id}: {len(points)} points")
+                return points
             except Exception as e:
                 # Log error with more details
                 import traceback
                 print(f"✗ Error in rule {rule.rule_id}: {e}")
                 print(f"  Type: {type(e).__name__}")
                 print(traceback.format_exc())
-                continue
+                return []  # Return empty list on error
+
+        # Execute all rules concurrently
+        results = await asyncio.gather(*[run_rule_safely(rule) for rule in rules_to_run])
+
+        # Flatten results into single list
+        all_points = []
+        for points in results:
+            all_points.extend(points)
         
         # Group points by section
         sections = self._build_sections(all_points)
