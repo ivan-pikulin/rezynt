@@ -337,6 +337,9 @@
       "signOut": "Sair",
       "login": "Entrar",
       "profileSettings": "Configurações de Perfil"
+    },
+    "loginPrompt": {
+      "text": "Entre para salvar seu progresso"
     }
   },
   "profileSettings": {

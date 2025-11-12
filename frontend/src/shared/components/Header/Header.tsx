@@ -324,8 +324,10 @@ const Header: React.FC<HeaderProps> = ({
       {!isOnboarding && (
         <Box sx={{ 
           display: 'flex',
+          flexDirection: 'column',
           alignItems: 'center',
-          justifyContent: 'flex-end'
+          justifyContent: 'flex-end',
+          gap: 0.5
         }}>
           {user?.is_registered ? (
             // Registered user - show avatar
@@ -384,27 +386,74 @@ const Header: React.FC<HeaderProps> = ({
               </IconButton>
             </Tooltip>
           ) : (
-            // Guest user - show login icon
-            <Tooltip title={t('header.userSidebar.login')}>
-              <IconButton
+            // Guest user - show login icon with prompt
+            <Box sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 0.75
+            }}>
+              <Tooltip title={t('header.userSidebar.login')}>
+                <IconButton
+                  onClick={handleAvatarClick}
+                  sx={{
+                    p: 1,
+                    animation: 'gentle-pulse 2.5s ease-in-out infinite',
+                    '&:hover': {
+                      transform: 'scale(1.05)',
+                      bgcolor: 'rgba(0, 0, 0, 0.04)',
+                      animation: 'none'
+                    },
+                    '@keyframes gentle-pulse': {
+                      '0%, 100%': {
+                        opacity: 1,
+                        transform: 'scale(1)',
+                      },
+                      '50%': {
+                        opacity: 0.8,
+                        transform: 'scale(1.05)',
+                      },
+                    },
+                  }}
+                >
+                  <LoginIcon
+                    sx={{
+                      width: isMobile ? 'clamp(24px, 7vw, 28px)' : 28,
+                      height: isMobile ? 'clamp(24px, 7vw, 28px)' : 28,
+                      color: COLORS.primary.main
+                    }}
+                  />
+                </IconButton>
+              </Tooltip>
+              <Typography
                 onClick={handleAvatarClick}
                 sx={{
-                  p: 1,
+                  fontSize: isMobile ? 'clamp(0.65rem, 2vw, 0.75rem)' : '0.75rem',
+                  color: COLORS.warning.main,
+                  fontWeight: 500,
+                  cursor: 'pointer',
+                  textAlign: 'center',
+                  whiteSpace: 'nowrap',
+                  animation: 'text-gentle-pulse 2.5s ease-in-out infinite',
+                  transition: 'color 0.2s ease',
                   '&:hover': {
-                    transform: 'scale(1.05)',
-                    bgcolor: 'rgba(0, 0, 0, 0.04)'
-                  }
+                    color: COLORS.warning.dark,
+                    animation: 'none',
+                    opacity: 1
+                  },
+                  '@keyframes text-gentle-pulse': {
+                    '0%, 100%': {
+                      opacity: 0.95,
+                    },
+                    '50%': {
+                      opacity: 0.75,
+                    },
+                  },
                 }}
               >
-                <LoginIcon
-                  sx={{
-                    width: isMobile ? 'clamp(24px, 7vw, 28px)' : 28,
-                    height: isMobile ? 'clamp(24px, 7vw, 28px)' : 28,
-                    color: COLORS.primary.main
-                  }}
-                />
-              </IconButton>
-            </Tooltip>
+                {t('header.loginPrompt.text')}
+              </Typography>
+            </Box>
           )}
         </Box>
       )}

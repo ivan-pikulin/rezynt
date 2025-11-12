@@ -346,6 +346,9 @@
       "signOut": "Sign Out",
       "login": "Login",
       "profileSettings": "Profile Settings"
+    },
+    "loginPrompt": {
+      "text": "Log in to save your progress"
     }
   },
   "profileSettings": {
