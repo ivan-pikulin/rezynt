@@ -206,14 +206,14 @@ const ImprovementPoint: React.FC<Props> = ({ point, resume, onFixApplied, onNavi
 
   const handleAddSingleItem = async (item: string, index: number) => {
     if (!point.fix_suggestion || !onFixApplied || animatingItems.has(index)) return;
-    
+
     // Mark item as animating
     setAnimatingItems(prev => new Set(prev).add(index));
-    
+
     // Add single item to resume
     const { addToArrayField } = await import('../utils/resumeFieldPath');
     const updatedResume = addToArrayField(resume, point.field_path, item);
-    
+
     // Show mini celebration
     confetti({
       particleCount: 15,
@@ -222,15 +222,19 @@ const ImprovementPoint: React.FC<Props> = ({ point, resume, onFixApplied, onNavi
       origin: { x: 0.5, y: 0.5 },
       colors: ['#10b981', '#34d399', '#6ee7b7'],
     });
-    
-    // Update resume and wait for save to complete
-    await onFixApplied(updatedResume, point.id);
-    
+
+    // Check if this is the last item to add
+    const willBeAllAdded = addedItems.size + 1 === itemsToAdd.length;
+
+    // Update resume WITHOUT marking point as fixed (don't pass pointId)
+    // Only pass pointId if ALL items will be added
+    await onFixApplied(updatedResume, willBeAllAdded ? point.id : undefined);
+
     // Navigate to the field
     if (onNavigateToField) {
       onNavigateToField(point.field_path);
     }
-    
+
     // Mark item as added after animation
     setTimeout(() => {
       setAddedItems(prev => new Set(prev).add(index));
@@ -556,14 +560,12 @@ const ImprovementPoint: React.FC<Props> = ({ point, resume, onFixApplied, onNavi
               alignItems: 'center',
               gap: '4px',
               backgroundColor: 'transparent',
-              animation: 'pulse 3s ease-in-out infinite',
+              animation: 'pulse 2s ease-in-out infinite',
               '@keyframes pulse': {
                 '0%, 100%': {
-                  opacity: 1,
                   transform: 'scale(1)',
                 },
                 '50%': {
-                  opacity: 0.85,
                   transform: 'scale(1.02)',
                 },
               },
