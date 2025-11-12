@@ -17,45 +17,57 @@ class PassiveVoiceRule(BaseRule):
         self.premium_only = True
     
     async def check(self, resume: dict) -> List[ImprovementPoint]:
-        """Detect passive voice and generate active voice versions."""
+        """Detect passive voice and generate active voice versions in batch."""
         points = []
-        
+
         # Common passive voice indicators
         passive_indicators = [
             'was ', 'were ', 'been ', 'being ',
             'was developed', 'was created', 'was implemented',
             'were used', 'were applied', 'been completed'
         ]
-        
+
+        # Collect all achievements with passive voice
+        achievements_to_fix = []
+        achievement_metadata = []  # Store (exp_index, ach_index, achievement_text)
+
         for i, exp in enumerate(resume.get('work_experience', [])):
             for j, achievement in enumerate(exp.get('achievements', [])):
                 ach_lower = achievement.lower()
-                
+
                 if any(indicator in ach_lower for indicator in passive_indicators):
-                    # Generate fix via LLM with Structured Outputs
-                    prompt = f"""Convert this resume bullet from passive voice to active voice.
+                    achievements_to_fix.append(achievement)
+                    achievement_metadata.append((i, j, achievement))
 
-Original: "{achievement}"
+        # Batch process all achievements with passive voice
+        if achievements_to_fix:
+            task_description = """Convert each resume bullet below from passive voice to active voice.
 
-Set has_fix to true and provide the active voice version in fixed_text."""
-                    
-                    fix_response = await llm_helper.call_llm_structured(prompt)
-                    
-                    fix_suggestion = None
-                    if fix_response.has_fix and fix_response.fixed_text:
-                        fix_suggestion = FixSuggestion(
-                            type="replace",
-                            field_path=f"work_experience[{i}].achievements[{j}]",
-                            original_content=achievement,
-                            new_content=fix_response.fixed_text
-                        )
-                    
-                    points.append(self.create_point(
+For each achievement, set has_fix to true and provide the active voice version in fixed_text."""
+
+            fix_responses = await llm_helper.call_llm_batch(
+                task_description=task_description,
+                items=achievements_to_fix,
+                max_tokens=2500
+            )
+
+            # Create improvement points from batch results
+            for (i, j, original_achievement), fix_response in zip(achievement_metadata, fix_responses):
+                fix_suggestion = None
+                if fix_response.has_fix and fix_response.fixed_text:
+                    fix_suggestion = FixSuggestion(
+                        type="replace",
                         field_path=f"work_experience[{i}].achievements[{j}]",
-                        title="Uses Passive Voice",
-                        description="Convert to active voice for stronger impact",
-                        fix_suggestion=fix_suggestion
-                    ))
-        
+                        original_content=original_achievement,
+                        new_content=fix_response.fixed_text
+                    )
+
+                points.append(self.create_point(
+                    field_path=f"work_experience[{i}].achievements[{j}]",
+                    title="Uses Passive Voice",
+                    description="Convert to active voice for stronger impact",
+                    fix_suggestion=fix_suggestion
+                ))
+
         return points
 

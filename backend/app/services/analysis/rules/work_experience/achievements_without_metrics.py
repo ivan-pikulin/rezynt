@@ -18,9 +18,9 @@ class AchievementsWithoutMetricsRule(BaseRule):
         self.premium_only = False
     
     async def check(self, resume: dict) -> List[ImprovementPoint]:
-        """Detect missing metrics and generate fixes via LLM in one pass."""
+        """Detect missing metrics and generate fixes via LLM in batch."""
         points = []
-        
+
         # Metric patterns for quick detection
         metric_patterns = [
             r'\d+%',           # 25%
@@ -29,41 +29,53 @@ class AchievementsWithoutMetricsRule(BaseRule):
             r'\d+x',           # 2x
             r'\d+\s*(users|clients|projects|hours|days|teams|members|revenue|sales|cost|time|speed|performance)',
         ]
-        
+
+        # Collect all achievements without metrics
+        achievements_to_fix = []
+        achievement_metadata = []  # Store (exp_index, ach_index, achievement_text)
+
         for i, exp in enumerate(resume.get('work_experience', [])):
             for j, achievement in enumerate(exp.get('achievements', [])):
                 # Quick mechanical check
                 has_metric = any(
-                    re.search(pattern, achievement, re.IGNORECASE) 
+                    re.search(pattern, achievement, re.IGNORECASE)
                     for pattern in metric_patterns
                 )
-                
+
                 if not has_metric and len(achievement) > 10:
-                    # Generate fix via LLM using universal method with Structured Outputs
-                    prompt = f"""Add specific quantifiable metrics to this achievement. Include numbers, percentages, dollar amounts, or measurable outcomes.
+                    achievements_to_fix.append(achievement)
+                    achievement_metadata.append((i, j, achievement))
 
-Achievement: "{achievement}"
+        # Batch process all achievements without metrics in single LLM call
+        if achievements_to_fix:
+            task_description = """Add specific quantifiable metrics to each achievement below. Include numbers, percentages, dollar amounts, or measurable outcomes.
 
-If you can add metrics, set has_fix to true and provide the improved text in fixed_text.
+For each achievement, if you can add metrics, set has_fix to true and provide the improved text in fixed_text.
 If not possible, set has_fix to false and explain why in reasoning."""
-                    
-                    fix_response = await llm_helper.call_llm_structured(prompt)
-                    
-                    fix_suggestion = None
-                    if fix_response.has_fix and fix_response.fixed_text:
-                        fix_suggestion = FixSuggestion(
-                            type="replace",
-                            field_path=f"work_experience[{i}].achievements[{j}]",
-                            original_content=achievement,
-                            new_content=fix_response.fixed_text
-                        )
-                    
-                    points.append(self.create_point(
+
+            fix_responses = await llm_helper.call_llm_batch(
+                task_description=task_description,
+                items=achievements_to_fix,
+                max_tokens=3000  # Larger token limit for batch processing
+            )
+
+            # Create improvement points from batch results
+            for (i, j, original_achievement), fix_response in zip(achievement_metadata, fix_responses):
+                fix_suggestion = None
+                if fix_response.has_fix and fix_response.fixed_text:
+                    fix_suggestion = FixSuggestion(
+                        type="replace",
                         field_path=f"work_experience[{i}].achievements[{j}]",
-                        title="Missing Metrics",
-                        description="Add specific metrics to quantify your impact",
-                        fix_suggestion=fix_suggestion
-                    ))
-        
+                        original_content=original_achievement,
+                        new_content=fix_response.fixed_text
+                    )
+
+                points.append(self.create_point(
+                    field_path=f"work_experience[{i}].achievements[{j}]",
+                    title="Missing Metrics",
+                    description="Add specific metrics to quantify your impact",
+                    fix_suggestion=fix_suggestion
+                ))
+
         return points
 
