@@ -133,6 +133,10 @@
       "analysis": "Analysis",
       "editor": "Editor"
     },
+    "reanalyze": {
+      "button": "Re-analyze",
+      "buttonUpgrade": "Upgrade to re-analyze"
+    },
     "error": {
       "noResumeId": "Resume ID not specified",
       "loadError": "Error loading resume",

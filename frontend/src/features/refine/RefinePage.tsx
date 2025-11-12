@@ -394,6 +394,11 @@ const RefinePage: React.FC = () => {
     }
   };
 
+  // Handle upgrade click - navigate to paywall
+  const handleUpgrade = () => {
+    navigate('/upgrade');
+  };
+
   // Navigate to field handler
   const handleNavigateToField = (fieldPath: string) => {
     console.log('🎯 RefinePage.handleNavigateToField called:', fieldPath);
@@ -605,6 +610,8 @@ const RefinePage: React.FC = () => {
                     marketingText={marketingText}
                     onRefresh={handleRefreshAnalysis}
                     isRefreshing={isRefreshingAnalysis}
+                    isPremium={user?.is_premium || false}
+                    onUpgrade={handleUpgrade}
                   />
                 </Box>
               )}

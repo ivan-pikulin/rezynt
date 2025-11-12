@@ -4,6 +4,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import React, { useState, useEffect } from 'react';
 import CountUp from 'react-countup';
+import { useTranslation } from 'react-i18next';
 import { getScoreColor, COLORS } from '../../../shared/theme/theme';
 
 type ScoreBarProps = {
@@ -13,6 +14,8 @@ type ScoreBarProps = {
   marketingText: string;
   onRefresh?: () => void;
   isRefreshing?: boolean;
+  isPremium?: boolean;
+  onUpgrade?: () => void;
 };
 
 const clamp = (value: number, min: number, max: number) => {
@@ -20,7 +23,8 @@ const clamp = (value: number, min: number, max: number) => {
   return Math.min(max, Math.max(min, value));
 };
 
-const ScoreBar: React.FC<ScoreBarProps> = ({ score, label, subtitle, marketingText, onRefresh, isRefreshing = false }) => {
+const ScoreBar: React.FC<ScoreBarProps> = ({ score, label, subtitle, marketingText, onRefresh, isRefreshing = false, isPremium = true, onUpgrade }) => {
+  const { t } = useTranslation();
   const normalized = clamp(score, 0, 100);
   const scoreColor = getScoreColor(normalized).main;
   
@@ -168,7 +172,7 @@ const ScoreBar: React.FC<ScoreBarProps> = ({ score, label, subtitle, marketingTe
       </Box>
       
       {/* Re-analyze button in the bottom right corner */}
-      {onRefresh && (
+      {(onRefresh || onUpgrade) && (
         <Box
           sx={{
             position: 'absolute',
@@ -177,17 +181,17 @@ const ScoreBar: React.FC<ScoreBarProps> = ({ score, label, subtitle, marketingTe
           }}
         >
           <button
-            onClick={onRefresh}
-            disabled={isRefreshing}
+            onClick={isPremium ? onRefresh : onUpgrade}
+            disabled={isPremium && isRefreshing}
             style={{
               backgroundColor: 'transparent',
-              color: isRefreshing ? COLORS.button.primary.backgroundDisabled : COLORS.button.primary.background,
+              color: (isPremium && isRefreshing) ? COLORS.button.primary.backgroundDisabled : COLORS.button.primary.background,
               fontSize: '11px',
               fontWeight: 500,
               padding: '4px 8px',
               borderRadius: '4px',
-              border: `1px solid ${isRefreshing ? COLORS.button.primary.backgroundDisabled : COLORS.button.primary.background}`,
-              cursor: isRefreshing ? 'not-allowed' : 'pointer',
+              border: `1px solid ${(isPremium && isRefreshing) ? COLORS.button.primary.backgroundDisabled : COLORS.button.primary.background}`,
+              cursor: (isPremium && isRefreshing) ? 'not-allowed' : 'pointer',
               textTransform: 'none',
               display: 'flex',
               alignItems: 'center',
@@ -195,22 +199,22 @@ const ScoreBar: React.FC<ScoreBarProps> = ({ score, label, subtitle, marketingTe
               transition: 'all 0.2s ease-in-out',
             }}
             onMouseEnter={(e) => {
-              if (!isRefreshing) {
+              if (!(isPremium && isRefreshing)) {
                 e.currentTarget.style.backgroundColor = COLORS.primary.ultraLight;
               }
             }}
             onMouseLeave={(e) => {
-              if (!isRefreshing) {
+              if (!(isPremium && isRefreshing)) {
                 e.currentTarget.style.backgroundColor = 'transparent';
               }
             }}
           >
-            {isRefreshing ? (
+            {isPremium && isRefreshing ? (
               <CircularProgress size={10} sx={{ color: COLORS.button.primary.backgroundDisabled }} />
             ) : (
               <RefreshIcon sx={{ fontSize: '12px' }} />
             )}
-            Re-analyze
+            {isPremium ? t('refine.reanalyze.button') : t('refine.reanalyze.buttonUpgrade')}
           </button>
         </Box>
       )}

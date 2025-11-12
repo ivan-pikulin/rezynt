@@ -130,6 +130,10 @@
       "analysis": "Análise",
       "editor": "Editor"
     },
+    "reanalyze": {
+      "button": "Re-analisar",
+      "buttonUpgrade": "Atualizar para re-analisar"
+    },
     "error": {
       "noResumeId": "ID do currículo não especificado",
       "loadError": "Erro ao carregar currículo",
