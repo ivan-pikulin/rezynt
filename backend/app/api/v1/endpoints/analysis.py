@@ -44,8 +44,11 @@ async def get_analysis(
             detail="Resume not found"
         )
     
-    # Analyze the resume
-    analysis_result = await analysis_service.analyze_resume(resume_data)
+    # Analyze the resume (skip premium-only rules for non-premium users)
+    analysis_result = await analysis_service.analyze_resume(
+        resume_data, 
+        is_premium=current_user.is_premium
+    )
     
     # Save to database (mode='json' converts datetime to ISO string)
     await user_crud.save_analysis_result(
@@ -75,8 +78,11 @@ async def refresh_analysis(
             detail="Resume not found"
         )
     
-    # Always regenerate analysis
-    analysis_result = await analysis_service.analyze_resume(resume_data)
+    # Always regenerate analysis (skip premium-only rules for non-premium users)
+    analysis_result = await analysis_service.analyze_resume(
+        resume_data,
+        is_premium=current_user.is_premium
+    )
     
     # Save to database (mode='json' converts datetime to ISO string)
     await user_crud.save_analysis_result(

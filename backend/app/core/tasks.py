@@ -250,6 +250,12 @@ async def _generate_analysis_after_upload(user_id: int):
     logger.info(f"Generating analysis for user {user_id}")
     
     async with SessionLocal() as db:
+        # Get user to check premium status
+        user = await user_crud.get(db, user_id)
+        if not user:
+            logger.warning(f"User {user_id} not found")
+            return
+        
         # Get user's resume data
         resume_data = await user_crud.get_resume_data(db, user_id=user_id)
         
@@ -257,8 +263,11 @@ async def _generate_analysis_after_upload(user_id: int):
             logger.warning(f"No resume data found for user {user_id}")
             return
         
-        # Generate analysis
-        analysis_result = await analysis_service.analyze_resume(resume_data)
+        # Generate analysis (skip premium-only rules for non-premium users)
+        analysis_result = await analysis_service.analyze_resume(
+            resume_data,
+            is_premium=user.is_premium
+        )
         
         # Save analysis to database
         await user_crud.save_analysis_result(

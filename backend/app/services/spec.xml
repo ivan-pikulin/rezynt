@@ -350,9 +350,11 @@
                     <description>Analyzes resume and returns complete analysis result with score and improvement points</description>
                     <params>
                         <param name="resume" type="dict">Resume data dictionary</param>
+                        <param name="is_premium" type="bool">Whether user has premium subscription. Non-premium users skip premium_only rules for faster analysis (default False)</param>
                     </params>
                     <returns type="AnalysisResult">Complete analysis result with score, sections, and improvement points</returns>
                     <async>True - runs multiple rule checks asynchronously</async>
+                    <premium_filtering>For non-premium users, rules with premium_only=True are skipped to speed up analysis</premium_filtering>
                 </method>
                 <method>
                     <name>apply_fix</name>

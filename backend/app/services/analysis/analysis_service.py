@@ -131,7 +131,7 @@ class AnalysisService:
             RelevantCoursesRule(),
         ]
     
-    async def analyze_resume(self, resume: dict) -> AnalysisResult:
+    async def analyze_resume(self, resume: dict, is_premium: bool = False) -> AnalysisResult:
         """
         Analyze resume and return complete analysis result.
         
@@ -140,6 +140,7 @@ class AnalysisService:
         
         Args:
             resume: Resume data dictionary
+            is_premium: Whether user has premium subscription. Non-premium users skip premium_only rules.
             
         Returns:
             AnalysisResult with score, sections, and improvement points with embedded fixes
@@ -147,6 +148,7 @@ class AnalysisService:
         # Log resume structure for debugging
         print("=" * 60)
         print("📋 ANALYZING RESUME")
+        print(f"Premium user: {is_premium}")
         print("=" * 60)
         print(f"Resume keys: {list(resume.keys()) if resume else 'None'}")
         if resume:
@@ -170,9 +172,19 @@ class AnalysisService:
             print(f"  - skills: {type(skills)} (length: {len(skills)})")
         print("=" * 60)
         
-        # Run all rules
+        # Filter rules based on premium status
+        rules_to_run = [
+            rule for rule in self.rules 
+            if is_premium or not rule.premium_only
+        ]
+        
+        if not is_premium:
+            skipped_count = len(self.rules) - len(rules_to_run)
+            print(f"⏭️  Skipping {skipped_count} premium-only rules for non-premium user")
+        
+        # Run filtered rules
         all_points = []
-        for rule in self.rules:
+        for rule in rules_to_run:
             try:
                 points = await rule.check(resume)
                 all_points.extend(points)
