@@ -306,64 +306,24 @@ const RefinePage: React.FC = () => {
     }
   }, [resume]);
 
-  // Recalculate score dynamically based on dismissed points
-  const recalculateScore = (baseAnalysis: any, dismissedIds: Set<string>) => {
-    if (!baseAnalysis) return null;
-    
-    // Calculate total penalty from dismissed points
-    let totalDismissedPenalty = 0;
-    baseAnalysis.sections.forEach((section: any) => {
-      section.improvement_points.forEach((point: any) => {
-        if (dismissedIds.has(point.id)) {
-          totalDismissedPenalty += point.score_impact || 0;
-        }
-      });
-    });
-    
-    // New score = old score + recovered penalty (but cap at 100)
-    const newScore = Math.min(100, baseAnalysis.score + totalDismissedPenalty);
-    
-    // Determine new label based on score
-    let newLabel = 'Weak';
-    let newSubtitle = "Let's work on it!";
-    if (newScore >= 90) {
-      newLabel = 'Excellent';
-      newSubtitle = 'Outstanding resume!';
-    } else if (newScore >= 80) {
-      newLabel = 'Strong';
-      newSubtitle = 'Almost perfect!';
-    } else if (newScore >= 60) {
-      newLabel = 'Good';
-      newSubtitle = 'Looking solid!';
-    } else if (newScore >= 40) {
-      newLabel = 'Fair';
-      newSubtitle = "You're on the right track!";
-    }
-    
-    return {
-      ...baseAnalysis,
-      score: newScore,
-      label: newLabel,
-      subtitle: newSubtitle,
-    };
-  };
 
-  // Handle fix marked - recalculate score dynamically without reloading
+  // Handle fix marked - mark as fixed in backend and get updated analysis
   const handleFixMarked = async (pointId: string) => {
     try {
-      // Mark as fixed in backend
-      await analysisApi.markFixed(pointId, true);
-      
-      // Add to dismissed set and recalculate score locally
-      const newDismissedIds = new Set(dismissedPointIds);
-      newDismissedIds.add(pointId);
-      setDismissedPointIds(newDismissedIds);
-      
-      // Recalculate score dynamically
-      if (analysis) {
-        const updatedAnalysis = recalculateScore(analysis, newDismissedIds);
+      // Mark as fixed in backend and get updated analysis with recalculated score
+      const updatedAnalysis = await analysisApi.markFixed(pointId, true);
       setAnalysis(updatedAnalysis);
-      }
+
+      // Update dismissed set from backend response
+      const newDismissedIds = new Set<string>();
+      updatedAnalysis.sections.forEach((section: any) => {
+        section.improvement_points.forEach((point: any) => {
+          if (point.is_fixed) {
+            newDismissedIds.add(point.id);
+          }
+        });
+      });
+      setDismissedPointIds(newDismissedIds);
     } catch (error) {
       console.error('Error marking fix:', error);
     }
@@ -419,25 +379,13 @@ const RefinePage: React.FC = () => {
   // Handle fix applied - update resume and add to history
   const handleFixApplied = async (updatedResume: Resume, appliedPointId?: string) => {
     handleResumeUpdate(updatedResume, true); // Add to history
-    
-    // If point ID provided, mark it as dismissed and recalculate score
-    if (appliedPointId) {
-      const newDismissedIds = new Set(dismissedPointIds);
-      newDismissedIds.add(appliedPointId);
-      setDismissedPointIds(newDismissedIds);
-      
-      if (analysis) {
-        const updatedAnalysis = recalculateScore(analysis, newDismissedIds);
-        setAnalysis(updatedAnalysis);
-      }
-    }
-    
+
     // Auto-save to server if authenticated
     if (isAuthenticated) {
       try {
         const { resumeApi } = await import('../../shared/services/api');
         await resumeApi.updateResume(updatedResume);
-        
+
         // Update cache and timestamp
         updateResumeInCache(updatedResume);
         setLastSavedResume(updatedResume);
@@ -446,6 +394,23 @@ const RefinePage: React.FC = () => {
         const minutes = String(now.getMinutes()).padStart(2, '0');
         const seconds = String(now.getSeconds()).padStart(2, '0');
         setLastSaveTime(`${hours}:${minutes}:${seconds}`);
+
+        // Mark point as fixed in backend and get updated analysis with recalculated score
+        if (appliedPointId) {
+          const updatedAnalysis = await analysisApi.markFixed(appliedPointId, true);
+          setAnalysis(updatedAnalysis);
+
+          // Update dismissed set from backend response
+          const newDismissedIds = new Set<string>();
+          updatedAnalysis.sections.forEach((section: any) => {
+            section.improvement_points.forEach((point: any) => {
+              if (point.is_fixed) {
+                newDismissedIds.add(point.id);
+              }
+            });
+          });
+          setDismissedPointIds(newDismissedIds);
+        }
       } catch (error) {
         console.error('Error auto-saving resume:', error);
       }

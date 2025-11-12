@@ -278,16 +278,16 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
     async def mark_improvement_fixed(self, db: AsyncSession, *, user_id: int, point_id: str, is_fixed: bool = True) -> Optional[Dict[str, Any]]:
         """
         Mark an improvement point as fixed/unfixed in stored analysis result.
-        Updates the is_fixed flag for the specified improvement point.
+        Updates the is_fixed flag and recalculates score based on fixed points.
         """
         user = await self.get(db, id=user_id)
         if not user or not user.analysis_result:
             return None
-        
+
         # Deep copy to avoid mutation issues
         import copy
         analysis_data = copy.deepcopy(user.analysis_result)
-        
+
         # Find and update the improvement point in all sections
         updated = False
         for section in analysis_data.get('sections', []):
@@ -298,13 +298,60 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
                     break
             if updated:
                 break
-        
+
         if updated:
+            # Recalculate overall score by summing penalties from NON-FIXED points only
+            total_penalty = 0
+            for section in analysis_data.get('sections', []):
+                for point in section.get('improvement_points', []):
+                    if not point.get('is_fixed', False):
+                        total_penalty += point.get('score_impact', 0)
+
+            # Calculate new score (max 100)
+            new_score = max(0, min(100, 100 - total_penalty))
+            analysis_data['score'] = new_score
+
+            # Update label and subtitle based on new score
+            if new_score >= 90:
+                analysis_data['label'] = 'Excellent'
+                analysis_data['subtitle'] = 'Outstanding resume!'
+            elif new_score >= 80:
+                analysis_data['label'] = 'Strong'
+                analysis_data['subtitle'] = 'Almost perfect!'
+            elif new_score >= 60:
+                analysis_data['label'] = 'Good'
+                analysis_data['subtitle'] = 'Looking solid!'
+            elif new_score >= 40:
+                analysis_data['label'] = 'Fair'
+                analysis_data['subtitle'] = "You're on the right track!"
+            else:
+                analysis_data['label'] = 'Weak'
+                analysis_data['subtitle'] = "Let's work on it!"
+
+            # Recalculate section scores and statuses
+            for section in analysis_data.get('sections', []):
+                section_penalty = sum(
+                    point.get('score_impact', 0)
+                    for point in section.get('improvement_points', [])
+                    if not point.get('is_fixed', False)
+                )
+                section_score = max(0, 100 - section_penalty)
+                section['current_points'] = section_score
+                section['percentage'] = section_score
+
+                # Update section status
+                if section_score >= 80:
+                    section['status'] = 'Strong'
+                elif section_score >= 60:
+                    section['status'] = 'Good'
+                else:
+                    section['status'] = 'NeedsWork'
+
             user.analysis_result = analysis_data
             await db.commit()
             await db.refresh(user)
             return user.analysis_result
-        
+
         return None
 
     async def change_password(self, db: AsyncSession, *, user_id: int, current_password: str, new_password: str) -> Optional[User]:

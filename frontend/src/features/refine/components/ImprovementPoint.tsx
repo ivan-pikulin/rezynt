@@ -239,20 +239,6 @@ const ImprovementPoint: React.FC<Props> = ({ point, resume, onFixApplied, onNavi
         newSet.delete(index);
         return newSet;
       });
-      
-      // If all items are added, mark as fixed
-      if (addedItems.size + 1 === itemsToAdd.length) {
-        setTimeout(async () => {
-          try {
-            await analysisApi.markFixed(point.id, true);
-            if (onFixMarked) {
-              onFixMarked(point.id);
-            }
-          } catch (error) {
-            console.error('Failed to mark fix as applied:', error);
-          }
-        }, 300);
-      }
     }, 300);
   };
 
