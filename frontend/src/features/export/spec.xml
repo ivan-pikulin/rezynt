@@ -36,7 +36,7 @@
             <features>
                 <feature name="resume_loading" desc="Loads real resume data from API using resumeId parameter"/>
                 <feature name="template_selection" desc="Displays all four templates with responsive grid: 2 columns (mobile), 4 columns in one row (desktop)"/>
-                <feature name="txt_export" desc="Exports resume content as plain TXT on the client side"/>
+                <feature name="txt_export" desc="Exports resume content as plain TXT via backend API endpoint"/>
                 <feature name="pdf_paywall" desc="PDF button navigates to upgrade page"/>
                 <feature name="success_page" desc="Shows success page after successful export"/>
                 <feature name="error_handling" desc="Handles loading and export errors with user-friendly messages"/>
@@ -112,16 +112,16 @@
     <api_integration>
         <endpoint name="getResume" desc="Loads current resume data from API to ensure export contains latest user changes"/>
         <endpoint name="template_selection" desc="Automatically selects correct template based on resume.template_id"/>
+        <endpoint name="exportToPDF" method="POST" path="/resume/export-pdf" desc="Exports resume to PDF with HTML content and template slug"/>
+        <endpoint name="exportToTXT" method="GET" path="/resume/export-txt" desc="Exports resume to TXT format with text content organized by sections"/>
     </api_integration>
 
     <data_flow>
         <step name="load_resume" desc="Loads resume data from API using resumeId from URL parameters"/>
         <step name="select_template" desc="Automatically selects template based on resume.template_id"/>
         <step name="render_resume" desc="Renders resume using ResumeRenderer with real data and selected template"/>
-        <step name="extract_html" desc="Extracts full HTML with CSS styles from rendered resume (uses template-defined padding for exact preview match)"/>
-        <step name="send_to_backend" desc="Sends HTML content to backend API for PDF generation"/>
-        <step name="generate_pdf" desc="Backend generates PDF using WeasyPrint"/>
-        <step name="download_pdf" desc="Downloads generated PDF file"/>
+        <step name="txt_export_flow" desc="For TXT export: Calls backend API endpoint /resume/export-txt which generates TXT file from resume data and downloads it"/>
+        <step name="pdf_export_flow" desc="For PDF export: Extracts full HTML with CSS styles from rendered resume, sends to backend API for PDF generation, backend generates PDF using WeasyPrint, downloads generated PDF file"/>
         <step name="show_success" desc="Shows success page after successful export"/>
     </data_flow>
 

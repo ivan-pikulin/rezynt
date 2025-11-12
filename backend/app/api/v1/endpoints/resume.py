@@ -9,6 +9,7 @@ from app.database.crud.crud_user import user_crud
 from app.schemas.resume import PDFExportRequest, ResumeUpdate, ResumeResponse
 from app.services.pdf_service import pdf_service
 from fastapi import APIRouter, File, HTTPException, UploadFile, status, Body
+from fastapi.responses import Response
 
 router = APIRouter()
 
@@ -455,4 +456,186 @@ async def export_resume_pdf(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to export PDF: {str(e)}"
+        )
+
+
+@router.get("/export-txt")
+async def export_resume_txt(
+    *,
+    db: AsyncDB,
+    current_user: CurrentUser,
+):
+    """
+    Export resume to TXT format with text content organized by sections.
+    Only available for users with verified email.
+    """
+    try:
+        # Get user's resume data
+        resume_data = await user_crud.get_resume_data(db, user_id=current_user.id)
+        
+        if not resume_data:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Resume not found"
+            )
+        
+        # Build TXT content from resume data
+        lines: list[str] = []
+        
+        # Personal Info
+        personal_info = resume_data.get('personal_info', {})
+        if personal_info:
+            first_name = personal_info.get('first_name', '')
+            last_name = personal_info.get('last_name', '')
+            middle_name = personal_info.get('middle_name', '')
+            full_name = ' '.join(filter(None, [first_name, middle_name, last_name]))
+            if full_name:
+                lines.append(full_name)
+            
+            # Location
+            city = personal_info.get('city', '')
+            country = personal_info.get('country', '')
+            location_parts = [p for p in [city, country] if p]
+            if location_parts:
+                lines.append(', '.join(location_parts))
+            
+            # Contacts
+            contacts = personal_info.get('contacts', {})
+            if contacts:
+                contact_list = []
+                if contacts.get('email'):
+                    contact_list.append(f"Email: {contacts['email']}")
+                if contacts.get('phone'):
+                    contact_list.append(f"Phone: {contacts['phone']}")
+                if contacts.get('linkedin'):
+                    contact_list.append(f"LinkedIn: {contacts['linkedin']}")
+                if contacts.get('github'):
+                    contact_list.append(f"GitHub: {contacts['github']}")
+                if contacts.get('website'):
+                    contact_list.append(f"Website: {contacts['website']}")
+                if contacts.get('telegram'):
+                    contact_list.append(f"Telegram: {contacts['telegram']}")
+                if contacts.get('whatsapp'):
+                    contact_list.append(f"WhatsApp: {contacts['whatsapp']}")
+                
+                if contact_list:
+                    lines.append('')
+                    lines.append('Contacts:')
+                    for contact in contact_list:
+                        lines.append(f"  {contact}")
+        
+        # Professional Summary
+        professional_summary = resume_data.get('professional_summary')
+        if professional_summary:
+            lines.append('')
+            lines.append('Professional Summary')
+            lines.append(professional_summary)
+        
+        # Skills
+        skills = resume_data.get('skills', [])
+        if skills:
+            lines.append('')
+            lines.append('Skills')
+            for skill in skills:
+                lines.append(f"  • {skill}")
+        
+        # Work Experience
+        work_experience = resume_data.get('work_experience', [])
+        if work_experience:
+            lines.append('')
+            lines.append('Experience')
+            for exp in work_experience:
+                job_title = exp.get('job_title', '')
+                company = exp.get('company', '')
+                if job_title or company:
+                    header = ' — '.join(filter(None, [job_title, company]))
+                    lines.append(f"  {header}")
+                
+                start_date = exp.get('start_date', '')
+                end_date = exp.get('end_date') or 'Present'
+                if start_date:
+                    dates = f"{start_date} - {end_date}"
+                    lines.append(f"    {dates}")
+                
+                achievements = exp.get('achievements', [])
+                if achievements:
+                    for achievement in achievements:
+                        lines.append(f"    • {achievement}")
+        
+        # Education
+        education = resume_data.get('education', [])
+        if education:
+            lines.append('')
+            lines.append('Education')
+            for edu in education:
+                degree = edu.get('degree', '')
+                institution = edu.get('institution', '')
+                if degree or institution:
+                    header = ' — '.join(filter(None, [degree, institution]))
+                    lines.append(f"  {header}")
+                
+                graduation_date = edu.get('end_date') or edu.get('graduation_date')
+                if graduation_date:
+                    lines.append(f"    {graduation_date}")
+        
+        # Languages
+        languages = resume_data.get('languages_spoken', [])
+        if languages:
+            lines.append('')
+            lines.append('Languages')
+            for lang in languages:
+                language = lang.get('language', '')
+                proficiency = lang.get('proficiency', '')
+                if language:
+                    lang_line = language
+                    if proficiency:
+                        lang_line += f" ({proficiency})"
+                    lines.append(f"  • {lang_line}")
+        
+        # Awards
+        awards = resume_data.get('awards', [])
+        if awards:
+            lines.append('')
+            lines.append('Awards')
+            for award in awards:
+                title = award.get('title', '')
+                issuer = award.get('issuer', '')
+                if title:
+                    award_line = title
+                    if issuer:
+                        award_line += f" — {issuer}"
+                    lines.append(f"  • {award_line}")
+                
+                description = award.get('description')
+                if description:
+                    lines.append(f"    {description}")
+        
+        # Generate filename
+        first_name = personal_info.get('first_name', '')
+        last_name = personal_info.get('last_name', '')
+        if first_name and last_name:
+            full_name = f"{first_name}_{last_name}"
+        else:
+            full_name = f"resume_{current_user.id}"
+        filename = f"{full_name}.txt"
+        
+        # Convert to bytes
+        txt_content = '\n'.join(lines)
+        txt_bytes = txt_content.encode('utf-8')
+        
+        # Return TXT as file response
+        return Response(
+            content=txt_bytes,
+            media_type='text/plain; charset=utf-8',
+            headers={
+                'Content-Disposition': f'attachment; filename="{filename}"'
+            }
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to export TXT: {str(e)}"
         )

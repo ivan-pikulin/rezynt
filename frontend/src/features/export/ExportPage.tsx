@@ -135,62 +135,21 @@ const ExportPage: React.FC = () => {
     }
   };
 
-  const buildTxtFromDisplayData = (data: any): string => {
-    const lines: string[] = [];
-    const fullName = [data.first_name, data.middle_name, data.last_name].filter(Boolean).join(' ');
-    if (fullName) lines.push(fullName);
-    if (data.location) lines.push(data.location);
-    if (Array.isArray(data.contacts) && data.contacts.length) {
-      lines.push('Contacts:');
-      data.contacts.forEach((c: string) => lines.push(`- ${c}`));
-    }
-    if (data.professional_summary) {
-      lines.push('');
-      lines.push('Professional Summary');
-      lines.push(data.professional_summary);
-    }
-    if (Array.isArray(data.skills) && data.skills.length) {
-      lines.push('');
-      lines.push('Skills');
-      data.skills.forEach((s: string) => lines.push(`- ${s}`));
-    }
-    if (Array.isArray(data.experience) && data.experience.length) {
-      lines.push('');
-      lines.push('Experience');
-      data.experience.forEach((exp: any) => {
-        const header = [exp.job_title, exp.company].filter(Boolean).join(' — ');
-        if (header) lines.push(`- ${header}`);
-        const dates = [exp.start_date, exp.end_date || 'Present'].filter(Boolean).join(' - ');
-        if (dates) lines.push(`  ${dates}`);
-        if (Array.isArray(exp.achievements)) {
-          exp.achievements.forEach((r: string) => lines.push(`  • ${r}`));
-        }
-      });
-    }
-    if (Array.isArray(data.education) && data.education.length) {
-      lines.push('');
-      lines.push('Education');
-      data.education.forEach((edu: any) => {
-        const header = [edu.degree, edu.institution].filter(Boolean).join(' — ');
-        if (header) lines.push(`- ${header}`);
-        if (edu.graduation_date) lines.push(`  ${edu.graduation_date}`);
-      });
-    }
-    return lines.join('\n');
-  };
-
   const handleExportTXT = async () => {
     if (!resume) return;
     try {
-      await refreshResume();
-      const displayData = convertApiResumeToDisplayData(resume);
-      const txtContent = buildTxtFromDisplayData(displayData);
+      setIsDownloading(true);
+      // Call API to export TXT
+      const txtBlob = await exportApi.exportToTXT();
+      
+      // Get filename from Content-Disposition header or use default
       const firstName = resume.personal_info?.first_name || '';
       const lastName = resume.personal_info?.last_name || '';
       const fullName = `${firstName} ${lastName}`.trim();
       const filename = `${(fullName || 'resume').replace(/\s+/g, '_')}.txt`;
-      const blob = new Blob([txtContent], { type: 'text/plain;charset=utf-8' });
-      const url = window.URL.createObjectURL(blob);
+      
+      // Download the TXT file
+      const url = window.URL.createObjectURL(txtBlob);
       const link = document.createElement('a');
       link.href = url;
       link.download = filename;
@@ -200,6 +159,8 @@ const ExportPage: React.FC = () => {
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Error exporting to TXT:', error);
+    } finally {
+      setIsDownloading(false);
     }
   };
 
@@ -405,6 +366,7 @@ const ExportPage: React.FC = () => {
               <Button 
                 variant="outlined"
                 onClick={handleExportTXT}
+                disabled={isDownloading}
                 sx={{
                   borderColor: COLORS.grey[600],
                   color: COLORS.grey[700],
@@ -413,7 +375,11 @@ const ExportPage: React.FC = () => {
                   py: { xs: 1, sm: 1.25 }
                 }}
               >
-                {t('export.buttons.downloadTxtFree', 'Download TXT (Free)')}
+                {isDownloading ? (
+                  <GradientSpinnerAnimation size={20} thickness={3} />
+                ) : (
+                  t('export.buttons.downloadTxtFree', 'Download TXT (Free)')
+                )}
               </Button>
               <Button 
                 variant="contained"

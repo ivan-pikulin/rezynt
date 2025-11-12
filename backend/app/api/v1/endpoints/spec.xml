@@ -48,7 +48,8 @@
                 <endpoint path="/resume/{resume_id}" method="PATCH" description="Partial update resume"/>
                 <endpoint path="/resume/{resume_id}" method="DELETE" description="Delete resume (with cascade delete of all related data)"/>
                 <endpoint path="/resume/upload" method="POST" description="Upload resume file (with plan validation)"/>
-                <endpoint path="/resume/{resume_id}/export-pdf" method="POST" description="Export resume to PDF"/>
+                <endpoint path="/resume/export-pdf" method="POST" description="Export resume to PDF using HTML content from frontend"/>
+                <endpoint path="/resume/export-txt" method="GET" description="Export resume to TXT format with text content organized by sections"/>
                 <endpoint path="/resume/{resume_id}/contacts" method="POST" description="Add contact to resume"/>
                 <endpoint path="/resume/{resume_id}/contacts/{contact_id}" method="DELETE" description="Remove contact from resume"/>
                 <endpoint path="/resume/{resume_id}/skills" method="POST" description="Add skill to resume"/>

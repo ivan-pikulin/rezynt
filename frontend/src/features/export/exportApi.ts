@@ -33,5 +33,16 @@ export const exportApi = {
     );
     
     return response.data;
+  },
+
+  exportToTXT: async (): Promise<Blob> => {
+    const response = await baseApi.get(
+      `/resume/export-txt`,
+      {
+        responseType: 'blob',
+      }
+    );
+    
+    return response.data;
   }
 }; 
