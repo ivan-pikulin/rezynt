@@ -28,12 +28,12 @@ class SkillsNotInExperienceRule(BaseRule):
         # Build experience text
         experience_text = ""
         for exp in work_exp:
-            experience_text += " " + exp.get('job_title', '')
-            experience_text += " " + exp.get('short_description', '')
-            for ach in exp.get('achievements', []):
-                experience_text += " " + ach
-            for tech in exp.get('technologies_tools', []):
-                experience_text += " " + tech
+            experience_text += " " + (exp.get('job_title') or '')
+            experience_text += " " + (exp.get('short_description') or '')
+            for ach in exp.get('achievements') or []:
+                experience_text += " " + (ach or '')
+            for tech in exp.get('technologies_tools') or []:
+                experience_text += " " + (tech or '')
         
         # Detect orphaned skills via LLM with Structured Outputs
         prompt = f"""Analyze if these skills are mentioned or demonstrated in the work experience.
