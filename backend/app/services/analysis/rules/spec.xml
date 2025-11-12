@@ -25,180 +25,412 @@
         </method>
     </base_rule>
 
-    <categories>
-        <category name="content" description="Обязательный контент и структура резюме">
-            <rule name="MissingRequiredFieldsRule" severity="high" impact="8">
-                <detection>Механическая проверка на пустые поля</detection>
-                <checks>first_name, last_name, current_role, city, email, phone, количество контактов (≥2), summary, work_experience, education</checks>
-                <fix>Нет автоисправления (требуется ввод пользователя)</fix>
-            </rule>
-            
-            <rule name="GenerateMissingSummaryRule" severity="high" impact="6">
-                <detection>Механическая проверка (отсутствует или &lt;20 символов)</detection>
-                <checks>professional_summary существует и имеет контент</checks>
-                <fix>LLM генерирует summary из work_experience, education, skills</fix>
-            </rule>
-            
-            <rule name="SummaryLengthRule" severity="low" impact="3">
-                <detection>Механическая проверка (длина)</detection>
-                <thresholds>MIN=100 символов, MAX=500 символов</thresholds>
-                <fix>LLM расширяет (если слишком короткое) или сокращает (если слишком длинное)</fix>
-            </rule>
-            
-            <rule name="MissingAchievementsRule" severity="high" impact="8">
-                <detection>Механическая проверка на пустой массив достижений</detection>
-                <checks>work_experience[i].achievements не пустой</checks>
-                <fix>Нет автоисправления (требуется ввод пользователя)</fix>
-            </rule>
-            
-            <rule name="AchievementsWithoutMetricsRule" severity="high" impact="6">
-                <detection>Regex-паттерны для метрик (\d+%, $\d+, \d+[KMB], и т.д.)</detection>
-                <checks>достижения содержат количественные метрики</checks>
-                <fix>LLM добавляет конкретные метрики в текст достижения</fix>
-            </rule>
-            
-            <rule name="AchievementsNotResponsibilitiesRule" severity="medium" impact="5">
-                <detection>Поиск ключевых слов, указывающих на описание обязанностей вместо результатов</detection>
-                <checks>достижения фокусируются на результатах и impact, а не на описании обязанностей</checks>
-                <fix>LLM преобразует описание обязанностей в результат-ориентированный текст с impact</fix>
-            </rule>
-            
-            <rule name="LongBulletsRule" severity="low" impact="2">
-                <detection>Подсчет слов</detection>
-                <threshold>MAX=25 слов на пункт</threshold>
-                <fix>LLM сокращает, сохраняя воздействие</fix>
-            </rule>
-            
-            <rule name="SkillsCountRule" severity="medium" impact="4">
-                <detection>Проверка длины массива</detection>
-                <thresholds>MIN=6 навыков, MAX=15 навыков</thresholds>
-                <fix>Нет автоисправления (требуется корректировка пользователя)</fix>
-            </rule>
-            
-            <rule name="MissingDegreeRule" severity="medium" impact="4">
-                <detection>Механическая проверка на пустое поле степени</detection>
-                <checks>education[i].degree не пустой</checks>
-                <fix>Нет автоисправления (требуется ввод пользователя)</fix>
-            </rule>
-            
-            <rule name="MissingFieldOfStudyRule" severity="medium" impact="4">
-                <detection>Механическая проверка на пустое поле направления обучения</detection>
-                <checks>education[i].field_of_study не пустой</checks>
-                <fix>Нет автоисправления (требуется ввод пользователя)</fix>
-            </rule>
-            
-            <rule name="MissingCompanyDescriptionRule" severity="low" impact="2">
-                <detection>Механическая проверка на пустое описание</detection>
-                <checks>work_experience[i].short_description не пустой</checks>
-                <fix>Нет автоисправления (требуется ввод пользователя)</fix>
-            </rule>
-        </category>
+    <!-- ========================================== -->
+    <!-- ОБЩИЕ ПРАВИЛА (применяются ко всем полям) -->
+    <!-- ========================================== -->
+    <section name="general">
+        <rule name="GrammarRule" severity="low" impact="2">
+            <detection>LLM проверяет грамматику и стилистику текста</detection>
+            <checks>
+              - Текст не имеет грамматических и орфографических ошибок
+              - Используется единый стандарт для написания с маленькой буквы, или везде с большой, или везде болшими (Иванов Иван Иванович, ИВАНОВ ИВАН ИВАНОВИЧ, но не ИВАНОВ иван Иванович)
+              - Используется согласованное время глаголов
+              - Используется согласованное написание чисел
+              ...
+            </checks>
+            <fix>LLM исправляет грамматические и стилистические ошибки</fix>
+            <specification>отдельно по каждому полю происходит проверка и генерация исправления при необходимости</specification>
+            <ctx field="*">-</ctx>
+        </rule>
 
-        <category name="ats" description="Оптимизация для систем отслеживания кандидатов (ATS)">
-            <rule name="MissingKeywordsRule" severity="high" impact="7">
-                <detection>LLM анализирует отраслевые ключевые слова для должности</detection>
-                <checks>секция skills содержит релевантные отраслевые ключевые слова</checks>
-                <fix>LLM генерирует список недостающих ключевых слов для добавления</fix>
-            </rule>
-            
-            <rule name="EmploymentGapsRule" severity="medium" impact="3">
-                <detection>Парсинг и вычисление дат</detection>
-                <threshold>Разрыв &gt; 6 месяцев между работами</threshold>
-                <fix>Нет автоисправления (предлагает добавить объяснение)</fix>
-            </rule>
-            
-            <rule name="ResumeLengthRule" severity="low" impact="3">
-                <detection>Подсчет слов во всех секциях</detection>
-                <thresholds>MIN=300 слов, MAX=1500 слов</thresholds>
-                <fix>Нет автоисправления (требуется корректировка пользователя)</fix>
-            </rule>
-            
-            <rule name="SkillsNotInExperienceRule" severity="medium" impact="4">
-                <detection>LLM проверяет, упомянуты ли навыки в опыте работы</detection>
-                <checks>заявленные навыки продемонстрированы в достижениях</checks>
-                <fix>LLM генерирует достижение, демонстрирующее навык</fix>
-            </rule>
-            
-            <rule name="GenericJobTitlesRule" severity="medium" impact="4">
-                <detection>Поиск ключевых слов для общих названий должностей</detection>
-                <checks>job_title не общий (employee, worker, staff, и т.д.)</checks>
-                <fix>LLM предлагает конкретное стандартное для отрасли название</fix>
-            </rule>
-            
-            <rule name="JobTitleCapitalizationRule" severity="low" impact="2">
-                <detection>Regex-проверка на все заглавные или все строчные</detection>
-                <checks>job_title использует правильный регистр заголовка</checks>
-                <fix>Механическое преобразование в title case</fix>
-            </rule>
-            
-            <rule name="MissingExperienceLocationRule" severity="low" impact="2">
-                <detection>Механическая проверка на пустое поле местоположения</detection>
-                <checks>work_experience[i].location не пустой</checks>
-                <fix>Нет автоисправления (требуется ввод пользователя)</fix>
-            </rule>
-        </category>
+        <rule name="BuzzwordsRule" severity="low" impact="3">
+            <detection>Поиск ключевых слов для модных словечек</detection>
+            <checks>текст не содержит модные словечки (synergy, leverage, paradigm, и т.д.)</checks>
+            <fix>LLM заменяет на конкретные специфичные термины</fix>
+            <specification>отдельно по каждому полю происходит проверка и генерация исправления при необходимости</specification>
+            <ctx field="*">skills</ctx>
+        </rule>
 
-        <category name="style" description="Качество написания и профессиональный тон">
-            <rule name="PassiveVoiceRule" severity="medium" impact="4">
-                <detection>Поиск ключевых слов для индикаторов пассивного залога</detection>
-                <checks>достижения используют активный залог (не "was", "were", "been")</checks>
-                <fix>LLM преобразует в активный залог</fix>
-            </rule>
-            
-            <rule name="WeakVerbsRule" severity="medium" impact="4">
-                <detection>Поиск ключевых слов для слабых глаголов</detection>
-                <checks>достижения начинаются с сильных глаголов действия (не "helped", "assisted", и т.д.)</checks>
-                <fix>LLM заменяет на сильный глагол действия</fix>
-            </rule>
-            
-            <rule name="MissingActionVerbsRule" severity="medium" impact="4">
-                <detection>Regex-проверка на начало с глагола действия</detection>
-                <checks>достижения начинаются с глагола действия</checks>
-                <fix>LLM добавляет подходящий глагол действия</fix>
-            </rule>
-            
-            <rule name="BuzzwordsRule" severity="low" impact="3">
-                <detection>Поиск ключевых слов для модных словечек</detection>
-                <checks>текст не содержит модные словечки (synergy, leverage, paradigm, и т.д.)</checks>
-                <fix>LLM заменяет на конкретные специфичные термины</fix>
-            </rule>
-            
-            <rule name="PersonalPronounsRule" severity="medium" impact="3">
-                <detection>Regex для личных местоимений</detection>
-                <checks>текст не содержит I, me, my, mine, we, our, ours</checks>
-                <fix>LLM удаляет местоимения, сохраняя ясность</fix>
-            </rule>
-            
-            <rule name="FillerPhrasesRule" severity="low" impact="2">
-                <detection>Поиск ключевых слов для слов-паразитов</detection>
-                <checks>текст не содержит слова-паразиты (basically, actually, just, и т.д.)</checks>
-                <fix>LLM удаляет слова-паразиты</fix>
-            </rule>
-            
-            <rule name="RepetitiveWordingRule" severity="low" impact="2">
-                <detection>Анализ частоты биграмм</detection>
-                <checks>фразы не повторяются &gt;3 раз</checks>
-                <fix>Нет автоисправления (предлагается ручная переформулировка)</fix>
-            </rule>
-            
-            <rule name="InconsistentVerbTenseRule" severity="medium" impact="3">
-                <detection>LLM анализирует консистентность времени глагола</detection>
-                <checks>текущая работа использует настоящее время, прошлые работы - прошедшее</checks>
-                <fix>LLM корректирует время глагола</fix>
-            </rule>
-            
-            <rule name="UndefinedAbbreviationsRule" severity="low" impact="2">
-                <detection>LLM определяет нераспространенные аббревиатуры</detection>
-                <checks>аббревиатуры определены при первом использовании</checks>
-                <fix>LLM добавляет определение</fix>
-            </rule>
-        </category>
-    </categories>
+        <rule name="FillerPhrasesRule" severity="low" impact="2">
+            <detection>Поиск ключевых слов для слов-паразитов</detection>
+            <checks>текст не содержит слова-паразиты (basically, actually, just, и т.д.)</checks>
+            <fix>LLM удаляет слова-паразиты</fix>
+            <specification>отдельно по каждому полю происходит проверка и генерация исправления при необходимости</specification>
+            <ctx field="*">-</ctx>
+        </rule>
+        
+        <rule name="UndefinedAbbreviationsRule" severity="low" impact="2">
+            <detection>LLM определяет нераспространенные аббревиатуры</detection>
+            <checks>аббревиатуры определены при первом использовании</checks>
+            <fix>LLM добавляет определение</fix>
+            <specification>отдельно по каждому полю происходит проверка и генерация исправления при необходимости</specification>
+            <ctx field="*">-</ctx>
+        </rule>
 
+        <rule name="PersonalPronounsRule" severity="medium" impact="3">
+            <detection>Regex для личных местоимений</detection>
+            <checks>текст не содержит I, me, my, mine, we, our, ours</checks>
+            <fix>LLM удаляет местоимения, сохраняя ясность</fix>
+            <ctx field="*">-</ctx>
+        </rule>
+
+        <rule name="ContentLanguageRule" severity="high" impact="8">
+            <detection>LLM определяет язык каждого текстового поля</detection>
+            <checks>весь контент резюме на одном языке (кроме имен собственных, названий компаний и технических терминов)</checks>
+            <fix>Предупреждение о несоответствии языков с указанием полей на разных языках</fix>
+            <specification>
+                Все релевантные поля передаются в LLM одновременно в одном запросе.
+                LLM определяет язык каждого поля и возвращает список полей с несоответствующим языком.
+                Затем результат парсится на отдельные ImprovementPoint для каждого поля с проблемой.
+            </specification>
+            <ctx field="*">professional_summary, current_role, work_experience[].job_title, work_experience[].achievements[], education[].degree, education[].field_of_study</ctx>
+        </rule>
+
+        <rule name="ResumeLengthRule" severity="low" impact="3">
+            <detection>Подсчет слов во всех секциях</detection>
+            <thresholds>MIN=300 слов, MAX=1500 слов</thresholds>
+            <fix>Нет автоисправления (требуется корректировка пользователя)</fix>
+        </rule>
+
+        <rule name="MissingRequiredFieldsRule" severity="high" impact="8">
+            <detection>Механическая проверка на пустые поля</detection>
+            <checks>first_name, last_name, current_role, city, work_experience, education</checks>
+            <fix>Нет автоисправления (требуется ввод пользователя)</fix>
+        </rule>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- ТЕКУЩАЯ ДОЛЖНОСТЬ (current_role) -->
+    <!-- ========================================== -->
+    <section name="current_role">
+        <!-- Правила относятся к work_experience, см. секцию Experience -->
+    </section>
+
+    <!-- ========================================== -->
+    <!-- ИМЯ (personal_info.first_name, last_name) -->
+    <!-- ========================================== -->
+    <section name="personal_info">
+        <rule name="CapitalizationConsistencyRule" severity="low" impact="2">
+            <detection>LLM проверяет единообразие стиля написания в однотипных элементах</detection>
+            <checks>
+                - Имена (first_name, last_name): единый стиль (Title Case, UPPERCASE, или lowercase)
+                - Названия должностей: единый стиль капитализации
+                - Достижения: единый стиль начала предложений
+                - Навыки: единый стиль написания
+            </checks>
+            <fix>LLM приводит к единому стилю (по умолчанию Title Case для имен и должностей, первая буква заглавная для предложений)</fix>
+            <specification>
+                Все релевантные поля передаются в LLM одновременно в одном запросе.
+                LLM возвращает исправления для всех полей сразу (группированные по типам: имена, должности, достижения, навыки).
+                Затем результат парсится на отдельные ImprovementPoint для каждого поля.
+            </specification>
+            <ctx field="*">personal_info.first_name, personal_info.last_name, work_experience[].job_title, work_experience[].achievements[], skills</ctx>
+        </rule>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- КОНТАКТЫ (personal_info.contacts) -->
+    <!-- ========================================== -->
+    <section name="contacts">
+        <rule name="ContactValidationRule" severity="high" impact="7">
+            <detection>Механическая проверка на количество и формат контактов</detection>
+            <checks>количество контактов (≥2), валидация формата email (regex), phone (regex), и других полей где формат детерминирован</checks>
+            <fix>Нет автоисправления (требуется ввод пользователя или корректировка формата)</fix>
+        </rule>
+
+        <rule name="ContactsForRoleRule" severity="medium" impact="5">
+            <detection>LLM анализирует роль и проверяет наличие релевантных контактов</detection>
+            <checks>
+                - Для технических ролей: наличие LinkedIn или GitHub
+                - Для разработчиков: наличие GitHub
+                - Валидация формата URL для LinkedIn, GitHub, website
+            </checks>
+            <fix>Нет автоисправления (требуется ввод пользователя)</fix>
+            <ctx field="personal_info.contacts">current_role, work_experience</ctx>
+        </rule>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- ПРОФЕССИОНАЛЬНОЕ РЕЗЮМЕ (professional_summary) -->
+    <!-- ========================================== -->
+    <section name="professional_summary">
+        <rule name="MissingRequiredFieldsRule.professional_summary" severity="high" impact="8">
+            <detection>Механическая проверка (отсутствует, None, или 0 символов)</detection>
+            <checks>professional_summary не пустой</checks>
+            <fix>LLM генерирует summary из work_experience, education, skills</fix>
+            <ctx field="professional_summary">current_role, work_experience, education, skills</ctx>
+        </rule>
+
+        <rule name="SummaryLengthRule" severity="low" impact="3">
+            <detection>Механическая проверка (длина)</detection>
+            <thresholds>MIN=100 символов, MAX=500 символов</thresholds>
+            <fix>LLM расширяет (если слишком короткое) или сокращает (если слишком длинное)</fix>
+            <ctx field="professional_summary">professional_summary, current_role, work_experience, skills</ctx>
+        </rule>
+
+        <rule name="SummaryWeakPhrasesRule" severity="low" impact="2">
+            <detection>Поиск слабых и вводных фраз в summary через LLM</detection>
+            <checks>summary не содержит слабых фраз (basically, actually, just, и т.д.)</checks>
+            <fix>LLM заменяет слабые фразы на более сильные</fix>
+            <ctx field="professional_summary">current_role</ctx>
+        </rule>
+
+        <rule name="NumberFormatConsistencyRule" severity="low" impact="2">
+            <detection>LLM проверяет единообразие написания чисел</detection>
+            <checks>
+                - Числа в достижениях записаны в едином стиле (цифрами или словами для малых чисел)
+                - Процентные значения в едином формате (15% vs 15 percent)
+                - Денежные суммы в едином формате ($1K, $1,000, $1000)
+            </checks>
+            <fix>LLM приводит числа к единому стилю (рекомендация: цифры для всех чисел >10, символ % вместо слова)</fix>
+            <specification>
+                Все релевантные поля передаются в LLM одновременно в одном запросе.
+                LLM анализирует формат чисел во всех полях и возвращает исправления для полей с несоответствующим форматом.
+                Затем результат парсится на отдельные ImprovementPoint для каждого поля.
+            </specification>
+            <ctx field="*">professional_summary, work_experience[].achievements[]</ctx>
+        </rule>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- НАВЫКИ (skills) -->
+    <!-- ========================================== -->
+    <section name="skills">
+        <rule name="SkillsCountRule" severity="medium" impact="4">
+            <detection>Проверка длины массива</detection>
+            <thresholds>MIN=6 навыков, MAX=15 навыков</thresholds>
+            <fix>LLM предлагает добавить или удалить навыки</fix>
+            <ctx field="skills">current_role, work_experience, education[0].field_of_study</ctx>
+        </rule>
+
+        <rule name="MissingKeywordsRule" severity="high" impact="7">
+            <detection>LLM анализирует отраслевые ключевые слова для должности</detection>
+            <checks>секция skills содержит релевантные отраслевые ключевые слова</checks>
+            <fix>LLM генерирует список недостающих ключевых слов для добавления</fix>
+            <ctx field="skills">current_role, work_experience, education[0].field_of_study</ctx>
+        </rule>
+
+        <rule name="SkillsNotInExperienceRule" severity="medium" impact="4">
+            <detection>LLM проверяет, упомянуты ли навыки в опыте работы</detection>
+            <checks>заявленные навыки продемонстрированы в достижениях (skills в секции skills упомянуты в achievements)</checks>
+            <fix>LLM генерирует достижение, демонстрирующее навык</fix>
+            <ctx field="work_experience[i].achievements.new">work_experience[i].job_title, work_experience[i].achievements, skills</ctx>
+        </rule>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- ОПЫТ РАБОТЫ (work_experience) -->
+    <!-- ========================================== -->
+    <section name="work_experience">
+        <!-- Job Title -->
+        <rule name="GenericJobTitlesRule" severity="medium" impact="4">
+            <detection>Поиск ключевых слов для общих названий должностей</detection>
+            <checks>job_title не общий (employee, worker, staff, и т.д.)</checks>
+            <fix>LLM предлагает конкретное стандартное для отрасли название</fix>
+            <ctx field="work_experience[i].job_title">work_experience[i].short_description, work_experience[i].achievements, skills</ctx>
+        </rule>
+
+        <!-- Company Description -->
+        <rule name="MissingCompanyDescriptionRule" severity="low" impact="2">
+            <detection>Механическая проверка на пустое описание</detection>
+            <checks>work_experience[i].short_description не пустой</checks>
+            <fix>Нет автоисправления (требуется ввод пользователя)</fix>
+        </rule>
+
+        <!-- Location -->
+        <rule name="MissingExperienceLocationRule" severity="low" impact="2">
+            <detection>Механическая проверка на пустое поле местоположения</detection>
+            <checks>work_experience[i].location не пустой</checks>
+            <fix>Нет автоисправления (требуется ввод пользователя)</fix>
+        </rule>
+
+        <!-- Required Fields -->
+        <rule name="MissingCompanyRule" severity="high" impact="8">
+            <detection>Механическая проверка на пустое поле названия компании</detection>
+            <checks>work_experience[i].company не пустой</checks>
+            <fix>Нет автоисправления (требуется ввод пользователя)</fix>
+        </rule>
+
+        <rule name="MissingStartDateRule" severity="high" impact="8">
+            <detection>Механическая проверка на пустое поле даты начала</detection>
+            <checks>work_experience[i].start_date не пустой</checks>
+            <fix>Нет автоисправления (требуется ввод пользователя)</fix>
+        </rule>
+
+        <!-- Date Validation -->
+        <rule name="DateValidationRule" severity="high" impact="7">
+            <detection>Механическая проверка формата и логики дат</detection>
+            <checks>
+                - Формат дат соответствует YYYY-MM или "Month YYYY"
+                - start_date &lt; end_date (если end_date не null)
+                - Даты не в будущем
+                - Для текущей позиции end_date должен быть null или "Present"
+            </checks>
+            <fix>Нет автоисправления (требуется корректировка пользователя)</fix>
+        </rule>
+
+        <!-- Company Name Format -->
+        <rule name="CompanyNameConsistencyRule" severity="low" impact="2">
+            <detection>LLM проверяет единообразие формата названий компаний</detection>
+            <checks>названия компаний в едином формате (с/без Inc., Ltd., Corp., и т.д.)</checks>
+            <fix>LLM приводит к единому стилю</fix>
+            <specification>
+                Все названия компаний передаются в LLM одновременно в одном запросе.
+                LLM анализирует формат и возвращает исправления для несоответствующих названий.
+                Затем результат парсится на отдельные ImprovementPoint для каждой компании.
+            </specification>
+            <ctx field="work_experience[i].company">work_experience[].company</ctx>
+        </rule>
+
+        <!-- Employment Gaps -->
+        <rule name="EmploymentGapsRule" severity="medium" impact="3">
+            <detection>Парсинг и вычисление дат</detection>
+            <threshold>Разрыв &gt; 6 месяцев между работами</threshold>
+            <fix>Нет автоисправления (предлагает добавить объяснение)</fix>
+        </rule>
+
+        <!-- Achievements: Count -->
+        <rule name="AchievementsCountRule" severity="medium" impact="4">
+            <detection>Проверка количества achievements в каждом пункте work_experience</detection>
+            <thresholds>MIN и MAX задаются в конфигурации</thresholds>
+            <checks>work_experience[i].achievements содержит оптимальное количество пунктов</checks>
+            <fix>LLM предлагает добавить achievements (если мало) или объединить/удалить (если много)</fix>
+            <ctx field="work_experience[i].achievements.new">work_experience[i].job_title, work_experience[i].short_description, skills</ctx>
+            <ctx field="work_experience[i].achievements">work_experience[i].achievements</ctx>
+        </rule>
+        
+        <!-- Achievements: Metrics -->
+        <rule name="AchievementsWithoutMetricsRule" severity="high" impact="6">
+            <detection>LLM анализирует наличие количественных метрик в достижениях</detection>
+            <checks>достижения содержат количественные метрики (%, числа, финансовые показатели, и т.д.)</checks>
+            <fix>LLM добавляет конкретные метрики в текст достижения</fix>
+            <ctx field="work_experience[i].achievements[j]">work_experience[i].job_title, work_experience[i].short_description</ctx>
+        </rule>
+        
+        <!-- Achievements: Results vs Responsibilities -->
+        <rule name="AchievementsNotResponsibilitiesRule" severity="medium" impact="5">
+            <detection>LLM анализирует достижения на наличие фокусировки на обязанностях вместо результатов</detection>
+            <checks>достижения фокусируются на результатах и impact, а не на описании обязанностей</checks>
+            <fix>LLM преобразует описание обязанностей в результат-ориентированный текст с impact</fix>
+            <ctx field="work_experience[i].achievements[j]">work_experience[i].job_title, work_experience[i].short_description</ctx>
+        </rule>
+        
+        <!-- Achievements: Length -->
+        <rule name="AchivementLengthRule" severity="low" impact="2">
+            <detection>Подсчет слов в достижении</detection>
+            <threshold>MAX=25 слов</threshold>
+            <fix>LLM сокращает достижение, сохраняя смысл</fix>
+            <ctx field="work_experience[i].achievements[j]">-</ctx>
+        </rule>
+
+        <!-- Achievements: Verbs -->
+        <rule name="WeakVerbsRule" severity="medium" impact="4">
+            <detection>Проверка наличия слабых глаголов через LLM</detection>
+            <checks>достижения начинаются с сильных глаголов действия</checks>
+            <fix>LLM заменяет на сильный глагол действия</fix>
+            <specification>отдельно по каждому полю происходит проверка и генерация исправления при необходимости</specification>
+            <ctx field="work_experience[i].achievements[j]">work_experience[i].job_title</ctx>
+        </rule>
+
+        <rule name="PassiveVoiceRule" severity="medium" impact="4">
+            <detection>Проверка пассивного залога через LLM</detection>
+            <checks>достижения используют активный залог (не "was", "were", "been")</checks>
+            <fix>LLM преобразует в активный залог</fix>
+            <ctx field="work_experience[i].achievements[j]">work_experience[i].job_title</ctx>
+        </rule>
+
+        <!-- Content Duplication -->
+        <rule name="DuplicateAchievementsRule" severity="medium" impact="4">
+            <detection>LLM анализирует достижения на дублирование между разными позициями</detection>
+            <checks>достижения не дублируются между разными позициями work_experience</checks>
+            <fix>LLM предлагает уникальные формулировки для каждой позиции</fix>
+            <specification>
+                Все достижения из всех позиций передаются в LLM одновременно.
+                LLM определяет дубликаты и возвращает список позиций с дублирующимися достижениями.
+                Затем результат парсится на отдельные ImprovementPoint для каждой позиции с дубликатами.
+            </specification>
+            <ctx field="work_experience[i].achievements">work_experience[].achievements</ctx>
+        </rule>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- ОБРАЗОВАНИЕ (education) -->
+    <!-- ========================================== -->
+    <section name="education">
+        <rule name="MissingInstitutionRule" severity="high" impact="8">
+            <detection>Механическая проверка на пустое поле учебного заведения</detection>
+            <checks>education[i].institution не пустой</checks>
+            <fix>Нет автоисправления (требуется ввод пользователя)</fix>
+        </rule>
+
+        <rule name="MissingDegreeRule" severity="medium" impact="4">
+            <detection>Механическая проверка на пустое поле степени</detection>
+            <checks>education[i].degree не пустой</checks>
+            <fix>Нет автоисправления (требуется ввод пользователя)</fix>
+        </rule>
+        
+        <rule name="MissingFieldOfStudyRule" severity="medium" impact="4">
+            <detection>Механическая проверка на пустое поле направления обучения</detection>
+            <checks>education[i].field_of_study не пустой</checks>
+            <fix>Нет автоисправления (требуется ввод пользователя)</fix>
+        </rule>
+
+        <!-- Date Validation -->
+        <rule name="EducationDateValidationRule" severity="high" impact="5">
+            <detection>Механическая проверка формата и логики дат образования</detection>
+            <checks>
+                - Формат дат соответствует YYYY-MM или "Month YYYY"
+                - start_date &lt; end_date
+                - Даты не в будущем
+            </checks>
+            <fix>Нет автоисправления (требуется корректировка пользователя)</fix>
+        </rule>
+
+        <!-- Institution Name Format -->
+        <rule name="InstitutionNameConsistencyRule" severity="low" impact="1">
+            <detection>LLM проверяет единообразие формата названий учебных заведений</detection>
+            <checks>названия учебных заведений в едином формате (полное название vs аббревиатура)</checks>
+            <fix>LLM приводит к единому стилю</fix>
+            <specification>
+                Все названия учебных заведений передаются в LLM одновременно в одном запросе.
+                LLM анализирует формат и возвращает исправления для несоответствующих названий.
+                Затем результат парсится на отдельные ImprovementPoint для каждого заведения.
+            </specification>
+            <ctx field="education[i].institution">education[].institution</ctx>
+        </rule>
+
+        <!-- Education Relevance -->
+        <rule name="EducationRelevanceRule" severity="medium" impact="1">
+            <detection>LLM анализирует релевантность образования к текущей должности</detection>
+            <checks>field_of_study релевантен current_role и отрасли</checks>
+            <fix>Нет автоисправления (предупреждение о несоответствии)</fix>
+            <ctx field="education[i].field_of_study">current_role, work_experience, education[i].degree</ctx>
+        </rule>
+
+        <!-- Relevant Courses -->
+        <rule name="RelevantCoursesRule" severity="low" impact="2">
+            <detection>LLM анализирует релевантность курсов к образованию и должности</detection>
+            <checks>
+                - relevant_courses релевантны field_of_study
+                - relevant_courses релевантны current_role
+                - Нет дубликатов в списке курсов
+            </checks>
+            <fix>LLM предлагает удалить нерелевантные курсы или добавить релевантные</fix>
+            <ctx field="education[i].relevant_courses">education[i].field_of_study, education[i].degree, current_role, work_experience</ctx>
+        </rule>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- ТЕХНИЧЕСКИЕ СЕКЦИИ -->
+    <!-- ========================================== -->
     <fix_types>
-        <type name="replace">Заменить существующий контент на новый</type>
-        <type name="add">Добавить новый контент в поле (дополнение)</type>
-        <type name="delete">Удалить контент (используется редко)</type>
+        <reference>fix_types_spec.xml</reference>
+        <description>
+            Подробное описание структуры исправлений для разных типов полей:
+            - Текстовые поля: replace (original_value → new_value)
+            - Списки строк: replace (items с id), add (items), delete (items с id)
+            - Списки объектов: replace (items с id и new_value), add (items), delete (items с id)
+        </description>
     </fix_types>
 
     <field_path_format>
@@ -220,6 +452,22 @@
         <output_format>Структурированный ответ с has_fix (bool), fixed_text (str), reasoning (str)</output_format>
         <model>gpt-4.1-mini (из AnalysisConfig)</model>
         <temperature>0.3</temperature>
+        
+        <context_format>
+            <description>Тег ctx определяет контекстные поля для LLM при исправлении конкретного поля</description>
+            <syntax>ctx field="field_path"&gt;context_fields&lt;/ctx</syntax>
+            <field_path>Путь к исправляемому полю (из field_path в ImprovementPoint). * означает любое поле</field_path>
+            <context_fields>
+                Через запятую перечислены поля резюме, которые нужно передать LLM как контекст.
+                - означает контекст не требуется (только само поле)
+            </context_fields>
+            <examples>
+                <example>ctx field="work_experience[i].job_title"&gt;work_experience[i].short_description, skills&lt;/ctx</example>
+                <example>ctx field="professional_summary"&gt;current_role, work_experience, skills&lt;/ctx</example>
+                <example>ctx field="*"&gt;-&lt;/ctx</example>
+            </examples>
+            <note>Правила могут иметь несколько ctx для разных полей (например, CapitalizationConsistencyRule)</note>
+        </context_format>
     </llm_integration>
 
     <configuration_constants>
@@ -229,6 +477,8 @@
             <const name="MAX_SUMMARY_LENGTH">500</const>
             <const name="MIN_SKILLS_COUNT">6</const>
             <const name="MAX_SKILLS_COUNT">15</const>
+            <const name="MIN_ACHIEVEMENTS_COUNT">3</const>
+            <const name="MAX_ACHIEVEMENTS_COUNT">8</const>
             <const name="MAX_BULLET_WORDS">25</const>
             <const name="MIN_RESUME_WORDS">300</const>
             <const name="MAX_RESUME_WORDS">1500</const>
@@ -236,4 +486,3 @@
         </constants>
     </configuration_constants>
 </specification>
-

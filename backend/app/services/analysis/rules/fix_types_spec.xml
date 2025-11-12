@@ -1,0 +1,365 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<specification>
+    <title>Типы исправлений для анализа резюме</title>
+    <description>
+        Описание структуры FixSuggestion для различных типов полей резюме.
+        Все исправления применяются к конкретному field_path из ImprovementPoint.
+    </description>
+
+    <!-- ====================================== -->
+    <!-- ТЕКСТОВЫЕ ПОЛЯ -->
+    <!-- ====================================== -->
+    <text_fields>
+        <description>Простые строковые поля (professional_summary, current_role, first_name, job_title, achievement, и т.д.)</description>
+        
+        <fix_type name="replace">
+            <structure>
+                {
+                    "type": "replace",
+                    "original_value": "исходное значение поля (берется механически)",
+                    "new_value": "новое значение поля (генерируется LLM)"
+                }
+            </structure>
+            <example field="professional_summary">
+                {
+                    "type": "replace",
+                    "original_value": "I am a experienced developer with many skills.",
+                    "new_value": "Experienced developer with expertise in Python, FastAPI, and cloud technologies."
+                }
+            </example>
+            <example field="work_experience[0].achievements[1]">
+                {
+                    "type": "replace",
+                    "original_value": "Helped improve system performance.",
+                    "new_value": "Optimized system performance by 40% through database query optimization and caching implementation."
+                }
+            </example>
+        </fix_type>
+    </text_fields>
+
+    <!-- ====================================== -->
+    <!-- ПОЛЯ-СПИСКИ СТРОК -->
+    <!-- ====================================== -->
+    <string_list_fields>
+        <description>Списки строк (skills, work_experience[i].achievements, education[i].courses, certifications)</description>
+        <applies_to>skills, work_experience[].achievements, education[].courses, certifications</applies_to>
+        
+        <fix_type name="replace">
+            <description>Замена существующих элементов списка</description>
+            <structure>
+                {
+                    "type": "replace",
+                    "items": [
+                        {"id": "индекс или uuid элемента", "new_value": "новый текст"}
+                    ]
+                }
+            </structure>
+            <example field="skills">
+                {
+                    "type": "replace",
+                    "items": [
+                        {"id": 2, "new_value": "React.js"},
+                        {"id": 5, "new_value": "PostgreSQL"}
+                    ]
+                }
+            </example>
+        </fix_type>
+
+        <fix_type name="add">
+            <description>Добавление новых элементов в список</description>
+            <structure>
+                {
+                    "type": "add",
+                    "items": ["новый текст 1", "новый текст 2"]
+                }
+            </structure>
+            <example field="skills">
+                {
+                    "type": "add",
+                    "items": ["Docker", "Kubernetes", "CI/CD"]
+                }
+            </example>
+            <example field="work_experience[0].achievements">
+                {
+                    "type": "add",
+                    "items": [
+                        "Led team of 5 developers, increasing sprint velocity by 30%",
+                        "Implemented automated testing pipeline, reducing bugs by 50%"
+                    ]
+                }
+            </example>
+        </fix_type>
+
+        <fix_type name="delete">
+            <description>Удаление элементов из списка</description>
+            <structure>
+                {
+                    "type": "delete",
+                    "items": ["id1", "id2"]
+                }
+            </structure>
+            <example field="skills">
+                {
+                    "type": "delete",
+                    "items": [3, 7, 12]
+                }
+            </example>
+        </fix_type>
+
+        <combined_example field="work_experience[0].achievements">
+            <description>Несколько типов исправлений могут присутствовать одновременно</description>
+            <fix_suggestions>
+                [
+                    {
+                        "type": "replace",
+                        "items": [
+                            {"id": 0, "new_value": "Increased sales by 45% through implementation of targeted marketing campaigns"}
+                        ]
+                    },
+                    {
+                        "type": "add",
+                        "items": [
+                            "Reduced customer churn by 25% through improved onboarding process"
+                        ]
+                    },
+                    {
+                        "type": "delete",
+                        "items": [2, 5]
+                    }
+                ]
+            </fix_suggestions>
+        </combined_example>
+    </string_list_fields>
+
+    <!-- ====================================== -->
+    <!-- ПОЛЯ-СПИСКИ ОБЪЕКТОВ -->
+    <!-- ====================================== -->
+    <object_list_fields>
+        <description>Списки объектов (work_experience, education)</description>
+        <applies_to>work_experience, education</applies_to>
+
+        <fix_type name="replace">
+            <description>Замена существующих объектов в списке (по id или индексу)</description>
+            <structure>
+                {
+                    "type": "replace",
+                    "items": [
+                        {
+                            "id": "индекс или uuid элемента",
+                            "new_value": {
+                                "field1": "значение",
+                                "field2": "значение",
+                                ...все поля объекта...
+                            }
+                        }
+                    ]
+                }
+            </structure>
+            <example field="education">
+                {
+                    "type": "replace",
+                    "items": [
+                        {
+                            "id": 0,
+                            "new_value": {
+                                "institution": "Stanford University",
+                                "degree": "Master of Science",
+                                "field_of_study": "Computer Science",
+                                "start_date": "2018-09",
+                                "end_date": "2020-06",
+                                "location": "Stanford, CA",
+                                "gpa": "3.9",
+                                "courses": ["Machine Learning", "Distributed Systems"]
+                            }
+                        }
+                    ]
+                }
+            </example>
+        </fix_type>
+
+        <fix_type name="add">
+            <description>Добавление новых объектов в список</description>
+            <structure>
+                {
+                    "type": "add",
+                    "items": [
+                        {
+                            "field1": "значение",
+                            "field2": "значение",
+                            ...все поля объекта...
+                        }
+                    ]
+                }
+            </structure>
+            <example field="work_experience">
+                {
+                    "type": "add",
+                    "items": [
+                        {
+                            "company_name": "Tech Corp",
+                            "job_title": "Senior Software Engineer",
+                            "location": "San Francisco, CA",
+                            "start_date": "2020-01",
+                            "end_date": "2023-06",
+                            "is_current": false,
+                            "short_description": "Leading fintech company",
+                            "achievements": [
+                                "Led migration to microservices architecture",
+                                "Reduced system downtime by 60%"
+                            ]
+                        }
+                    ]
+                }
+            </example>
+        </fix_type>
+
+        <fix_type name="delete">
+            <description>Удаление объектов из списка</description>
+            <structure>
+                {
+                    "type": "delete",
+                    "items": ["id1", "id2"]
+                }
+            </structure>
+            <example field="education">
+                {
+                    "type": "delete",
+                    "items": [1]
+                }
+            </example>
+        </fix_type>
+
+        <combined_example field="work_experience">
+            <description>Несколько типов исправлений могут присутствовать одновременно</description>
+            <fix_suggestions>
+                [
+                    {
+                        "type": "replace",
+                        "items": [
+                            {
+                                "id": 0,
+                                "new_value": {
+                                    "company_name": "Google Inc.",
+                                    "job_title": "Senior Software Engineer",
+                                    "location": "Mountain View, CA",
+                                    "start_date": "2021-03",
+                                    "end_date": null,
+                                    "is_current": true,
+                                    "short_description": "Global technology company",
+                                    "achievements": [
+                                        "Designed and implemented scalable API serving 1M+ requests per day",
+                                        "Reduced latency by 70% through optimization and caching"
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "add",
+                        "items": [
+                            {
+                                "company_name": "Startup XYZ",
+                                "job_title": "Lead Developer",
+                                "location": "Remote",
+                                "start_date": "2019-06",
+                                "end_date": "2021-02",
+                                "is_current": false,
+                                "short_description": "Early-stage fintech startup",
+                                "achievements": [
+                                    "Built MVP from scratch, securing $2M seed funding"
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "type": "delete",
+                        "items": [2]
+                    }
+                ]
+            </fix_suggestions>
+        </combined_example>
+    </object_list_fields>
+
+    <!-- ====================================== -->
+    <!-- ПРАВИЛА ПРИМЕНЕНИЯ -->
+    <!-- ====================================== -->
+    <application_rules>
+        <rule name="id_format">
+            <description>ID элемента может быть индексом (int) или UUID (str) в зависимости от реализации</description>
+            <recommendation>Использовать индекс для простоты при анализе существующего резюме</recommendation>
+        </rule>
+
+        <rule name="order_of_operations">
+            <description>При одновременном применении нескольких типов исправлений</description>
+            <order>
+                <step>1. delete - сначала удалить</step>
+                <step>2. replace - затем заменить существующие</step>
+                <step>3. add - в конце добавить новые</step>
+            </order>
+        </rule>
+
+        <rule name="validation">
+            <description>При применении исправлений необходимо валидировать</description>
+            <checks>
+                <check>ID существует в списке (для replace и delete)</check>
+                <check>Структура new_value соответствует схеме поля</check>
+                <check>Обязательные поля объекта заполнены (для object lists)</check>
+            </checks>
+        </rule>
+
+        <rule name="atomicity">
+            <description>Все исправления для одного поля применяются атомарно</description>
+            <note>Если одно из исправлений не валидно - отклоняются все исправления для этого поля</note>
+        </rule>
+    </application_rules>
+
+    <!-- ====================================== -->
+    <!-- FIELD PATH MAPPING -->
+    <!-- ====================================== -->
+    <field_mapping>
+        <description>Соответствие field_path типам исправлений</description>
+        
+        <text_field>
+            <paths>
+                professional_summary,
+                current_role,
+                personal_info.first_name,
+                personal_info.last_name,
+                personal_info.city,
+                personal_info.country,
+                work_experience[i].company_name,
+                work_experience[i].job_title,
+                work_experience[i].location,
+                work_experience[i].short_description,
+                work_experience[i].achievements[j],
+                education[i].institution,
+                education[i].degree,
+                education[i].field_of_study,
+                education[i].location,
+                education[i].gpa
+            </paths>
+            <fix_types>replace</fix_types>
+        </text_field>
+
+        <string_list_field>
+            <paths>
+                skills,
+                work_experience[i].achievements,
+                education[i].courses,
+                certifications,
+                languages
+            </paths>
+            <fix_types>replace, add, delete</fix_types>
+        </string_list_field>
+
+        <object_list_field>
+            <paths>
+                work_experience,
+                education,
+                personal_info.contacts
+            </paths>
+            <fix_types>replace, add, delete</fix_types>
+        </object_list_field>
+    </field_mapping>
+</specification>
+
