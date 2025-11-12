@@ -16,7 +16,6 @@ import { startApi } from '../startApi';
 import { COLORS } from '../../../shared/theme/theme';
 import { useAuthContext } from '../../../shared/contexts/AuthContext';
 import { guestResumeService } from '../../../shared/services/guestResumeService';
-import RegistrationModal from '../../../shared/components/RegistrationModal';
 
 interface StartOptionsProps {
   onGuardStartFromScratch?: () => boolean;
@@ -44,7 +43,6 @@ const StartOptions: React.FC<StartOptionsProps> = ({
   const [isUploading, setIsUploading] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [uploadMessage, setUploadMessage] = useState('');
-  const [showRegistration, setShowRegistration] = useState(false);
   
   // Use external processing state if provided, otherwise use internal state
   const isProcessingUpload = externalIsProcessingUpload || isUploading;
@@ -121,10 +119,7 @@ const StartOptions: React.FC<StartOptionsProps> = ({
     if (onGuardUploadResume && !onGuardUploadResume()) {
       return;
     }
-    if (!isAuthenticated) {
-      setShowRegistration(true);
-      return;
-    }
+    // Open file dialog - interceptor will handle guest session creation automatically
     fileInputRef.current?.click();
   };
 
@@ -364,11 +359,6 @@ const StartOptions: React.FC<StartOptionsProps> = ({
         </CardContent>
       </Card>
     </Box>
-    <RegistrationModal
-      open={showRegistration}
-      onClose={() => setShowRegistration(false)}
-      onSuccess={() => setShowRegistration(false)}
-    />
     </>
   );
 };
