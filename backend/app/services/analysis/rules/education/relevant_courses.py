@@ -1,0 +1,115 @@
+"""Rule: Relevant Courses - Checks relevance of courses to education and role"""
+from typing import List
+
+from app.schemas.analysis import FixSuggestion, ImprovementPoint
+from app.services.analysis.rules.base import BaseRule
+from app.services.analysis.llm_helper import llm_helper
+
+
+class RelevantCoursesRule(BaseRule):
+    """
+    Analyzes relevance of courses to field of study and current role.
+    Suggests removing irrelevant courses or adding relevant ones.
+    """
+    
+    def __init__(self):
+        super().__init__()
+        self.section_id = "content"
+        self.severity = "low"
+        self.score_impact = 2
+    
+    async def check(self, resume: dict) -> List[ImprovementPoint]:
+        """Check course relevance."""
+        points = []
+        
+        current_role = resume.get('current_role') or ''
+        work_exp = resume.get('work_experience', [])
+        education = resume.get('education', [])
+        
+        for i, edu in enumerate(education):
+            courses = edu.get('relevant_courses') or []
+            field_of_study = edu.get('field_of_study') or ''
+            degree = edu.get('degree') or ''
+            
+            if not courses:
+                continue
+            
+            prompt = f"""Analyze if these courses are relevant to the field of study and current role. Check for duplicates.
+
+Field of study: {field_of_study}
+Degree: {degree}
+Current role: {current_role}
+Courses: {', '.join(courses)}
+
+Return a JSON object with:
+- "irrelevant_courses": list of course names that should be removed
+- "missing_courses": list of relevant courses that could be added
+- "duplicates": list of duplicate course names
+
+If all courses are relevant and no duplicates, return empty lists."""
+            
+            try:
+                result = await llm_helper.call_llm_structured(prompt, max_tokens=500)
+                
+                if result.has_fix and result.fixed_text:
+                    import json
+                    try:
+                        data = json.loads(result.fixed_text)
+                        
+                        # Handle irrelevant courses
+                        irrelevant = data.get('irrelevant_courses', [])
+                        if irrelevant:
+                            # Find indices of irrelevant courses
+                            courses_to_remove = []
+                            for course in irrelevant:
+                                if course in courses:
+                                    idx = courses.index(course)
+                                    courses_to_remove.append(idx)
+                            
+                            if courses_to_remove:
+                                fix_suggestion = FixSuggestion(
+                                    type="delete",
+                                    field_path=f"education[{i}].relevant_courses",
+                                    original_content=courses,
+                                    new_content=courses_to_remove
+                                )
+                                
+                                points.append(self.create_point(
+                                    field_path=f"education[{i}].relevant_courses",
+                                    title="Irrelevant Courses",
+                                    description=f"Remove courses not relevant to field of study: {', '.join(irrelevant[:3])}",
+                                    fix_suggestion=fix_suggestion
+                                ))
+                        
+                        # Handle missing courses
+                        missing = data.get('missing_courses', [])
+                        if missing:
+                            fix_suggestion = FixSuggestion(
+                                type="add",
+                                field_path=f"education[{i}].relevant_courses",
+                                new_content=missing[:5]  # Limit to 5 courses
+                            )
+                            
+                            points.append(self.create_point(
+                                field_path=f"education[{i}].relevant_courses",
+                                title="Consider Adding Relevant Courses",
+                                description=f"Add relevant courses: {', '.join(missing[:3])}",
+                                fix_suggestion=fix_suggestion
+                            ))
+                        
+                        # Handle duplicates
+                        duplicates = data.get('duplicates', [])
+                        if duplicates:
+                            points.append(self.create_point(
+                                field_path=f"education[{i}].relevant_courses",
+                                title="Duplicate Courses",
+                                description=f"Remove duplicate courses: {', '.join(duplicates[:3])}"
+                            ))
+                    except json.JSONDecodeError:
+                        pass
+            except Exception:
+                # If LLM call fails, skip this entry
+                pass
+        
+        return points
+

@@ -8,38 +8,60 @@ from app.services.analysis.scoring import calculate_section_score, calculate_ove
 from app.services.analysis.config import AnalysisConfig
 
 # Import all rule classes
-from app.services.analysis.rules.content import (
-    MissingAchievementsRule,
-    AchievementsWithoutMetricsRule,
+from app.services.analysis.rules.general import (
+    BuzzwordsRule,
+    ContentLanguageRule,
+    FillerPhrasesRule,
+    GrammarRule,
+    MissingRequiredFieldsRule,
+    PersonalPronounsRule,
+    ResumeLengthRule,
+    UndefinedAbbreviationsRule,
+)
+from app.services.analysis.rules.personal_info import (
+    CapitalizationConsistencyRule,
+)
+from app.services.analysis.rules.contacts import (
+    ContactValidationRule,
+    ContactsForRoleRule,
+)
+from app.services.analysis.rules.professional_summary import (
+    GenerateMissingSummaryRule,
+    NumberFormatConsistencyRule,
+    SummaryLengthRule,
+    SummaryWeakPhrasesRule,
+)
+from app.services.analysis.rules.skills import (
+    MissingKeywordsRule,
+    SkillsCountRule,
+    SkillsNotInExperienceRule,
+)
+from app.services.analysis.rules.work_experience import (
     AchievementsNotResponsibilitiesRule,
+    AchievementsWithoutMetricsRule,
+    CompanyNameConsistencyRule,
+    DateValidationRule,
+    DuplicateAchievementsRule,
+    EmploymentGapsRule,
+    GenericJobTitlesRule,
+    JobTitleCapitalizationRule,
+    LongBulletsRule,
+    MissingAchievementsRule,
     MissingCompanyDescriptionRule,
+    MissingCompanyRule,
+    MissingExperienceLocationRule,
+    MissingStartDateRule,
+    PassiveVoiceRule,
+    WeakVerbsRule,
+)
+from app.services.analysis.rules.education import (
+    EducationDateValidationRule,
+    EducationRelevanceRule,
+    InstitutionNameConsistencyRule,
     MissingDegreeRule,
     MissingFieldOfStudyRule,
-    LongBulletsRule,
-    MissingRequiredFieldsRule,
-    GenerateMissingSummaryRule,
-    SummaryLengthRule,
-    SkillsCountRule,
-)
-from app.services.analysis.rules.ats import (
-    JobTitleCapitalizationRule,
-    MissingKeywordsRule,
-    EmploymentGapsRule,
-    MissingExperienceLocationRule,
-    SkillsNotInExperienceRule,
-    ResumeLengthRule,
-    GenericJobTitlesRule,
-)
-from app.services.analysis.rules.style import (
-    InconsistentVerbTenseRule,
-    WeakVerbsRule,
-    RepetitiveWordingRule,
-    FillerPhrasesRule,
-    PassiveVoiceRule,
-    PersonalPronounsRule,
-    BuzzwordsRule,
-    MissingActionVerbsRule,
-    UndefinedAbbreviationsRule,
+    MissingInstitutionRule,
+    RelevantCoursesRule,
 )
 
 
@@ -53,38 +75,60 @@ class AnalysisService:
     def _load_rules(self) -> List[BaseRule]:
         """Load and instantiate all rule classes."""
         return [
-            # Content & Structure rules (11 rules - consolidated from 13)
+            # General rules (apply to all fields)
             MissingRequiredFieldsRule(),  # Must run first - mechanical checks for missing fields
+            ContentLanguageRule(),
+            ResumeLengthRule(),
+            GrammarRule(),
+            BuzzwordsRule(),
+            FillerPhrasesRule(),
+            UndefinedAbbreviationsRule(),
+            PersonalPronounsRule(),
+
+            # Personal info rules
+            CapitalizationConsistencyRule(),
+
+            # Contact rules
+            ContactValidationRule(),
+            ContactsForRoleRule(),
+
+            # Professional summary rules
             GenerateMissingSummaryRule(),  # LLM-powered summary generation (runs after mechanical check)
-            MissingAchievementsRule(),
+            SummaryLengthRule(),  # Checks existing summaries (too short/long)
+            SummaryWeakPhrasesRule(),
+            NumberFormatConsistencyRule(),
+
+            # Skills rules
+            SkillsCountRule(),
+            MissingKeywordsRule(),
+            SkillsNotInExperienceRule(),
+
+            # Work experience rules
+            MissingCompanyRule(),
+            MissingStartDateRule(),
+            DateValidationRule(),
             MissingCompanyDescriptionRule(),
+            MissingExperienceLocationRule(),
+            GenericJobTitlesRule(),
+            JobTitleCapitalizationRule(),
+            CompanyNameConsistencyRule(),
+            EmploymentGapsRule(),
+            MissingAchievementsRule(),
             AchievementsWithoutMetricsRule(),
             AchievementsNotResponsibilitiesRule(),
+            LongBulletsRule(),
+            WeakVerbsRule(),
+            PassiveVoiceRule(),
+            DuplicateAchievementsRule(),
+
+            # Education rules
+            MissingInstitutionRule(),
             MissingDegreeRule(),
             MissingFieldOfStudyRule(),
-            LongBulletsRule(),
-            SummaryLengthRule(),  # Checks existing summaries (too short/long)
-            SkillsCountRule(),
-
-            # ATS Optimization rules (7 rules)
-            JobTitleCapitalizationRule(),
-            MissingKeywordsRule(),
-            EmploymentGapsRule(),
-            MissingExperienceLocationRule(),
-            SkillsNotInExperienceRule(),
-            ResumeLengthRule(),
-            GenericJobTitlesRule(),
-
-            # Style & Grammar rules (9 rules)
-            InconsistentVerbTenseRule(),
-            WeakVerbsRule(),
-            RepetitiveWordingRule(),
-            FillerPhrasesRule(),
-            PassiveVoiceRule(),
-            PersonalPronounsRule(),
-            BuzzwordsRule(),
-            MissingActionVerbsRule(),
-            UndefinedAbbreviationsRule(),
+            EducationDateValidationRule(),
+            InstitutionNameConsistencyRule(),
+            EducationRelevanceRule(),
+            RelevantCoursesRule(),
         ]
     
     async def analyze_resume(self, resume: dict) -> AnalysisResult:
