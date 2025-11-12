@@ -1,6 +1,7 @@
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
+import CircularProgress from '@mui/material/CircularProgress';
 import React, { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -376,7 +377,7 @@ const ExportPage: React.FC = () => {
                 }}
               >
                 {isDownloading ? (
-                  <GradientSpinnerAnimation size={20} thickness={3} />
+                  <CircularProgress size={20} sx={{ color: COLORS.grey[700] }} />
                 ) : (
                   t('export.buttons.downloadTxtFree', 'Download TXT (Free)')
                 )}
