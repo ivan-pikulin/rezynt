@@ -622,6 +622,7 @@ const RefinePage: React.FC = () => {
                 onNavigateToField={handleNavigateToField}
                 onFixMarked={handleFixMarked}
                 dismissedPointIds={dismissedPointIds}
+                isPremium={user?.is_premium || false}
               />
             </Box>
 

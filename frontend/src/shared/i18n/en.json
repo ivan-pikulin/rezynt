@@ -206,6 +206,10 @@
     },
     "preview": {
       "title": "Resume Preview"
+    },
+    "premium": {
+      "title": "Premium Insight",
+      "button": "Unlock Full Analysis"
     }
   },
   "onboarding": {

@@ -4,6 +4,9 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import confetti from 'canvas-confetti';
 import { ImprovementPoint as ImprovementPointType, Resume } from '../../../shared/services/api/types';
 import { analysisApi } from '../../../shared/services/api';
@@ -18,6 +21,7 @@ interface Props {
   onNavigateToField?: (fieldPath: string) => void;
   onFixMarked?: (pointId: string) => void; // Callback to recalculate score after marking as fixed
   isDismissed?: boolean; // Whether this point has been dismissed/applied
+  isPremium?: boolean; // Whether user has premium access
 }
 
 const severityColors = {
@@ -26,7 +30,14 @@ const severityColors = {
   low: COLORS.severity.low.main,
 };
 
-const ImprovementPoint: React.FC<Props> = ({ point, resume, onFixApplied, onNavigateToField, onFixMarked, isDismissed = false }) => {
+const ImprovementPoint: React.FC<Props> = ({ point, resume, onFixApplied, onNavigateToField, onFixMarked, isDismissed = false, isPremium = false }) => {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const isPremiumPoint = point.premium_only === true;
+  
+  const handleUpgradeClick = () => {
+    navigate('/upgrade');
+  };
   const [isAnimating, setIsAnimating] = useState(false);
   const [isMarkingFixed, setIsMarkingFixed] = useState(false);
   const [addedItems, setAddedItems] = useState<Set<number>>(new Set());
@@ -288,7 +299,19 @@ const ImprovementPoint: React.FC<Props> = ({ point, resume, onFixApplied, onNavi
         </Box>
       )}
 
-      <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+      <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: '8px', position: 'relative' }}>
+        {/* Blurred content wrapper - covers both dot and content */}
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: '8px',
+            flex: 1,
+            filter: isPremiumPoint && !isPremium ? 'blur(3px)' : 'none',
+            pointerEvents: isPremiumPoint && !isPremium ? 'none' : 'auto',
+            transition: 'filter 0.3s ease',
+          }}
+        >
         <Box
           sx={{
             width: '8px',
@@ -497,6 +520,80 @@ const ImprovementPoint: React.FC<Props> = ({ point, resume, onFixApplied, onNavi
           </Box>
         </Box>
       </Box>
+      </Box>
+      
+      {/* Premium overlay - no blur, covers dot and content */}
+      {isPremiumPoint && !isPremium && (
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '12px', // Account for padding
+            left: '12px', // Account for padding
+            right: '12px', // Account for padding
+            bottom: '12px', // Account for padding
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: 'rgba(255, 255, 255, 0.5)',
+            borderRadius: '6px',
+            zIndex: 10,
+            padding: '24px',
+            gap: '12px',
+            pointerEvents: 'auto',
+            filter: 'none', // Explicitly disable blur inheritance
+          }}
+        >
+          <Typography
+            sx={{
+              fontSize: '16px',
+              fontWeight: 600,
+              color: '#1f2937',
+              textAlign: 'center',
+            }}
+          >
+            {t('refine.premium.title')}
+          </Typography>
+          <Button
+            variant="outlined"
+            onClick={handleUpgradeClick}
+            sx={{
+              marginTop: '8px',
+              borderColor: COLORS.button.primary.background,
+              color: COLORS.button.primary.background,
+              fontSize: '11px',
+              fontWeight: 400,
+              padding: '6px 12px',
+              textTransform: 'none',
+              borderRadius: '6px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              backgroundColor: 'transparent',
+              animation: 'pulse 3s ease-in-out infinite',
+              '@keyframes pulse': {
+                '0%, 100%': {
+                  opacity: 1,
+                  transform: 'scale(1)',
+                },
+                '50%': {
+                  opacity: 0.85,
+                  transform: 'scale(1.02)',
+                },
+              },
+              '&:hover': {
+                borderColor: COLORS.button.primary.backgroundHover,
+                backgroundColor: COLORS.button.primary.background,
+                color: COLORS.button.primary.text,
+                animation: 'none', // Disable pulse on hover
+              },
+            }}
+          >
+            {t('refine.premium.button')}
+            <TrendingUpIcon sx={{ fontSize: '14px' }} />
+          </Button>
+        </Box>
+      )}
     </Box>
   );
 };

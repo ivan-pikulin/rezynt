@@ -4,10 +4,11 @@ import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { AnalysisSection, Resume } from '../../../shared/services/api/types';
 import ImprovementPoint from './ImprovementPoint';
 import { COLORS } from '../../../shared/theme/theme';
+import { generatePremiumPoints } from '../utils/generatePremiumPoints';
 
 type Props = {
   sections: AnalysisSection[];
@@ -16,6 +17,7 @@ type Props = {
   onNavigateToField?: (fieldPath: string) => void;
   onFixMarked?: (pointId: string) => void;
   dismissedPointIds?: Set<string>;
+  isPremium?: boolean;
 };
 
 const accordionSx = {
@@ -46,13 +48,31 @@ const statusToText = {
   Strong: COLORS.success.text,
 };
 
-const ImprovementSections: React.FC<Props> = ({ sections, resume, onFixApplied, onNavigateToField, onFixMarked, dismissedPointIds }) => {
+const ImprovementSections: React.FC<Props> = ({ sections, resume, onFixApplied, onNavigateToField, onFixMarked, dismissedPointIds, isPremium = false }) => {
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
 
   // Initialize all sections as expanded when sections change
   useEffect(() => {
     setExpandedSections(new Set(sections.map(s => s.id)));
   }, [sections]);
+
+  // Generate premium points for non-premium users
+  const sectionsWithPremiumPoints = useMemo(() => {
+    if (isPremium) {
+      return sections;
+    }
+
+    return sections.map((section) => {
+      // Generate 1-3 random premium points per section
+      const premiumPointsCount = Math.floor(Math.random() * 3) + 1;
+      const premiumPoints = generatePremiumPoints(section.id, premiumPointsCount);
+      
+      return {
+        ...section,
+        improvement_points: [...section.improvement_points, ...premiumPoints],
+      };
+    });
+  }, [sections, isPremium]);
 
   const handleAccordionChange = (panelId: string) => (_event: React.SyntheticEvent, isExpanded: boolean) => {
     setExpandedSections(prev => {
@@ -68,7 +88,7 @@ const ImprovementSections: React.FC<Props> = ({ sections, resume, onFixApplied, 
 
   return (
     <Box sx={{ pt: 1, px: 2, pb: 2, overflow: 'auto' }}>
-      {sections.map((s) => {
+      {sectionsWithPremiumPoints.map((s) => {
         const pct = s.percentage;
         const color = statusToColor[s.status as keyof typeof statusToColor];
         const bgColor = statusToBackground[s.status as keyof typeof statusToBackground];
@@ -177,6 +197,7 @@ const ImprovementSections: React.FC<Props> = ({ sections, resume, onFixApplied, 
                     onNavigateToField={onNavigateToField}
                     onFixMarked={onFixMarked}
                     isDismissed={dismissedPointIds?.has(point.id) || false}
+                    isPremium={isPremium}
                   />
                 ))
               )}
