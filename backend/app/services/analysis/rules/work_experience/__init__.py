@@ -1,6 +1,6 @@
 """Work experience rules"""
-from .achievement_length import LongBulletsRule
-from .achievements_count import MissingAchievementsRule
+from .achievement_length import AchivementLengthRule
+from .achievements_count import AchievementsCountRule
 from .achievements_not_responsibilities import AchievementsNotResponsibilitiesRule
 from .achievements_without_metrics import AchievementsWithoutMetricsRule
 from .company_name_consistency import CompanyNameConsistencyRule
@@ -17,8 +17,8 @@ from .passive_voice import PassiveVoiceRule
 from .weak_verbs import WeakVerbsRule
 
 __all__ = [
-    'LongBulletsRule',
-    'MissingAchievementsRule',
+    'AchivementLengthRule',
+    'AchievementsCountRule',
     'AchievementsNotResponsibilitiesRule',
     'AchievementsWithoutMetricsRule',
     'CompanyNameConsistencyRule',

@@ -14,6 +14,7 @@ class WeakVerbsRule(BaseRule):
         self.section_id = "style"
         self.severity = "medium"
         self.score_impact = 4
+        self.premium_only = False
     
     async def check(self, resume: dict) -> List[ImprovementPoint]:
         """Detect weak verbs and generate improved versions."""

@@ -14,6 +14,7 @@ class DateValidationRule(BaseRule):
         self.section_id = "content"
         self.severity = "high"
         self.score_impact = 7
+        self.premium_only = False
     
     def _parse_date(self, date_str: str) -> datetime:
         """Parse date string using common formats."""

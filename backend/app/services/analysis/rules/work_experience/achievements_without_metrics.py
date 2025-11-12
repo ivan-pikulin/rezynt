@@ -15,6 +15,7 @@ class AchievementsWithoutMetricsRule(BaseRule):
         self.section_id = "content"
         self.severity = "high"
         self.score_impact = 6
+        self.premium_only = False
     
     async def check(self, resume: dict) -> List[ImprovementPoint]:
         """Detect missing metrics and generate fixes via LLM in one pass."""

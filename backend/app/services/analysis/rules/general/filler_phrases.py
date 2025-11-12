@@ -14,6 +14,7 @@ class FillerPhrasesRule(BaseRule):
         self.section_id = "style"
         self.severity = "low"
         self.score_impact = 2
+        self.premium_only = True
     
     async def check(self, resume: dict) -> List[ImprovementPoint]:
         """Detect filler phrases and generate cleaner versions."""

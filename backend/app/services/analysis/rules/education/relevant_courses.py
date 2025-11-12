@@ -17,6 +17,7 @@ class RelevantCoursesRule(BaseRule):
         self.section_id = "content"
         self.severity = "low"
         self.score_impact = 2
+        self.premium_only = True
     
     async def check(self, resume: dict) -> List[ImprovementPoint]:
         """Check course relevance."""

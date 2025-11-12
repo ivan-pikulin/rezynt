@@ -15,6 +15,7 @@ class SummaryLengthRule(BaseRule):
         self.section_id = "content"
         self.severity = "low"
         self.score_impact = 3
+        self.premium_only = True
         self.min_length = AnalysisConfig.MIN_SUMMARY_LENGTH
         self.max_length = AnalysisConfig.MAX_SUMMARY_LENGTH
 

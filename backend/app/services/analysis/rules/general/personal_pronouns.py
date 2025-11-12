@@ -15,6 +15,7 @@ class PersonalPronounsRule(BaseRule):
         self.section_id = "style"
         self.severity = "medium"
         self.score_impact = 3
+        self.premium_only = True
     
     async def check(self, resume: dict) -> List[ImprovementPoint]:
         """Detect personal pronouns and generate versions without them."""

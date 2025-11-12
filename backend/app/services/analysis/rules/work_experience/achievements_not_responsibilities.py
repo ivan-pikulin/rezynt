@@ -14,6 +14,7 @@ class AchievementsNotResponsibilitiesRule(BaseRule):
         self.section_id = "content"
         self.severity = "medium"
         self.score_impact = 5
+        self.premium_only = True
     
     async def check(self, resume: dict) -> List[ImprovementPoint]:
         """Detect responsibility-oriented language and generate results-focused fixes."""

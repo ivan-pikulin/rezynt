@@ -15,6 +15,7 @@ class SkillsCountRule(BaseRule):
         self.section_id = "content"
         self.severity = "medium"
         self.score_impact = 4
+        self.premium_only = True
         self.min_skills = AnalysisConfig.MIN_SKILLS_COUNT
         self.max_skills = AnalysisConfig.MAX_SKILLS_COUNT
 

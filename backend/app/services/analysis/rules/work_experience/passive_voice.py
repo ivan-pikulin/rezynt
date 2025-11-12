@@ -14,6 +14,7 @@ class PassiveVoiceRule(BaseRule):
         self.section_id = "style"
         self.severity = "medium"
         self.score_impact = 4
+        self.premium_only = True
     
     async def check(self, resume: dict) -> List[ImprovementPoint]:
         """Detect passive voice and generate active voice versions."""

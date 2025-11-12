@@ -11,8 +11,9 @@ class MissingDegreeRule(BaseRule):
     def __init__(self):
         super().__init__()
         self.section_id = "content"
-        self.severity = "high"
-        self.score_impact = 7
+        self.severity = "medium"
+        self.score_impact = 4
+        self.premium_only = False
     
     async def check(self, resume: dict) -> List[ImprovementPoint]:
         """Mechanical check for degree field."""

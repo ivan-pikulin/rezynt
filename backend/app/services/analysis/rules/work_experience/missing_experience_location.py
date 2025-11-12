@@ -13,6 +13,7 @@ class MissingExperienceLocationRule(BaseRule):
         self.section_id = "ats"
         self.severity = "low"
         self.score_impact = 2
+        self.premium_only = False
     
     async def check(self, resume: dict) -> List[ImprovementPoint]:
         """Check for missing city/country."""

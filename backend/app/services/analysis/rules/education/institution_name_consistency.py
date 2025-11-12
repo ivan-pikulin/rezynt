@@ -17,6 +17,7 @@ class InstitutionNameConsistencyRule(BaseRule):
         self.section_id = "style"
         self.severity = "low"
         self.score_impact = 1
+        self.premium_only = True
     
     async def check(self, resume: dict) -> List[ImprovementPoint]:
         """

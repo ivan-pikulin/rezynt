@@ -17,6 +17,7 @@ class ContentLanguageRule(BaseRule):
         self.section_id = "content"
         self.severity = "high"
         self.score_impact = 8
+        self.premium_only = True
     
     async def check(self, resume: dict) -> List[ImprovementPoint]:
         """

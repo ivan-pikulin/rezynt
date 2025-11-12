@@ -14,6 +14,7 @@ class ResumeLengthRule(BaseRule):
         self.section_id = "ats"
         self.severity = "low"
         self.score_impact = 3
+        self.premium_only = False
     
     async def check(self, resume: dict) -> List[ImprovementPoint]:
         """Calculate total word count and check length."""

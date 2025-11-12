@@ -29,7 +29,7 @@
     <!-- ОБЩИЕ ПРАВИЛА (применяются ко всем полям) -->
     <!-- ========================================== -->
     <section name="general">
-        <rule name="GrammarRule" severity="low" impact="2">
+        <rule name="GrammarRule" severity="low" impact="2" premium_only="true">
             <detection>LLM проверяет грамматику и стилистику текста</detection>
             <checks>
               - Текст не имеет грамматических и орфографических ошибок
@@ -43,7 +43,7 @@
             <ctx field="*">-</ctx>
         </rule>
 
-        <rule name="BuzzwordsRule" severity="low" impact="3">
+        <rule name="BuzzwordsRule" severity="low" impact="3" premium_only="true">
             <detection>Поиск ключевых слов для модных словечек</detection>
             <checks>текст не содержит модные словечки (synergy, leverage, paradigm, и т.д.)</checks>
             <fix>LLM заменяет на конкретные специфичные термины</fix>
@@ -51,7 +51,7 @@
             <ctx field="*">skills</ctx>
         </rule>
 
-        <rule name="FillerPhrasesRule" severity="low" impact="2">
+        <rule name="FillerPhrasesRule" severity="low" impact="2" premium_only="true">
             <detection>Поиск ключевых слов для слов-паразитов</detection>
             <checks>текст не содержит слова-паразиты (basically, actually, just, и т.д.)</checks>
             <fix>LLM удаляет слова-паразиты</fix>
@@ -59,7 +59,7 @@
             <ctx field="*">-</ctx>
         </rule>
         
-        <rule name="UndefinedAbbreviationsRule" severity="low" impact="2">
+        <rule name="UndefinedAbbreviationsRule" severity="low" impact="2" premium_only="true">
             <detection>LLM определяет нераспространенные аббревиатуры</detection>
             <checks>аббревиатуры определены при первом использовании</checks>
             <fix>LLM добавляет определение</fix>
@@ -67,14 +67,14 @@
             <ctx field="*">-</ctx>
         </rule>
 
-        <rule name="PersonalPronounsRule" severity="medium" impact="3">
+        <rule name="PersonalPronounsRule" severity="medium" impact="3" premium_only="true">
             <detection>Regex для личных местоимений</detection>
             <checks>текст не содержит I, me, my, mine, we, our, ours</checks>
             <fix>LLM удаляет местоимения, сохраняя ясность</fix>
             <ctx field="*">-</ctx>
         </rule>
 
-        <rule name="ContentLanguageRule" severity="high" impact="8">
+        <rule name="ContentLanguageRule" severity="high" impact="8" premium_only="true">
             <detection>LLM определяет язык каждого текстового поля</detection>
             <checks>весь контент резюме на одном языке (кроме имен собственных, названий компаний и технических терминов)</checks>
             <fix>Предупреждение о несоответствии языков с указанием полей на разных языках</fix>
@@ -86,13 +86,13 @@
             <ctx field="*">professional_summary, current_role, work_experience[].job_title, work_experience[].achievements[], education[].degree, education[].field_of_study</ctx>
         </rule>
 
-        <rule name="ResumeLengthRule" severity="low" impact="3">
+        <rule name="ResumeLengthRule" severity="low" impact="3" premium_only="false">
             <detection>Подсчет слов во всех секциях</detection>
             <thresholds>MIN=300 слов, MAX=1500 слов</thresholds>
             <fix>Нет автоисправления (требуется корректировка пользователя)</fix>
         </rule>
 
-        <rule name="MissingRequiredFieldsRule" severity="high" impact="8">
+        <rule name="MissingRequiredFieldsRule" severity="high" impact="8" premium_only="false">
             <detection>Механическая проверка на пустые поля</detection>
             <checks>first_name, last_name, current_role, city, work_experience, education</checks>
             <fix>Нет автоисправления (требуется ввод пользователя)</fix>
@@ -110,7 +110,7 @@
     <!-- ИМЯ (personal_info.first_name, last_name) -->
     <!-- ========================================== -->
     <section name="personal_info">
-        <rule name="CapitalizationConsistencyRule" severity="low" impact="2">
+        <rule name="CapitalizationConsistencyRule" severity="low" impact="2" premium_only="true">
             <detection>LLM проверяет единообразие стиля написания в однотипных элементах</detection>
             <checks>
                 - Имена (first_name, last_name): единый стиль (Title Case, UPPERCASE, или lowercase)
@@ -132,13 +132,13 @@
     <!-- КОНТАКТЫ (personal_info.contacts) -->
     <!-- ========================================== -->
     <section name="contacts">
-        <rule name="ContactValidationRule" severity="high" impact="7">
+        <rule name="ContactValidationRule" severity="high" impact="7" premium_only="false">
             <detection>Механическая проверка на количество и формат контактов</detection>
             <checks>количество контактов (≥2), валидация формата email (regex), phone (regex), и других полей где формат детерминирован</checks>
             <fix>Нет автоисправления (требуется ввод пользователя или корректировка формата)</fix>
         </rule>
 
-        <rule name="ContactsForRoleRule" severity="medium" impact="5">
+        <rule name="ContactsForRoleRule" severity="medium" impact="5" premium_only="true">
             <detection>LLM анализирует роль и проверяет наличие релевантных контактов</detection>
             <checks>
                 - Для технических ролей: наличие LinkedIn или GitHub
@@ -154,28 +154,28 @@
     <!-- ПРОФЕССИОНАЛЬНОЕ РЕЗЮМЕ (professional_summary) -->
     <!-- ========================================== -->
     <section name="professional_summary">
-        <rule name="MissingRequiredFieldsRule.professional_summary" severity="high" impact="8">
+        <rule name="MissingRequiredFieldsRule.professional_summary" severity="high" impact="8" premium_only="true">
             <detection>Механическая проверка (отсутствует, None, или 0 символов)</detection>
             <checks>professional_summary не пустой</checks>
             <fix>LLM генерирует summary из work_experience, education, skills</fix>
             <ctx field="professional_summary">current_role, work_experience, education, skills</ctx>
         </rule>
 
-        <rule name="SummaryLengthRule" severity="low" impact="3">
+        <rule name="SummaryLengthRule" severity="low" impact="3" premium_only="true">
             <detection>Механическая проверка (длина)</detection>
             <thresholds>MIN=100 символов, MAX=500 символов</thresholds>
             <fix>LLM расширяет (если слишком короткое) или сокращает (если слишком длинное)</fix>
             <ctx field="professional_summary">professional_summary, current_role, work_experience, skills</ctx>
         </rule>
 
-        <rule name="SummaryWeakPhrasesRule" severity="low" impact="2">
+        <rule name="SummaryWeakPhrasesRule" severity="low" impact="2" premium_only="true">
             <detection>Поиск слабых и вводных фраз в summary через LLM</detection>
             <checks>summary не содержит слабых фраз (basically, actually, just, и т.д.)</checks>
             <fix>LLM заменяет слабые фразы на более сильные</fix>
             <ctx field="professional_summary">current_role</ctx>
         </rule>
 
-        <rule name="NumberFormatConsistencyRule" severity="low" impact="2">
+        <rule name="NumberFormatConsistencyRule" severity="low" impact="2" premium_only="true">
             <detection>LLM проверяет единообразие написания чисел</detection>
             <checks>
                 - Числа в достижениях записаны в едином стиле (цифрами или словами для малых чисел)
@@ -196,21 +196,21 @@
     <!-- НАВЫКИ (skills) -->
     <!-- ========================================== -->
     <section name="skills">
-        <rule name="SkillsCountRule" severity="medium" impact="4">
+        <rule name="SkillsCountRule" severity="medium" impact="4" premium_only="true">
             <detection>Проверка длины массива</detection>
             <thresholds>MIN=6 навыков, MAX=15 навыков</thresholds>
             <fix>LLM предлагает добавить или удалить навыки</fix>
             <ctx field="skills">current_role, work_experience, education[0].field_of_study</ctx>
         </rule>
 
-        <rule name="MissingKeywordsRule" severity="high" impact="7">
+        <rule name="MissingKeywordsRule" severity="high" impact="7" premium_only="false">
             <detection>LLM анализирует отраслевые ключевые слова для должности</detection>
             <checks>секция skills содержит релевантные отраслевые ключевые слова</checks>
             <fix>LLM генерирует список недостающих ключевых слов для добавления</fix>
             <ctx field="skills">current_role, work_experience, education[0].field_of_study</ctx>
         </rule>
 
-        <rule name="SkillsNotInExperienceRule" severity="medium" impact="4">
+        <rule name="SkillsNotInExperienceRule" severity="medium" impact="4" premium_only="true">
             <detection>LLM проверяет, упомянуты ли навыки в опыте работы</detection>
             <checks>заявленные навыки продемонстрированы в достижениях (skills в секции skills упомянуты в achievements)</checks>
             <fix>LLM генерирует достижение, демонстрирующее навык</fix>
@@ -223,7 +223,7 @@
     <!-- ========================================== -->
     <section name="work_experience">
         <!-- Job Title -->
-        <rule name="GenericJobTitlesRule" severity="medium" impact="4">
+        <rule name="GenericJobTitlesRule" severity="medium" impact="4" premium_only="true">
             <detection>Поиск ключевых слов для общих названий должностей</detection>
             <checks>job_title не общий (employee, worker, staff, и т.д.)</checks>
             <fix>LLM предлагает конкретное стандартное для отрасли название</fix>
@@ -231,34 +231,34 @@
         </rule>
 
         <!-- Company Description -->
-        <rule name="MissingCompanyDescriptionRule" severity="low" impact="2">
+        <rule name="MissingCompanyDescriptionRule" severity="low" impact="2" premium_only="false">
             <detection>Механическая проверка на пустое описание</detection>
             <checks>work_experience[i].short_description не пустой</checks>
             <fix>Нет автоисправления (требуется ввод пользователя)</fix>
         </rule>
 
         <!-- Location -->
-        <rule name="MissingExperienceLocationRule" severity="low" impact="2">
+        <rule name="MissingExperienceLocationRule" severity="low" impact="2" premium_only="false">
             <detection>Механическая проверка на пустое поле местоположения</detection>
             <checks>work_experience[i].location не пустой</checks>
             <fix>Нет автоисправления (требуется ввод пользователя)</fix>
         </rule>
 
         <!-- Required Fields -->
-        <rule name="MissingCompanyRule" severity="high" impact="8">
+        <rule name="MissingCompanyRule" severity="high" impact="8" premium_only="false">
             <detection>Механическая проверка на пустое поле названия компании</detection>
             <checks>work_experience[i].company не пустой</checks>
             <fix>Нет автоисправления (требуется ввод пользователя)</fix>
         </rule>
 
-        <rule name="MissingStartDateRule" severity="high" impact="8">
+        <rule name="MissingStartDateRule" severity="high" impact="8" premium_only="false">
             <detection>Механическая проверка на пустое поле даты начала</detection>
             <checks>work_experience[i].start_date не пустой</checks>
             <fix>Нет автоисправления (требуется ввод пользователя)</fix>
         </rule>
 
         <!-- Date Validation -->
-        <rule name="DateValidationRule" severity="high" impact="7">
+        <rule name="DateValidationRule" severity="high" impact="7" premium_only="false">
             <detection>Механическая проверка формата и логики дат</detection>
             <checks>
                 - Формат дат соответствует YYYY-MM или "Month YYYY"
@@ -270,7 +270,7 @@
         </rule>
 
         <!-- Company Name Format -->
-        <rule name="CompanyNameConsistencyRule" severity="low" impact="2">
+        <rule name="CompanyNameConsistencyRule" severity="low" impact="2" premium_only="true">
             <detection>LLM проверяет единообразие формата названий компаний</detection>
             <checks>названия компаний в едином формате (с/без Inc., Ltd., Corp., и т.д.)</checks>
             <fix>LLM приводит к единому стилю</fix>
@@ -283,14 +283,14 @@
         </rule>
 
         <!-- Employment Gaps -->
-        <rule name="EmploymentGapsRule" severity="medium" impact="3">
+        <rule name="EmploymentGapsRule" severity="medium" impact="3" premium_only="false">
             <detection>Парсинг и вычисление дат</detection>
             <threshold>Разрыв &gt; 6 месяцев между работами</threshold>
             <fix>Нет автоисправления (предлагает добавить объяснение)</fix>
         </rule>
 
         <!-- Achievements: Count -->
-        <rule name="AchievementsCountRule" severity="medium" impact="4">
+        <rule name="AchievementsCountRule" severity="medium" impact="4" premium_only="true">
             <detection>Проверка количества achievements в каждом пункте work_experience</detection>
             <thresholds>MIN и MAX задаются в конфигурации</thresholds>
             <checks>work_experience[i].achievements содержит оптимальное количество пунктов</checks>
@@ -300,7 +300,7 @@
         </rule>
         
         <!-- Achievements: Metrics -->
-        <rule name="AchievementsWithoutMetricsRule" severity="high" impact="6">
+        <rule name="AchievementsWithoutMetricsRule" severity="high" impact="6" premium_only="false">
             <detection>LLM анализирует наличие количественных метрик в достижениях</detection>
             <checks>достижения содержат количественные метрики (%, числа, финансовые показатели, и т.д.)</checks>
             <fix>LLM добавляет конкретные метрики в текст достижения</fix>
@@ -308,7 +308,7 @@
         </rule>
         
         <!-- Achievements: Results vs Responsibilities -->
-        <rule name="AchievementsNotResponsibilitiesRule" severity="medium" impact="5">
+        <rule name="AchievementsNotResponsibilitiesRule" severity="medium" impact="5" premium_only="true">
             <detection>LLM анализирует достижения на наличие фокусировки на обязанностях вместо результатов</detection>
             <checks>достижения фокусируются на результатах и impact, а не на описании обязанностей</checks>
             <fix>LLM преобразует описание обязанностей в результат-ориентированный текст с impact</fix>
@@ -316,7 +316,7 @@
         </rule>
         
         <!-- Achievements: Length -->
-        <rule name="AchivementLengthRule" severity="low" impact="2">
+        <rule name="AchivementLengthRule" severity="low" impact="2" premium_only="true">
             <detection>Подсчет слов в достижении</detection>
             <threshold>MAX=25 слов</threshold>
             <fix>LLM сокращает достижение, сохраняя смысл</fix>
@@ -324,7 +324,7 @@
         </rule>
 
         <!-- Achievements: Verbs -->
-        <rule name="WeakVerbsRule" severity="medium" impact="4">
+        <rule name="WeakVerbsRule" severity="medium" impact="4" premium_only="false">
             <detection>Проверка наличия слабых глаголов через LLM</detection>
             <checks>достижения начинаются с сильных глаголов действия</checks>
             <fix>LLM заменяет на сильный глагол действия</fix>
@@ -332,7 +332,7 @@
             <ctx field="work_experience[i].achievements[j]">work_experience[i].job_title</ctx>
         </rule>
 
-        <rule name="PassiveVoiceRule" severity="medium" impact="4">
+        <rule name="PassiveVoiceRule" severity="medium" impact="4" premium_only="true">
             <detection>Проверка пассивного залога через LLM</detection>
             <checks>достижения используют активный залог (не "was", "were", "been")</checks>
             <fix>LLM преобразует в активный залог</fix>
@@ -340,7 +340,7 @@
         </rule>
 
         <!-- Content Duplication -->
-        <rule name="DuplicateAchievementsRule" severity="medium" impact="4">
+        <rule name="DuplicateAchievementsRule" severity="medium" impact="4" premium_only="true">
             <detection>LLM анализирует достижения на дублирование между разными позициями</detection>
             <checks>достижения не дублируются между разными позициями work_experience</checks>
             <fix>LLM предлагает уникальные формулировки для каждой позиции</fix>
@@ -357,26 +357,26 @@
     <!-- ОБРАЗОВАНИЕ (education) -->
     <!-- ========================================== -->
     <section name="education">
-        <rule name="MissingInstitutionRule" severity="high" impact="8">
+        <rule name="MissingInstitutionRule" severity="high" impact="8" premium_only="false">
             <detection>Механическая проверка на пустое поле учебного заведения</detection>
             <checks>education[i].institution не пустой</checks>
             <fix>Нет автоисправления (требуется ввод пользователя)</fix>
         </rule>
 
-        <rule name="MissingDegreeRule" severity="medium" impact="4">
+        <rule name="MissingDegreeRule" severity="medium" impact="4" premium_only="false">
             <detection>Механическая проверка на пустое поле степени</detection>
             <checks>education[i].degree не пустой</checks>
             <fix>Нет автоисправления (требуется ввод пользователя)</fix>
         </rule>
         
-        <rule name="MissingFieldOfStudyRule" severity="medium" impact="4">
+        <rule name="MissingFieldOfStudyRule" severity="medium" impact="4" premium_only="false">
             <detection>Механическая проверка на пустое поле направления обучения</detection>
             <checks>education[i].field_of_study не пустой</checks>
             <fix>Нет автоисправления (требуется ввод пользователя)</fix>
         </rule>
 
         <!-- Date Validation -->
-        <rule name="EducationDateValidationRule" severity="high" impact="5">
+        <rule name="EducationDateValidationRule" severity="high" impact="5" premium_only="false">
             <detection>Механическая проверка формата и логики дат образования</detection>
             <checks>
                 - Формат дат соответствует YYYY-MM или "Month YYYY"
@@ -387,7 +387,7 @@
         </rule>
 
         <!-- Institution Name Format -->
-        <rule name="InstitutionNameConsistencyRule" severity="low" impact="1">
+        <rule name="InstitutionNameConsistencyRule" severity="low" impact="1" premium_only="true">
             <detection>LLM проверяет единообразие формата названий учебных заведений</detection>
             <checks>названия учебных заведений в едином формате (полное название vs аббревиатура)</checks>
             <fix>LLM приводит к единому стилю</fix>
@@ -400,7 +400,7 @@
         </rule>
 
         <!-- Education Relevance -->
-        <rule name="EducationRelevanceRule" severity="medium" impact="1">
+        <rule name="EducationRelevanceRule" severity="medium" impact="1" premium_only="true">
             <detection>LLM анализирует релевантность образования к текущей должности</detection>
             <checks>field_of_study релевантен current_role и отрасли</checks>
             <fix>Нет автоисправления (предупреждение о несоответствии)</fix>
@@ -408,7 +408,7 @@
         </rule>
 
         <!-- Relevant Courses -->
-        <rule name="RelevantCoursesRule" severity="low" impact="2">
+        <rule name="RelevantCoursesRule" severity="low" impact="2" premium_only="true">
             <detection>LLM анализирует релевантность курсов к образованию и должности</detection>
             <checks>
                 - relevant_courses релевантны field_of_study

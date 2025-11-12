@@ -13,7 +13,8 @@ class GenerateMissingSummaryRule(BaseRule):
         super().__init__()
         self.section_id = "content"
         self.severity = "high"
-        self.score_impact = 6
+        self.score_impact = 8
+        self.premium_only = True
 
     async def check(self, resume: dict) -> List[ImprovementPoint]:
         """Generate summary via LLM if missing."""

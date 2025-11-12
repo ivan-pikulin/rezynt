@@ -12,7 +12,8 @@ class MissingCompanyDescriptionRule(BaseRule):
         super().__init__()
         self.section_id = "content"
         self.severity = "low"
-        self.score_impact = 3
+        self.score_impact = 2
+        self.premium_only = False
     
     async def check(self, resume: dict) -> List[ImprovementPoint]:
         """Mechanical check for description field."""

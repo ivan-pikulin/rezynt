@@ -6,7 +6,7 @@ from app.services.analysis.rules.base import BaseRule
 from app.services.analysis.llm_helper import llm_helper
 
 
-class LongBulletsRule(BaseRule):
+class AchivementLengthRule(BaseRule):
     """Detects and shortens overly long achievement bullets via LLM."""
     
     def __init__(self):
@@ -14,6 +14,7 @@ class LongBulletsRule(BaseRule):
         self.section_id = "content"
         self.severity = "low"
         self.score_impact = 2
+        self.premium_only = True
         self.max_words = 25
     
     async def check(self, resume: dict) -> List[ImprovementPoint]:

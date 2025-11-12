@@ -20,6 +20,7 @@ class ContactValidationRule(BaseRule):
         self.section_id = "content"
         self.severity = "high"
         self.score_impact = 7
+        self.premium_only = False
     
     def _validate_email(self, email: str) -> bool:
         """Validate email format."""

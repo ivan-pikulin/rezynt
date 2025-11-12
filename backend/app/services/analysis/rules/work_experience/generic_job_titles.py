@@ -14,6 +14,7 @@ class GenericJobTitlesRule(BaseRule):
         self.section_id = "ats"
         self.severity = "medium"
         self.score_impact = 4
+        self.premium_only = True
     
     async def check(self, resume: dict) -> List[ImprovementPoint]:
         """Detect generic job titles and generate specific alternatives."""

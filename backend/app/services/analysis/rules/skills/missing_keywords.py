@@ -15,6 +15,7 @@ class MissingKeywordsRule(BaseRule):
         self.section_id = "ats"
         self.severity = "high"
         self.score_impact = 7
+        self.premium_only = False
     
     async def check(self, resume: dict) -> List[ImprovementPoint]:
         """Detect missing keywords via LLM and generate suggestions."""

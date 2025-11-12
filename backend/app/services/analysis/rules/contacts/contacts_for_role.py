@@ -19,6 +19,7 @@ class ContactsForRoleRule(BaseRule):
         self.section_id = "content"
         self.severity = "medium"
         self.score_impact = 5
+        self.premium_only = True
     
     async def check(self, resume: dict) -> List[ImprovementPoint]:
         """Check if contacts are appropriate for the role."""

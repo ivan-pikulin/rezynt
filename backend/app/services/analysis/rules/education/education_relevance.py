@@ -17,6 +17,7 @@ class EducationRelevanceRule(BaseRule):
         self.section_id = "content"
         self.severity = "medium"
         self.score_impact = 1
+        self.premium_only = True
     
     async def check(self, resume: dict) -> List[ImprovementPoint]:
         """Check education relevance to current role."""
