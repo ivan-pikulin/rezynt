@@ -604,9 +604,9 @@
       "startDate": "Start Date",
       "endDate": "End Date",
       "currentPosition": "I currently work here",
-      "responsibilities": "Responsibilities & Achievements",
-      "responsibilityPlaceholder": "Describe your key responsibilities and achievements...",
-      "addResponsibility": "Add Responsibility"
+      "achievements": "Achievements",
+      "achievementPlaceholder": "Describe your key achievements and results...",
+      "addAchievement": "Add Achievement"
     },
     "education": {
       "title": "What's your educational background?",

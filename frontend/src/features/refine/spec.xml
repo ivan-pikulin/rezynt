@@ -191,7 +191,7 @@
                 <feature name="field_ids" desc="All input fields have unique IDs for navigation">
                     <ids type="PersonalInfo" pattern="personal-{fieldName}" examples="personal-first_name, personal-email"/>
                     <ids type="ProfessionalSummary" pattern="professional-summary"/>
-                    <ids type="Experience" pattern="experience-{index}-{fieldName}" examples="experience-0-job_title, experience-1-responsibilities-0"/>
+                    <ids type="Experience" pattern="experience-{index}-{fieldName}" examples="experience-0-job_title, experience-1-achievements-0"/>
                     <ids type="Education" pattern="education-{index}-{fieldName}" examples="education-0-degree, education-1-relevant_courses-0"/>
                 </feature>
                 <feature name="smooth_scroll" desc="Automatically scrolls to accordion and field with smooth behavior (150ms delay)"/>

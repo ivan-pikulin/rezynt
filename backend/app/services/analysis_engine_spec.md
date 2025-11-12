@@ -73,7 +73,7 @@ backend/app/
 │   │   │   │   ├── __init__.py
 │   │   │   │   ├── missing_achievements.py
 │   │   │   │   ├── achievements_without_metrics.py
-│   │   │   │   ├── responsibilities_not_results.py
+│   │   │   │   ├── achievements_not_responsibilities.py
 │   │   │   │   ├── missing_company_description.py
 │   │   │   │   ├── missing_degree.py
 │   │   │   │   ├── missing_field_of_study.py
@@ -517,7 +517,7 @@ class AnalysisService:
             # Content & Structure rules (15 rules)
             MissingAchievementsRule(),
             AchievementsWithoutMetricsRule(),
-            ResponsibilitiesNotResultsRule(),
+            AchievementsNotResponsibilitiesRule(),
             MissingCompanyDescriptionRule(),
             MissingDegreeRule(),
             MissingFieldOfStudyRule(),
@@ -775,10 +775,10 @@ async async def check_achievements_without_metrics(resume: dict) -> List[Improve
 
 ---
 
-### Rule 1.3: Responsibilities Instead of Results
+### Rule 1.3: Achievements Not Responsibilities
 
 **Field:** `experience[i].achievements[j]`  
-**Message:** "Convert responsibilities into impact-oriented achievements."  
+**Message:** "Convert responsibility-oriented language into impact-oriented achievements."  
 **Score Impact:** +5  
 **Severity:** 🟠 Medium  
 **Action:** Fix (LLM)  
@@ -786,7 +786,7 @@ async async def check_achievements_without_metrics(resume: dict) -> List[Improve
 
 **Pseudocode:**
 ```python
-async async def check_responsibilities_not_results(resume: dict) -> List[ImprovementPoint]:
+async def check_achievements_not_responsibilities(resume: dict) -> List[ImprovementPoint]:
     points = []
     responsibility_phrases = [
         'responsible for',
@@ -804,7 +804,7 @@ async async def check_responsibilities_not_results(resume: dict) -> List[Improve
             if any(phrase in text_lower for phrase in responsibility_phrases):
                 points.append(ImprovementPoint(
                     id=f"exp_{i}_ach_{j}_responsibility",
-                    rule_id="responsibilities_not_results_rule",
+                    rule_id="achievements_not_responsibilities_rule",
                     section_id="content",
                     field_path=f"work_experience[{i}].achievements[{j}]",
                     message="Rewrite to focus on results and impact, not just duties",

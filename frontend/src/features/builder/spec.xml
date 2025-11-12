@@ -160,7 +160,7 @@
     <step order="2">
       <name>Experience</name>
       <display_name>Experience (desktop), Circle only (mobile)</display_name>
-      <description>User adds work history with responsibilities. First empty entry is automatically created.</description>
+      <description>User adds work history with achievements. First empty entry is automatically created.</description>
     </step>
     <step order="3">
       <name>Education</name>

@@ -369,7 +369,7 @@
                 <content_rules>
                     <rule name="MissingAchievementsRule" status="active">Detects missing achievements in work experience</rule>
                     <rule name="AchievementsWithoutMetricsRule" status="active">Detects achievements without quantifiable metrics</rule>
-                    <rule name="ResponsibilitiesNotResultsRule" status="active">Detects responsibilities instead of results</rule>
+                    <rule name="AchievementsNotResponsibilitiesRule" status="active">Detects responsibility-oriented language instead of results in achievements</rule>
                     <rule name="MissingDegreeRule" status="active">Detects missing degree in education</rule>
                     <rule name="MissingFieldOfStudyRule" status="active">Detects missing field of study in education</rule>
                     <rule name="LongBulletsRule" status="active">Detects overly long bullet points</rule>
@@ -427,7 +427,8 @@
                 <schema name="AnalysisResult">Complete analysis result with overall score and sections</schema>
             </schemas>
             <notes>
-                <note>Field naming: work experience uses "achievements" field only (responsibilities field removed)</note>
+                <note>Field naming: work experience uses "achievements" field only (responsibilities field was removed and replaced with achievements)</note>
+                <note>AchievementsNotResponsibilitiesRule: detects responsibility-oriented language in achievements field and suggests impact-oriented rewrites</note>
                 <note>short_description field added to RefinePage ExperienceEditor</note>
                 <note>MissingAchievementsRule restored: navigates to "Add Achievement" button with pulse animation when no achievements exist</note>
                 <note>Removed unused rules: MissingTechnologiesRule, MissingProfessionalLinksRule</note>

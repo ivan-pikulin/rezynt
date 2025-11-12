@@ -57,10 +57,10 @@
                 <fix>LLM добавляет конкретные метрики в текст достижения</fix>
             </rule>
             
-            <rule name="ResponsibilitiesNotResultsRule" severity="medium" impact="5">
-                <detection>Поиск ключевых слов, указывающих на обязанности, а не результаты</detection>
-                <checks>достижения фокусируются на результатах, а не на обязанностях</checks>
-                <fix>LLM преобразует обязанность в результат-ориентированный текст</fix>
+            <rule name="AchievementsNotResponsibilitiesRule" severity="medium" impact="5">
+                <detection>Поиск ключевых слов, указывающих на описание обязанностей вместо результатов</detection>
+                <checks>достижения фокусируются на результатах и impact, а не на описании обязанностей</checks>
+                <fix>LLM преобразует описание обязанностей в результат-ориентированный текст с impact</fix>
             </rule>
             
             <rule name="LongBulletsRule" severity="low" impact="2">

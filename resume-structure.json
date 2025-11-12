@@ -189,7 +189,7 @@
             "type": "array",
             "items": "string",
             "optional": true,
-            "description": "List of key achievements and results (NOT responsibilities). Should be 3-8 achievements per position. Each should be impact-oriented with quantifiable metrics.",
+            "description": "List of key achievements and results. Should be 3-8 achievements per position. Each should be impact-oriented with quantifiable metrics.",
             "example": [
               "Led development of microservices architecture serving 1M+ users",
               "Mentored 5 junior developers and conducted code reviews",
@@ -444,7 +444,7 @@
   "notes": {
     "field_naming": "All fields use snake_case naming convention",
     "date_formats": "Dates accept either YYYY-MM format or 'Month YYYY' format. Current positions should have end_date as null.",
-    "achievements_vs_responsibilities": "The 'achievements' field replaced the deprecated 'responsibilities' field. Focus on results and impact, not duties.",
+    "achievements_field": "The 'achievements' field stores impact-oriented results. Focus on quantifiable outcomes and value delivered.",
     "optional_fields": "All fields are optional to support partial resume data during building process",
     "analysis_rules": "The system includes 31 analysis rules that check content quality, ATS optimization, and style issues",
     "storage": "Resume data is stored in PostgreSQL as JSONB in the User.resume_data field"

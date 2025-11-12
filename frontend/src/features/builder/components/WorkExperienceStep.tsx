@@ -307,12 +307,12 @@ export const WorkExperienceStep: React.FC<WorkExperienceStepProps> = ({ state, o
 
               <Box sx={{ gridColumn: '1 / -1' }}>
                 <Typography variant="body2" sx={{ mb: 1, fontWeight: 500 }}>
-                  {t('builder.workExperience.responsibilities')}
+                  {t('builder.workExperience.achievements')}
                 </Typography>
                 {(exp.achievements || []).map((ach, achIndex) => (
                   <Box key={achIndex} sx={{ display: 'flex', gap: 1, mb: 1 }}>
                     <SimpleTextarea
-                      placeholder={t('builder.workExperience.responsibilityPlaceholder')}
+                      placeholder={t('builder.workExperience.achievementPlaceholder')}
                       value={ach}
                       onChange={(value) => handleUpdateAchievement(index, achIndex, value)}
                       rows={2}
@@ -333,7 +333,7 @@ export const WorkExperienceStep: React.FC<WorkExperienceStepProps> = ({ state, o
                   onClick={() => handleAddAchievement(index)}
                   sx={{ mt: 1 }}
                 >
-                  {t('builder.workExperience.addResponsibility')}
+                  {t('builder.workExperience.addAchievement')}
                 </Button>
               </Box>
             </Box>

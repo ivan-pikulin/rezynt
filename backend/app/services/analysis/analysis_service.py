@@ -11,7 +11,7 @@ from app.services.analysis.config import AnalysisConfig
 from app.services.analysis.rules.content import (
     MissingAchievementsRule,
     AchievementsWithoutMetricsRule,
-    ResponsibilitiesNotResultsRule,
+    AchievementsNotResponsibilitiesRule,
     MissingCompanyDescriptionRule,
     MissingDegreeRule,
     MissingFieldOfStudyRule,
@@ -59,7 +59,7 @@ class AnalysisService:
             MissingAchievementsRule(),
             MissingCompanyDescriptionRule(),
             AchievementsWithoutMetricsRule(),
-            ResponsibilitiesNotResultsRule(),
+            AchievementsNotResponsibilitiesRule(),
             MissingDegreeRule(),
             MissingFieldOfStudyRule(),
             LongBulletsRule(),
