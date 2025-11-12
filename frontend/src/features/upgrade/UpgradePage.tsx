@@ -10,13 +10,16 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import ResumeRenderer from '../../shared/components/ResumeRenderer';
 import { useResumeQuery } from '../../shared/hooks/useResumeQuery';
+import { useTemplate } from '../../shared/hooks/useTemplate';
+import { convertApiResumeToDisplayData } from '../refine/utils/resumeDataConverter';
 import { COLORS } from '../../shared/theme/theme';
 
 export const UpgradePage: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
-  const { resume: resumeData, isLoading } = useResumeQuery();
+  const { resume: resumeData, isLoading } = useResumeQuery(false);
+  const { selectedTemplate } = useTemplate(null, undefined);
 
   const features = [
     t('upgrade.features.unlimitedAnalysis'),
@@ -90,10 +93,10 @@ export const UpgradePage: React.FC = () => {
                 <Typography sx={{ color: COLORS.resume.text.secondary }}>
                   {t('common.loading')}
                 </Typography>
-              ) : resumeData ? (
+              ) : resumeData && selectedTemplate ? (
                 <ResumeRenderer
-                  data={resumeData}
-                  templateId="clarity"
+                  data={convertApiResumeToDisplayData(resumeData)}
+                  templateId={selectedTemplate.id}
                   scale={0.35}
                 />
               ) : null}

@@ -19,6 +19,21 @@ export const useTemplate = (resumeId?: string | null, resumeTemplateSlug?: strin
           console.error('🎨 [useTemplate] Error parsing stored template:', error);
         }
       }
+    } else {
+      // If no resumeId, try to load from global storage
+      const stored = localStorage.getItem(TEMPLATE_STORAGE_KEY);
+      
+      if (stored) {
+        try {
+          const template = JSON.parse(stored);
+          const foundTemplate = TemplateService.getTemplateById(template.id);
+          if (foundTemplate) {
+            return foundTemplate;
+          }
+        } catch (error) {
+          console.error('🎨 [useTemplate] Error parsing stored template:', error);
+        }
+      }
     }
     
     // If there's template_slug from resume, use it
@@ -47,8 +62,13 @@ export const useTemplate = (resumeId?: string | null, resumeTemplateSlug?: strin
 
   // Save to localStorage when changed
   useEffect(() => {
-    if (resumeId && selectedTemplate) {
-      localStorage.setItem(`${TEMPLATE_STORAGE_KEY}_${resumeId}`, JSON.stringify(selectedTemplate));
+    if (selectedTemplate) {
+      if (resumeId) {
+        localStorage.setItem(`${TEMPLATE_STORAGE_KEY}_${resumeId}`, JSON.stringify(selectedTemplate));
+      } else {
+        // Save globally when no resumeId (for single resume per user architecture)
+        localStorage.setItem(TEMPLATE_STORAGE_KEY, JSON.stringify(selectedTemplate));
+      }
     }
   }, [selectedTemplate, resumeId]);
 
