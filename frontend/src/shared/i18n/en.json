@@ -125,6 +125,7 @@
   },
   "refine": {
     "loading": "Loading resume...",
+    "analyzingResume": "Analyzing your resume...",
     "pageTitle": "Resume",
     "marketing": {
       "hook": "Reach 95%+ and watch job offers come to you."
@@ -268,6 +269,8 @@
     }
   },
   "start": {
+    "parsingResume": "Parsing resume file...",
+    "uploadProcessing": "This usually takes less than a minute",
     "uploadMessages": {
       "0": "We are extracting your strengths and achievements...",
       "1": "Optimizing your resume for ATS systems...",
