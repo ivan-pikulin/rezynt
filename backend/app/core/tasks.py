@@ -195,11 +195,11 @@ async def _process_resume_upload_task(task, file_content: bytes, filename: str, 
         
     except Exception as e:
         logger.error(f"Exception in process_resume_upload task: {e}", exc_info=True)
-        
+
         # Clean up objects on error
         if 'file_content' in locals():
             del file_content
-        if parse_service is not None:
+        if parse_service is not None and 'parse_service' in locals():
             del parse_service
         if 'parsed_data' in locals():
             del parsed_data
@@ -287,7 +287,7 @@ async def _generate_analysis_after_upload(user_id: int):
 
         await user_crud.update(
             db,
-            db_obj_id=user_id,
+            db_obj=user,
             obj_in={
                 'analysis_result': analysis_data,
                 'analysis_generated_at': datetime.utcnow()
