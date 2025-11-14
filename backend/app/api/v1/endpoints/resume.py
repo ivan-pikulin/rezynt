@@ -284,9 +284,13 @@ async def get_upload_status(
     Get the status of a resume upload processing task.
     Only available for users with verified email.
     """
+    import logging
+    logger = logging.getLogger(__name__)
+
     try:
         task = celery_app.AsyncResult(task_id)
-        
+        logger.info(f"Checking task {task_id}: state={task.state}, info={task.info}")
+
         if task.state == 'PENDING':
             response = {
                 'state': task.state,
@@ -298,6 +302,24 @@ async def get_upload_status(
                 'state': task.state,
                 'status': 'processing',
                 'message': 'Processing resume with ParseService'
+            }
+        elif task.state == 'PARSING':
+            # Custom state: parsing resume file
+            meta = task.info or {}
+            response = {
+                'state': task.state,
+                'status': meta.get('status', 'parsing'),
+                'message': meta.get('message', 'Parsing resume file...'),
+                'meta': meta
+            }
+        elif task.state == 'ANALYZING':
+            # Custom state: analyzing resume
+            meta = task.info or {}
+            response = {
+                'state': task.state,
+                'status': meta.get('status', 'analyzing'),
+                'message': meta.get('message', 'Analyzing resume...'),
+                'meta': meta
             }
         elif task.state == 'SUCCESS':
             task_result = task.result or {}
