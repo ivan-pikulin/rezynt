@@ -16,6 +16,7 @@ type ScoreBarProps = {
   isRefreshing?: boolean;
   isPremium?: boolean;
   onUpgrade?: () => void;
+  isAnalyzing?: boolean;
 };
 
 const clamp = (value: number, min: number, max: number) => {
@@ -23,7 +24,7 @@ const clamp = (value: number, min: number, max: number) => {
   return Math.min(max, Math.max(min, value));
 };
 
-const ScoreBar: React.FC<ScoreBarProps> = ({ score, label, subtitle, marketingText, onRefresh, isRefreshing = false, isPremium = true, onUpgrade }) => {
+const ScoreBar: React.FC<ScoreBarProps> = ({ score, label, subtitle, marketingText, onRefresh, isRefreshing = false, isPremium = true, onUpgrade, isAnalyzing = false }) => {
   const { t } = useTranslation();
   const normalized = clamp(score, 0, 100);
   const scoreColor = getScoreColor(normalized).main;
@@ -96,8 +97,25 @@ const ScoreBar: React.FC<ScoreBarProps> = ({ score, label, subtitle, marketingTe
 
   return (
     <Box sx={{ ...styles.scoreCard, position: 'relative' }}>
-      <Box sx={styles.circularScore}>
-        <Box sx={styles.scoreCircle}>
+      {isAnalyzing ? (
+        // Loading state
+        <Box sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          py: 4
+        }}>
+          <CircularProgress size={40} sx={{ mb: 2 }} />
+          <Typography sx={{ fontSize: '16px', fontWeight: 500, color: '#6b7280' }}>
+            {t('refine.analyzingResume')}
+          </Typography>
+        </Box>
+      ) : (
+        // Normal score display
+        <>
+          <Box sx={styles.circularScore}>
+            <Box sx={styles.scoreCircle}>
           {/* Background gray ring */}
           <CircularProgress
             variant="determinate"
@@ -170,53 +188,55 @@ const ScoreBar: React.FC<ScoreBarProps> = ({ score, label, subtitle, marketingTe
           <Typography sx={styles.statusSubtext}>{subtitle}</Typography>
         </Box>
       </Box>
-      
-      {/* Re-analyze button in the bottom right corner */}
-      {(onRefresh || onUpgrade) && (
-        <Box
-          sx={{
-            position: 'absolute',
-            bottom: '8px',
-            right: '8px',
-          }}
-        >
-          <button
-            onClick={isPremium ? onRefresh : onUpgrade}
-            disabled={isPremium && isRefreshing}
-            style={{
-              backgroundColor: 'transparent',
-              color: (isPremium && isRefreshing) ? COLORS.button.primary.backgroundDisabled : COLORS.button.primary.background,
-              fontSize: '11px',
-              fontWeight: 500,
-              padding: '4px 8px',
-              borderRadius: '4px',
-              border: `1px solid ${(isPremium && isRefreshing) ? COLORS.button.primary.backgroundDisabled : COLORS.button.primary.background}`,
-              cursor: (isPremium && isRefreshing) ? 'not-allowed' : 'pointer',
-              textTransform: 'none',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              transition: 'all 0.2s ease-in-out',
-            }}
-            onMouseEnter={(e) => {
-              if (!(isPremium && isRefreshing)) {
-                e.currentTarget.style.backgroundColor = COLORS.primary.ultraLight;
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (!(isPremium && isRefreshing)) {
-                e.currentTarget.style.backgroundColor = 'transparent';
-              }
-            }}
-          >
-            {isPremium && isRefreshing ? (
-              <CircularProgress size={10} sx={{ color: COLORS.button.primary.backgroundDisabled }} />
-            ) : (
-              <RefreshIcon sx={{ fontSize: '12px' }} />
-            )}
-            {isPremium ? t('refine.reanalyze.button') : t('refine.reanalyze.buttonUpgrade')}
-          </button>
-        </Box>
+
+          {/* Re-analyze button in the bottom right corner */}
+          {(onRefresh || onUpgrade) && (
+            <Box
+              sx={{
+                position: 'absolute',
+                bottom: '8px',
+                right: '8px',
+              }}
+            >
+              <button
+                onClick={isPremium ? onRefresh : onUpgrade}
+                disabled={isPremium && isRefreshing}
+                style={{
+                  backgroundColor: 'transparent',
+                  color: (isPremium && isRefreshing) ? COLORS.button.primary.backgroundDisabled : COLORS.button.primary.background,
+                  fontSize: '11px',
+                  fontWeight: 500,
+                  padding: '4px 8px',
+                  borderRadius: '4px',
+                  border: `1px solid ${(isPremium && isRefreshing) ? COLORS.button.primary.backgroundDisabled : COLORS.button.primary.background}`,
+                  cursor: (isPremium && isRefreshing) ? 'not-allowed' : 'pointer',
+                  textTransform: 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  transition: 'all 0.2s ease-in-out',
+                }}
+                onMouseEnter={(e) => {
+                  if (!(isPremium && isRefreshing)) {
+                    e.currentTarget.style.backgroundColor = COLORS.primary.ultraLight;
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!(isPremium && isRefreshing)) {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }
+                }}
+              >
+                {isPremium && isRefreshing ? (
+                  <CircularProgress size={10} sx={{ color: COLORS.button.primary.backgroundDisabled }} />
+                ) : (
+                  <RefreshIcon sx={{ fontSize: '12px' }} />
+                )}
+                {isPremium ? t('refine.reanalyze.button') : t('refine.reanalyze.buttonUpgrade')}
+              </button>
+            </Box>
+          )}
+        </>
       )}
     </Box>
   );
