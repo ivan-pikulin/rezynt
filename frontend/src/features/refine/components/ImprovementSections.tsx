@@ -3,6 +3,8 @@ import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import Typography from '@mui/material/Typography';
+import Skeleton from '@mui/material/Skeleton';
+import Stack from '@mui/material/Stack';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import React, { useState, useEffect, useMemo } from 'react';
 import { AnalysisSection, Resume } from '../../../shared/services/api/types';
@@ -18,6 +20,7 @@ type Props = {
   onFixMarked?: (pointId: string) => void;
   dismissedPointIds?: Set<string>;
   isPremium?: boolean;
+  isAnalyzing?: boolean;
 };
 
 const accordionSx = {
@@ -48,7 +51,7 @@ const statusToText = {
   Strong: COLORS.success.text,
 };
 
-const ImprovementSections: React.FC<Props> = ({ sections, resume, onFixApplied, onNavigateToField, onFixMarked, dismissedPointIds, isPremium = false }) => {
+const ImprovementSections: React.FC<Props> = ({ sections, resume, onFixApplied, onNavigateToField, onFixMarked, dismissedPointIds, isPremium = false, isAnalyzing = false }) => {
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
 
   // Initialize all sections as expanded when sections change
@@ -88,7 +91,22 @@ const ImprovementSections: React.FC<Props> = ({ sections, resume, onFixApplied, 
 
   return (
     <Box sx={{ pt: 1, px: 2, pb: 2, overflow: 'auto' }}>
-      {sectionsWithPremiumPoints.map((s) => {
+      {isAnalyzing ? (
+        // Show 3 skeleton placeholders (MUI Skeleton)
+        <Stack spacing={2}>
+          {[1, 2, 3].map((i) => (
+            <Skeleton
+              key={i}
+              variant="rounded"
+              height={120}
+              animation="wave"
+              sx={{ borderRadius: '12px' }}
+            />
+          ))}
+        </Stack>
+      ) : (
+        // Show real sections
+        sectionsWithPremiumPoints.map((s) => {
         const pct = s.percentage;
         const color = statusToColor[s.status as keyof typeof statusToColor];
         const bgColor = statusToBackground[s.status as keyof typeof statusToBackground];
@@ -204,7 +222,8 @@ const ImprovementSections: React.FC<Props> = ({ sections, resume, onFixApplied, 
             </AccordionDetails>
           </Accordion>
         );
-      })}
+      })
+      )}
     </Box>
   );
 };
