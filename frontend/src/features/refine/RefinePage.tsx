@@ -46,6 +46,9 @@ const RefinePage: React.FC = () => {
   const [isTaskAnalyzing, setIsTaskAnalyzing] = useState(shouldPollUploadStatus);
   const [taskPollingError, setTaskPollingError] = useState<string | null>(null);
   const editorRef = useRef<EditorAccordionHandle>(null);
+
+  // Track current polling task_id to prevent race conditions
+  const currentPollingTaskId = useRef<string | null>(null);
   
   // Track dismissed/applied improvement points for dynamic score recalculation
   const [dismissedPointIds, setDismissedPointIds] = useState<Set<string>>(new Set());
@@ -103,6 +106,12 @@ const RefinePage: React.FC = () => {
     if (!analyzingTaskId) {
       return Promise.resolve({ state: 'PENDING' } as TaskStatus);
     }
+
+    // Only fetch if this is the current polling task (prevent race conditions)
+    if (currentPollingTaskId.current && currentPollingTaskId.current !== analyzingTaskId) {
+      return Promise.resolve({ state: 'PENDING' } as TaskStatus);
+    }
+
     return resumeApi.getUploadStatus(analyzingTaskId);
   }, [analyzingTaskId]);
 
@@ -121,13 +130,15 @@ const RefinePage: React.FC = () => {
   const [mobileTab, setMobileTab] = useState<'analysis' | 'editor'>('analysis');
   const analysisLoading = isTaskAnalyzing || isLoadingInitial;
   useEffect(() => {
-    if (shouldPollUploadStatus) {
+    if (shouldPollUploadStatus && analyzingTaskId) {
+      // Set current polling task_id to prevent race conditions
+      currentPollingTaskId.current = analyzingTaskId;
       setIsTaskAnalyzing(true);
       setTaskPollingError(null);
       setAnalysis(null);
       setIsLoadingInitial(true);
     }
-  }, [shouldPollUploadStatus]);
+  }, [shouldPollUploadStatus, analyzingTaskId]);
 
   useEffect(() => {
     if (!resume || shouldPollUploadStatus) return;
@@ -138,18 +149,23 @@ const RefinePage: React.FC = () => {
   useEffect(() => {
     if (!uploadStatus) return;
 
+    // Only process if this is the current polling task
+    if (currentPollingTaskId.current !== analyzingTaskId) return;
+
     if (uploadStatus.state === 'SUCCESS') {
       setIsTaskAnalyzing(false);
       setTaskPollingError(null);
+      currentPollingTaskId.current = null; // Clear tracking
       clearAnalyzingParams();
       setIsLoadingInitial(true);
       loadAnalysis();
     } else if (uploadStatus.state === 'FAILURE') {
       setIsTaskAnalyzing(false);
       setTaskPollingError(uploadStatus.error || t('errors.uploadFailed'));
+      currentPollingTaskId.current = null; // Clear tracking
       clearAnalyzingParams();
     }
-  }, [uploadStatus, clearAnalyzingParams, loadAnalysis, t]);
+  }, [uploadStatus, analyzingTaskId, clearAnalyzingParams, loadAnalysis, t]);
 
 
   // Update local resume when fetched resume changes

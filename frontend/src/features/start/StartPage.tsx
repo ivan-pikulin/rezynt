@@ -96,7 +96,8 @@ const StartPage: React.FC = () => {
       setIsProcessingUpload(false);
       setUploadError(null);
 
-      const refinePath = activeTaskId
+      // Only add task_id to URL if it exists and is not null/empty
+      const refinePath = activeTaskId && activeTaskId !== 'null'
         ? `/refine?analyzing_task_id=${encodeURIComponent(activeTaskId)}`
         : '/refine';
 
