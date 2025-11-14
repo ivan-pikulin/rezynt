@@ -291,19 +291,23 @@ const RefinePage: React.FC = () => {
       try {
         const data = await analysisApi.getAnalysis();
 
-        if (data && Object.keys(data).length > 0) {
-          // Analysis exists
+        if (data) {
+          // Analysis exists (could be pending, analyzing, or completed)
           setAnalysis(data);
+
           // Initialize dismissed set with all already fixed points from backend
-          const alreadyFixed = new Set<string>();
-          data.sections?.forEach((section: any) => {
-            section.improvement_points?.forEach((point: any) => {
-              if (point.is_fixed) {
-                alreadyFixed.add(point.id);
-              }
+          // Only if analysis is completed
+          if (data.status === 'completed') {
+            const alreadyFixed = new Set<string>();
+            data.sections?.forEach((section: any) => {
+              section.improvement_points?.forEach((point: any) => {
+                if (point.is_fixed) {
+                  alreadyFixed.add(point.id);
+                }
+              });
             });
-          });
-          setDismissedPointIds(alreadyFixed);
+            setDismissedPointIds(alreadyFixed);
+          }
           setIsLoadingInitial(false);
         } else {
           // No analysis yet - user just uploaded, show loading
@@ -321,6 +325,18 @@ const RefinePage: React.FC = () => {
   // Poll for analysis if status is not 'completed'
   const isAnalyzing = !analysis || analysis.status !== 'completed';
 
+  // Debug logging
+  useEffect(() => {
+    console.log('🔍 Analysis state:', {
+      hasAnalysis: !!analysis,
+      status: analysis?.status,
+      isAnalyzing,
+      isLoadingInitial,
+      hasResume: !!resume,
+      pollingEnabled: isAnalyzing && !isLoadingInitial && !!resume
+    });
+  }, [analysis, isAnalyzing, isLoadingInitial, resume]);
+
   const { data: polledAnalysis } = usePolling({
     fetchFn: () => analysisApi.getAnalysis(),
     shouldStop: (data) => data && data.status === 'completed',
@@ -330,18 +346,22 @@ const RefinePage: React.FC = () => {
 
   // Update analysis when polling returns data
   useEffect(() => {
-    if (polledAnalysis && Object.keys(polledAnalysis).length > 0) {
+    if (polledAnalysis) {
       setAnalysis(polledAnalysis);
+
       // Initialize dismissed set with all already fixed points from backend
-      const alreadyFixed = new Set<string>();
-      polledAnalysis.sections?.forEach((section: any) => {
-        section.improvement_points?.forEach((point: any) => {
-          if (point.is_fixed) {
-            alreadyFixed.add(point.id);
-          }
+      // Only if analysis is completed
+      if (polledAnalysis.status === 'completed') {
+        const alreadyFixed = new Set<string>();
+        polledAnalysis.sections?.forEach((section: any) => {
+          section.improvement_points?.forEach((point: any) => {
+            if (point.is_fixed) {
+              alreadyFixed.add(point.id);
+            }
+          });
         });
-      });
-      setDismissedPointIds(alreadyFixed);
+        setDismissedPointIds(alreadyFixed);
+      }
     }
   }, [polledAnalysis]);
 
