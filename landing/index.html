@@ -33,6 +33,32 @@
             }
         });
     </script>
+
+    <!-- Google Analytics 4 -->
+    <script>
+        (function() {
+            const measurementId = '__GA_MEASUREMENT_ID__';
+            if (!measurementId || measurementId === 'ga_disabled') {
+                console.warn('GA4 measurement ID is not configured for the landing page');
+                return;
+            }
+
+            const gaScript = document.createElement('script');
+            gaScript.async = true;
+            gaScript.src = `https://www.googletagmanager.com/gtag/js?id=${measurementId}`;
+            document.head.appendChild(gaScript);
+
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){ window.dataLayer.push(arguments); }
+            window.gtag = gtag;
+            gtag('js', new Date());
+            gtag('config', measurementId, {
+                linker: {
+                    domains: ['rezynt.com', 'app.rezynt.com']
+                }
+            });
+        })();
+    </script>
 </head>
 <body>
     <!-- Header -->

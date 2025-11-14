@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature>
+    <info>
+        <name>Landing Page</name>
+        <desc>Static marketing site for Rezynt with resume upload entrypoint and analytics instrumentation.</desc>
+        <tech>HTML, CSS, Vanilla JS, Vite</tech>
+    </info>
+
+    <folder_structure>
+        /landing
+        ├── index.html              # Main page markup with uploader logic and analytics bootstrap
+        ├── styles.css              # Static styling for all sections
+        ├── script.js               # Scroll/CTA animations (not bundled today)
+        ├── privacy-policy.html     # Legal page
+        ├── terms-of-service.html   # Legal page
+        ├── public/                 # Static assets served via Vite
+        ├── vite.config.js          # Build config with placeholder replacement
+        └── spec.xml                # This file
+    </folder_structure>
+
+    <analytics>
+        <tool name="PostHog" desc="Captured via reverse-proxied ingestion (https://app.rezynt.com/ingest)">
+            <config>Key injected into index.html through VITE_PUBLIC_POSTHOG_KEY.</config>
+        </tool>
+        <tool name="Google Analytics 4" desc="Mirrors main app settings for cross-domain tracking">
+            <config>Measurement ID injected via VITE_GA4_MEASUREMENT_ID (falls back to ga_disabled when absent).</config>
+            <linker_domains>rezynt.com, app.rezynt.com</linker_domains>
+        </tool>
+    </analytics>
+
+    <scripts>
+        <script name="resume_upload">
+            <desc>Inline factory handles drag-and-drop + click uploads, sends POST to /api/v1/resume/temp-upload, redirects to https://app.rezynt.com/onboarding/?temp_file_id=.</desc>
+            <success_tracking>Triggers PostHog event landing_resume_uploaded with file_id.</success_tracking>
+        </script>
+        <script name="interactions">
+            <file>script.js</file>
+            <desc>Optional scroll/CTA animations and helper effects (smooth scroll, hover states).</desc>
+        </script>
+    </scripts>
+
+    <env_vars>
+        <var name="VITE_PUBLIC_POSTHOG_KEY" use="PostHog analytics key injected into index.html." />
+        <var name="VITE_GA4_MEASUREMENT_ID" use="GA4 measurement ID used by inline bootstrap (index.html)." />
+    </env_vars>
+
+    <build>
+        <config>
+            <entry>index.html (served by Vite) with static assets from /public.</entry>
+            <placeholders>Vite plugin replace-landing-placeholders swaps analytics tokens during build/dev.</placeholders>
+            <output>../landing_html directory, cleaned on each build.</output>
+        </config>
+    </build>
+</feature>
+

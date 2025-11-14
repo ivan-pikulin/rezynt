@@ -14,10 +14,17 @@ export default defineConfig({
   },
   plugins: [
     {
-      name: 'replace-posthog-key',
+      name: 'replace-landing-placeholders',
       transformIndexHtml(html) {
-        const posthogKey = process.env.VITE_PUBLIC_POSTHOG_KEY || 'phc_disabled';
-        return html.replace('__POSTHOG_KEY__', posthogKey);
+        const replacements = {
+          '__POSTHOG_KEY__': process.env.VITE_PUBLIC_POSTHOG_KEY || 'phc_disabled',
+          '__GA_MEASUREMENT_ID__': process.env.VITE_GA4_MEASUREMENT_ID || 'ga_disabled'
+        }
+
+        return Object.entries(replacements).reduce(
+          (acc, [token, value]) => acc.replaceAll(token, value),
+          html
+        )
       }
     }
   ]
