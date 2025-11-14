@@ -107,8 +107,11 @@ const ScoreBar: React.FC<ScoreBarProps> = ({ score, label, subtitle, marketingTe
           py: 4
         }}>
           <CircularProgress size={40} sx={{ mb: 2 }} />
-          <Typography sx={{ fontSize: '16px', fontWeight: 500, color: '#6b7280' }}>
+          <Typography sx={{ fontSize: '16px', fontWeight: 500, color: '#6b7280', mb: 0.5 }}>
             {t('refine.analyzingResume')}
+          </Typography>
+          <Typography sx={{ fontSize: '13px', color: '#9ca3af' }}>
+            {t('refine.analyzingTime')}
           </Typography>
         </Box>
       ) : (

@@ -92,16 +92,37 @@ const ImprovementSections: React.FC<Props> = ({ sections, resume, onFixApplied, 
   return (
     <Box sx={{ pt: 1, px: 2, pb: 2, overflow: 'auto' }}>
       {isAnalyzing ? (
-        // Show 3 skeleton placeholders (MUI Skeleton)
+        // Show 3 detailed skeleton placeholders
         <Stack spacing={2}>
           {[1, 2, 3].map((i) => (
-            <Skeleton
+            <Box
               key={i}
-              variant="rounded"
-              height={120}
-              animation="wave"
-              sx={{ borderRadius: '12px' }}
-            />
+              sx={{
+                backgroundColor: 'white',
+                borderRadius: '12px',
+                padding: '16px',
+                boxShadow: '0 2px 8px 0 rgba(0, 0, 0, 0.08)',
+              }}
+            >
+              {/* Header with title skeleton */}
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                <Skeleton variant="rectangular" width={120} height={20} sx={{ borderRadius: '4px' }} />
+                <Skeleton variant="rectangular" width={60} height={18} sx={{ borderRadius: '4px' }} />
+              </Box>
+
+              {/* Progress bar skeleton */}
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                <Skeleton variant="rectangular" width={48} height={8} sx={{ borderRadius: '9999px' }} />
+                <Skeleton variant="rectangular" width={35} height={16} sx={{ borderRadius: '4px' }} />
+                <Skeleton variant="rectangular" width={80} height={24} sx={{ borderRadius: '9999px' }} />
+              </Box>
+
+              {/* Content lines */}
+              <Stack spacing={1}>
+                <Skeleton variant="text" width="90%" height={16} />
+                <Skeleton variant="text" width="75%" height={16} />
+              </Stack>
+            </Box>
           ))}
         </Stack>
       ) : (

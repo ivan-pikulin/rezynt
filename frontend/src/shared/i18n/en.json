@@ -126,6 +126,7 @@
   "refine": {
     "loading": "Loading resume...",
     "analyzingResume": "Analyzing your resume...",
+    "analyzingTime": "This usually takes a couple of minutes",
     "pageTitle": "Resume",
     "marketing": {
       "hook": "Reach 95%+ and watch job offers come to you."
