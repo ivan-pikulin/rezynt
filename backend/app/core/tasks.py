@@ -260,7 +260,7 @@ async def _update_user_resume_data(user_id: int, parsed_data):
 
 
 async def _generate_analysis_after_upload(user_id: int):
-    """Generates analysis for uploaded resume (no status tracking)"""
+    """Generates analysis for uploaded resume with status tracking"""
     from app.database.session import SessionLocal
     from app.database.crud.crud_user import user_crud
     from app.services.analysis.analysis_service import analysis_service
@@ -280,14 +280,25 @@ async def _generate_analysis_after_upload(user_id: int):
             logger.warning(f"No resume data for user {user_id}")
             raise ValueError(f"No resume data for user {user_id}")
 
+        # Update status to 'analyzing'
+        logger.info(f"Setting analysis status to 'analyzing' for user {user_id}")
+        if user.analysis_result and isinstance(user.analysis_result, dict):
+            user.analysis_result['status'] = 'analyzing'
+            await user_crud.update(
+                db,
+                db_obj=user,
+                obj_in={'analysis_result': user.analysis_result}
+            )
+
         # Run complete analysis (all rules in parallel)
         analysis_result = await analysis_service.analyze_resume(
             resume_data,
             is_premium=user.is_premium
         )
 
-        # Save complete result (no status field)
+        # Save complete result with status 'completed'
         analysis_data = analysis_result.model_dump(mode='json')
+        analysis_data['status'] = 'completed'
 
         await user_crud.update(
             db,

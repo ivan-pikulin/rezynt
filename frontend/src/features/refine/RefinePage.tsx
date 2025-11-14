@@ -16,7 +16,7 @@ import { useUser, usePolling } from '../../shared/hooks';
 import { useAuth } from '../../shared/hooks/useAuth';
 import { useResumeQuery } from '../../shared/hooks/useResumeQuery';
 // import { useTemplate } from '../../shared/hooks/useTemplate';
-import { Resume } from '../../shared/services/api/types';
+import { Resume, AnalysisResult } from '../../shared/services/api/types';
 import { COLORS } from '../../shared/theme/theme';
 // import { TemplateConfig } from '../../shared/types/resume';
 import ErrorMessage from './components/ErrorMessage';
@@ -35,7 +35,7 @@ const RefinePage: React.FC = () => {
   // No more resume_id in URL - each user has one resume
   // Wait for auth to load before attempting to load resume
   const { resume, isLoading: loading, error: queryError, updateResumeInCache } = useResumeQuery(false);
-  const [analysis, setAnalysis] = useState<{ score: number; label: string; subtitle: string; sections: any[] } | null>(null);
+  const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [isLoadingInitial, setIsLoadingInitial] = useState(true);
   const [showSaveNotification, setShowSaveNotification] = useState(true);
   const [lastSaveTime, setLastSaveTime] = useState('');
@@ -318,12 +318,12 @@ const RefinePage: React.FC = () => {
     loadAnalysis();
   }, [resume]);
 
-  // Poll for analysis if empty
-  const isAnalyzing = !analysis || Object.keys(analysis).length === 0;
+  // Poll for analysis if status is not 'completed'
+  const isAnalyzing = !analysis || analysis.status !== 'completed';
 
   const { data: polledAnalysis } = usePolling({
     fetchFn: () => analysisApi.getAnalysis(),
-    shouldStop: (data) => data && Object.keys(data).length > 0,
+    shouldStop: (data) => data && data.status === 'completed',
     interval: 3000,
     enabled: isAnalyzing && !isLoadingInitial && !!resume,
   });

@@ -215,6 +215,7 @@ export interface AnalysisSection {
 }
 
 export interface AnalysisResult {
+  status: 'pending' | 'analyzing' | 'completed';
   score: number;
   label: string;
   subtitle: string;
