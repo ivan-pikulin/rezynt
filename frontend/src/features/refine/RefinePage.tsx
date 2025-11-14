@@ -12,7 +12,7 @@ import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Header from '../../shared/components/Header/Header';
-import { useUser } from '../../shared/hooks';
+import { useUser, usePolling } from '../../shared/hooks';
 import { useAuth } from '../../shared/hooks/useAuth';
 import { useResumeQuery } from '../../shared/hooks/useResumeQuery';
 // import { useTemplate } from '../../shared/hooks/useTemplate';
@@ -36,6 +36,7 @@ const RefinePage: React.FC = () => {
   // Wait for auth to load before attempting to load resume
   const { resume, isLoading: loading, error: queryError, updateResumeInCache } = useResumeQuery(false);
   const [analysis, setAnalysis] = useState<{ score: number; label: string; subtitle: string; sections: any[] } | null>(null);
+  const [isLoadingInitial, setIsLoadingInitial] = useState(true);
   const [showSaveNotification, setShowSaveNotification] = useState(true);
   const [lastSaveTime, setLastSaveTime] = useState('');
   const [isRefreshingAnalysis, setIsRefreshingAnalysis] = useState(false);
@@ -282,29 +283,67 @@ const RefinePage: React.FC = () => {
     }
   }, [resume, lastSaveTime]);
 
-  // Load analysis from backend API
+  // Check if analysis exists on mount
   useEffect(() => {
-    if (resume) {
-      analysisApi.getAnalysis()
-        .then((data) => {
+    if (!resume) return;
+
+    const loadAnalysis = async () => {
+      try {
+        const data = await analysisApi.getAnalysis();
+
+        if (data && Object.keys(data).length > 0) {
+          // Analysis exists
           setAnalysis(data);
           // Initialize dismissed set with all already fixed points from backend
           const alreadyFixed = new Set<string>();
-          data.sections.forEach((section: any) => {
-            section.improvement_points.forEach((point: any) => {
+          data.sections?.forEach((section: any) => {
+            section.improvement_points?.forEach((point: any) => {
               if (point.is_fixed) {
                 alreadyFixed.add(point.id);
               }
             });
           });
           setDismissedPointIds(alreadyFixed);
-        })
-        .catch((error) => {
-          console.error('Error loading analysis:', error);
-          setAnalysis(null);
-        });
-    }
+          setIsLoadingInitial(false);
+        } else {
+          // No analysis yet - user just uploaded, show loading
+          setIsLoadingInitial(false);
+        }
+      } catch (error) {
+        console.error('Error loading analysis:', error);
+        setIsLoadingInitial(false);
+      }
+    };
+
+    loadAnalysis();
   }, [resume]);
+
+  // Poll for analysis if empty
+  const isAnalyzing = !analysis || Object.keys(analysis).length === 0;
+
+  const { data: polledAnalysis } = usePolling({
+    fetchFn: () => analysisApi.getAnalysis(),
+    shouldStop: (data) => data && Object.keys(data).length > 0,
+    interval: 3000,
+    enabled: isAnalyzing && !isLoadingInitial && !!resume,
+  });
+
+  // Update analysis when polling returns data
+  useEffect(() => {
+    if (polledAnalysis && Object.keys(polledAnalysis).length > 0) {
+      setAnalysis(polledAnalysis);
+      // Initialize dismissed set with all already fixed points from backend
+      const alreadyFixed = new Set<string>();
+      polledAnalysis.sections?.forEach((section: any) => {
+        section.improvement_points?.forEach((point: any) => {
+          if (point.is_fixed) {
+            alreadyFixed.add(point.id);
+          }
+        });
+      });
+      setDismissedPointIds(alreadyFixed);
+    }
+  }, [polledAnalysis]);
 
 
   // Handle fix marked - mark as fixed in backend and get updated analysis
@@ -566,35 +605,35 @@ const RefinePage: React.FC = () => {
               zIndex: 5
             }}>
               {/* Score bar */}
-              {analysis && (
-                <Box sx={{ pt: 2, px: 2, pb: 1 }}>
-                  <ScoreBar
-                    score={analysis.score}
-                    label={analysis.label}
-                    subtitle={analysis.subtitle}
-                    marketingText={marketingText}
-                    onRefresh={handleRefreshAnalysis}
-                    isRefreshing={isRefreshingAnalysis}
-                    isPremium={user?.is_premium || false}
-                    onUpgrade={handleUpgrade}
-                  />
-                </Box>
-              )}
+              <Box sx={{ pt: 2, px: 2, pb: 1 }}>
+                <ScoreBar
+                  score={analysis?.score || 0}
+                  label={analysis?.label || ''}
+                  subtitle={analysis?.subtitle || ''}
+                  marketingText={marketingText}
+                  onRefresh={handleRefreshAnalysis}
+                  isRefreshing={isRefreshingAnalysis}
+                  isPremium={user?.is_premium || false}
+                  onUpgrade={handleUpgrade}
+                  isAnalyzing={isAnalyzing && !isLoadingInitial}
+                />
+              </Box>
             </Box>
 
             {/* Scrollable improvement sections */}
-            <Box sx={{ 
+            <Box sx={{
               flex: 1,
               overflow: 'auto'
             }}>
-              <ImprovementSections 
-                sections={analysis?.sections || []} 
+              <ImprovementSections
+                sections={analysis?.sections || []}
                 resume={localResume || resume}
                 onFixApplied={handleFixApplied}
                 onNavigateToField={handleNavigateToField}
                 onFixMarked={handleFixMarked}
                 dismissedPointIds={dismissedPointIds}
                 isPremium={user?.is_premium || false}
+                isAnalyzing={isAnalyzing && !isLoadingInitial}
               />
             </Box>
 
