@@ -16,7 +16,24 @@ export function usePolling<T>({
   const [data, setData] = useState<T | null>(null);
   const [error, setError] = useState<Error | null>(null);
   const [isPolling, setIsPolling] = useState(enabled);
-  const timeoutRef = useRef<NodeJS.Timeout>();
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const prevEnabledRef = useRef(enabled);
+
+  useEffect(() => {
+    if (prevEnabledRef.current !== enabled) {
+      if (enabled) {
+        setIsPolling(true);
+        setData(null);
+        setError(null);
+      } else {
+        setIsPolling(false);
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+        }
+      }
+      prevEnabledRef.current = enabled;
+    }
+  }, [enabled]);
 
   useEffect(() => {
     if (!enabled || !isPolling) return;
