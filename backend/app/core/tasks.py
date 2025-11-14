@@ -96,20 +96,26 @@ async def _send_onboarding_notification_task(user_email: str, user_id: int, resp
         return {"status": "error", "user_email": user_email, "error": str(e)}
 
 
-@celery_app.task(name="process_resume_upload_task")
-def process_resume_upload_task(file_content: bytes, filename: str, user_id: int):
+@celery_app.task(name="process_resume_upload_task", bind=True)
+def process_resume_upload_task(self, file_content: bytes, filename: str, user_id: int):
     """Process uploaded resume using ParseService"""
-    return async_to_sync(_process_resume_upload_task)(file_content, filename, user_id)
+    return async_to_sync(_process_resume_upload_task)(self, file_content, filename, user_id)
 
 
-async def _process_resume_upload_task(file_content: bytes, filename: str, user_id: int):
+async def _process_resume_upload_task(task, file_content: bytes, filename: str, user_id: int):
     """Async implementation of resume processing task"""
     logger.info(f"Starting resume processing task for user {user_id}, filename: {filename}")
-    
+
     temp_file_path = None
     parse_service = None
-    
+
     try:
+        # Update Celery task state to PARSING
+        task.update_state(
+            state='PARSING',
+            meta={'status': 'parsing', 'message': 'Parsing resume file...', 'user_id': user_id}
+        )
+
         # Validate file size before processing
         file_size = len(file_content)
         logger.info(f"File size: {file_size} bytes")
@@ -152,8 +158,14 @@ async def _process_resume_upload_task(file_content: bytes, filename: str, user_i
         # Update user's resume_data with parsed data
         logger.info("Starting database operations to update resume_data")
         await _update_user_resume_data(user_id, parsed_data)
-        logger.info(f"Database operations completed successfully for user {user_id}")
-        
+        logger.info(f"✅ Parsing completed for user {user_id}")
+
+        # Update Celery task state to ANALYZING
+        task.update_state(
+            state='ANALYZING',
+            meta={'status': 'analyzing', 'message': 'Analyzing resume...', 'user_id': user_id}
+        )
+
         # Trigger analysis after successful resume upload
         await _generate_analysis_after_upload(user_id)
         
@@ -168,14 +180,12 @@ async def _process_resume_upload_task(file_content: bytes, filename: str, user_i
         except Exception as e:
             logger.warning(f"Failed to remove temporary file {temp_file_path}: {e}")
         
-        logger.info(f"Resume processing completed for user {user_id}")
-        result = {
-            'status': 'completed',
+        logger.info(f"✅ Resume processing completed for user {user_id}")
+        return {
+            'status': 'success',
             'user_id': user_id,
-            'message': 'Resume processed and updated successfully'
+            'message': 'Resume processed and analyzed successfully'
         }
-        logger.info(f"Returning task result: {result}")
-        return result
         
     except Exception as e:
         logger.error(f"Exception in process_resume_upload task: {e}", exc_info=True)
@@ -197,14 +207,12 @@ async def _process_resume_upload_task(file_content: bytes, filename: str, user_i
             except Exception as cleanup_error:
                 logger.warning(f"Failed to remove temporary file {temp_file_path} after error: {cleanup_error}")
         
-        result = {
+        return {
             'status': 'error',
             'error': str(e),
             'user_id': user_id,
             'message': f'Task failed: {str(e)}'
         }
-        logger.error(f"Returning error result: {result}")
-        return result
 
 
 async def _update_user_resume_data(user_id: int, parsed_data):
@@ -242,38 +250,42 @@ async def _update_user_resume_data(user_id: int, parsed_data):
 
 
 async def _generate_analysis_after_upload(user_id: int):
-    """Generates analysis for uploaded resume"""
+    """Generates analysis for uploaded resume (no status tracking)"""
     from app.database.session import SessionLocal
     from app.database.crud.crud_user import user_crud
     from app.services.analysis.analysis_service import analysis_service
-    
-    logger.info(f"Generating analysis for user {user_id}")
-    
+    from datetime import datetime
+
+    logger.info(f"🔍 Starting analysis for user {user_id}")
+
     async with SessionLocal() as db:
-        # Get user to check premium status
+        # Get user and resume data
         user = await user_crud.get(db, user_id)
         if not user:
             logger.warning(f"User {user_id} not found")
-            return
-        
-        # Get user's resume data
+            raise ValueError(f"User {user_id} not found")
+
         resume_data = await user_crud.get_resume_data(db, user_id=user_id)
-        
         if not resume_data:
-            logger.warning(f"No resume data found for user {user_id}")
-            return
-        
-        # Generate analysis (skip premium-only rules for non-premium users)
+            logger.warning(f"No resume data for user {user_id}")
+            raise ValueError(f"No resume data for user {user_id}")
+
+        # Run complete analysis (all rules in parallel)
         analysis_result = await analysis_service.analyze_resume(
             resume_data,
             is_premium=user.is_premium
         )
-        
-        # Save analysis to database
-        await user_crud.save_analysis_result(
+
+        # Save complete result (no status field)
+        analysis_data = analysis_result.model_dump(mode='json')
+
+        await user_crud.update(
             db,
-            user_id=user_id,
-            analysis_data=analysis_result.model_dump(mode='json')
+            db_obj_id=user_id,
+            obj_in={
+                'analysis_result': analysis_data,
+                'analysis_generated_at': datetime.utcnow()
+            }
         )
-        
-        logger.info(f"Analysis saved for user {user_id}, score: {analysis_result.score}")
+
+        logger.info(f"✅ Analysis completed for user {user_id}. Score: {analysis_result.score}")

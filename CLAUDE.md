@@ -84,6 +84,12 @@ uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 uv run celery -A app.core.celery_app worker -l info
 ```
 
+**IMPORTANT: Database Migrations**
+- Migrations are created **automatically on the server** via `backend/app/scripts/migrate.sh`
+- The migration script runs on deployment and auto-generates migrations if `AUTO_GENERATE_MIGRATIONS=true`
+- **NEVER manually create migration files** - just modify models and push to `main`
+- For local testing, run: `$env:PYTHONPATH='.'; alembic upgrade head`
+
 ### Local Docker Development
 ```bash
 # Start local environment (backend, postgres, redis only)
@@ -214,8 +220,8 @@ Backend AI service integrates with OpenAI API for resume enhancement and content
 1. **Use Python classes wherever possible**
 2. Keep code short and simple - don't expand functionality without user approval
 3. **Use uv for package management:** `uv add package-name` to add packages
-4. **For Alembic migrations, always use:** `$env:PYTHONPATH='.'; alembic upgrade head`
-5. Never auto-generate migrations - they're done manually
+4. **Database migrations are auto-generated on server** via `backend/app/scripts/migrate.sh` - just modify models and commit
+5. **For local migration testing:** `$env:PYTHONPATH='.'; alembic upgrade head`
 
 ## Environment Variables
 
