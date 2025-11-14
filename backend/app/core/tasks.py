@@ -116,10 +116,12 @@ async def _process_resume_upload_task(task, file_content: bytes, filename: str, 
 
         # Update Celery task state to PARSING (only if we have task context)
         if task_id:
+            logger.info(f"Updating task state to PARSING for task_id: {task_id}")
             task.update_state(
                 state='PARSING',
                 meta={'status': 'parsing', 'message': 'Parsing resume file...', 'user_id': user_id}
             )
+            logger.info(f"Task state updated to PARSING")
 
         # Validate file size before processing
         file_size = len(file_content)
@@ -167,10 +169,12 @@ async def _process_resume_upload_task(task, file_content: bytes, filename: str, 
 
         # Update Celery task state to ANALYZING (only if we have task context)
         if task_id:
+            logger.info(f"Updating task state to ANALYZING for task_id: {task_id}")
             task.update_state(
                 state='ANALYZING',
                 meta={'status': 'analyzing', 'message': 'Analyzing resume...', 'user_id': user_id}
             )
+            logger.info(f"Task state updated to ANALYZING")
 
         # Trigger analysis after successful resume upload
         await _generate_analysis_after_upload(user_id)

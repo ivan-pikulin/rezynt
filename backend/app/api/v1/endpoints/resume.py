@@ -340,8 +340,12 @@ async def get_upload_result(
     Returns current task status regardless of completion state.
     Only available for users with verified email.
     """
+    import logging
+    logger = logging.getLogger(__name__)
+
     try:
         task = celery_app.AsyncResult(task_id)
+        logger.info(f"Checking task {task_id}: state={task.state}, info={task.info}")
 
         if task.state == 'PENDING':
             return {
