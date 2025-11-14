@@ -235,8 +235,9 @@ class AnalysisService:
             potential_sections.append(potential_section)
         
         potential_score = calculate_overall_score(potential_sections)
-        
+
         return AnalysisResult(
+            status='completed',  # Analysis is complete when returned from this method
             score=score,
             label=label,
             subtitle=subtitle,
