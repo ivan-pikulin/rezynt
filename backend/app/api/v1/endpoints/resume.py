@@ -105,7 +105,6 @@ async def upload_resume(
         from datetime import datetime
         logger.info(f"Creating pending analysis placeholder for user {current_user.id}")
         pending_analysis = {
-            'status': 'pending',
             'score': 0,
             'label': '',
             'subtitle': '',
@@ -271,7 +270,6 @@ async def claim_temp_file(
         from datetime import datetime
         logger.info(f"Creating pending analysis placeholder for user {current_user.id}")
         pending_analysis = {
-            'status': 'pending',
             'score': 0,
             'label': '',
             'subtitle': '',
@@ -340,51 +338,38 @@ async def get_upload_status(
         if task.state == 'PENDING':
             response = {
                 'state': task.state,
-                'status': 'pending',
                 'message': 'Task is pending'
             }
         elif task.state == 'STARTED':
             response = {
                 'state': task.state,
-                'status': 'processing',
                 'message': 'Processing resume with ParseService'
             }
         elif task.state == 'PARSING':
-            # Custom state: parsing resume file
-            meta = task.info or {}
             response = {
                 'state': task.state,
-                'status': meta.get('status', 'parsing'),
-                'message': meta.get('message', 'Parsing resume file...'),
-                'meta': meta
+                'message': 'Parsing resume file...'
             }
         elif task.state == 'ANALYZING':
-            # Custom state: analyzing resume
-            meta = task.info or {}
             response = {
                 'state': task.state,
-                'status': meta.get('status', 'analyzing'),
-                'message': meta.get('message', 'Analyzing resume...'),
-                'meta': meta
+                'message': 'Analyzing resume...'
             }
         elif task.state == 'SUCCESS':
             task_result = task.result or {}
             response = {
                 'state': task.state,
-                'status': 'completed',
                 'message': task_result.get('message', 'Resume processed successfully')
             }
         elif task.state == 'FAILURE':
             response = {
                 'state': task.state,
-                'status': 'error',
                 'message': 'Task failed',
                 'error': str(task.result) if task.result is not None else 'Unknown error'
             }
         else:
             response = {
                 'state': task.state,
-                'status': 'unknown',
                 'message': 'Unknown task state'
             }
         

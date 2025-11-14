@@ -14,24 +14,24 @@
             <methods>
                 <method>
                     <name>parse_resume_file</name>
-                    <description>Parses resume file and returns structured data (asynchronously)</description>
+                    <description>Parses resume file and returns structured data (synchronously)</description>
                     <params>
                         <param name="file_path" type="str">Path to resume file</param>
                     </params>
                     <returns type="ParsedResumeData">Structured resume data</returns>
-                    <async>True - uses asynchronous HTTP requests to OpenAI API</async>
+                    <async>False - runs synchronously for Celery compatibility</async>
                     <validation>Checks file size (maximum 10MB) before processing</validation>
                     <memory_management>Uses garbage collection to free memory</memory_management>
                     <text_limiting>Limits text length to 50000 characters to prevent token limit exceed</text_limiting>
                 </method>
                 <method>
                     <name>_parse_with_openai_structured</name>
-                    <description>Parses resume text through OpenAI Structured Outputs using OpenAIStructuredResume schema (asynchronously)</description>
+                    <description>Parses resume text through OpenAI Structured Outputs using OpenAIStructuredResume schema (synchronously)</description>
                     <params>
                         <param name="text_content" type="str">Resume text</param>
                     </params>
                     <returns type="ParsedResumeData">Structured data</returns>
-                    <async>True - uses asynchronous HTTP requests to OpenAI API</async>
+                    <async>False - executes blocking OpenAI client calls</async>
                     <token_limiting>Limits response to 4000 tokens to prevent limit exceed</token_limiting>
                     <memory_management>Uses garbage collection to free memory after processing</memory_management>
                 </method>
@@ -55,12 +55,12 @@
                 </method>
                 <method>
                     <name>test_structured_output</name>
-                    <description>Tests OpenAI Structured Outputs with sample text (asynchronously)</description>
+                    <description>Tests OpenAI Structured Outputs with sample text (synchronously)</description>
                     <params>
                         <param name="sample_text" type="str">Sample resume text for testing</param>
                     </params>
                     <returns type="Dict[str, Any]">Parsing result</returns>
-                    <async>True - uses asynchronous HTTP requests to OpenAI API</async>
+                    <async>False - blocking helper for diagnostic calls</async>
                 </method>
             </methods>
             <configuration>

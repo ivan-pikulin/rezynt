@@ -38,7 +38,7 @@ class ParseService:
         )
         self.md = MarkItDown(enable_plugins=False)
     
-    async def parse_resume_file(self, file_path: str) -> ParsedResumeData:
+    def parse_resume_file(self, file_path: str) -> ParsedResumeData:
         """
         Parses resume file and returns structured data
         
@@ -76,7 +76,7 @@ class ParseService:
                 text_content = text_content[:50000] + "..."
             
             # Parse via OpenAI with structured output
-            parsed_data = await self._parse_with_openai_structured(text_content)
+            parsed_data = self._parse_with_openai_structured(text_content)
             
             # Clean up text content
             del text_content
@@ -91,7 +91,7 @@ class ParseService:
             gc.collect()
             raise
     
-    async def _parse_with_openai_structured(self, text_content: str) -> ParsedResumeData:
+    def _parse_with_openai_structured(self, text_content: str) -> ParsedResumeData:
         """
         Parses resume text via OpenAI with structured output using OpenAIStructuredResume schema
         
@@ -211,7 +211,7 @@ class ParseService:
         )
     
     
-    async def test_structured_output(self, sample_text: str = None) -> Dict[str, Any]:
+    def test_structured_output(self, sample_text: str = None) -> Dict[str, Any]:
         """
         Tests OpenAI Structured Outputs with sample text
         
@@ -249,7 +249,7 @@ class ParseService:
         
         try:
             # Test structured output
-            structured_data = await self._parse_with_openai_structured(sample_text)
+            structured_data = self._parse_with_openai_structured(sample_text)
             
             # Convert to dictionary for convenience
             result = {

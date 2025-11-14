@@ -41,7 +41,6 @@ class AnalysisSection(BaseModel):
 
 class AnalysisResult(BaseModel):
     """Complete analysis result for a resume"""
-    status: Literal['pending', 'analyzing', 'completed']  # Analysis status
     score: int  # Overall score (0-100)
     label: str  # 'Weak', 'Fair', 'Good', 'Strong', 'Excellent'
     subtitle: str  # Motivational message

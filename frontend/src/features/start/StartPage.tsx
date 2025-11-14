@@ -83,31 +83,36 @@ const StartPage: React.FC = () => {
     return () => clearInterval(interval);
   }, [isProcessingUpload, uploadMessages]);
 
+  const activeTaskId = taskIdParam || taskId;
+
   // React to task state changes
   useEffect(() => {
     if (!taskResult) return;
 
     if (taskResult.state === 'PARSING') {
-      // Show parsing message
-      setUploadMessage(taskResult.meta?.message || t('start.parsingResume'));
+      setUploadMessage(t('start.parsingResume'));
     } else if (taskResult.state === 'ANALYZING' || taskResult.state === 'SUCCESS') {
-      // Redirect to refine (no query param)
+      setUploadMessage(t('start.analyzingResume'));
       setIsProcessingUpload(false);
       setUploadError(null);
 
+      const refinePath = activeTaskId
+        ? `/refine?analyzing_task_id=${encodeURIComponent(activeTaskId)}`
+        : '/refine';
+
       if (user && !user.has_completed_onboarding) {
-        navigate('/onboarding?redirect=/refine', { replace: true });
+        navigate(`/onboarding?redirect=${encodeURIComponent(refinePath)}`, { replace: true });
       } else {
-        navigate('/refine', { replace: true });
+        navigate(refinePath, { replace: true });
       }
     } else if (taskResult.state === 'FAILURE') {
       // Handle error
       setIsProcessingUpload(false);
       setTaskId(null);
-      setUploadError(taskResult.meta?.error || t('errors.uploadFailed'));
+      setUploadError(taskResult.error || taskResult.message || t('errors.uploadFailed'));
       navigate('/start', { replace: true });
     }
-  }, [taskResult, user, navigate, t]);
+  }, [taskResult, user, navigate, t, activeTaskId]);
 
   const handleStepClick = (stepIndex: number) => {
     switch (stepIndex) {

@@ -72,6 +72,13 @@
                         - upload_resume: Creates welcome message for uploaded resumes (TODO: different logic)
                     </implementation>
                 </feature>
+                <feature name="Upload Status Polling" description="Frontend polls Celery state to track resume processing">
+                    <implementation>
+                        - /resume/upload/status/{task_id} now returns only task state and optional message
+                        - Custom states PARSING and ANALYZING mirror Celery state machine (no meta payload)
+                        - SUCCESS/FAILURE states inform frontend when to refresh analysis data
+                    </implementation>
+                </feature>
             </features>
         </module>
         
@@ -131,6 +138,7 @@
                         - Includes generated_at timestamp
                         - GET /analysis/ returns cached result if available
                         - POST /analysis/refresh forces regeneration
+                        - AnalysisResult payload contains scoring data only (no async status flag)
                     </implementation>
                 </feature>
             </features>

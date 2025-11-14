@@ -82,7 +82,7 @@
 
     <navigation>
         <flow name="start_from_scratch" desc="Navigate to /builder after creating resume; if user already has resumes, StartPage shows PaywallModal and blocks action via guard" />
-        <flow name="upload_resume" desc="Navigate to /refine after uploading and processing file; if user already has resumes, StartPage shows PaywallModal and blocks action via guard" />
+        <flow name="upload_resume" desc="Once Celery task reaches PARSING/ANALYZING, redirect to /refine?analyzing_task_id={id} so RefinePage can poll task status; failures reset StartPage guards" />
     </navigation>
 
     <deps>

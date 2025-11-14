@@ -27,7 +27,7 @@ export const startApi = {
       }
     }
     
-    if (!result || result.status !== 'completed') {
+    if (!result || result.state !== 'SUCCESS') {
       throw new Error(i18n.t('errors.uploadFailedGeneric'));
     }
     

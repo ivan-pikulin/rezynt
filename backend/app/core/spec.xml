@@ -81,7 +81,10 @@
                         <parsing>Uses ParseService to extract structured data</parsing>
                         <database>Creates resume and all related records (personal info, contacts, skills, experience, education)</database>
                         <cleanup>Automatically removes temporary files and frees memory after processing</cleanup>
-                        <error_handling>Handles parsing errors and database record creation with full resource cleanup</error_handling>
+                        <synchronous_flow>Runs end-to-end inside Celery task without async wrappers</synchronous_flow>
+                        <task_state>Task state updates happen inline through Celery binding context without extra meta payload</task_state>
+                        <analysis_generation>Invokes analysis_service via asyncio.run to keep processing synchronous</analysis_generation>
+                        <error_handling>Relies on Celery's default error propagation without custom try/except</error_handling>
                         <logging>Detailed logging of all processing stages</logging>
                     </implementation>
                 </task>

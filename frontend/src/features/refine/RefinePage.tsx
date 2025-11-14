@@ -16,7 +16,7 @@ import { useUser, usePolling } from '../../shared/hooks';
 import { useAuth } from '../../shared/hooks/useAuth';
 import { useResumeQuery } from '../../shared/hooks/useResumeQuery';
 // import { useTemplate } from '../../shared/hooks/useTemplate';
-import { Resume, AnalysisResult } from '../../shared/services/api/types';
+import { Resume, AnalysisResult, TaskStatus } from '../../shared/services/api/types';
 import { COLORS } from '../../shared/theme/theme';
 // import { TemplateConfig } from '../../shared/types/resume';
 import ErrorMessage from './components/ErrorMessage';
@@ -24,7 +24,7 @@ import LoadingSpinner from './components/LoadingSpinner';
 import EditorAccordion, { EditorAccordionHandle } from './components/EditorAccordion';
 import ScoreBar from './components/ScoreBar';
 import ImprovementSections from './components/ImprovementSections';
-import { analysisApi } from '../../shared/services/api';
+import { analysisApi, resumeApi } from '../../shared/services/api';
 
 const RefinePage: React.FC = () => {
   const { t } = useTranslation();
@@ -35,11 +35,16 @@ const RefinePage: React.FC = () => {
   // No more resume_id in URL - each user has one resume
   // Wait for auth to load before attempting to load resume
   const { resume, isLoading: loading, error: queryError, updateResumeInCache } = useResumeQuery(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const analyzingTaskId = searchParams.get('analyzing_task_id');
+  const shouldPollUploadStatus = Boolean(analyzingTaskId);
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [isLoadingInitial, setIsLoadingInitial] = useState(true);
   const [showSaveNotification, setShowSaveNotification] = useState(true);
   const [lastSaveTime, setLastSaveTime] = useState('');
   const [isRefreshingAnalysis, setIsRefreshingAnalysis] = useState(false);
+  const [isTaskAnalyzing, setIsTaskAnalyzing] = useState(shouldPollUploadStatus);
+  const [taskPollingError, setTaskPollingError] = useState<string | null>(null);
   const editorRef = useRef<EditorAccordionHandle>(null);
   
   // Track dismissed/applied improvement points for dynamic score recalculation
@@ -60,12 +65,92 @@ const RefinePage: React.FC = () => {
     historyIndexRef.current = historyIndex;
   }, [historyIndex]);
   
+  const clearAnalyzingParams = useCallback(() => {
+    const next = new URLSearchParams(searchParams);
+    next.delete('analyzing_task_id');
+    setSearchParams(next, { replace: true });
+  }, [searchParams, setSearchParams]);
+
+  const loadAnalysis = useCallback(async () => {
+    if (!resume) {
+      setIsLoadingInitial(false);
+      return;
+    }
+
+    try {
+      const data = await analysisApi.getAnalysis();
+      setAnalysis(data);
+
+      if (data) {
+        const alreadyFixed = new Set<string>();
+        data.sections?.forEach((section: any) => {
+          section.improvement_points?.forEach((point: any) => {
+            if (point.is_fixed) {
+              alreadyFixed.add(point.id);
+            }
+          });
+        });
+        setDismissedPointIds(alreadyFixed);
+      }
+    } catch (error) {
+      console.error('Error loading analysis:', error);
+    } finally {
+      setIsLoadingInitial(false);
+    }
+  }, [resume]);
+
+  const uploadStatusFetcher = useCallback(() => {
+    if (!analyzingTaskId) {
+      return Promise.resolve({ state: 'PENDING' } as TaskStatus);
+    }
+    return resumeApi.getUploadStatus(analyzingTaskId);
+  }, [analyzingTaskId]);
+
+  const { data: uploadStatus } = usePolling({
+    fetchFn: uploadStatusFetcher,
+    shouldStop: (data) => data.state === 'SUCCESS' || data.state === 'FAILURE',
+    interval: 2000,
+    enabled: shouldPollUploadStatus,
+  });
+
   // Authentication check removed - guest users can access this page
 
   const [isSaving, setIsSaving] = useState(false);
   const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
   const [localResume, setLocalResume] = useState<Resume | null>(resume || null);
   const [mobileTab, setMobileTab] = useState<'analysis' | 'editor'>('analysis');
+  const analysisLoading = isTaskAnalyzing || isLoadingInitial;
+  useEffect(() => {
+    if (shouldPollUploadStatus) {
+      setIsTaskAnalyzing(true);
+      setTaskPollingError(null);
+      setAnalysis(null);
+      setIsLoadingInitial(true);
+    }
+  }, [shouldPollUploadStatus]);
+
+  useEffect(() => {
+    if (!resume || shouldPollUploadStatus) return;
+    setIsLoadingInitial(true);
+    loadAnalysis();
+  }, [resume, shouldPollUploadStatus, loadAnalysis]);
+
+  useEffect(() => {
+    if (!uploadStatus) return;
+
+    if (uploadStatus.state === 'SUCCESS') {
+      setIsTaskAnalyzing(false);
+      setTaskPollingError(null);
+      clearAnalyzingParams();
+      setIsLoadingInitial(true);
+      loadAnalysis();
+    } else if (uploadStatus.state === 'FAILURE') {
+      setIsTaskAnalyzing(false);
+      setTaskPollingError(uploadStatus.error || t('errors.uploadFailed'));
+      clearAnalyzingParams();
+    }
+  }, [uploadStatus, clearAnalyzingParams, loadAnalysis, t]);
+
 
   // Update local resume when fetched resume changes
   useEffect(() => {
@@ -282,89 +367,6 @@ const RefinePage: React.FC = () => {
       setLastSaveTime(`${hours}:${minutes}:${seconds}`);
     }
   }, [resume, lastSaveTime]);
-
-  // Check if analysis exists on mount
-  useEffect(() => {
-    if (!resume) return;
-
-    const loadAnalysis = async () => {
-      try {
-        const data = await analysisApi.getAnalysis();
-
-        if (data) {
-          // Analysis exists (could be pending, analyzing, or completed)
-          setAnalysis(data);
-
-          // Initialize dismissed set with all already fixed points from backend
-          // Only if analysis is completed
-          if (data.status === 'completed') {
-            const alreadyFixed = new Set<string>();
-            data.sections?.forEach((section: any) => {
-              section.improvement_points?.forEach((point: any) => {
-                if (point.is_fixed) {
-                  alreadyFixed.add(point.id);
-                }
-              });
-            });
-            setDismissedPointIds(alreadyFixed);
-          }
-          setIsLoadingInitial(false);
-        } else {
-          // No analysis yet - user just uploaded, show loading
-          setIsLoadingInitial(false);
-        }
-      } catch (error) {
-        console.error('Error loading analysis:', error);
-        setIsLoadingInitial(false);
-      }
-    };
-
-    loadAnalysis();
-  }, [resume]);
-
-  // Poll for analysis if status is not 'completed'
-  const isAnalyzing = !analysis || analysis.status !== 'completed';
-
-  // Debug logging
-  useEffect(() => {
-    console.log('🔍 Analysis state:', {
-      hasAnalysis: !!analysis,
-      status: analysis?.status,
-      isAnalyzing,
-      isLoadingInitial,
-      hasResume: !!resume,
-      pollingEnabled: isAnalyzing && !isLoadingInitial && !!resume
-    });
-  }, [analysis, isAnalyzing, isLoadingInitial, resume]);
-
-  const { data: polledAnalysis } = usePolling({
-    fetchFn: () => analysisApi.getAnalysis(),
-    shouldStop: (data) => data && data.status === 'completed',
-    interval: 3000,
-    enabled: isAnalyzing && !isLoadingInitial && !!resume,
-  });
-
-  // Update analysis when polling returns data
-  useEffect(() => {
-    if (polledAnalysis) {
-      setAnalysis(polledAnalysis);
-
-      // Initialize dismissed set with all already fixed points from backend
-      // Only if analysis is completed
-      if (polledAnalysis.status === 'completed') {
-        const alreadyFixed = new Set<string>();
-        polledAnalysis.sections?.forEach((section: any) => {
-          section.improvement_points?.forEach((point: any) => {
-            if (point.is_fixed) {
-              alreadyFixed.add(point.id);
-            }
-          });
-        });
-        setDismissedPointIds(alreadyFixed);
-      }
-    }
-  }, [polledAnalysis]);
-
 
   // Handle fix marked - mark as fixed in backend and get updated analysis
   const handleFixMarked = async (pointId: string) => {
@@ -635,9 +637,17 @@ const RefinePage: React.FC = () => {
                   isRefreshing={isRefreshingAnalysis}
                   isPremium={user?.is_premium || false}
                   onUpgrade={handleUpgrade}
-                  isAnalyzing={isAnalyzing && !isLoadingInitial}
+                  isAnalyzing={analysisLoading || isRefreshingAnalysis}
                 />
               </Box>
+              {taskPollingError && (
+                <Box sx={{ px: 2, pb: 2 }}>
+                  <ErrorMessage 
+                    message={taskPollingError} 
+                    onRetry={() => window.location.reload()}
+                  />
+                </Box>
+              )}
             </Box>
 
             {/* Scrollable improvement sections */}
@@ -653,7 +663,7 @@ const RefinePage: React.FC = () => {
                 onFixMarked={handleFixMarked}
                 dismissedPointIds={dismissedPointIds}
                 isPremium={user?.is_premium || false}
-                isAnalyzing={isAnalyzing && !isLoadingInitial}
+                isAnalyzing={analysisLoading}
               />
             </Box>
 

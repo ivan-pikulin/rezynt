@@ -176,8 +176,7 @@ export interface OnboardingResponse {
 // Task status types (for file upload)
 export interface TaskStatus {
   state: string;
-  status: string;
-  message: string;
+  message?: string;
   error?: string;
 }
 
@@ -215,7 +214,6 @@ export interface AnalysisSection {
 }
 
 export interface AnalysisResult {
-  status: 'pending' | 'analyzing' | 'completed';
   score: number;
   label: string;
   subtitle: string;
