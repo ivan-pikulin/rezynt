@@ -1,355 +1,102 @@
-# Progressive Analysis Implementation Plan
+# Simplified Analysis Implementation Plan
 
 ## Overview
-Implement progressive resume analysis where users can immediately access the refine page after parsing completes, while improvement points load incrementally as analysis rules finish (running in parallel).
+Simplify resume analysis to run all rules in parallel as a single step. Users are redirected to the refine page immediately after parsing and see a loading animation until analysis completes. NO incremental updates - just one final result.
+
+## Task Status Architecture
+
+### Parsing Task (`process_resume_upload_task`) Statuses
+The Celery task uses `task.update_state()` to report progress to StartPage:
+- **`PARSING`** - File is being parsed (OCR, text extraction)
+- **`ANALYZING`** - Resume is being analyzed (rules execution)
+- **`SUCCESS`** - Both parsing and analysis completed successfully
+- **`FAILURE`** - Error occurred during parsing or analysis
+
+Frontend on StartPage polls the task status and redirects to `/refine?analyzing=true` when status becomes `ANALYZING`, or to `/refine` when status is `SUCCESS`.
+
+### Single Source of Truth: Celery Task State
+Frontend uses ONLY the Celery task state for all status tracking. No separate `analysis_result.status` field needed.
+- StartPage polls Celery task state: `PARSING` → `ANALYZING` → `SUCCESS`/`FAILURE`
+- RefinePage checks if analysis exists in `analysis_result` (if empty, show "Run Analysis" button)
+- When analysis completes, full result is saved to `analysis_result` JSONB field
 
 ## Key Principles
 - ✅ Keep parallel rule execution via `asyncio.gather()`
-- ✅ Use existing `analysis_result` JSONB field (no separate table)
-- ✅ Incremental updates as each rule completes
-- ✅ User can edit resume while analysis runs
+- ✅ Use existing `analysis_result` JSONB field (no separate table, no status tracking)
+- ✅ Celery task reports status: `PARSING` → `ANALYZING` → `SUCCESS`/`FAILURE`
+- ✅ Frontend polls Celery task state (single source of truth)
+- ✅ Frontend shows loading placeholders during analysis
+- ✅ Use MUI Skeleton components for loading states
+- ✅ Use custom `usePolling` hook to avoid code duplication
+- ❌ NO incremental updates - wait for all rules to finish
+- ❌ NO WebSocket events - simple polling only
+- ❌ NO query parameters - status determined by API only
 
 ---
 
-## Phase 1: Backend - CRUD Operations
+## Phase 1: Backend - Add Task Status Updates
 
-### Commit 1: Add Analysis CRUD Methods
-**Files:** `backend/app/database/crud/crud_user.py`
-
-**Changes:**
-- [ ] Add `init_analysis()` method - initialize empty analysis structure
-- [ ] Add `add_improvement_points_incremental()` method - add points with row-level lock to prevent race conditions
-- [ ] Add `mark_analysis_complete()` method - add final scores WITHOUT overwriting points
-- [ ] Add `get_analysis_status()` method - poll current status
-
-**Code:**
-```python
-async def init_analysis(
-    self,
-    db: AsyncSession,
-    user_id: int
-) -> None:
-    """Initialize analysis with empty sections"""
-    stmt = (
-        update(User)
-        .where(User.id == user_id)
-        .values(
-            analysis_result={
-                'status': 'analyzing',
-                'sections': [
-                    {'id': 'content', 'title': 'Content & Structure', 'improvement_points': []},
-                    {'id': 'ats', 'title': 'ATS Optimization', 'improvement_points': []},
-                    {'id': 'style', 'title': 'Style & Grammar', 'improvement_points': []}
-                ]
-            }
-        )
-    )
-    await db.execute(stmt)
-    await db.commit()
-
-async def add_improvement_points_incremental(
-    self,
-    db: AsyncSession,
-    user_id: int,
-    points: List[dict]
-) -> None:
-    """Add improvement points to analysis_result incrementally (ONE DB UPDATE with row lock)"""
-    # Get current analysis_result with row-level lock to prevent race conditions
-    result = await db.execute(
-        select(User).where(User.id == user_id).with_for_update()
-    )
-    user = result.scalar_one_or_none()
-    if not user:
-        return
-
-    analysis = user.analysis_result or {
-        'status': 'analyzing',
-        'sections': [
-            {'id': 'content', 'title': 'Content & Structure', 'improvement_points': []},
-            {'id': 'ats', 'title': 'ATS Optimization', 'improvement_points': []},
-            {'id': 'style', 'title': 'Style & Grammar', 'improvement_points': []}
-        ]
-    }
-
-    # Add points to corresponding sections
-    for point in points:
-        section_id = point.get('section_id')
-        section = next((s for s in analysis['sections'] if s['id'] == section_id), None)
-        if section:
-            section['improvement_points'].append(point)
-
-    # Update user object (will be saved on commit due to ORM tracking)
-    user.analysis_result = analysis
-    await db.commit()
-
-async def mark_analysis_complete(
-    self,
-    db: AsyncSession,
-    user_id: int,
-    score: int,
-    label: str,
-    subtitle: str,
-    total_improvements: int,
-    potential_score: int
-) -> None:
-    """Mark analysis as complete - only add scores, keep existing points"""
-    # Get current analysis_result with lock
-    result = await db.execute(
-        select(User).where(User.id == user_id).with_for_update()
-    )
-    user = result.scalar_one_or_none()
-    if not user:
-        return
-
-    # Get existing analysis with points
-    analysis = user.analysis_result or {'sections': []}
-
-    # Add final scores to existing analysis (don't overwrite points!)
-    analysis['status'] = 'completed'
-    analysis['score'] = score
-    analysis['label'] = label
-    analysis['subtitle'] = subtitle
-    analysis['total_improvements'] = total_improvements
-    analysis['potential_score'] = potential_score
-    analysis['generated_at'] = datetime.utcnow().isoformat()
-
-    # Update
-    user.analysis_result = analysis
-    user.analysis_generated_at = func.now()
-    await db.commit()
-
-async def get_analysis_status(
-    self,
-    db: AsyncSession,
-    user_id: int
-) -> dict:
-    """Get current analysis status (for polling)"""
-    result = await db.execute(select(User).where(User.id == user_id))
-    user = result.scalar_one_or_none()
-    if not user:
-        return None
-
-    analysis_result = user.analysis_result or {'status': 'none'}
-
-    return {
-        'status': analysis_result.get('status', 'none'),
-        'analysis_result': user.analysis_result
-    }
-```
-
-**Testing:**
-- [ ] Import without errors
-- [ ] Methods follow existing CRUD patterns
-
----
-
-## Phase 2: Backend - Analysis Service
-
-### Commit 2: Add Incremental Analysis Method
-**Files:** `backend/app/services/analysis/analysis_service.py`
-
-**Changes:**
-- [ ] Add `analyze_resume_incremental()` method
-- [ ] Keep existing `analyze_resume()` unchanged (for backward compatibility)
-- [ ] Parallel execution with incremental callbacks
-
-**Code:**
-```python
-async def analyze_resume_incremental(
-    self,
-    resume: dict,
-    user_id: int,
-    db: AsyncSession,
-    is_premium: bool = False
-) -> None:
-    """
-    Analyze resume with incremental updates.
-    Runs all rules in parallel but saves points as each completes.
-    """
-    from app.database.crud.crud_user import user_crud
-
-    # Filter rules based on premium status
-    rules_to_run = [
-        rule for rule in self.rules
-        if is_premium or not rule.premium_only
-    ]
-
-    # Initialize analysis with empty sections
-    await user_crud.init_analysis(db, user_id)
-
-    print(f"🚀 Running {len(rules_to_run)} rules in parallel with incremental updates...")
-
-    async def run_rule_with_incremental_update(rule: BaseRule) -> List[ImprovementPoint]:
-        """Run rule and save points immediately when done"""
-        try:
-            points = await rule.check(resume)
-
-            if len(points) > 0:
-                print(f"✓ {rule.rule_id}: {len(points)} points - saving incrementally")
-
-                # Convert to dict for JSONB storage
-                points_dict = [p.model_dump(mode='json') for p in points]
-
-                # Save points immediately (one DB update per rule)
-                await user_crud.add_improvement_points_incremental(db, user_id, points_dict)
-
-            return points
-
-        except Exception as e:
-            import traceback
-            print(f"✗ Error in rule {rule.rule_id}: {e}")
-            print(traceback.format_exc())
-            return []
-
-    # 🚀 Execute ALL rules in parallel
-    results = await asyncio.gather(*[
-        run_rule_with_incremental_update(rule)
-        for rule in rules_to_run
-    ])
-
-    # Flatten all points
-    all_points = []
-    for points in results:
-        all_points.extend(points)
-
-    print(f"✅ All {len(rules_to_run)} rules completed. Total points: {len(all_points)}")
-
-    # Build final sections with scores
-    sections = self._build_sections(all_points)
-    score = calculate_overall_score(sections)
-    label, subtitle = AnalysisConfig.get_score_label(score)
-
-    # Calculate potential score
-    potential_sections = []
-    for section in sections:
-        potential_section = AnalysisSection(
-            id=section.id,
-            title=section.title,
-            current_points=100,
-            max_points=100,
-            percentage=100,
-            status="Strong",
-            improvement_points=[]
-        )
-        potential_sections.append(potential_section)
-    potential_score = calculate_overall_score(potential_sections)
-
-    # Create final analysis result
-    final_analysis = AnalysisResult(
-        score=score,
-        label=label,
-        subtitle=subtitle,
-        sections=sections,
-        total_improvements=len(all_points),
-        potential_score=potential_score,
-        generated_at=datetime.utcnow()
-    )
-
-    # Mark as complete - only add scores, not points (they're already saved incrementally)
-    await user_crud.mark_analysis_complete(
-        db,
-        user_id,
-        score=score,
-        label=label,
-        subtitle=subtitle,
-        total_improvements=len(all_points),
-        potential_score=potential_score
-    )
-
-    print(f"✅ Analysis marked complete. Final score: {score}")
-```
-
-**Testing:**
-- [ ] Method signature correct
-- [ ] Imports work
-- [ ] No syntax errors
-
----
-
-## Phase 3: Backend - Celery Tasks
-
-### Commit 3: Modify Resume Upload Task
+### Commit 1: Modify Resume Upload Task
 **Files:** `backend/app/core/tasks.py`
 
 **Changes:**
-- [ ] Split task into two phases: parsing and analysis
-- [ ] Call `analyze_resume_incremental()` instead of old method
-- [ ] Update task states appropriately
+- [ ] Add `bind=True` to task decorator to get task instance
+- [ ] Update task state to `PARSING` at start (with `meta.message`)
+- [ ] Update task state to `ANALYZING` before analysis begins (with `meta.message`)
+- [ ] Run all rules in parallel (existing `asyncio.gather()`)
+- [ ] Save complete analysis result once at the end (no status field needed)
+- [ ] Return final status: `SUCCESS` or `FAILURE`
 
 **Code:**
 ```python
-async def _process_resume_upload_task(file_content: bytes, filename: str, user_id: int):
-    """Async implementation with two-phase processing"""
+@celery_app.task(name="process_resume_upload_task", bind=True)
+def process_resume_upload_task(self, file_content: bytes, filename: str, user_id: int):
+    """Process uploaded resume using ParseService"""
+    return async_to_sync(_process_resume_upload_task)(self, file_content, filename, user_id)
+
+
+async def _process_resume_upload_task(task, file_content: bytes, filename: str, user_id: int):
+    """Async implementation of resume processing task"""
     logger.info(f"Starting resume processing task for user {user_id}, filename: {filename}")
 
     temp_file_path = None
     parse_service = None
 
     try:
-        # Validate file size
-        file_size = len(file_content)
-        if file_size > ParseService.MAX_FILE_SIZE:
-            raise ValueError(f"File size exceeds limit")
+        # ✅ Update Celery task state to PARSING
+        task.update_state(
+            state='PARSING',
+            meta={'status': 'parsing', 'message': 'Parsing resume file...', 'user_id': user_id}
+        )
 
-        # Save to temp file
-        temp_dir = tempfile.gettempdir()
-        temp_file_path = os.path.join(temp_dir, f"resume_{user_id}_{filename}")
-        with open(temp_file_path, 'wb') as temp_file:
-            temp_file.write(file_content)
-
-        del file_content
-        gc.collect()
-
-        # ========================================
-        # PHASE 1: PARSE RESUME
-        # ========================================
-        logger.info("📄 Phase 1: Parsing resume...")
-        parse_service = ParseService()
+        # [... existing parsing code ...]
+        # Validate file, save to temp, parse with ParseService
         parsed_data = await parse_service.parse_resume_file(temp_file_path)
 
-        logger.info(f"✅ Parsing complete. Updating resume data...")
+        # Update user's resume_data with parsed data
         await _update_user_resume_data(user_id, parsed_data)
+        logger.info(f"✅ Parsing completed for user {user_id}")
 
-        del parse_service
-        del parsed_data
-        gc.collect()
+        # ✅ Update Celery task state to ANALYZING
+        task.update_state(
+            state='ANALYZING',
+            meta={'status': 'analyzing', 'message': 'Analyzing resume...', 'user_id': user_id}
+        )
 
-        # ========================================
-        # PHASE 2: ANALYZE RESUME (INCREMENTAL)
-        # ========================================
-        logger.info("🔍 Phase 2: Starting incremental analysis...")
-        await _generate_analysis_incremental(user_id)
+        # ✅ Trigger analysis (with status tracking)
+        await _generate_analysis_after_upload(user_id)
 
-        # Cleanup
-        try:
-            os.remove(temp_file_path)
-            logger.info(f"Temporary file removed: {temp_file_path}")
-        except Exception as e:
-            logger.warning(f"Failed to remove temp file: {e}")
-
+        # Clean up and return success
         logger.info(f"✅ Resume processing completed for user {user_id}")
         return {
-            'status': 'completed',
+            'status': 'success',
             'user_id': user_id,
-            'message': 'Resume processed successfully'
+            'message': 'Resume processed and analyzed successfully'
         }
 
     except Exception as e:
-        logger.error(f"Exception in process_resume_upload task: {e}", exc_info=True)
-
-        # Cleanup on error
-        if 'file_content' in locals():
-            del file_content
-        if parse_service is not None:
-            del parse_service
-        gc.collect()
-
-        if temp_file_path and os.path.exists(temp_file_path):
-            try:
-                os.remove(temp_file_path)
-            except Exception as cleanup_error:
-                logger.warning(f"Failed to remove temp file: {cleanup_error}")
-
+        logger.error(f"❌ Exception in process_resume_upload task: {e}", exc_info=True)
+        # [... cleanup code ...]
         return {
             'status': 'error',
             'error': str(e),
@@ -358,268 +105,295 @@ async def _process_resume_upload_task(file_content: bytes, filename: str, user_i
         }
 
 
-async def _generate_analysis_incremental(user_id: int):
-    """Generate analysis with incremental updates"""
+async def _generate_analysis_after_upload(user_id: int):
+    """Generates analysis for uploaded resume (no status tracking)"""
     from app.database.session import SessionLocal
     from app.database.crud.crud_user import user_crud
     from app.services.analysis.analysis_service import analysis_service
+    from datetime import datetime
 
-    logger.info(f"🔍 Starting incremental analysis for user {user_id}")
+    logger.info(f"🔍 Starting analysis for user {user_id}")
 
     async with SessionLocal() as db:
-        # Get user
+        # Get user and resume data
         user = await user_crud.get(db, user_id)
         if not user:
             logger.warning(f"User {user_id} not found")
-            return
+            raise ValueError(f"User {user_id} not found")
 
-        # Get resume data
         resume_data = await user_crud.get_resume_data(db, user_id=user_id)
         if not resume_data:
             logger.warning(f"No resume data for user {user_id}")
-            return
+            raise ValueError(f"No resume data for user {user_id}")
 
-        # Run incremental analysis (parallel rules with incremental updates)
-        await analysis_service.analyze_resume_incremental(
+        # ✅ Run complete analysis (all rules in parallel)
+        analysis_result = await analysis_service.analyze_resume(
             resume_data,
-            user_id=user_id,
-            db=db,
             is_premium=user.is_premium
         )
 
-        logger.info(f"✅ Incremental analysis completed for user {user_id}")
-```
+        # ✅ Save complete result (no status field)
+        analysis_data = analysis_result.model_dump(mode='json')
 
-**Testing:**
-- [ ] Task imports successfully
-- [ ] No syntax errors
-- [ ] Logic flow correct
-
----
-
-## Phase 4: Backend - API Endpoints
-
-### Commit 4: Add Analysis Status Endpoint
-**Files:** `backend/app/api/v1/endpoints/analysis.py`
-
-**Changes:**
-- [ ] Add `GET /analysis/status` endpoint
-- [ ] Returns current progress and incremental points
-
-**Code:**
-```python
-@router.get("/status")
-async def get_analysis_status(
-    db: AsyncDB,
-    current_user: CurrentUser,
-) -> Any:
-    """
-    Get current analysis status with incremental improvement points.
-    Used for polling during analysis.
-    """
-    status_data = await user_crud.get_analysis_status(db, user_id=current_user.id)
-
-    if not status_data:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Analysis status not found"
+        await user_crud.update(
+            db,
+            db_obj_id=user_id,
+            obj_in={
+                'analysis_result': analysis_data,
+                'analysis_generated_at': datetime.utcnow()
+            }
         )
 
-    return {
-        'status': status_data['status'],  # 'none', 'analyzing', 'completed', 'error'
-        'analysis_result': status_data['analysis_result']  # Incremental data
-    }
+        logger.info(f"✅ Analysis completed for user {user_id}. Score: {analysis_result.score}")
 ```
 
 **Testing:**
-- [ ] Endpoint added to router
-- [ ] No syntax errors
-- [ ] Authentication required
+- [ ] Celery task state updates: `PARSING` → `ANALYZING` → `SUCCESS`
+- [ ] Error handling sets Celery state to `FAILURE` with error in `meta`
+- [ ] `task.meta.message` shows current operation (parsing/analyzing)
+- [ ] StartPage receives task status updates via polling
 
 ---
 
-## Phase 5: Frontend - API Client
+## Phase 2: Frontend - Create Polling Hook
 
-### Commit 5: Add Analysis Status API Method
-**Files:** `frontend/src/shared/services/api/analysisApi.ts`
+### Commit 2: Add usePolling Hook
+**Files:** `frontend/src/shared/hooks/usePolling.ts`
 
 **Changes:**
-- [ ] Add `getAnalysisStatus()` method
+- [ ] Create reusable polling hook with cleanup
+- [ ] Accepts fetch function, stop condition, and interval
 
 **Code:**
 ```typescript
-// Add to analysisApi object
-async getAnalysisStatus(): Promise<{
-  status: 'none' | 'analyzing' | 'completed' | 'error';
-  analysis_result: any;
-}> {
-  const response = await api.get('/analysis/status');
-  return response.data;
+import { useState, useEffect, useRef } from 'react';
+
+type UsePollingOptions<T> = {
+  fetchFn: () => Promise<T>;
+  shouldStop: (data: T) => boolean;
+  interval?: number;
+  enabled?: boolean;
+};
+
+export function usePolling<T>({
+  fetchFn,
+  shouldStop,
+  interval = 3000,
+  enabled = true,
+}: UsePollingOptions<T>) {
+  const [data, setData] = useState<T | null>(null);
+  const [error, setError] = useState<Error | null>(null);
+  const [isPolling, setIsPolling] = useState(enabled);
+  const timeoutRef = useRef<NodeJS.Timeout>();
+
+  useEffect(() => {
+    if (!enabled || !isPolling) return;
+
+    const poll = async () => {
+      try {
+        const result = await fetchFn();
+        setData(result);
+        setError(null);
+
+        if (shouldStop(result)) {
+          setIsPolling(false);
+          return;
+        }
+
+        // Schedule next poll
+        timeoutRef.current = setTimeout(poll, interval);
+      } catch (err) {
+        setError(err instanceof Error ? err : new Error('Polling failed'));
+        // Retry with longer delay on error
+        timeoutRef.current = setTimeout(poll, interval * 2);
+      }
+    };
+
+    poll();
+
+    // Cleanup on unmount
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [enabled, isPolling, fetchFn, shouldStop, interval]);
+
+  return { data, error, isPolling };
 }
 ```
 
 **Testing:**
 - [ ] TypeScript compiles
-- [ ] Method signature correct
+- [ ] Cleanup works on unmount
+- [ ] Polling stops when shouldStop returns true
 
 ---
 
-## Phase 6: Frontend - StartPage Changes
+## Phase 3: Frontend - Modify StartPage Upload Flow
 
-### Commit 6: Modify StartPage Upload Flow
+### Commit 3: Redirect to Refine When Analysis Starts
 **Files:** `frontend/src/features/start/StartPage.tsx`
 
 **Changes:**
-- [ ] Poll until parsing completes (no longer wait for full analysis)
-- [ ] Redirect to `/refine` immediately after parsing
-- [ ] Pass indication that analysis is in progress
+- [ ] Use `usePolling` hook for task status
+- [ ] Show appropriate message for `PARSING` vs `ANALYZING` states
+- [ ] Redirect to `/refine` when state becomes `ANALYZING` or `SUCCESS`
+- [ ] No query parameters needed
 
 **Code:**
 ```typescript
-// In pollTask function, update the logic:
-const pollTask = async () => {
-  try {
-    const result = await resumeApi.getUploadResult(taskIdParam);
+import { usePolling } from 'shared/hooks/usePolling';
 
-    // Check if resume_data has been updated (parsing complete)
-    if (result.status === 'completed' || result.message?.includes('processed')) {
-      // ✅ Parsing done! Redirect immediately
-      clearInterval(interval);
-      setIsProcessingUpload(false);
-      setUploadError(null);
+// Use polling hook
+const { data: taskResult } = usePolling({
+  fetchFn: () => resumeApi.getUploadResult(taskIdParam),
+  shouldStop: (result) =>
+    result.state === 'ANALYZING' ||
+    result.state === 'SUCCESS' ||
+    result.state === 'FAILURE',
+  interval: 2000,
+  enabled: !!taskIdParam && isProcessingUpload,
+});
 
-      // Check onboarding
-      if (user && !user.has_completed_onboarding) {
-        navigate('/onboarding?redirect=/refine', { replace: true });
-      } else {
-        // Navigate to refine - analysis will continue in background
-        navigate('/refine?analyzing=true', { replace: true });
-      }
-    } else if (result.status === 'error' || result.state === 'FAILURE') {
-      // Handle error
-      clearInterval(interval);
-      setIsProcessingUpload(false);
-      setUploadError(result.error || t('errors.uploadFailed'));
-      navigate('/start', { replace: true });
+// React to task state changes
+useEffect(() => {
+  if (!taskResult) return;
+
+  if (taskResult.state === 'PARSING') {
+    // Show parsing message
+    setUploadMessage(taskResult.meta?.message || t('start.parsingResume'));
+  } else if (taskResult.state === 'ANALYZING' || taskResult.state === 'SUCCESS') {
+    // ✅ Redirect to refine (no query param)
+    setIsProcessingUpload(false);
+    setUploadError(null);
+
+    if (user && !user.has_completed_onboarding) {
+      navigate('/onboarding?redirect=/refine', { replace: true });
     } else {
-      // Keep polling
-      setTimeout(pollTask, 2000);
+      navigate('/refine', { replace: true });
     }
-  } catch (error) {
-    console.error('Error polling task:', error);
-    setTimeout(pollTask, 5000);
+  } else if (taskResult.state === 'FAILURE') {
+    // Handle error
+    setIsProcessingUpload(false);
+    setUploadError(taskResult.meta?.error || t('errors.uploadFailed'));
   }
-};
+}, [taskResult]);
 ```
 
 **Testing:**
-- [ ] No TypeScript errors
-- [ ] Logic flow correct
+- [ ] Shows "Parsing resume..." message during PARSING state
+- [ ] Redirects to `/refine` when state becomes ANALYZING or SUCCESS
+- [ ] Error handling shows error message from task metadata
+- [ ] Polling interval is 2 seconds
+- [ ] Cleanup works on unmount
 
 ---
 
-## Phase 7: Frontend - RefinePage Changes
+## Phase 4: Frontend - Add Loading State to RefinePage
 
-### Commit 7: Add Progressive Analysis Polling
+### Commit 4: Check Analysis Existence on RefinePage
 **Files:** `frontend/src/features/refine/RefinePage.tsx`
 
 **Changes:**
-- [ ] Check for `analyzing=true` query param
-- [ ] Poll `/analysis/status` every 3 seconds while analyzing
-- [ ] Handle error status from backend
-- [ ] Update improvement points incrementally
-- [ ] Show progress indicator
+- [ ] Check if `analysis_result` exists on page load
+- [ ] Show loading state if analysis is empty (user just uploaded)
+- [ ] Poll analysis endpoint until data appears
+- [ ] Use `usePolling` hook for consistency
 
 **Code:**
 ```typescript
-// Add state
-const [searchParams] = useSearchParams();
-const [isAnalyzing, setIsAnalyzing] = useState(searchParams.get('analyzing') === 'true');
+import { usePolling } from 'shared/hooks/usePolling';
 
-// Poll for analysis progress
+const [analysis, setAnalysis] = useState<any>(null);
+const [isLoadingInitial, setIsLoadingInitial] = useState(true);
+
+// Check if analysis exists on mount
 useEffect(() => {
-  if (!isAnalyzing) return;
-
-  let pollTimeoutId: NodeJS.Timeout;
-
-  const pollAnalysisStatus = async () => {
+  const loadAnalysis = async () => {
     try {
-      const statusData = await analysisApi.getAnalysisStatus();
+      const data = await analysisApi.getAnalysis();
 
-      // Update analysis with incremental points
-      if (statusData.analysis_result) {
-        setAnalysis(statusData.analysis_result);
-      }
-
-      // Check if complete
-      if (statusData.status === 'completed') {
-        console.log('✅ Analysis complete!');
-        setIsAnalyzing(false);
-
-        // Load final analysis with scores
-        const finalAnalysis = await analysisApi.getAnalysis();
-        setAnalysis(finalAnalysis);
-
-        // Remove query param
-        navigate('/refine', { replace: true });
-      } else if (statusData.status === 'error') {
-        // Backend reported error
-        console.error('❌ Analysis failed');
-        setIsAnalyzing(false);
-        // TODO: Show error message to user
-      } else if (statusData.status === 'analyzing') {
-        // Continue polling every 3 seconds
-        pollTimeoutId = setTimeout(pollAnalysisStatus, 3000);
+      if (data && Object.keys(data).length > 0) {
+        // Analysis exists
+        setAnalysis(data);
+        setIsLoadingInitial(false);
+      } else {
+        // No analysis yet - user just uploaded, show loading
+        setIsLoadingInitial(false);
       }
     } catch (error) {
-      console.error('Error polling analysis status:', error);
-      // Retry with longer delay
-      pollTimeoutId = setTimeout(pollAnalysisStatus, 5000);
+      console.error('Error loading analysis:', error);
+      setIsLoadingInitial(false);
     }
   };
 
-  // Start polling
-  pollAnalysisStatus();
+  loadAnalysis();
+}, []);
 
-  // Cleanup on unmount
-  return () => {
-    clearTimeout(pollTimeoutId);
-  };
-}, [isAnalyzing]);
+// Poll for analysis if empty
+const isAnalyzing = !analysis || Object.keys(analysis).length === 0;
+
+const { data: polledAnalysis } = usePolling({
+  fetchFn: () => analysisApi.getAnalysis(),
+  shouldStop: (data) => data && Object.keys(data).length > 0,
+  interval: 3000,
+  enabled: isAnalyzing && !isLoadingInitial,
+});
+
+// Update analysis when polling returns data
+useEffect(() => {
+  if (polledAnalysis && Object.keys(polledAnalysis).length > 0) {
+    setAnalysis(polledAnalysis);
+  }
+}, [polledAnalysis]);
 
 // Pass isAnalyzing to child components
+<ScoreBar
+  score={analysis?.score || 0}
+  label={analysis?.label || ''}
+  subtitle={analysis?.subtitle || ''}
+  isAnalyzing={isAnalyzing && !isLoadingInitial}
+  // ... other props
+/>
+
 <ImprovementSections
   sections={analysis?.sections || []}
-  resume={localResume || resume}
-  onFixApplied={handleFixApplied}
-  onNavigateToField={handleNavigateToField}
-  onFixMarked={handleFixMarked}
-  dismissedPointIds={dismissedPointIds}
-  isPremium={user?.is_premium || false}
-  isAnalyzing={isAnalyzing}  // ✅ NEW
+  isAnalyzing={isAnalyzing && !isLoadingInitial}
+  // ... other props
 />
 ```
 
 **Testing:**
-- [ ] No TypeScript errors
-- [ ] Polling logic correct
+- [ ] Shows loading state when analysis is empty (just after upload)
+- [ ] Polling starts automatically
+- [ ] Polling stops when analysis data appears
+- [ ] Error handling works
+- [ ] Cleanup works on unmount
 
 ---
 
-## Phase 8: Frontend - ScoreBar Component
+## Phase 5: Frontend - Update ScoreBar Component
 
-### Commit 8: Update ScoreBar with Analyzing State
+### Commit 5: Add Loading State to ScoreBar
 **Files:** `frontend/src/features/refine/components/ScoreBar.tsx`
 
 **Changes:**
 - [ ] Accept `isAnalyzing` prop
-- [ ] Show simple "Analyzing..." message (no progress numbers)
+- [ ] Show spinner instead of score when analyzing
 
 **Code:**
 ```typescript
 type Props = {
-  // ... existing props
-  isAnalyzing?: boolean;
+  score: number;
+  label: string;
+  subtitle: string;
+  marketingText: string;
+  onRefresh?: () => void;
+  isRefreshing?: boolean;
+  isPremium?: boolean;
+  onUpgrade?: () => void;
+  isAnalyzing?: boolean;  // ✅ NEW
 };
 
 const ScoreBar: React.FC<Props> = ({
@@ -631,52 +405,86 @@ const ScoreBar: React.FC<Props> = ({
   isRefreshing,
   isPremium,
   onUpgrade,
-  isAnalyzing = false,  // ✅ NEW
+  isAnalyzing = false,
 }) => {
-  return (
-    <Box>
-      {isAnalyzing && (
-        <Box sx={{ mb: 2, p: 2, bgcolor: '#f0f9ff', borderRadius: '8px' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <CircularProgress size={16} />
-            <Typography sx={{ fontSize: '14px', fontWeight: 500 }}>
-              Analyzing your resume...
-            </Typography>
-          </Box>
-        </Box>
-      )}
+  const { t } = useTranslation();
 
-      {/* Existing score display */}
-      {/* ... */}
+  return (
+    <Box sx={scoreContainer}>
+      {isAnalyzing ? (
+        // ✅ Loading state
+        <Box sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          py: 4
+        }}>
+          <CircularProgress size={40} sx={{ mb: 2 }} />
+          <Typography sx={{ fontSize: '16px', fontWeight: 500, color: '#6b7280' }}>
+            {t('refine.analyzingResume')}
+          </Typography>
+        </Box>
+      ) : (
+        // ✅ Normal score display
+        <>
+          <Box sx={scoreCircleContainer}>
+            <Box sx={scoreCircle(score)}>
+              <Typography sx={scoreText}>{score}</Typography>
+            </Box>
+          </Box>
+
+          <Typography sx={scoreLabel}>{label}</Typography>
+          <Typography sx={scoreSubtitle}>{subtitle}</Typography>
+
+          {/* ... rest of component */}
+        </>
+      )}
     </Box>
   );
 };
 ```
 
+**i18n Addition:**
+Add to `frontend/src/shared/i18n/en.json`:
+```json
+{
+  "refine": {
+    "analyzingResume": "Analyzing your resume..."
+  }
+}
+```
+
 **Testing:**
-- [ ] Component renders
-- [ ] Message shows when analyzing
+- [ ] Spinner shows when isAnalyzing=true
+- [ ] Score shows when isAnalyzing=false
+- [ ] Translation works
 
 ---
 
-## Phase 9: Frontend - ImprovementSections UI
+## Phase 6: Frontend - Update ImprovementSections Component
 
-### Commit 9: Add Loading States to ImprovementSections
+### Commit 6: Add Loading Placeholders to Sections
 **Files:** `frontend/src/features/refine/components/ImprovementSections.tsx`
 
 **Changes:**
 - [ ] Accept `isAnalyzing` prop
-- [ ] Show spinner in section title when analyzing
-- [ ] Show placeholder card when section is empty during analysis
-- [ ] Show actual points as they arrive
+- [ ] Use MUI Skeleton components for loading state
+- [ ] Show real sections when analysis complete
 
 **Code:**
 ```typescript
-import Fade from '@mui/material/Fade';
+import { Skeleton, Stack } from '@mui/material';
 
 type Props = {
-  // ... existing props
-  isAnalyzing?: boolean;
+  sections: any[];
+  resume: any;
+  onFixApplied: (pointId: string, data: any) => void;
+  onNavigateToField: (field: string) => void;
+  onFixMarked: (pointId: string) => void;
+  dismissedPointIds?: Set<string>;
+  isPremium?: boolean;
+  isAnalyzing?: boolean;  // ✅ NEW
 };
 
 const ImprovementSections: React.FC<Props> = ({
@@ -687,168 +495,141 @@ const ImprovementSections: React.FC<Props> = ({
   onFixMarked,
   dismissedPointIds,
   isPremium = false,
-  isAnalyzing = false,  // ✅ NEW
+  isAnalyzing = false,
 }) => {
-  // ... existing code
+  const { t } = useTranslation();
 
   return (
     <Box sx={{ pt: 1, px: 2, pb: 2, overflow: 'auto' }}>
-      {sectionsWithPremiumPoints.map((s) => {
-        const hasPoints = s.improvement_points.length > 0;
-
-        return (
+      {isAnalyzing ? (
+        // ✅ Show 3 skeleton placeholders (MUI Skeleton)
+        <Stack spacing={2}>
+          {[1, 2, 3].map((i) => (
+            <Skeleton
+              key={i}
+              variant="rounded"
+              height={120}
+              animation="wave"
+              sx={{ borderRadius: '12px' }}
+            />
+          ))}
+        </Stack>
+      ) : (
+        // ✅ Show real sections
+        sections.map((section) => (
           <Accordion
-            expanded={expandedSections.has(s.id)}
-            onChange={handleAccordionChange(s.id)}
-            key={s.id}
-            sx={{ ...breakdownCard, ...accordionSx }}
+            key={section.id}
+            defaultExpanded
+            sx={accordionSx}
           >
-            <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color: '#6b7280' }}/>}>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: '6px', width: '100%' }}>
-                <Box sx={breakdownTitle}>
-                  {/* ✅ Spinner left of section title when analyzing */}
-                  {isAnalyzing && (
-                    <CircularProgress size={14} thickness={4} sx={{ mr: 1 }} />
-                  )}
-                  <Typography sx={breakdownName}>{s.title}</Typography>
-                  <Typography sx={breakdownCount}>
-                    ({s.improvement_points.length} {s.improvement_points.length === 1 ? 'issue' : 'issues'})
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Typography sx={{ fontSize: '16px', fontWeight: 600 }}>
+                    {section.title}
+                  </Typography>
+                  <Typography sx={{ fontSize: '14px', color: '#6b7280' }}>
+                    ({section.improvement_points?.length || 0} issues)
                   </Typography>
                 </Box>
-                {/* ... existing progress bar */}
+                {/* Progress bar */}
               </Box>
             </AccordionSummary>
 
-            <AccordionDetails sx={{ padding: '6px 12px 12px' }}>
-              {hasPoints ? (
-                // ✅ Show points as they arrive
-                s.improvement_points.map((point, index) => (
-                  <Fade in={true} timeout={300} key={point.id}>
-                    <div>
-                      <ImprovementPoint
-                        point={point}
-                        resume={resume}
-                        onFixApplied={onFixApplied}
-                        onNavigateToField={onNavigateToField}
-                        onFixMarked={onFixMarked}
-                        isDismissed={dismissedPointIds?.has(point.id) || false}
-                        isPremium={isPremium}
-                      />
-                    </div>
-                  </Fade>
+            <AccordionDetails>
+              {section.improvement_points?.length > 0 ? (
+                section.improvement_points.map((point: any) => (
+                  <ImprovementPoint
+                    key={point.id}
+                    point={point}
+                    resume={resume}
+                    onFixApplied={onFixApplied}
+                    onNavigateToField={onNavigateToField}
+                    onFixMarked={onFixMarked}
+                    isDismissed={dismissedPointIds?.has(point.id) || false}
+                    isPremium={isPremium}
+                  />
                 ))
-              ) : isAnalyzing ? (
-                // ✅ Show single placeholder card while analyzing
-                <Box sx={{
-                  p: 2,
-                  borderRadius: '8px',
-                  bgcolor: '#f9fafb',
-                  border: '1px dashed #d1d5db',
-                  textAlign: 'center'
-                }}>
-                  <Typography sx={{ fontSize: '14px', color: '#9ca3af' }}>
-                    Checking this section...
-                  </Typography>
-                </Box>
               ) : (
-                <Typography sx={{ fontSize: '14px', color: '#6b7280', textAlign: 'center', padding: '12px' }}>
-                  No issues found in this section. Great job!
+                <Typography sx={{ fontSize: '14px', color: '#6b7280', textAlign: 'center', p: 2 }}>
+                  No issues found. Great job!
                 </Typography>
               )}
             </AccordionDetails>
           </Accordion>
-        );
-      })}
+        ))
+      )}
     </Box>
   );
 };
 ```
 
 **Testing:**
-- [ ] Component renders
-- [ ] Spinner shows left of title when analyzing
-- [ ] Placeholder card shows when empty during analysis
-- [ ] Points appear as they're added
+- [ ] 3 skeleton placeholders show when analyzing
+- [ ] Skeleton has wave animation (built-in MUI)
+- [ ] Real sections show after analysis completes
 
 ---
 
-## Phase 10: Testing & Refinement
+## Phase 7: Testing & Refinement
 
-### Testing Checklist (No Commit Required)
-**Manual Testing Checklist:**
+### Testing Checklist
 
 - [ ] **Upload Resume Flow:**
   - [ ] Upload PDF/DOCX file on StartPage
   - [ ] See parsing animation
   - [ ] Redirect to RefinePage immediately after parsing
-  - [ ] See "Analyzing..." indicator on RefinePage
+  - [ ] See loading state on RefinePage (spinner + placeholders)
 
-- [ ] **Progressive Analysis:**
-  - [ ] Improvement points appear incrementally
-  - [ ] Sections populate as rules complete
-  - [ ] Spinner visible in section titles while analyzing
-  - [ ] Placeholder card shows in empty sections during analysis
-
-- [ ] **Resume Editing During Analysis:**
-  - [ ] Can edit resume fields while analysis runs
-  - [ ] Auto-save works
-  - [ ] No conflicts with ongoing analysis
+- [ ] **Analysis Loading State:**
+  - [ ] ScoreBar shows spinner with "Analyzing..." text
+  - [ ] 3 placeholder section cards visible
+  - [ ] Placeholder cards pulsate (fade in/out)
 
 - [ ] **Analysis Completion:**
-  - [ ] Final scores calculated
-  - [ ] "Analyzing..." indicator disappears
-  - [ ] Spinners disappear from section titles
+  - [ ] Loading state disappears
+  - [ ] Real score appears
+  - [ ] Real improvement sections appear
   - [ ] All improvement points visible
 
 - [ ] **Error Handling:**
   - [ ] Upload error shows correctly
-  - [ ] Analysis errors don't break UI
-  - [ ] Retry mechanisms work
+  - [ ] Analysis failure shows error message
+  - [ ] Can retry after error
 
 - [ ] **Backward Compatibility:**
-  - [ ] Existing users with old `analysis_result` still work
+  - [ ] Existing users with completed analysis see results immediately
   - [ ] Refresh analysis button works
   - [ ] Mark as fixed functionality intact
 
 ---
 
-## Phase 11: Documentation
+## Phase 8: Documentation
 
-### Commit 10: Update spec.xml Files
+### Commit 7: Update Documentation
 **Files to update:**
 
-- [ ] `backend/app/services/analysis/spec.xml`
-- [ ] `backend/app/core/spec.xml`
-- [ ] `frontend/src/features/refine/spec.xml`
-- [ ] `frontend/src/features/start/spec.xml`
+1. **CLAUDE.md**
+   - [ ] Document simplified analysis flow
+   - [ ] Document Celery task states (PARSING → ANALYZING → SUCCESS)
+   - [ ] Remove mentions of incremental updates
+   - [ ] Document `usePolling` hook
 
-**Changes:**
-- [ ] Document new incremental analysis flow
-- [ ] Update architecture diagrams
-- [ ] Add new API endpoints
-- [ ] Document new CRUD methods
-
----
-
-### Commit 11: Update CLAUDE.md
-**File:** `CLAUDE.md`
-
-**Changes:**
-- [ ] Add section on progressive analysis
-- [ ] Update API structure section (new `/analysis/status` endpoint)
-- [ ] Add polling mechanism notes
+2. **spec.xml files:**
+   - [ ] `backend/app/services/analysis/spec.xml`
+   - [ ] `backend/app/core/spec.xml`
+   - [ ] `frontend/src/features/refine/spec.xml`
 
 ---
 
 ## Deployment Checklist
 
 - [ ] No TypeScript errors
-- [ ] Backend tests pass (if any)
+- [ ] Backend imports successfully
 - [ ] Frontend builds successfully
+- [ ] Test upload → parse → analyze flow locally
 - [ ] Test on staging environment
-- [ ] Monitor Celery worker performance
-- [ ] Check database JSONB update performance
-- [ ] Verify polling doesn't overload API
+- [ ] Monitor Celery worker logs
 - [ ] Deploy to production
 - [ ] Monitor error logs for 24 hours
 
@@ -858,13 +639,13 @@ const ImprovementSections: React.FC<Props> = ({
 
 If issues occur in production:
 
-1. **Code:** Revert to previous commit and redeploy
+1. **Revert code:**
    ```bash
    git revert HEAD
    git push origin main
    ```
 
-2. **Quick Fix:** Reset analysis status for all users
+2. **Reset analysis status for all users:**
    ```sql
    UPDATE users SET analysis_result = jsonb_set(
      COALESCE(analysis_result, '{}'::jsonb),
@@ -877,19 +658,20 @@ If issues occur in production:
 
 ## Success Metrics
 
-After deployment, measure:
+After deployment:
 
-- [ ] Average time to first improvement point visible
-- [ ] User engagement during analysis (do they edit?)
+- [ ] Average time from upload to refine page
 - [ ] Analysis completion rate
-- [ ] Error rate in incremental updates
-- [ ] User feedback on progressive loading
+- [ ] Error rate
+- [ ] User engagement with loading state
+- [ ] User feedback
 
 ---
 
 ## Notes
 
-- Keep `analyze_resume()` method intact for backward compatibility
-- Monitor Celery worker memory usage (incremental updates add overhead)
-- Consider adding WebSocket support later for real-time updates (instead of polling)
-- Premium users get faster analysis (fewer rules skipped)
+- Much simpler than incremental approach
+- Better UX: users see clean loading state, then complete results
+- Easier to maintain: no complex state synchronization
+- Could add WebSocket later if polling is too slow
+- Analysis typically takes 5-15 seconds, polling is acceptable
