@@ -5,7 +5,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Header from '../../shared/components/Header/Header';
 import StartOptions from './components/StartOptions';
-import { useUser } from '../../shared/hooks';
+import { useUser, usePolling } from '../../shared/hooks';
 import { useResumeQuery } from '../../shared/hooks/useResumeQuery';
 import { COLORS } from '../../shared/theme/theme';
 import { resumeApi } from '../../shared/services/api';
@@ -48,70 +48,66 @@ const StartPage: React.FC = () => {
   ];
 
   // Handle task_id parameter for processing uploaded resume
+  const taskIdParam = searchParams.get('task_id');
+
+  // Use polling hook for task status
+  const { data: taskResult } = usePolling({
+    fetchFn: () => resumeApi.getUploadResult(taskIdParam!),
+    shouldStop: (result) =>
+      result.state === 'ANALYZING' ||
+      result.state === 'SUCCESS' ||
+      result.state === 'FAILURE',
+    interval: 2000,
+    enabled: !!taskIdParam && !!user && isProcessingUpload,
+  });
+
+  // Start processing when task_id is in URL
   useEffect(() => {
-    const taskIdParam = searchParams.get('task_id');
     if (taskIdParam && user && !isProcessingUpload) {
       setTaskId(taskIdParam);
       setIsProcessingUpload(true);
       setUploadMessage(uploadMessages[0]);
-      
-      // Start message rotation
-      let messageIndex = 0;
-      const interval = setInterval(() => {
-        messageIndex = (messageIndex + 1) % uploadMessages.length;
-        setUploadMessage(uploadMessages[messageIndex]);
-      }, 4000);
-      
-      // Poll for task completion
-      const pollTask = async () => {
-        try {
-          const result = await resumeApi.getUploadResult(taskIdParam);
-          
-          if (result.status === 'completed') {
-            // Success - check if onboarding is needed
-            clearInterval(interval);
-            setIsProcessingUpload(false);
-            setUploadError(null);
-            
-            // Check if user has completed onboarding
-            if (user && !user.has_completed_onboarding) {
-              // Redirect to onboarding with refine as redirect target
-              navigate('/onboarding?redirect=/refine', { replace: true });
-            } else {
-              // Navigate to refine page directly
-              navigate('/refine', { replace: true });
-            }
-          } else if (result.status === 'error' || result.state === 'FAILURE') {
-            // Error - stop processing and show error
-            clearInterval(interval);
-            setIsProcessingUpload(false);
-            setTaskId(null);
-            setUploadError(result.error || result.message || t('errors.uploadFailed'));
-            // Clear error message from URL
-            navigate('/start', { replace: true });
-          } else if (result.status === 'pending' || result.status === 'processing') {
-            // Still processing - continue polling
-            setTimeout(pollTask, 3000);
-          } else {
-            // Unknown status - continue polling but log it
-            console.warn('Unknown task status:', result);
-            setTimeout(pollTask, 3000);
-          }
-        } catch (error) {
-          console.error('Error polling task:', error);
-          // On API error, continue polling but with longer delay
-          setTimeout(pollTask, 5000);
-        }
-      };
-      
-      // Start polling after 2 seconds
-      setTimeout(pollTask, 2000);
-      
-      return () => {
-        clearInterval(interval);
-      };
     }
-  }, [searchParams, user, navigate, isProcessingUpload]);
+  }, [taskIdParam, user]);
+
+  // Message rotation during processing
+  useEffect(() => {
+    if (!isProcessingUpload) return;
+
+    let messageIndex = 0;
+    const interval = setInterval(() => {
+      messageIndex = (messageIndex + 1) % uploadMessages.length;
+      setUploadMessage(uploadMessages[messageIndex]);
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, [isProcessingUpload, uploadMessages]);
+
+  // React to task state changes
+  useEffect(() => {
+    if (!taskResult) return;
+
+    if (taskResult.state === 'PARSING') {
+      // Show parsing message
+      setUploadMessage(taskResult.meta?.message || t('start.parsingResume'));
+    } else if (taskResult.state === 'ANALYZING' || taskResult.state === 'SUCCESS') {
+      // Redirect to refine (no query param)
+      setIsProcessingUpload(false);
+      setUploadError(null);
+
+      if (user && !user.has_completed_onboarding) {
+        navigate('/onboarding?redirect=/refine', { replace: true });
+      } else {
+        navigate('/refine', { replace: true });
+      }
+    } else if (taskResult.state === 'FAILURE') {
+      // Handle error
+      setIsProcessingUpload(false);
+      setTaskId(null);
+      setUploadError(taskResult.meta?.error || t('errors.uploadFailed'));
+      navigate('/start', { replace: true });
+    }
+  }, [taskResult, user, navigate, t]);
 
   const handleStepClick = (stepIndex: number) => {
     switch (stepIndex) {
