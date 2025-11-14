@@ -63,13 +63,6 @@ export class ResumeApi extends BaseApi {
   }
 
   /**
-   * Get upload task result
-   */
-  async getUploadResult(taskId: string): Promise<TaskStatus> {
-    return this.get<TaskStatus>(`/resume/upload/result/${taskId}`);
-  }
-
-  /**
    * Export resume to PDF
    * @param data PDF export request with HTML content and template slug
    */

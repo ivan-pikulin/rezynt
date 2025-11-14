@@ -18,9 +18,9 @@ export const startApi = {
       await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second
       const statusResult = await resumeApi.getUploadStatus(uploadResult.task_id);
       status = statusResult.state;
-      
+      result = statusResult;
+
       if (status === 'SUCCESS') {
-        result = await resumeApi.getUploadResult(uploadResult.task_id);
         break;
       } else if (status === 'FAILURE') {
         throw new Error(statusResult.error || i18n.t('errors.uploadFailedGeneric'));

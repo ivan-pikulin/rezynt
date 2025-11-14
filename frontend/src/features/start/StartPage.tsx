@@ -52,7 +52,7 @@ const StartPage: React.FC = () => {
 
   // Use polling hook for task status
   const { data: taskResult } = usePolling({
-    fetchFn: () => resumeApi.getUploadResult(taskIdParam!),
+    fetchFn: () => resumeApi.getUploadStatus(taskIdParam!),
     shouldStop: (result) =>
       result.state === 'ANALYZING' ||
       result.state === 'SUCCESS' ||
