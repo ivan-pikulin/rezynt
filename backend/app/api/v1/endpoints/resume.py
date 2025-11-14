@@ -101,16 +101,28 @@ async def upload_resume(
         )
     
     try:
+        # Clear existing analysis before processing new resume
+        logger.info(f"Clearing existing analysis for user {current_user.id}")
+        await user_crud.update(
+            db,
+            db_obj=current_user,
+            obj_in={
+                'analysis_result': None,
+                'analysis_generated_at': None
+            }
+        )
+        logger.info(f"Analysis cleared for user {current_user.id}")
+
         # Read file content
         logger.info(f"Reading file content for {file.filename}")
         file_content = await file.read()
         logger.info(f"File content read successfully, size: {len(file_content)} bytes")
-        
+
         # Start Celery task for processing
         logger.info(f"Starting Celery task for user {current_user.id}")
         task = process_resume_upload_task.delay(file_content, file.filename, current_user.id)
         logger.info(f"Celery task started successfully with ID: {task.id}")
-        
+
         return {
             "task_id": task.id,
             "message": "File uploaded and processing started"
@@ -243,11 +255,23 @@ async def claim_temp_file(
             file_content = f.read()
         
         logger.info(f"File content read, size: {len(file_content)} bytes")
-        
+
+        # Clear existing analysis before processing new resume
+        logger.info(f"Clearing existing analysis for user {current_user.id}")
+        await user_crud.update(
+            db,
+            db_obj=current_user,
+            obj_in={
+                'analysis_result': None,
+                'analysis_generated_at': None
+            }
+        )
+        logger.info(f"Analysis cleared for user {current_user.id}")
+
         # Link file to user
         await temp_resume_file_crud.link_to_user(db, temp_file_id, current_user.id)
         logger.info(f"Temp file linked to user {current_user.id}")
-        
+
         # Start processing task
         task = process_resume_upload_task.delay(
             file_content,
