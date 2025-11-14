@@ -68,6 +68,34 @@
             });
         })();
     </script>
+
+    <!-- Google Ads conversion helper -->
+    <script>
+        window.gtag_report_conversion = function(url) {
+            const navigate = () => {
+                if (typeof url !== 'undefined') {
+                    if (typeof window.location.assign === 'function') {
+                        window.location.assign(url);
+                    } else {
+                        window.location = url;
+                    }
+                }
+            };
+
+            if (typeof window.gtag !== 'function') {
+                navigate();
+                return false;
+            }
+
+            window.gtag('event', 'conversion', {
+                send_to: 'AW-17448398300/ReoSCPu6ncAbENzbhYBB',
+                value: 1.0,
+                currency: 'USD',
+                event_callback: navigate
+            });
+            return false;
+        };
+    </script>
 </head>
 <body>
     <!-- Header -->
@@ -96,7 +124,7 @@
                         <div class="hero-upload-area__filename" id="hero-file-name" aria-live="polite"></div>
                         <div class="hero-upload-area__spinner" id="hero-upload-spinner" aria-hidden="true"></div>
                     </label>
-                    <p class="hero-upload-note">Do not have a resume? <a href="https://app.rezynt.com/start" class="hero-upload-note__link">Build it from scratch!</a></p>
+                    <p class="hero-upload-note">Do not have a resume? <a href="https://app.rezynt.com/start" class="hero-upload-note__link" onclick="return gtag_report_conversion('https://app.rezynt.com/start');">Build it from scratch!</a></p>
                 </div>
                 <div class="hero-image">
                     <div class="resume-showcase">
@@ -337,7 +365,7 @@
                         </div>
                     </div>
                     
-                    <button class="pricing-cta" onclick="window.location.href='https://app.rezynt.com/start'">Start Building</button>
+                    <button class="pricing-cta" onclick="return gtag_report_conversion('https://app.rezynt.com/start');">Start Building</button>
                 </div>
             </div>
         </div>
@@ -434,7 +462,12 @@
                             });
                         }
                         
-                        window.location.assign(CONFIG.redirectBase + encodeURIComponent(fileId));
+                        const targetUrl = CONFIG.redirectBase + encodeURIComponent(fileId);
+                        if (typeof window.gtag_report_conversion === 'function') {
+                            window.gtag_report_conversion(targetUrl);
+                        } else {
+                            window.location.assign(targetUrl);
+                        }
                     },
 
                     onUploadError: (message) => {

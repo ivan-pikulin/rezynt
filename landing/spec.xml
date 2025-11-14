@@ -27,14 +27,17 @@
             <linker_domains>rezynt.com, app.rezynt.com</linker_domains>
         </tool>
         <tool name="Google Ads Tag" desc="Global site tag for conversion tracking (AW-17448398300).">
-            <config>Static snippet embedded in index.html; no env vars required.</config>
+            <config>Static snippet embedded in index.html; conversions fired via gtag_report_conversion on resume upload + CTA clicks (send_to AW-17448398300/ReoSCPu6ncAbENzbhYBB).</config>
         </tool>
     </analytics>
 
     <scripts>
         <script name="resume_upload">
             <desc>Inline factory handles drag-and-drop + click uploads, sends POST to /api/v1/resume/temp-upload, redirects to https://app.rezynt.com/onboarding/?temp_file_id=.</desc>
-            <success_tracking>Triggers PostHog event landing_resume_uploaded with file_id.</success_tracking>
+            <success_tracking>Triggers PostHog event landing_resume_uploaded with file_id and Google Ads conversion (AW-17448398300/ReoSCPu6ncAbENzbhYBB) before redirect.</success_tracking>
+        </script>
+        <script name="cta_conversion">
+            <desc>Hero Build-from-scratch link and footer Start Building button call gtag_report_conversion before navigating to https://app.rezynt.com/start.</desc>
         </script>
         <script name="interactions">
             <file>script.js</file>
