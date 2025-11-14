@@ -26,6 +26,9 @@
             <config>Measurement ID injected via VITE_GA4_MEASUREMENT_ID (falls back to ga_disabled when absent).</config>
             <linker_domains>rezynt.com, app.rezynt.com</linker_domains>
         </tool>
+        <tool name="Google Ads Tag" desc="Global site tag for conversion tracking (AW-17448398300).">
+            <config>Static snippet embedded in index.html; no env vars required.</config>
+        </tool>
     </analytics>
 
     <scripts>
