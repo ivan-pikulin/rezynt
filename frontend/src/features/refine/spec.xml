@@ -57,6 +57,13 @@
                         <detail desc="Shows inline ErrorMessage when FAILURE occurs" />
                     </details>
                 </feature>
+                <feature name="analysis_reload_control" desc="Prevents unnecessary re-fetching of analysis when the resume auto-saves">
+                    <details>
+                        <detail desc="Initial analysis loads once after resume data is ready"/>
+                        <detail desc="Reloads are triggered only after AI fixes/mark-as-fixed actions or when a new analysis task finishes"/>
+                        <detail desc="Reduces left-column flicker during frequent auto-save cycles"/>
+                    </details>
+                </feature>
                 <feature name="resume_loading" desc="Loads resume data from API using resumeId parameter"/>
                 <feature name="real_time_updates" desc="Updates resume data in real-time as user edits"/>
                 <feature name="error_handling" desc="Displays loading states and error messages"/>
@@ -242,6 +249,7 @@
                     <detail desc="Apply Fix button: Only shown if fix_suggestion exists and not already fixed"/>
                     <detail desc="Mark as Fixed button: Always shown, toggles between Mark/Unmark state"/>
                     <detail desc="Go to Edit button: Always shown for manual navigation to editor"/>
+                    <detail desc="Premium Insight overlay upgrade CTA is a static outlined button (no pulse/animation) to avoid distracting motion"/>
                 </feature>
                 <feature name="field_navigation" desc="Go to Edit button calls onNavigateToField with point.field_path"/>
                 <feature name="ai_fix" desc="Apply Fix button applies AI-generated fix and automatically marks as fixed"/>

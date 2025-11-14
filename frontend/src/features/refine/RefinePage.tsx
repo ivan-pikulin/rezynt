@@ -46,6 +46,7 @@ const RefinePage: React.FC = () => {
   const [isTaskAnalyzing, setIsTaskAnalyzing] = useState(isAnalyzing);
   const [taskPollingError, setTaskPollingError] = useState<string | null>(null);
   const editorRef = useRef<EditorAccordionHandle>(null);
+  const resumeRef = useRef<Resume | null>(null);
   
   // Track dismissed/applied improvement points for dynamic score recalculation
   const [dismissedPointIds, setDismissedPointIds] = useState<Set<string>>(new Set());
@@ -72,8 +73,12 @@ const RefinePage: React.FC = () => {
     setSearchParams(next, { replace: true });
   }, [searchParams, setSearchParams]);
 
+  useEffect(() => {
+    resumeRef.current = resume || null;
+  }, [resume]);
+
   const loadAnalysis = useCallback(async () => {
-    if (!resume) {
+    if (!resumeRef.current) {
       setIsLoadingInitial(false);
       return;
     }
@@ -98,7 +103,7 @@ const RefinePage: React.FC = () => {
     } finally {
       setIsLoadingInitial(false);
     }
-  }, [resume]);
+  }, []);
 
   const shouldPollTaskStatus = isAnalyzing && !!analyzingTaskId;
 
@@ -123,6 +128,7 @@ const RefinePage: React.FC = () => {
   const [localResume, setLocalResume] = useState<Resume | null>(resume || null);
   const [mobileTab, setMobileTab] = useState<'analysis' | 'editor'>('analysis');
   const analysisLoading = isTaskAnalyzing || isLoadingInitial;
+  const [hasLoadedAnalysisForResume, setHasLoadedAnalysisForResume] = useState(false);
 
   // Start analyzing state when analyzing=true is in URL
   useEffect(() => {
@@ -131,6 +137,7 @@ const RefinePage: React.FC = () => {
       setTaskPollingError(null);
       setAnalysis(null);
       setIsLoadingInitial(true);
+      setHasLoadedAnalysisForResume(false);
     }
   }, [isAnalyzing]);
 
@@ -141,11 +148,27 @@ const RefinePage: React.FC = () => {
   }, [isAnalyzing, analyzingTaskId, t]);
 
   // Load analysis when resume is available and not analyzing
+  const isResumeReady = Boolean(resume);
+
   useEffect(() => {
-    if (!resume || isAnalyzing) return;
-    setIsLoadingInitial(true);
-    loadAnalysis();
-  }, [resume, isAnalyzing, loadAnalysis]);
+    if (!isResumeReady || isAnalyzing || hasLoadedAnalysisForResume) return;
+
+    let isActive = true;
+
+    const fetchAnalysis = async () => {
+      setIsLoadingInitial(true);
+      await loadAnalysis();
+      if (isActive) {
+        setHasLoadedAnalysisForResume(true);
+      }
+    };
+
+    fetchAnalysis();
+
+    return () => {
+      isActive = false;
+    };
+  }, [isResumeReady, isAnalyzing, loadAnalysis, hasLoadedAnalysisForResume]);
 
   useEffect(() => {
     if (!taskStatus || !isAnalyzing) return;
@@ -160,10 +183,9 @@ const RefinePage: React.FC = () => {
       setIsTaskAnalyzing(false);
       setTaskPollingError(null);
       clearAnalyzingParams();
-      setIsLoadingInitial(true);
-      loadAnalysis();
+      setHasLoadedAnalysisForResume(false);
     }
-  }, [taskStatus, isAnalyzing, clearAnalyzingParams, loadAnalysis, t]);
+  }, [taskStatus, isAnalyzing, clearAnalyzingParams, t]);
 
 
   // Update local resume when fetched resume changes

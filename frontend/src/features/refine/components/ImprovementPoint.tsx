@@ -560,20 +560,10 @@ const ImprovementPoint: React.FC<Props> = ({ point, resume, onFixApplied, onNavi
               alignItems: 'center',
               gap: '4px',
               backgroundColor: 'transparent',
-              animation: 'pulse 2s ease-in-out infinite',
-              '@keyframes pulse': {
-                '0%, 100%': {
-                  transform: 'scale(1)',
-                },
-                '50%': {
-                  transform: 'scale(1.02)',
-                },
-              },
               '&:hover': {
                 borderColor: COLORS.button.primary.backgroundHover,
                 backgroundColor: COLORS.button.primary.background,
                 color: COLORS.button.primary.text,
-                animation: 'none', // Disable pulse on hover
               },
             }}
           >
