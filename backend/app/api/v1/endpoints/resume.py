@@ -342,7 +342,7 @@ async def get_upload_result(
     """
     try:
         task = celery_app.AsyncResult(task_id)
-        
+
         if task.state == 'PENDING':
             return {
                 'state': task.state,
@@ -354,6 +354,24 @@ async def get_upload_result(
                 'state': task.state,
                 'status': 'processing',
                 'message': 'Processing resume with ParseService'
+            }
+        elif task.state == 'PARSING':
+            # Custom state: parsing resume file
+            meta = task.info or {}
+            return {
+                'state': task.state,
+                'status': meta.get('status', 'parsing'),
+                'message': meta.get('message', 'Parsing resume file...'),
+                'meta': meta
+            }
+        elif task.state == 'ANALYZING':
+            # Custom state: analyzing resume
+            meta = task.info or {}
+            return {
+                'state': task.state,
+                'status': meta.get('status', 'analyzing'),
+                'message': meta.get('message', 'Analyzing resume...'),
+                'meta': meta
             }
         elif task.state == 'SUCCESS':
             result = task.result
