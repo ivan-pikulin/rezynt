@@ -21,7 +21,6 @@ const StartPage: React.FC = () => {
   const { resume } = useResumeQuery(isGuest);
   const [isProcessingUpload, setIsProcessingUpload] = useState(false);
   const [uploadMessage, setUploadMessage] = useState('');
-  const [taskId, setTaskId] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
   
   // Determine current page/tab based on URL
@@ -47,28 +46,31 @@ const StartPage: React.FC = () => {
     t('start.uploadMessages.14')
   ];
 
-  // Handle task_id parameter for processing uploaded resume
-  const taskIdParam = searchParams.get('task_id');
+  // Handle analyzing parameter for processing uploaded resume
+  const isAnalyzing = searchParams.get('analyzing') === 'true';
 
-  // Use polling hook for task status
-  const { data: taskResult } = usePolling({
-    fetchFn: () => resumeApi.getUploadStatus(taskIdParam!),
-    shouldStop: (result) =>
-      result.state === 'ANALYZING' ||
-      result.state === 'SUCCESS' ||
-      result.state === 'FAILURE',
+  // Use polling hook to check user's analysis status
+  const { data: userData } = usePolling({
+    fetchFn: async () => {
+      // Fetch user to check analysis_generated_at
+      const { userApi } = await import('../../shared/services/api');
+      return userApi.getCurrentUser();
+    },
+    shouldStop: (user) => {
+      // Stop when analysis has been generated (analysis_generated_at is set)
+      return !!user?.analysis_generated_at;
+    },
     interval: 2000,
-    enabled: !!taskIdParam && !!user && isProcessingUpload,
+    enabled: isAnalyzing && !!user && isProcessingUpload,
   });
 
-  // Start processing when task_id is in URL
+  // Start processing when analyzing=true is in URL
   useEffect(() => {
-    if (taskIdParam && user && !isProcessingUpload) {
-      setTaskId(taskIdParam);
+    if (isAnalyzing && user && !isProcessingUpload) {
       setIsProcessingUpload(true);
       setUploadMessage(uploadMessages[0]);
     }
-  }, [taskIdParam, user]);
+  }, [isAnalyzing, user]);
 
   // Message rotation during processing
   useEffect(() => {
@@ -83,37 +85,25 @@ const StartPage: React.FC = () => {
     return () => clearInterval(interval);
   }, [isProcessingUpload, uploadMessages]);
 
-  const activeTaskId = taskIdParam || taskId;
-
-  // React to task state changes
+  // React to analysis completion
   useEffect(() => {
-    if (!taskResult) return;
+    if (!userData || !isAnalyzing) return;
 
-    if (taskResult.state === 'PARSING') {
-      setUploadMessage(t('start.parsingResume'));
-    } else if (taskResult.state === 'ANALYZING' || taskResult.state === 'SUCCESS') {
+    // Check if analysis has been generated
+    if (userData.analysis_generated_at) {
       setUploadMessage(t('start.analyzingResume'));
       setIsProcessingUpload(false);
       setUploadError(null);
 
-      // Only add task_id to URL if it exists and is not null/empty
-      const refinePath = activeTaskId && activeTaskId !== 'null'
-        ? `/refine?analyzing_task_id=${encodeURIComponent(activeTaskId)}`
-        : '/refine';
+      const refinePath = '/refine';
 
       if (user && !user.has_completed_onboarding) {
         navigate(`/onboarding?redirect=${encodeURIComponent(refinePath)}`, { replace: true });
       } else {
         navigate(refinePath, { replace: true });
       }
-    } else if (taskResult.state === 'FAILURE') {
-      // Handle error
-      setIsProcessingUpload(false);
-      setTaskId(null);
-      setUploadError(taskResult.error || taskResult.message || t('errors.uploadFailed'));
-      navigate('/start', { replace: true });
     }
-  }, [taskResult, user, navigate, t, activeTaskId]);
+  }, [userData, isAnalyzing, user, navigate, t]);
 
   const handleStepClick = (stepIndex: number) => {
     switch (stepIndex) {
@@ -238,7 +228,7 @@ const StartPage: React.FC = () => {
               uploadMessage={uploadMessage}
               uploadError={uploadError}
               onClearError={() => setUploadError(null)}
-              isStartFromScratchDisabled={!!taskId}
+              isStartFromScratchDisabled={false}
             />
             
             {/* Message about existing resume */}

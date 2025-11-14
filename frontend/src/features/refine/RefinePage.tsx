@@ -36,19 +36,15 @@ const RefinePage: React.FC = () => {
   // Wait for auth to load before attempting to load resume
   const { resume, isLoading: loading, error: queryError, updateResumeInCache } = useResumeQuery(false);
   const [searchParams, setSearchParams] = useSearchParams();
-  const analyzingTaskId = searchParams.get('analyzing_task_id');
-  const shouldPollUploadStatus = Boolean(analyzingTaskId);
+  const isAnalyzing = searchParams.get('analyzing') === 'true';
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [isLoadingInitial, setIsLoadingInitial] = useState(true);
   const [showSaveNotification, setShowSaveNotification] = useState(true);
   const [lastSaveTime, setLastSaveTime] = useState('');
   const [isRefreshingAnalysis, setIsRefreshingAnalysis] = useState(false);
-  const [isTaskAnalyzing, setIsTaskAnalyzing] = useState(shouldPollUploadStatus);
+  const [isTaskAnalyzing, setIsTaskAnalyzing] = useState(isAnalyzing);
   const [taskPollingError, setTaskPollingError] = useState<string | null>(null);
   const editorRef = useRef<EditorAccordionHandle>(null);
-
-  // Track current polling task_id to prevent race conditions
-  const currentPollingTaskId = useRef<string | null>(null);
   
   // Track dismissed/applied improvement points for dynamic score recalculation
   const [dismissedPointIds, setDismissedPointIds] = useState<Set<string>>(new Set());
@@ -70,7 +66,7 @@ const RefinePage: React.FC = () => {
   
   const clearAnalyzingParams = useCallback(() => {
     const next = new URLSearchParams(searchParams);
-    next.delete('analyzing_task_id');
+    next.delete('analyzing');
     setSearchParams(next, { replace: true });
   }, [searchParams, setSearchParams]);
 
@@ -102,24 +98,18 @@ const RefinePage: React.FC = () => {
     }
   }, [resume]);
 
-  const uploadStatusFetcher = useCallback(() => {
-    if (!analyzingTaskId) {
-      return Promise.resolve({ state: 'PENDING' } as TaskStatus);
-    }
-
-    // Only fetch if this is the current polling task (prevent race conditions)
-    if (currentPollingTaskId.current && currentPollingTaskId.current !== analyzingTaskId) {
-      return Promise.resolve({ state: 'PENDING' } as TaskStatus);
-    }
-
-    return resumeApi.getUploadStatus(analyzingTaskId);
-  }, [analyzingTaskId]);
-
-  const { data: uploadStatus } = usePolling({
-    fetchFn: uploadStatusFetcher,
-    shouldStop: (data) => data.state === 'SUCCESS' || data.state === 'FAILURE',
+  // Poll user data to check if analysis is ready
+  const { data: polledUserData } = usePolling({
+    fetchFn: async () => {
+      const { userApi } = await import('../../shared/services/api');
+      return userApi.getCurrentUser();
+    },
+    shouldStop: (userData) => {
+      // Stop when analysis_generated_at is set (analysis is ready)
+      return !!userData?.analysis_generated_at;
+    },
     interval: 2000,
-    enabled: shouldPollUploadStatus,
+    enabled: isAnalyzing && !!user,
   });
 
   // Authentication check removed - guest users can access this page
@@ -129,43 +119,37 @@ const RefinePage: React.FC = () => {
   const [localResume, setLocalResume] = useState<Resume | null>(resume || null);
   const [mobileTab, setMobileTab] = useState<'analysis' | 'editor'>('analysis');
   const analysisLoading = isTaskAnalyzing || isLoadingInitial;
+
+  // Start analyzing state when analyzing=true is in URL
   useEffect(() => {
-    if (shouldPollUploadStatus && analyzingTaskId) {
-      // Set current polling task_id to prevent race conditions
-      currentPollingTaskId.current = analyzingTaskId;
+    if (isAnalyzing) {
       setIsTaskAnalyzing(true);
       setTaskPollingError(null);
       setAnalysis(null);
       setIsLoadingInitial(true);
     }
-  }, [shouldPollUploadStatus, analyzingTaskId]);
+  }, [isAnalyzing]);
 
+  // Load analysis when resume is available and not analyzing
   useEffect(() => {
-    if (!resume || shouldPollUploadStatus) return;
+    if (!resume || isAnalyzing) return;
     setIsLoadingInitial(true);
     loadAnalysis();
-  }, [resume, shouldPollUploadStatus, loadAnalysis]);
+  }, [resume, isAnalyzing, loadAnalysis]);
 
+  // Handle polling completion
   useEffect(() => {
-    if (!uploadStatus) return;
+    if (!polledUserData || !isAnalyzing) return;
 
-    // Only process if this is the current polling task
-    if (currentPollingTaskId.current !== analyzingTaskId) return;
-
-    if (uploadStatus.state === 'SUCCESS') {
+    // Check if analysis is ready
+    if (polledUserData.analysis_generated_at) {
       setIsTaskAnalyzing(false);
       setTaskPollingError(null);
-      currentPollingTaskId.current = null; // Clear tracking
       clearAnalyzingParams();
       setIsLoadingInitial(true);
       loadAnalysis();
-    } else if (uploadStatus.state === 'FAILURE') {
-      setIsTaskAnalyzing(false);
-      setTaskPollingError(uploadStatus.error || t('errors.uploadFailed'));
-      currentPollingTaskId.current = null; // Clear tracking
-      clearAnalyzingParams();
     }
-  }, [uploadStatus, analyzingTaskId, clearAnalyzingParams, loadAnalysis, t]);
+  }, [polledUserData, isAnalyzing, clearAnalyzingParams, loadAnalysis]);
 
 
   // Update local resume when fetched resume changes

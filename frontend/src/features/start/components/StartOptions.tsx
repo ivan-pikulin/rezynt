@@ -12,7 +12,6 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CreateIcon from '@mui/icons-material/Create';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { startApi } from '../startApi';
 import { COLORS } from '../../../shared/theme/theme';
 import { useAuthContext } from '../../../shared/contexts/AuthContext';
 import { guestResumeService } from '../../../shared/services/guestResumeService';
@@ -126,12 +125,16 @@ const StartOptions: React.FC<StartOptionsProps> = ({
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
-    
+
     if (!isUploading) {
       setIsUploading(true);
       try {
-        await startApi.uploadResume(file);
-        navigate('/refine');
+        // Upload file via resumeApi directly
+        const { resumeApi } = await import('../../../shared/services/api');
+        await resumeApi.uploadResume(file);
+
+        // Navigate to refine with analyzing=true flag
+        navigate('/refine?analyzing=true');
       } catch (error) {
         console.error('Failed to upload resume:', error);
         // Can add user notification about error

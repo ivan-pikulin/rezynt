@@ -36,6 +36,7 @@ export interface User {
   credits: number;
   created_at: string;
   updated_at: string;
+  analysis_generated_at?: string;
 }
 
 export interface UserCreate {
