@@ -100,7 +100,8 @@ async def _send_onboarding_notification_task(user_email: str, user_id: int, resp
 def process_resume_upload_task(self, file_content: bytes, filename: str, user_id: int):
     """Process uploaded resume using ParseService"""
     # Pass task_id explicitly since self may not be available in async context
-    task_id = self.request.id if hasattr(self.request, 'id') else None
+    task_id = self.request.id
+    logger.info(f"[TASK WRAPPER] Task ID from self.request.id: {task_id}")
     return async_to_sync(_process_resume_upload_task)(self, file_content, filename, user_id, task_id)
 
 
@@ -112,7 +113,11 @@ async def _process_resume_upload_task(task, file_content: bytes, filename: str, 
     parse_service = None
 
     try:
-        logger.info(f"Task ID: {task_id}")
+        logger.info(f"[ASYNC TASK] Received task_id: {task_id}, type: {type(task_id)}")
+        logger.info(f"[ASYNC TASK] Task object type: {type(task)}")
+        logger.info(f"[ASYNC TASK] Task has request: {hasattr(task, 'request')}")
+        if hasattr(task, 'request'):
+            logger.info(f"[ASYNC TASK] Task.request.id: {task.request.id}")
 
         # Update Celery task state to PARSING (only if we have task context)
         if task_id:
@@ -122,6 +127,8 @@ async def _process_resume_upload_task(task, file_content: bytes, filename: str, 
                 meta={'status': 'parsing', 'message': 'Parsing resume file...', 'user_id': user_id}
             )
             logger.info(f"Task state updated to PARSING")
+        else:
+            logger.warning(f"⚠️ task_id is None, cannot update task state!")
 
         # Validate file size before processing
         file_size = len(file_content)
