@@ -100,11 +100,11 @@ async def _send_onboarding_notification_task(user_email: str, user_id: int, resp
 def process_resume_upload_task(self, file_content: bytes, filename: str, user_id: int):
     """Process uploaded resume using ParseService"""
     # Pass task_id explicitly since self may not be available in async context
-    task_id = self.request.id
-    return async_to_sync(_process_resume_upload_task)(self, file_content, filename, user_id, task_id)
+    task_id = self.request.id if hasattr(self.request, 'id') else None
+    return async_to_sync(_process_resume_upload_task)(self, file_content, filename, user_id)
 
 
-async def _process_resume_upload_task(task, file_content: bytes, filename: str, user_id: int, task_id: str = None):
+async def _process_resume_upload_task(task, file_content: bytes, filename: str, user_id: int):
     """Async implementation of resume processing task"""
     logger.info(f"Starting resume processing task for user {user_id}, filename: {filename}")
 
@@ -112,19 +112,14 @@ async def _process_resume_upload_task(task, file_content: bytes, filename: str, 
     parse_service = None
 
     try:
-        logger.info(f"Task ID: {task_id}")
+        logger.info(f"Updating task state to PARSING")
+        task.update_state(
+            state='PARSING',
+            meta={'status': 'parsing', 'message': 'Parsing resume file...', 'user_id': user_id}
+        )
+        logger.info(f"Task state updated to PARSING")
 
-        # Update Celery task state to PARSING (only if we have task context)
-        if task_id:
-            logger.info(f"Updating task state to PARSING for task_id: {task_id}")
-            task.update_state(
-                task_id=task_id,
-                state='PARSING',
-                meta={'status': 'parsing', 'message': 'Parsing resume file...', 'user_id': user_id}
-            )
-            logger.info(f"Task state updated to PARSING")
-
-        # Validate file size before processing
+        # Validate file size before processing  
         file_size = len(file_content)
         logger.info(f"File size: {file_size} bytes")
         
@@ -169,14 +164,12 @@ async def _process_resume_upload_task(task, file_content: bytes, filename: str, 
         logger.info(f"✅ Parsing completed for user {user_id}")
 
         # Update Celery task state to ANALYZING (only if we have task context)
-        if task_id:
-            logger.info(f"Updating task state to ANALYZING for task_id: {task_id}")
-            task.update_state(
-                task_id=task_id,
-                state='ANALYZING',
-                meta={'status': 'analyzing', 'message': 'Analyzing resume...', 'user_id': user_id}
-            )
-            logger.info(f"Task state updated to ANALYZING")
+        logger.info(f"Updating task state to ANALYZING")
+        task.update_state(
+            state='ANALYZING',
+            meta={'status': 'analyzing', 'message': 'Analyzing resume...', 'user_id': user_id}
+        )
+        logger.info(f"Task state updated to ANALYZING")
 
         # Trigger analysis after successful resume upload
         await _generate_analysis_after_upload(user_id)
