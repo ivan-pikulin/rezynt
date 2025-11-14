@@ -24,6 +24,7 @@ interface StartOptionsProps {
   uploadError?: string | null;
   onClearError?: () => void;
   isStartFromScratchDisabled?: boolean;
+  onUploadTaskCreated?: (taskId: string) => void;
 }
 
 const StartOptions: React.FC<StartOptionsProps> = ({ 
@@ -33,7 +34,8 @@ const StartOptions: React.FC<StartOptionsProps> = ({
   uploadMessage: externalUploadMessage = '',
   uploadError = null,
   onClearError,
-  isStartFromScratchDisabled = false
+  isStartFromScratchDisabled = false,
+  onUploadTaskCreated,
 }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -131,10 +133,11 @@ const StartOptions: React.FC<StartOptionsProps> = ({
       try {
         // Upload file via resumeApi directly
         const { resumeApi } = await import('../../../shared/services/api');
-        await resumeApi.uploadResume(file);
+        const { task_id } = await resumeApi.uploadResume(file);
 
-        // Navigate to refine with analyzing=true flag
-        navigate('/refine?analyzing=true');
+        if (task_id) {
+          onUploadTaskCreated?.(task_id);
+        }
       } catch (error) {
         console.error('Failed to upload resume:', error);
         // Can add user notification about error

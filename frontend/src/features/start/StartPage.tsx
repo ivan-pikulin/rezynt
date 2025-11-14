@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -10,11 +10,12 @@ import { useResumeQuery } from '../../shared/hooks/useResumeQuery';
 import { COLORS } from '../../shared/theme/theme';
 import { resumeApi } from '../../shared/services/api';
 import GradientSpinnerAnimation from '../../shared/components/GradientSpinnerAnimation';
+import { TaskStatus } from '../../shared/services/api/types';
 
 const StartPage: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useUser();
   // Check for resume - use guest mode if user is not registered
   const isGuest = !user?.is_registered;
@@ -22,13 +23,15 @@ const StartPage: React.FC = () => {
   const [isProcessingUpload, setIsProcessingUpload] = useState(false);
   const [uploadMessage, setUploadMessage] = useState('');
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [activeTaskId, setActiveTaskId] = useState<string | null>(searchParams.get('taskId'));
+  const [hasRedirected, setHasRedirected] = useState(false);
   
   // Determine current page/tab based on URL
   const currentPath = window.location.pathname;
   const isOnBuildTab = currentPath === '/build';
 
   // List of messages to display during upload processing
-  const uploadMessages = [
+  const uploadMessages = useMemo(() => ([
     t('start.uploadMessages.0'),
     t('start.uploadMessages.1'),
     t('start.uploadMessages.2'),
@@ -44,37 +47,52 @@ const StartPage: React.FC = () => {
     t('start.uploadMessages.12'),
     t('start.uploadMessages.13'),
     t('start.uploadMessages.14')
-  ];
+  ]), [t]);
 
   // Handle analyzing parameter for processing uploaded resume
   const isAnalyzing = searchParams.get('analyzing') === 'true';
+  const taskIdFromQuery = searchParams.get('taskId');
 
-  // Use polling hook to check user's analysis status
-  const { data: userData } = usePolling({
-    fetchFn: async () => {
-      // Fetch user to check analysis_generated_at
-      const { userApi } = await import('../../shared/services/api');
-      return userApi.getCurrentUser();
-    },
-    shouldStop: (user) => {
-      // Stop when analysis has been generated (analysis_generated_at is set)
-      return !!user?.analysis_generated_at;
-    },
-    interval: 2000,
-    enabled: isAnalyzing && !!user && isProcessingUpload,
-  });
-
-  // Start processing when analyzing=true is in URL
   useEffect(() => {
-    if (isAnalyzing && user && !isProcessingUpload) {
+    if (isAnalyzing && taskIdFromQuery && !activeTaskId) {
+      setActiveTaskId(taskIdFromQuery);
+    }
+  }, [isAnalyzing, taskIdFromQuery, activeTaskId]);
+
+  useEffect(() => {
+    if (isAnalyzing && activeTaskId && !isProcessingUpload) {
       setIsProcessingUpload(true);
       setUploadMessage(uploadMessages[0]);
     }
-  }, [isAnalyzing, user]);
+  }, [isAnalyzing, activeTaskId, isProcessingUpload, uploadMessages]);
 
-  // Message rotation during processing
+  const handleRedirectToRefine = useCallback((taskId: string) => {
+    const refinePath = `/refine?analyzing=true&taskId=${encodeURIComponent(taskId)}`;
+
+    if (user && !user.has_completed_onboarding) {
+      navigate(`/onboarding?redirect=${encodeURIComponent(refinePath)}`, { replace: true });
+    } else {
+      navigate(refinePath, { replace: true });
+    }
+  }, [navigate, user]);
+
+  const fetchTaskStatus = useCallback(async (): Promise<TaskStatus> => {
+    if (!activeTaskId) {
+      throw new Error('No active task');
+    }
+    return resumeApi.getUploadStatus(activeTaskId);
+  }, [activeTaskId]);
+
+  const { data: taskStatus } = usePolling<TaskStatus>({
+    fetchFn: fetchTaskStatus,
+    shouldStop: (status) => ['ANALYZING', 'SUCCESS', 'FAILURE'].includes(status.state),
+    interval: 2000,
+    enabled: !!activeTaskId && isProcessingUpload,
+  });
+
+  // Message rotation during processing (only before backend starts sending messages)
   useEffect(() => {
-    if (!isProcessingUpload) return;
+    if (!isProcessingUpload || taskStatus?.message) return;
 
     let messageIndex = 0;
     const interval = setInterval(() => {
@@ -83,27 +101,45 @@ const StartPage: React.FC = () => {
     }, 4000);
 
     return () => clearInterval(interval);
-  }, [isProcessingUpload, uploadMessages]);
+  }, [isProcessingUpload, taskStatus, uploadMessages]);
 
-  // React to analysis completion
   useEffect(() => {
-    if (!userData || !isAnalyzing) return;
+    if (!taskStatus) return;
 
-    // Check if analysis has been generated
-    if (userData.analysis_generated_at) {
-      setUploadMessage(t('start.analyzingResume'));
-      setIsProcessingUpload(false);
-      setUploadError(null);
-
-      const refinePath = '/refine';
-
-      if (user && !user.has_completed_onboarding) {
-        navigate(`/onboarding?redirect=${encodeURIComponent(refinePath)}`, { replace: true });
-      } else {
-        navigate(refinePath, { replace: true });
-      }
+    if (taskStatus.message) {
+      setUploadMessage(taskStatus.message);
     }
-  }, [userData, isAnalyzing, user, navigate, t]);
+
+    if (taskStatus.state === 'FAILURE') {
+      setUploadError(taskStatus.error || taskStatus.message || t('start.uploadError'));
+      setIsProcessingUpload(false);
+      setActiveTaskId(null);
+      setHasRedirected(false);
+      const next = new URLSearchParams(searchParams);
+      next.delete('analyzing');
+      next.delete('taskId');
+      setSearchParams(next, { replace: true });
+      return;
+    }
+
+    if ((taskStatus.state === 'ANALYZING' || taskStatus.state === 'SUCCESS') && activeTaskId && !hasRedirected) {
+      setHasRedirected(true);
+      handleRedirectToRefine(activeTaskId);
+    }
+  }, [taskStatus, activeTaskId, hasRedirected, handleRedirectToRefine, searchParams, setSearchParams, t]);
+
+  const handleTaskCreated = useCallback((taskId: string) => {
+    setActiveTaskId(taskId);
+    setHasRedirected(false);
+    setUploadError(null);
+    setUploadMessage(uploadMessages[0]);
+    setIsProcessingUpload(true);
+
+    const next = new URLSearchParams(searchParams);
+    next.set('analyzing', 'true');
+    next.set('taskId', taskId);
+    setSearchParams(next, { replace: true });
+  }, [searchParams, setSearchParams, uploadMessages]);
 
   const handleStepClick = (stepIndex: number) => {
     switch (stepIndex) {
@@ -229,6 +265,7 @@ const StartPage: React.FC = () => {
               uploadError={uploadError}
               onClearError={() => setUploadError(null)}
               isStartFromScratchDisabled={false}
+              onUploadTaskCreated={handleTaskCreated}
             />
             
             {/* Message about existing resume */}

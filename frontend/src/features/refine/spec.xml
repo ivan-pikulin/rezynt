@@ -49,11 +49,12 @@
                         <detail desc="On mobile, automatically switches to Editor tab before navigation"/>
                     </details>
                 </feature>
-                <feature name="task_status_polling" desc="Reads analyzing_task_id query param to wait for Celery task success before loading analysis">
+                <feature name="task_status_polling" desc="Reads analyzing=true & taskId query params to wait for Celery task success before loading analysis">
                     <details>
-                        <detail desc="Polls /resume/upload/status/{task_id} every 2 seconds until SUCCESS or FAILURE"/>
-                        <detail desc="Clears query params and fetches analysis when SUCCESS occurs"/>
-                        <detail desc="Shows inline ErrorMessage when FAILURE occurs"/>
+                        <detail desc="Polls /resume/upload/status/{taskId} every 2 seconds until SUCCESS or FAILURE"/>
+                        <detail desc="Keeps Analyze tab in loading state while state is PARSING/ANALYZING"/>
+                        <detail desc="Clears analyzing/taskId params and fetches analysis when SUCCESS occurs"/>
+                        <detail desc="Shows inline ErrorMessage when FAILURE occurs" />
                     </details>
                 </feature>
                 <feature name="resume_loading" desc="Loads resume data from API using resumeId parameter"/>

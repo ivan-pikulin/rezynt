@@ -37,6 +37,7 @@ const RefinePage: React.FC = () => {
   const { resume, isLoading: loading, error: queryError, updateResumeInCache } = useResumeQuery(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const isAnalyzing = searchParams.get('analyzing') === 'true';
+  const analyzingTaskId = searchParams.get('taskId');
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [isLoadingInitial, setIsLoadingInitial] = useState(true);
   const [showSaveNotification, setShowSaveNotification] = useState(true);
@@ -67,6 +68,7 @@ const RefinePage: React.FC = () => {
   const clearAnalyzingParams = useCallback(() => {
     const next = new URLSearchParams(searchParams);
     next.delete('analyzing');
+    next.delete('taskId');
     setSearchParams(next, { replace: true });
   }, [searchParams, setSearchParams]);
 
@@ -98,18 +100,20 @@ const RefinePage: React.FC = () => {
     }
   }, [resume]);
 
-  // Poll user data to check if analysis is ready
-  const { data: polledUserData } = usePolling({
-    fetchFn: async () => {
-      const { userApi } = await import('../../shared/services/api');
-      return userApi.getCurrentUser();
-    },
-    shouldStop: (userData) => {
-      // Stop when analysis_generated_at is set (analysis is ready)
-      return !!userData?.analysis_generated_at;
-    },
+  const shouldPollTaskStatus = isAnalyzing && !!analyzingTaskId;
+
+  const fetchUploadStatus = useCallback(async (): Promise<TaskStatus> => {
+    if (!analyzingTaskId) {
+      throw new Error('Missing analyzing task id');
+    }
+    return resumeApi.getUploadStatus(analyzingTaskId);
+  }, [analyzingTaskId]);
+
+  const { data: taskStatus } = usePolling<TaskStatus>({
+    fetchFn: fetchUploadStatus,
+    shouldStop: (status) => ['SUCCESS', 'FAILURE'].includes(status.state),
     interval: 2000,
-    enabled: isAnalyzing && !!user,
+    enabled: shouldPollTaskStatus,
   });
 
   // Authentication check removed - guest users can access this page
@@ -130,6 +134,12 @@ const RefinePage: React.FC = () => {
     }
   }, [isAnalyzing]);
 
+  useEffect(() => {
+    if (isAnalyzing && !analyzingTaskId) {
+      setTaskPollingError(t('refine.error.missingTaskId', 'Unable to track resume status.'));
+    }
+  }, [isAnalyzing, analyzingTaskId, t]);
+
   // Load analysis when resume is available and not analyzing
   useEffect(() => {
     if (!resume || isAnalyzing) return;
@@ -137,19 +147,23 @@ const RefinePage: React.FC = () => {
     loadAnalysis();
   }, [resume, isAnalyzing, loadAnalysis]);
 
-  // Handle polling completion
   useEffect(() => {
-    if (!polledUserData || !isAnalyzing) return;
+    if (!taskStatus || !isAnalyzing) return;
 
-    // Check if analysis is ready
-    if (polledUserData.analysis_generated_at) {
+    if (taskStatus.state === 'FAILURE') {
+      setIsTaskAnalyzing(false);
+      setTaskPollingError(taskStatus.error || taskStatus.message || t('refine.error.analysisFailed', 'Failed to analyze resume.'));
+      return;
+    }
+
+    if (taskStatus.state === 'SUCCESS') {
       setIsTaskAnalyzing(false);
       setTaskPollingError(null);
       clearAnalyzingParams();
       setIsLoadingInitial(true);
       loadAnalysis();
     }
-  }, [polledUserData, isAnalyzing, clearAnalyzingParams, loadAnalysis]);
+  }, [taskStatus, isAnalyzing, clearAnalyzingParams, loadAnalysis, t]);
 
 
   // Update local resume when fetched resume changes
