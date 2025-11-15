@@ -43,6 +43,10 @@
             <file>script.js</file>
             <desc>Optional scroll/CTA animations and helper effects (smooth scroll, hover states).</desc>
         </script>
+        <script name="cookie_consent">
+            <dependency>vanilla-cookieconsent@3.1.0</dependency>
+            <desc>Head-level module import bootstraps a GDPR-compliant banner with “Accept all” and outlined “Only necessary” buttons (both granting analytics consent), branded cookie icon, privacy policy link, and palette-matched styles persisted on .rezynt.com.</desc>
+        </script>
     </scripts>
 
     <env_vars>

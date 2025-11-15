@@ -15,6 +15,95 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <script type="module">
+        import 'vanilla-cookieconsent/dist/cookieconsent.css';
+        import { run as runCookieConsent } from 'vanilla-cookieconsent';
+
+        const privacyPolicyUrl = '/privacy-policy.html';
+        const cookieIconSvg = `
+            <span class="cookie-banner__icon" aria-hidden="true">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 2a10 10 0 1 0 10 10 2 2 0 0 1-2-2 2 2 0 0 0-2-2 2 2 0 0 1-2-2 2 2 0 0 0-2-2Z" fill="#A06A3B"/>
+                    <circle cx="9" cy="10" r="1.2" fill="#FCE8CF"/>
+                    <circle cx="14.5" cy="7.5" r="1" fill="#FCE8CF"/>
+                    <circle cx="15" cy="14" r="1.1" fill="#FCE8CF"/>
+                    <circle cx="11" cy="16.5" r="0.9" fill="#FCE8CF"/>
+                </svg>
+            </span>
+        `;
+        const consentTitle = `
+            <span class="cookie-banner__title">
+                ${cookieIconSvg}
+                <span>Cookies help us improve your resume</span>
+            </span>
+        `;
+
+        const enforceAllCategories = () => {
+            const cc = window.CookieConsent;
+            if (!cc) return;
+            const config = cc.getConfig() || {};
+            const categoryNames = Object.keys(config.categories || {});
+            if (categoryNames.length) {
+                cc.acceptCategory(categoryNames);
+            }
+        };
+
+        runCookieConsent({
+            revision: 2,
+            cookie: {
+                domain: '.rezynt.com',
+                sameSite: 'Lax'
+            },
+            guiOptions: {
+                consentModal: {
+                    layout: 'box',
+                    position: 'bottom right',
+                    equalWeightButtons: false
+                }
+            },
+            categories: {
+                necessary: {
+                    enabled: true,
+                    readOnly: true,
+                    services: {
+                        essential: {
+                            label: 'Essential session cookies',
+                            description: 'Required to store guest sessions, remember file uploads, and secure resume processing.'
+                        }
+                    }
+                },
+                analytics: {
+                    services: {
+                        ga4: {
+                            label: 'Google Analytics & Ads',
+                            description: 'Helps us understand traffic and performance across campaigns.'
+                        },
+                        posthog: {
+                            label: 'PostHog',
+                            description: 'Product analytics that show us which parts of the landing need improvements.'
+                        }
+                    }
+                }
+            },
+            language: {
+                default: 'en',
+                translations: {
+                    en: {
+                        consentModal: {
+                            title: consentTitle,
+                            description: `We use essential cookies to improve your experience. Read our <a href="${privacyPolicyUrl}" target="_blank" rel="noopener">Privacy Policy</a> for more details.`,
+                            acceptAllBtn: 'Accept all',
+                            acceptNecessaryBtn: 'Only necessary'
+                        }
+                    }
+                }
+            }
+        }).then(() => {
+            window.addEventListener('cc:onFirstConsent', enforceAllCategories);
+        }).catch((error) => {
+            console.error('CookieConsent failed to load', error);
+        });
+    </script>
     
     <!-- PostHog Analytics -->
     <script>
