@@ -1,6 +1,66 @@
 import FingerprintJS from '@fingerprintjs/fingerprintjs';
 import { TokenResponse } from '../../../features/auth/types/auth';
 
+const isBrowser = typeof document !== 'undefined';
+const COOKIE_DOMAIN = '.rezynt.com';
+const ACCESS_COOKIE = 'rz_access_token';
+const REFRESH_COOKIE = 'rz_refresh_token';
+const GUEST_COOKIE = 'rz_guest_id';
+
+const shouldUseSharedCookies = () => {
+  if (!isBrowser) {
+    return false;
+  }
+  const hostname = window.location.hostname;
+  return hostname === 'rezynt.com' || hostname.endsWith('.rezynt.com');
+};
+
+const setCookie = (name: string, value: string, maxAgeSeconds?: number) => {
+  if (!isBrowser || !shouldUseSharedCookies()) return;
+  let cookie = `${name}=${encodeURIComponent(value)};path=/;SameSite=None;Secure`;
+  if (COOKIE_DOMAIN) {
+    cookie += `;domain=${COOKIE_DOMAIN}`;
+  }
+  if (typeof maxAgeSeconds === 'number') {
+    cookie += `;Max-Age=${Math.max(0, maxAgeSeconds)}`;
+  }
+  document.cookie = cookie;
+};
+
+const getCookie = (name: string): string | null => {
+  if (!isBrowser || !shouldUseSharedCookies()) return null;
+  const cookieString = document.cookie || '';
+  const parts = cookieString.split(';').map(part => part.trim());
+  for (const part of parts) {
+    if (part.startsWith(`${name}=`)) {
+      return decodeURIComponent(part.slice(name.length + 1));
+    }
+  }
+  return null;
+};
+
+const clearCookie = (name: string) => {
+  if (!isBrowser || !shouldUseSharedCookies()) return;
+  let cookie = `${name}=;path=/;Max-Age=0;SameSite=None;Secure`;
+  if (COOKIE_DOMAIN) {
+    cookie += `;domain=${COOKIE_DOMAIN}`;
+  }
+  document.cookie = cookie;
+};
+
+const decodeTokenMaxAge = (token: string): number | undefined => {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const nowSeconds = Math.floor(Date.now() / 1000);
+    if (payload.exp && typeof payload.exp === 'number') {
+      return Math.max(0, payload.exp - nowSeconds);
+    }
+  } catch (error) {
+    // ignore decoding errors
+  }
+  return undefined;
+};
+
 function generateUUID(): string {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
     const r = Math.random() * 16 | 0;
@@ -9,31 +69,70 @@ function generateUUID(): string {
   });
 }
 
+const readTokenWithCookieFallback = (storageKey: string, cookieName: string): string | null => {
+  const localValue = localStorage.getItem(storageKey);
+  if (localValue) {
+    return localValue;
+  }
+  const cookieValue = getCookie(cookieName);
+  if (cookieValue) {
+    return cookieValue;
+  }
+  return null;
+};
+
+const persistTokenWithCookie = (storageKey: string, cookieName: string, token: string | null) => {
+  if (!token) {
+    localStorage.removeItem(storageKey);
+    clearCookie(cookieName);
+    return;
+  }
+  localStorage.setItem(storageKey, token);
+  const maxAge = decodeTokenMaxAge(token);
+  setCookie(cookieName, token, maxAge);
+};
+
+const readGuestIdWithCookieFallback = (): string | null => {
+  const localValue = localStorage.getItem('guest_id');
+  if (localValue) {
+    return localValue;
+  }
+  return getCookie(GUEST_COOKIE);
+};
+
+const persistGuestId = (guestId: string | null) => {
+  if (!guestId) {
+    localStorage.removeItem('guest_id');
+    clearCookie(GUEST_COOKIE);
+    return;
+  }
+  localStorage.setItem('guest_id', guestId);
+  setCookie(GUEST_COOKIE, guestId);
+};
+
 export const tokenService = {
   getAccessToken: (): string | null => {
-    const token = localStorage.getItem('access_token');
-    return token;
+    return readTokenWithCookieFallback('access_token', ACCESS_COOKIE);
   },
 
   getRefreshToken: (): string | null => {
-    const token = localStorage.getItem('refresh_token');
-    return token;
+    return readTokenWithCookieFallback('refresh_token', REFRESH_COOKIE);
   },
 
   getGuestId: (): string | null => {
-    return localStorage.getItem('guest_id');
+    return readGuestIdWithCookieFallback();
   },
 
   setGuestId: (guestId: string) => {
-    localStorage.setItem('guest_id', guestId);
+    persistGuestId(guestId);
   },
 
   clearGuestId: () => {
-    localStorage.removeItem('guest_id');
+    persistGuestId(null);
   },
 
   getOrCreateGuestId: async (): Promise<string> => {
-    const existingGuestId = localStorage.getItem('guest_id');
+    const existingGuestId = readGuestIdWithCookieFallback();
     if (existingGuestId) {
       return existingGuestId;
     }
@@ -42,27 +141,27 @@ export const tokenService = {
       const fp = await FingerprintJS.load();
       const result = await fp.get();
       const guestId = result.visitorId;
-      localStorage.setItem('guest_id', guestId);
+      persistGuestId(guestId);
       return guestId;
     } catch (error) {
       const guestId = generateUUID();
-      localStorage.setItem('guest_id', guestId);
+      persistGuestId(guestId);
       return guestId;
     }
   },
 
   clearTokens: () => {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
+    persistTokenWithCookie('access_token', ACCESS_COOKIE, null);
+    persistTokenWithCookie('refresh_token', REFRESH_COOKIE, null);
     localStorage.removeItem('token_type');
   },
 
   storeTokens: (tokens: TokenResponse) => {
-    localStorage.setItem('access_token', tokens.access_token);
-    localStorage.setItem('refresh_token', tokens.refresh_token);
+    persistTokenWithCookie('access_token', ACCESS_COOKIE, tokens.access_token);
+    persistTokenWithCookie('refresh_token', REFRESH_COOKIE, tokens.refresh_token);
     localStorage.setItem('token_type', tokens.token_type);
     if (tokens.guest_id) {
-      localStorage.setItem('guest_id', tokens.guest_id);
+      persistGuestId(tokens.guest_id);
     }
   },
 

@@ -397,13 +397,176 @@
         (function() {
             'use strict';
 
-            // Configuration
             const CONFIG = {
-              uploadUrl: '/api/v1/resume/temp-upload',
-              redirectBase: 'https://app.rezynt.com/onboarding?temp_file_id='
+              uploadUrl: '/api/v1/resume/upload',
+              guestAuthUrl: '/api/v1/auth/guest',
+              onboardingUrl: 'https://app.rezynt.com/onboarding'
             };
 
-            // Factory function to create upload component
+            const COOKIE_NAMES = {
+              access: 'rz_access_token',
+              refresh: 'rz_refresh_token',
+              guest: 'rz_guest_id'
+            };
+
+            const isBrowser = typeof window !== 'undefined';
+            const shouldUseSharedCookies = () => {
+              if (!isBrowser) return false;
+              const host = window.location.hostname;
+              return host === 'rezynt.com' || host.endsWith('.rezynt.com');
+            };
+
+            const cookieUtils = {
+              set(name, value, maxAgeSeconds) {
+                if (!isBrowser || !shouldUseSharedCookies()) return;
+                let cookie = `${name}=${encodeURIComponent(value)};path=/;SameSite=None;Secure`;
+                if (shouldUseSharedCookies()) {
+                  cookie += ';domain=.rezynt.com';
+                }
+                if (typeof maxAgeSeconds === 'number') {
+                  cookie += `;Max-Age=${Math.max(0, maxAgeSeconds)}`;
+                }
+                document.cookie = cookie;
+              },
+              get(name) {
+                if (!isBrowser || !shouldUseSharedCookies()) return null;
+                const entries = (document.cookie || '').split(';').map(item => item.trim());
+                for (const entry of entries) {
+                  if (entry.startsWith(`${name}=`)) {
+                    return decodeURIComponent(entry.slice(name.length + 1));
+                  }
+                }
+                return null;
+              },
+              clear(name) {
+                if (!isBrowser || !shouldUseSharedCookies()) return;
+                let cookie = `${name}=;path=/;Max-Age=0;SameSite=None;Secure`;
+                cookie += ';domain=.rezynt.com';
+                document.cookie = cookie;
+              }
+            };
+
+            const storage = {
+              get(key) {
+                try {
+                  return window.localStorage ? window.localStorage.getItem(key) : null;
+                } catch (_) {
+                  return null;
+                }
+              },
+              set(key, value) {
+                try {
+                  if (window.localStorage) {
+                    window.localStorage.setItem(key, value);
+                  }
+                } catch (_) {}
+              },
+              remove(key) {
+                try {
+                  if (window.localStorage) {
+                    window.localStorage.removeItem(key);
+                  }
+                } catch (_) {}
+              }
+            };
+
+            const decodeJwtMaxAge = (token) => {
+              try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                if (payload.exp) {
+                  const nowSeconds = Math.floor(Date.now() / 1000);
+                  return Math.max(0, payload.exp - nowSeconds);
+                }
+              } catch (_) {}
+              return undefined;
+            };
+
+            const auth = {
+              getStoredAccessToken() {
+                return storage.get('access_token') || cookieUtils.get(COOKIE_NAMES.access);
+              },
+              async ensureGuestSession(forceRefresh = false) {
+                if (!forceRefresh) {
+                  const token = auth.getStoredAccessToken();
+                  if (token) {
+                    return token;
+                  }
+                }
+                return auth.refreshGuestSession();
+              },
+              async refreshGuestSession() {
+                const guestId = cookieUtils.get(COOKIE_NAMES.guest) || storage.get('guest_id');
+                const response = await fetch(CONFIG.guestAuthUrl, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify(guestId ? { guest_id: guestId } : {})
+                });
+
+                if (!response.ok) {
+                  throw new Error('Failed to start guest session. Please try again.');
+                }
+
+                const tokens = await response.json();
+                auth.storeTokens(tokens);
+                return tokens.access_token;
+              },
+              storeTokens(tokens) {
+                storage.set('access_token', tokens.access_token);
+                storage.set('refresh_token', tokens.refresh_token);
+                storage.set('token_type', tokens.token_type || 'bearer');
+                if (tokens.guest_id) {
+                  storage.set('guest_id', tokens.guest_id);
+                  cookieUtils.set(COOKIE_NAMES.guest, tokens.guest_id);
+                }
+
+                const accessMaxAge = decodeJwtMaxAge(tokens.access_token);
+                const refreshMaxAge = decodeJwtMaxAge(tokens.refresh_token);
+                cookieUtils.set(COOKIE_NAMES.access, tokens.access_token, accessMaxAge);
+                cookieUtils.set(COOKIE_NAMES.refresh, tokens.refresh_token, refreshMaxAge);
+              },
+              clearTokens() {
+                storage.remove('access_token');
+                storage.remove('refresh_token');
+                storage.remove('token_type');
+                storage.remove('guest_id');
+                cookieUtils.clear(COOKIE_NAMES.access);
+                cookieUtils.clear(COOKIE_NAMES.refresh);
+                cookieUtils.clear(COOKIE_NAMES.guest);
+              }
+            };
+
+            const buildRedirectUrl = (taskId) => {
+              const refinePath = `/refine?analyzing=true&taskId=${encodeURIComponent(taskId)}`;
+              return `${CONFIG.onboardingUrl}?redirect=${encodeURIComponent(refinePath)}`;
+            };
+
+            async function authenticatedUpload(formData) {
+              let token = await auth.ensureGuestSession();
+              let response = await fetch(CONFIG.uploadUrl, {
+                method: 'POST',
+                headers: {
+                  Authorization: `Bearer ${token}`
+                },
+                body: formData
+              });
+
+              if (response.status === 401) {
+                auth.clearTokens();
+                token = await auth.ensureGuestSession(true);
+                response = await fetch(CONFIG.uploadUrl, {
+                  method: 'POST',
+                  headers: {
+                    Authorization: `Bearer ${token}`
+                  },
+                  body: formData
+                });
+              }
+
+              return response;
+            }
+
             function createUploadComponent(config) {
                 const elements = {
                     dropArea: document.getElementById(config.dropAreaId),
@@ -412,7 +575,6 @@
                     spinner: document.getElementById(config.spinnerId)
                 };
 
-                // Skip if elements don't exist
                 if (!elements.dropArea || !elements.fileInput) return null;
 
                 let isDragOver = false;
@@ -445,24 +607,23 @@
                     },
 
                     isAllowedFile: (file) => {
-                        const allowed = ['pdf','doc','docx'];
+                        const allowed = ['pdf','doc','docx','txt','md'];
                         const name = (file.name || '').toLowerCase();
                         const ext = name.split('.').pop();
                         return allowed.includes(ext);
                     },
 
-                    onUploadSuccess: (fileId) => {
+                    onUploadSuccess: (taskId) => {
                         isProcessing = false;
                         utils.setLoadingState(false);
-                        
-                        // Track successful upload (not just click - this is actual conversion)
+
                         if (window.posthog) {
                             window.posthog.capture('landing_resume_uploaded', { 
-                                file_id: fileId 
+                                task_id: taskId 
                             });
                         }
-                        
-                        const targetUrl = CONFIG.redirectBase + encodeURIComponent(fileId);
+
+                        const targetUrl = buildRedirectUrl(taskId);
                         if (typeof window.gtag_report_conversion === 'function') {
                             window.gtag_report_conversion(targetUrl);
                         } else {
@@ -483,10 +644,7 @@
                             const formData = new FormData();
                             formData.append('file', file);
 
-                            const response = await fetch(CONFIG.uploadUrl, {
-                                method: 'POST',
-                                body: formData
-                            });
+                            const response = await authenticatedUpload(formData);
 
                             if (!response.ok) {
                                 let errText = 'Upload failed. Please try again.';
@@ -500,13 +658,13 @@
                             }
 
                             const json = await response.json();
-                            if (!json || !json.file_id) {
-                                return utils.onUploadError('Upload successful, but file_id is missing.');
+                            if (!json || !json.task_id) {
+                                return utils.onUploadError('Upload successful, but task_id is missing.');
                             }
 
-                            utils.onUploadSuccess(json.file_id);
+                            utils.onUploadSuccess(json.task_id);
                         } catch (e) {
-                            utils.onUploadError('Network error during upload.');
+                            utils.onUploadError(e?.message || 'Network error during upload.');
                         }
                     }
                 };
@@ -515,7 +673,7 @@
                     beginUploadFlow: (file) => {
                         if (!file) return;
                         if (!utils.isAllowedFile(file)) {
-                            utils.showMessage('Allowed formats: pdf, docx, doc', true);
+                            utils.showMessage('Allowed formats: pdf, docx, doc, txt, md', true);
                             return;
                         }
                         if (isProcessing) return;
@@ -554,7 +712,6 @@
                     }
                 };
 
-                // Initialize
                 elements.dropArea.addEventListener('keydown', handlers.handleKeyDown);
                 elements.fileInput.addEventListener('change', handlers.handleFileChange);
 
@@ -569,9 +726,7 @@
                 return { utils, elements };
             }
 
-            // Initialize upload component
             const init = () => {
-                // Hero upload component
                 createUploadComponent({
                     dropAreaId: 'hero-drop-area',
                     fileInputId: 'hero-upload',

@@ -33,8 +33,8 @@
 
     <scripts>
         <script name="resume_upload">
-            <desc>Inline factory handles drag-and-drop + click uploads, sends POST to /api/v1/resume/temp-upload, redirects to https://app.rezynt.com/onboarding/?temp_file_id=.</desc>
-            <success_tracking>Triggers PostHog event landing_resume_uploaded with file_id and Google Ads conversion (AW-17448398300/ReoSCPu6ncAbENzbhYBB) before redirect.</success_tracking>
+            <desc>Inline factory now bootstraps a guest auth session (via /api/v1/auth/guest), stores tokens in shared .rezynt.com cookies, uploads directly to /api/v1/resume/upload with Authorization header, and redirects to https://app.rezynt.com/onboarding?redirect=/refine?analyzing=true&amp;taskId=…</desc>
+            <success_tracking>Triggers PostHog event landing_resume_uploaded with task_id and Google Ads conversion (AW-17448398300/ReoSCPu6ncAbENzbhYBB) before redirect.</success_tracking>
         </script>
         <script name="cta_conversion">
             <desc>Hero Build-from-scratch link and footer Start Building button call gtag_report_conversion before navigating to https://app.rezynt.com/start.</desc>
