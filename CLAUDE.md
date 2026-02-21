@@ -335,6 +335,77 @@ Volumes:
 - `temp_uploads_data` - Temporary file uploads
 - `frontend_node_modules` - Node modules cache
 
+## Production Server
+
+### SSH Access
+```bash
+ssh rezynt   # root@46.149.70.254
+```
+
+### Server Specs
+- **OS:** Ubuntu 22.04.5 LTS
+- **CPU:** 2 vCPUs
+- **RAM:** 3.8 GB (no swap)
+- **Disk:** 50 GB (29 GB free, 42% used)
+- **Hostname:** 5397917-ivanpikulin
+- **IP:** 46.149.70.254
+
+### Project Location
+- **Path:** `/root/rezynt/`
+- **Env file:** `/root/rezynt/.env`
+- **DKIM key:** `/root/rezynt.com.private`
+
+### Docker Containers (Production)
+All containers are prefixed with `rezynt-`:
+```
+rezynt-nginx-1      — Reverse proxy + SSL (ports 80, 443)
+rezynt-frontend-1   — React app
+rezynt-landing-1    — Static landing page
+rezynt-backend-1    — FastAPI (port 8000 internal)
+rezynt-celery-1     — Background task worker
+rezynt-postgres-1   — PostgreSQL (port 5432)
+rezynt-redis-1      — Redis (port 6379)
+rezynt-certbot-1    — Let's Encrypt certificate renewal
+```
+
+### SSL Certificates
+- **Managed by:** Docker certbot container (auto-renews every 12h)
+- **Domains:** `rezynt.com`, `www.rezynt.com`, `app.rezynt.com`
+- **Storage:** Docker volume `rezynt_letsencrypt`
+- **Nginx reload:** Cron job on host every 12h: `docker exec rezynt-nginx-1 nginx -s reload`
+- **OCSP stapling:** Disabled (Let's Encrypt ECDSA certs don't include OCSP responder URL)
+
+### Common Server Commands
+```bash
+# Check container status
+ssh rezynt "docker ps -a"
+
+# View backend logs
+ssh rezynt "docker logs rezynt-backend-1 --tail 100"
+
+# View nginx logs
+ssh rezynt "docker logs rezynt-nginx-1 --tail 100"
+
+# Reload nginx (after config/cert changes)
+ssh rezynt "docker exec rezynt-nginx-1 nginx -s reload"
+
+# Check SSL certificate expiry
+ssh rezynt "docker exec rezynt-certbot-1 certbot certificates"
+
+# Force certificate renewal
+ssh rezynt "docker exec rezynt-certbot-1 certbot renew --force-renewal"
+
+# Restart all containers
+ssh rezynt "cd /root/rezynt && docker compose up -d"
+
+# View crontab
+ssh rezynt "crontab -l"
+```
+
+### Known Issues
+- Host has an old certbot (v1.21.0) with broken/expired certs in `/etc/letsencrypt/` — these are NOT used by Docker. Docker certbot uses its own volume.
+- Many orphaned Docker volumes exist on server (80+). Can be cleaned with `docker volume prune`.
+
 ## CI/CD Pipeline
 
 GitHub Actions workflow (`.github/workflows/deploy.yml`) triggers on push to `main`:
