@@ -56,6 +56,7 @@ class Settings(BaseSettings):
 
     # Security settings
     SECRET_KEY: str
+    GOOGLE_CLIENT_ID: str | None = None
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 24 hours
     REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 days
 

@@ -14,6 +14,10 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         result = await db.execute(select(self.model).where(User.email == email))
         return result.scalar_one_or_none()
 
+    async def get_by_google_sub(self, db: AsyncSession, *, google_sub: str) -> Optional[User]:
+        result = await db.execute(select(self.model).where(User.google_sub == google_sub))
+        return result.scalar_one_or_none()
+
     async def get_by_guest_id(self, db: AsyncSession, *, guest_id: str) -> Optional[User]:
         """Get user by guest_id"""
         result = await db.execute(select(self.model).where(User.guest_id == guest_id))
@@ -27,6 +31,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             guest_id=guest_id,
             email=None,
             password_hash=None,
+            auth_provider="guest",
             is_verified=False,
             is_registered=False,
             credits=20,  # Same as registered users
@@ -52,6 +57,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         db_obj = User(
             email=obj_in.email,
             password_hash=get_password_hash(obj_in.password),
+            auth_provider="email",
             is_verified=False,
             is_registered=True,
             credits=20,  # Set 20 credits by default
@@ -78,6 +84,8 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         # Update guest user to registered
         guest_user.email = email
         guest_user.password_hash = get_password_hash(password)
+        guest_user.auth_provider = "email"
+        guest_user.google_sub = None
         guest_user.is_registered = True
         guest_user.is_verified = False
         # Keep guest_id for reference
@@ -85,6 +93,77 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         await db.commit()
         await db.refresh(guest_user)
         return guest_user
+
+    async def create_google_user(
+        self,
+        db: AsyncSession,
+        *,
+        email: str,
+        google_sub: str,
+        first_name: Optional[str] = None,
+        last_name: Optional[str] = None,
+        guest_id: Optional[str] = None,
+    ) -> User:
+        existing_user = await self.get_by_email(db, email=email)
+        if existing_user:
+            raise ValueError("User with this email already exists")
+
+        existing_google = await self.get_by_google_sub(db, google_sub=google_sub)
+        if existing_google:
+            raise ValueError("Google account is already linked to another user")
+
+        db_obj = User(
+            email=email,
+            password_hash=None,
+            first_name=first_name,
+            last_name=last_name,
+            guest_id=guest_id,
+            auth_provider="google",
+            google_sub=google_sub,
+            is_verified=True,
+            is_registered=True,
+            credits=20,
+        )
+        db.add(db_obj)
+        await db.commit()
+        await db.refresh(db_obj)
+        return db_obj
+
+    async def link_google_account(
+        self,
+        db: AsyncSession,
+        *,
+        user: User,
+        google_sub: str,
+        email: str,
+        first_name: Optional[str] = None,
+        last_name: Optional[str] = None,
+    ) -> User:
+        existing_google = await self.get_by_google_sub(db, google_sub=google_sub)
+        if existing_google and existing_google.id != user.id:
+            raise ValueError("Google account is already linked to another user")
+
+        if user.email != email:
+            existing_email = await self.get_by_email(db, email=email)
+            if existing_email and existing_email.id != user.id:
+                raise ValueError("User with this email already exists")
+
+        if not user.email:
+            user.email = email
+
+        if first_name and not user.first_name:
+            user.first_name = first_name
+        if last_name and not user.last_name:
+            user.last_name = last_name
+
+        user.google_sub = google_sub
+        user.auth_provider = "google"
+        user.is_verified = True
+        user.is_registered = True
+
+        await db.commit()
+        await db.refresh(user)
+        return user
 
     async def update(
         self, db: AsyncSession, *, db_obj: User, obj_in: Union[UserUpdate, Dict[str, Any]]
@@ -109,6 +188,8 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
     async def authenticate(self, db: AsyncSession, *, email: str, password: str) -> Optional[User]:
         user = await self.get_by_email(db, email=email)
         if not user:
+            return None
+        if not user.password_hash:
             return None
         if not verify_password(password, user.password_hash):
             return None
@@ -362,6 +443,8 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         user = await self.get(db, id=user_id)
         if not user:
             return None
+        if not user.password_hash:
+            return None
         
         # Verify current password
         if not verify_password(current_password, user.password_hash):
@@ -382,6 +465,8 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         user = await self.get(db, id=user_id)
         if not user:
             return None
+        if not user.password_hash:
+            return None
         
         # Verify password
         if not verify_password(password, user.password_hash):
@@ -390,6 +475,8 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         # Anonymize user data
         user.email = f"deleted_user_{user.id}@anonymous.local"
         user.password_hash = get_password_hash("DELETED_ACCOUNT")
+        user.auth_provider = "deleted"
+        user.google_sub = None
         user.first_name = None
         user.last_name = None
         user.is_verified = False

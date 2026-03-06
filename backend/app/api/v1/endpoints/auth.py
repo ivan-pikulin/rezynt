@@ -6,7 +6,12 @@ from app.core import security
 from app.core.config import settings
 from app.database.crud import user_crud
 from app.database.crud.crud_temp_resume_file import temp_resume_file_crud
-from app.schemas import RefreshRequest, Token, UserCreate, UserPublic, PasswordResetRequest, PasswordResetConfirm, EmailVerificationByCode, PasswordResetByCode, ResendVerificationCode, GuestSessionRequest, GuestSessionResponse
+from app.schemas import (EmailVerificationByCode, GoogleLoginRequest,
+                         GuestSessionRequest, GuestSessionResponse,
+                         PasswordResetByCode, PasswordResetConfirm,
+                         PasswordResetRequest, RefreshRequest,
+                         ResendVerificationCode, Token, UserCreate,
+                         UserPublic)
 from app.services.user_service import UserService
 from fastapi import APIRouter, Body, Depends, HTTPException, status, Response
 from fastapi.security import OAuth2PasswordRequestForm
@@ -134,6 +139,49 @@ async def login(
         ),
         "refresh_token": refresh_token,
         "token_type": "bearer",
+        "guest_id": user.guest_id,
+    }
+
+
+@router.post("/google", response_model=Token)
+async def google_login(
+    *,
+    db: AsyncDB,
+    google_login_in: GoogleLoginRequest,
+) -> dict:
+    """
+    Login or signup using a Google ID token.
+    """
+    service = UserService(db)
+    try:
+        user = await service.authenticate_google_user(
+            id_token=google_login_in.id_token,
+            guest_id=google_login_in.guest_id,
+        )
+    except ValueError as error:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(error),
+        )
+
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = security.create_access_token(
+        user.id,
+        expires_delta=access_token_expires,
+        guest_id=user.guest_id,
+        is_registered=user.is_registered,
+    )
+    refresh_token = security.create_refresh_token(
+        user.id,
+        guest_id=user.guest_id,
+        is_registered=user.is_registered,
+    )
+
+    return {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "token_type": "bearer",
+        "guest_id": user.guest_id,
     }
 
 
@@ -251,7 +299,9 @@ async def refresh_token(
             guest_id=user.guest_id,
             is_registered=user.is_registered
         ),
+        "refresh_token": refresh_in.refresh_token,
         "token_type": "bearer",
+        "guest_id": user.guest_id,
     }
 
 

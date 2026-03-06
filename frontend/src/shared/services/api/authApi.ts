@@ -33,6 +33,11 @@ export interface ResendVerificationCode {
   code_type: 'email_confirm' | 'password_reset';
 }
 
+export interface GoogleLoginRequest {
+  id_token: string;
+  guest_id?: string;
+}
+
 export class AuthApi extends BaseApi {
   /**
    * Create a guest session
@@ -54,6 +59,13 @@ export class AuthApi extends BaseApi {
     });
     
     return response.data;
+  }
+
+  /**
+   * Login or signup with Google ID token
+   */
+  async loginWithGoogle(request: GoogleLoginRequest): Promise<TokenResponse> {
+    return this.post<TokenResponse>('/auth/google', request);
   }
 
   /**

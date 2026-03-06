@@ -13,6 +13,7 @@ x-backend-variables: &backend-variables
   <<: *common-variables
   APP_API_KEY: ${APP_API_KEY}
   SECRET_KEY: ${SECRET_KEY}
+  GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
   ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES}
   REFRESH_TOKEN_EXPIRE_MINUTES: ${REFRESH_TOKEN_EXPIRE_MINUTES}
   EMAIL_HOST: smtp.timeweb.ru
@@ -70,12 +71,12 @@ services:
       - app-network
       - backend-network
     ports:
-      - "8001:8000"
+      - "${BACKEND_HOST_PORT:-8001}:8000"
 
   postgres:
     image: postgres:15-alpine
     ports:
-      - "5432:5432"
+      - "${POSTGRES_HOST_PORT:-5432}:5432"
     environment:
       <<: *common-variables
     volumes:
@@ -92,7 +93,7 @@ services:
   redis:
     image: redis:7-alpine
     ports:
-      - "6379:6379"
+      - "${REDIS_HOST_PORT:-6379}:6379"
     volumes:
       - redis_data:/data
     healthcheck:

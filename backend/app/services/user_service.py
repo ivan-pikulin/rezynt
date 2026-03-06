@@ -1,6 +1,10 @@
-from typing import Optional, Tuple
+import asyncio
+from typing import Any, Optional, Tuple
 from itsdangerous import URLSafeTimedSerializer
 from sqlalchemy.ext.asyncio import AsyncSession
+from google.auth.exceptions import GoogleAuthError
+from google.auth.transport import requests as google_requests
+from google.oauth2 import id_token as google_id_token
 
 from app.core.config import settings
 from app.core.verification import verification_generator
@@ -204,4 +208,95 @@ class UserService:
 
     async def authenticate_user(self, email: str, password: str) -> Optional[User]:
         """Authenticates user"""
-        return await user_crud.authenticate(self.db, email=email, password=password) 
+        return await user_crud.authenticate(self.db, email=email, password=password)
+
+    async def _verify_google_id_token(self, id_token: str) -> dict[str, Any]:
+        if not settings.GOOGLE_CLIENT_ID:
+            raise ValueError("Google authentication is not configured")
+
+        def _verify() -> dict[str, Any]:
+            request = google_requests.Request()
+            return google_id_token.verify_oauth2_token(
+                id_token,
+                request,
+                settings.GOOGLE_CLIENT_ID
+            )
+
+        try:
+            return await asyncio.to_thread(_verify)
+        except GoogleAuthError as error:
+            self.logger.warning(f"Google token issuer validation failed: {error}")
+            raise ValueError("Invalid Google token issuer")
+        except ValueError as error:
+            self.logger.warning(f"Google token validation failed: {error}")
+            raise ValueError("Invalid Google token")
+        except Exception as error:
+            self.logger.error(f"Unexpected Google token verification error: {error}")
+            raise ValueError("Failed to verify Google token")
+
+    async def authenticate_google_user(self, *, id_token: str, guest_id: Optional[str] = None) -> User:
+        payload = await self._verify_google_id_token(id_token)
+
+        google_sub = payload.get("sub")
+        email = payload.get("email")
+        email_verified = payload.get("email_verified")
+        first_name = payload.get("given_name")
+        last_name = payload.get("family_name")
+
+        if not google_sub or not email:
+            raise ValueError("Google token is missing required user data")
+
+        if isinstance(email_verified, str):
+            email_verified = email_verified.lower() == "true"
+        if email_verified is not True:
+            raise ValueError("Google email is not verified")
+
+        user_by_google_sub = await user_crud.get_by_google_sub(self.db, google_sub=google_sub)
+        if user_by_google_sub:
+            return await user_crud.link_google_account(
+                self.db,
+                user=user_by_google_sub,
+                google_sub=google_sub,
+                email=email,
+                first_name=first_name,
+                last_name=last_name,
+            )
+
+        user_by_email = await user_crud.get_by_email(self.db, email=email)
+        if user_by_email:
+            return await user_crud.link_google_account(
+                self.db,
+                user=user_by_email,
+                google_sub=google_sub,
+                email=email,
+                first_name=first_name,
+                last_name=last_name,
+            )
+
+        guest_user = None
+        guest_id_for_new_user = None
+        if guest_id:
+            user_with_guest_id = await user_crud.get_by_guest_id(self.db, guest_id=guest_id)
+            if user_with_guest_id and not user_with_guest_id.is_registered:
+                guest_user = user_with_guest_id
+            elif not user_with_guest_id:
+                guest_id_for_new_user = guest_id
+
+        if guest_user:
+            return await user_crud.link_google_account(
+                self.db,
+                user=guest_user,
+                google_sub=google_sub,
+                email=email,
+                first_name=first_name,
+                last_name=last_name,
+            )
+
+        return await user_crud.create_google_user(
+            self.db,
+            email=email,
+            google_sub=google_sub,
+            first_name=first_name,
+            last_name=last_name,
+            guest_id=guest_id_for_new_user,
+        )

@@ -142,3 +142,8 @@ class GuestSessionResponse(BaseModel):
     refresh_token: str
     token_type: str
     guest_id: str
+
+
+class GoogleLoginRequest(BaseModel):
+    id_token: str
+    guest_id: Optional[str] = None

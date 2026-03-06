@@ -5,6 +5,7 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Link from '@mui/material/Link';
 import Alert from '@mui/material/Alert';
+import Divider from '@mui/material/Divider';
 import InputAdornment from '@mui/material/InputAdornment';
 import IconButton from '@mui/material/IconButton';
 import Visibility from '@mui/icons-material/Visibility';
@@ -15,10 +16,12 @@ import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import { authApi } from '../../../shared/services/api';
+import { tokenService } from '../../../shared/services/api/tokenService';
 import { LoginCredentials } from '../types/auth';
 import { useAuthContext } from '../../../shared/contexts/AuthContext';
 import GradientSpinnerAnimation from '../../../shared/components/GradientSpinnerAnimation';
 import { ga4Service } from '../../../shared/services/ga4Service';
+import GoogleSignInButton from './GoogleSignInButton';
 
 interface LoginFormProps {
   onSuccess: () => void;
@@ -77,6 +80,29 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, onSwitchToSignup, onSw
       }
     },
   });
+
+  const handleGoogleLogin = async (idToken: string) => {
+    setIsLoading(true);
+    setError('');
+
+    try {
+      const guestId = tokenService.getGuestId();
+      const tokens = await authApi.loginWithGoogle({
+        id_token: idToken,
+        guest_id: guestId || undefined,
+      });
+
+      login(tokens);
+      queryClient.invalidateQueries({ queryKey: ['resume'] });
+      ga4Service.trackLogin('google');
+      onSuccess();
+    } catch (err: any) {
+      console.error('Google login error:', err);
+      setError(err.response?.data?.detail || t('auth.google.loginError'));
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <Box component="form" onSubmit={formik.handleSubmit} sx={{ mt: 1 }}>
@@ -150,6 +176,9 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, onSwitchToSignup, onSw
       >
         {isLoading ? <GradientSpinnerAnimation size={24} /> : t('auth.login.submit')}
       </Button>
+
+      <Divider sx={{ mb: 2 }}>{t('auth.google.orContinueWith')}</Divider>
+      <GoogleSignInButton onCredential={handleGoogleLogin} disabled={isLoading} text="continue_with" />
       
       <Box sx={{ textAlign: 'center' }}>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>

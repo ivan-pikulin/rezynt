@@ -14,6 +14,8 @@ class User(Base):
     first_name = Column(String(100), nullable=True)
     last_name = Column(String(100), nullable=True)
     guest_id = Column(String(36), unique=True, nullable=True, index=True)
+    auth_provider = Column(String(20), nullable=False, default="email", server_default="email")
+    google_sub = Column(String(255), unique=True, nullable=True, index=True)
     is_verified = Column(Boolean, default=False, nullable=False)
     is_premium = Column(Boolean, default=False, nullable=False)
     is_registered = Column(Boolean, default=True, nullable=False)

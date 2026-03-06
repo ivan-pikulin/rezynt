@@ -31,6 +31,13 @@
       "invalidEmail": "Por favor, insira um e-mail válido",
       "loginError": "Erro ao fazer login. Por favor, verifique seu e-mail e senha."
     },
+    "google": {
+      "orContinueWith": "ou continue com",
+      "loginError": "Falha no login com Google. Tente novamente.",
+      "loadError": "Nao foi possivel carregar o Google Sign-In. Atualize a pagina.",
+      "invalidCredential": "O Google nao retornou uma credencial valida.",
+      "missingClientId": "Google Sign-In nao esta configurado para este ambiente."
+    },
     "page": {
       "loginTitle": "Entrar",
       "signupTitle": "Cadastre-se",
@@ -602,4 +609,3 @@
     }
   }
 }
-
