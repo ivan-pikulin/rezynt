@@ -12,7 +12,7 @@ React/Vite приложение в `frontend/`.
 - `src/features/export` - экспорт и оплата.
 - `src/features/profile` - настройки профиля.
 - `src/features/landing` - публичный landing, который рендерится на `/`.
-- `src/features/landing-concept` - экспериментальный landing на `/landing-concept`.
+- `src/features/landing-concept` - экспериментальный landing на `/landing-concept` с встроенным builder questionnaire.
 - `src/features/legal` - privacy / terms страницы.
 
 ## Важное

@@ -4,11 +4,7 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { COLORS } from "../../shared/theme/theme";
 import "./LandingConceptPage.css";
-
-type CardCopy = {
-  title: string;
-  body: string;
-};
+import LandingConceptQuestionnaire from "./LandingConceptQuestionnaire";
 
 const landingConceptVars: React.CSSProperties & Record<string, string> = {
   "--lc-bg": COLORS.landing.background,
@@ -46,81 +42,9 @@ const landingConceptVars: React.CSSProperties & Record<string, string> = {
 function LandingConceptPage() {
   const { t } = useTranslation();
 
-  const painItems = useMemo<CardCopy[]>(
-    () => [
-      {
-        title: t("landingConcept.pain.items.0.title"),
-        body: t("landingConcept.pain.items.0.body"),
-      },
-      {
-        title: t("landingConcept.pain.items.1.title"),
-        body: t("landingConcept.pain.items.1.body"),
-      },
-      {
-        title: t("landingConcept.pain.items.2.title"),
-        body: t("landingConcept.pain.items.2.body"),
-      },
-    ],
-    [t],
-  );
-
-  const benefitItems = useMemo<CardCopy[]>(
-    () => [
-      {
-        title: t("landingConcept.benefits.items.0.title"),
-        body: t("landingConcept.benefits.items.0.body"),
-      },
-      {
-        title: t("landingConcept.benefits.items.1.title"),
-        body: t("landingConcept.benefits.items.1.body"),
-      },
-      {
-        title: t("landingConcept.benefits.items.2.title"),
-        body: t("landingConcept.benefits.items.2.body"),
-      },
-      {
-        title: t("landingConcept.benefits.items.3.title"),
-        body: t("landingConcept.benefits.items.3.body"),
-      },
-    ],
-    [t],
-  );
-
-  const productSteps = useMemo<CardCopy[]>(
-    () => [
-      {
-        title: t("landingConcept.product.steps.0.title"),
-        body: t("landingConcept.product.steps.0.body"),
-      },
-      {
-        title: t("landingConcept.product.steps.1.title"),
-        body: t("landingConcept.product.steps.1.body"),
-      },
-      {
-        title: t("landingConcept.product.steps.2.title"),
-        body: t("landingConcept.product.steps.2.body"),
-      },
-      {
-        title: t("landingConcept.product.steps.3.title"),
-        body: t("landingConcept.product.steps.3.body"),
-      },
-    ],
-    [t],
-  );
-
-  const offerBullets = useMemo(
-    () => [
-      t("landingConcept.offer.items.0"),
-      t("landingConcept.offer.items.1"),
-      t("landingConcept.offer.items.2"),
-    ],
-    [t],
-  );
-
   const heroBadges = useMemo(
     () => [
-      t("landingConcept.hero.badges.1"),
-      t("landingConcept.hero.badges.2"),
+      t("landingConcept.hero.badges.0"),
     ],
     [t],
   );
@@ -205,10 +129,7 @@ function LandingConceptPage() {
           </Link>
 
           <nav className="lc-nav" aria-label={t("landingConcept.nav.label")}>
-            <a href="#pain">{t("landingConcept.nav.pain")}</a>
-            <a href="#benefits">{t("landingConcept.nav.benefits")}</a>
-            <a href="#product">{t("landingConcept.nav.product")}</a>
-            <a href="#offer">{t("landingConcept.nav.offer")}</a>
+            <a href="#builder">{t("landingConcept.nav.builder")}</a>
           </nav>
         </div>
       </header>
@@ -238,7 +159,7 @@ function LandingConceptPage() {
                     <article className="lc-flow__step" aria-label={step.title}>
                       <div className="lc-flow__step-top">
                         <div className="lc-flow__step-index">0{index + 1}</div>
-                        <div className="lc-flow__step-visual" aria-hidden="true" />
+                        <div className="lc-flow__step-label">{step.title}</div>
                       </div>
                       <div className={`lc-flow__art lc-flow__art--${index + 1}`} aria-hidden="true">
                         {index === 0 ? (
@@ -266,7 +187,6 @@ function LandingConceptPage() {
                           </div>
                         )}
                       </div>
-                      <div className="lc-flow__caption">{step.title}</div>
                       <span className="lc-sr-only">{step.body}</span>
                     </article>
                     {index < heroFlow.length - 1 ? <div className="lc-flow__arrow" aria-hidden="true" /> : null}
@@ -275,200 +195,11 @@ function LandingConceptPage() {
               </div>
             </div>
 
-            <div className="lc-hero__stats">
-              {[0, 1, 2].map((index) => (
-                <article key={index} className="lc-stat">
-                  <div className="lc-stat__value">{t(`landingConcept.hero.stats.${index}.value`)}</div>
-                  <div className="lc-stat__label">{t(`landingConcept.hero.stats.${index}.label`)}</div>
-                </article>
-              ))}
-            </div>
-          </div>
-
-          <div className="lc-hero__visual" data-lc-reveal>
-            <div className="lc-desk">
-              <div className="lc-paper">
-                <div className="lc-paper__top">
-                  <div>
-                    <div className="lc-paper__eyebrow">{t("landingConcept.hero.mock.eyebrow")}</div>
-                    <div className="lc-paper__title">{t("landingConcept.hero.mock.title")}</div>
-                  </div>
-                  <div className="lc-score">
-                    <span className="lc-score__label">{t("landingConcept.hero.mock.scoreLabel")}</span>
-                    <span className="lc-score__value">{t("landingConcept.hero.mock.scoreValue")}</span>
-                  </div>
-                </div>
-
-                <div className="lc-paper__lines">
-                  <span className="lc-paper__line lc-paper__line--wide" />
-                  <span className="lc-paper__line" />
-                  <span className="lc-paper__line lc-paper__line--short" />
-                </div>
-
-                <div className="lc-paper__footer">
-                  <span>{t("landingConcept.hero.mock.footerLeft")}</span>
-                  <span>{t("landingConcept.hero.mock.footerRight")}</span>
-                </div>
-              </div>
-
-              <div className="lc-note lc-note--top">{t("landingConcept.hero.mock.noteTop")}</div>
-              <div className="lc-note lc-note--bottom">{t("landingConcept.hero.mock.noteBottom")}</div>
-            </div>
           </div>
         </div>
       </section>
 
-      <section id="pain" className="lc-section lc-section--soft">
-        <div className="lc-shell">
-          <div className="lc-section__head" data-lc-reveal>
-            <div className="lc-section__eyebrow">{t("landingConcept.pain.eyebrow")}</div>
-            <h2 className="lc-section__title">{t("landingConcept.pain.title")}</h2>
-            <p className="lc-section__lead">{t("landingConcept.pain.subtitle")}</p>
-          </div>
-
-          <div className="lc-pain-grid">
-            {painItems.map((item, index) => (
-              <article className="lc-card lc-pain-card" key={item.title} data-lc-reveal style={{ "--lc-delay": `${index * 90}ms` } as React.CSSProperties & Record<string, string>}>
-                <div className="lc-card__index">0{index + 1}</div>
-                <h3>{item.title}</h3>
-                <p>{item.body}</p>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section id="benefits" className="lc-section">
-        <div className="lc-shell lc-benefits">
-          <div className="lc-section__head" data-lc-reveal>
-            <div className="lc-section__eyebrow">{t("landingConcept.benefits.eyebrow")}</div>
-            <h2 className="lc-section__title">{t("landingConcept.benefits.title")}</h2>
-            <p className="lc-section__lead">{t("landingConcept.benefits.subtitle")}</p>
-          </div>
-
-          <div className="lc-benefits__grid">
-            {benefitItems.map((item, index) => (
-              <article className="lc-card lc-benefit-card" key={item.title} data-lc-reveal style={{ "--lc-delay": `${index * 80}ms` } as React.CSSProperties & Record<string, string>}>
-                <div className="lc-benefit-card__tag">{t(`landingConcept.benefits.items.${index}.tag`)}</div>
-                <h3>{item.title}</h3>
-                <p>{item.body}</p>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section id="product" className="lc-section lc-section--product">
-        <div className="lc-shell lc-product">
-          <div className="lc-product__copy" data-lc-reveal>
-            <div className="lc-section__eyebrow">{t("landingConcept.product.eyebrow")}</div>
-            <h2 className="lc-section__title">{t("landingConcept.product.title")}</h2>
-            <p className="lc-section__lead">{t("landingConcept.product.subtitle")}</p>
-
-            <div className="lc-product__steps">
-              {productSteps.map((step, index) => (
-                <article className="lc-step" key={step.title}>
-                  <div className="lc-step__marker">0{index + 1}</div>
-                  <div>
-                    <h3>{step.title}</h3>
-                    <p>{step.body}</p>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </div>
-
-          <div className="lc-product__visual" data-lc-reveal>
-            <div className="lc-analysis">
-              <div className="lc-analysis__rail">
-                <div className="lc-analysis__chip">{t("landingConcept.product.mock.railTop")}</div>
-                <div className="lc-analysis__score">
-                  <span>{t("landingConcept.product.mock.scoreLabel")}</span>
-                  <strong>{t("landingConcept.product.mock.scoreValue")}</strong>
-                </div>
-                <div className="lc-analysis__bars">
-              {[0, 1, 2].map((index) => (
-                <div className="lc-analysis__bar" key={index}>
-                  <span>{t(`landingConcept.product.mock.metrics.${index}.label`)}</span>
-                  <div className="lc-analysis__track">
-                    <i style={{ width: t(`landingConcept.product.mock.metrics.${index}.width`) }} />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="lc-sheet">
-                <div className="lc-sheet__head">
-                  <div>
-                    <div className="lc-sheet__eyebrow">{t("landingConcept.product.mock.sheetEyebrow")}</div>
-                    <div className="lc-sheet__title">{t("landingConcept.product.mock.sheetTitle")}</div>
-                  </div>
-                  <div className="lc-sheet__pill">{t("landingConcept.product.mock.sheetPill")}</div>
-                </div>
-
-                <div className="lc-sheet__sections">
-                  {[0, 1, 2].map((index) => (
-                    <div className="lc-sheet__section" key={index}>
-                      <div className="lc-sheet__label">{t(`landingConcept.product.mock.sections.${index}.label`)}</div>
-                      <div className="lc-sheet__line lc-sheet__line--wide" />
-                      <div className="lc-sheet__line" />
-                      <div className="lc-sheet__line lc-sheet__line--short" />
-                    </div>
-                  ))}
-                </div>
-
-                <div className="lc-sheet__footer">
-                  <span>{t("landingConcept.product.mock.footerLeft")}</span>
-                  <span>{t("landingConcept.product.mock.footerRight")}</span>
-                </div>
-              </div>
-
-              <div className="lc-floating lc-floating--left">{t("landingConcept.product.mock.noteLeft")}</div>
-              <div className="lc-floating lc-floating--right">{t("landingConcept.product.mock.noteRight")}</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="offer" className="lc-section lc-section--offer">
-        <div className="lc-shell">
-          <div className="lc-offer" data-lc-reveal>
-            <div className="lc-offer__copy">
-              <div className="lc-section__eyebrow">{t("landingConcept.offer.eyebrow")}</div>
-              <h2 className="lc-section__title">{t("landingConcept.offer.title")}</h2>
-              <p className="lc-section__lead">{t("landingConcept.offer.subtitle")}</p>
-            </div>
-
-            <div className="lc-offer__panel">
-              <ul className="lc-offer__list">
-                {offerBullets.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-
-              <p className="lc-offer__note">{t("landingConcept.offer.note")}</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <footer className="lc-footer">
-        <div className="lc-shell lc-footer__inner">
-          <img
-            src="/rezynt-logo-with-name.svg"
-            alt="Rezynt"
-            className="lc-footer__brand"
-            width="206"
-            height="52"
-          />
-          <div className="lc-footer__links">
-            <a href="mailto:team@rezynt.com">{t("landingConcept.footer.email")}</a>
-            <Link to="/privacy-policy.html">{t("landingConcept.footer.links.privacy")}</Link>
-            <Link to="/terms-of-service.html">{t("landingConcept.footer.links.terms")}</Link>
-          </div>
-        </div>
-      </footer>
+      <LandingConceptQuestionnaire />
     </main>
   );
 }
