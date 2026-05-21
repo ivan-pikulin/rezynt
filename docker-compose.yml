@@ -46,7 +46,6 @@ services:
     depends_on:
       - backend
       - frontend
-      - landing
     networks:
       - app-network
       - backend-network
@@ -79,16 +78,6 @@ services:
       VITE_PUBLIC_POSTHOG_HOST: ${VITE_PUBLIC_POSTHOG_HOST}
     depends_on:
       - backend
-    networks:
-      - app-network
-
-  landing:
-    image: nginx:alpine
-    expose:
-      - "80"
-    volumes:
-      - ./landing_html:/usr/share/nginx/html:ro
-      - ./nginx/landing.conf:/etc/nginx/conf.d/default.conf:ro
     networks:
       - app-network
 

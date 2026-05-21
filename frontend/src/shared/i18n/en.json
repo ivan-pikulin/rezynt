@@ -675,5 +675,174 @@
       "preview": "Preview",
       "progress": "Progress"
     }
+  },
+  "legal": {
+    "back": "Back to home",
+    "privacy": {
+      "badge": "Privacy",
+      "title": "Privacy Policy",
+      "subtitle": "We keep data handling deliberately simple: we only collect what is needed to run the product, improve the experience, and support your resume workflow.",
+      "sections": [
+        {
+          "title": "What we collect",
+          "body": "We collect account details, resume content, usage events, and technical data required to operate the service. We do not sell personal data."
+        },
+        {
+          "title": "How we use it",
+          "body": "We use data to provide the resume builder, store your progress, analyze product quality, and prevent abuse. Access is limited to what is needed for these purposes."
+        }
+      ]
+    },
+    "terms": {
+      "badge": "Terms",
+      "title": "Terms of Service",
+      "subtitle": "Use Rezynt responsibly and keep your account secure. These terms summarize the basic rules for using the service.",
+      "sections": [
+        {
+          "title": "Acceptable use",
+          "body": "Do not upload unlawful content, attempt to break the service, or use the platform in a way that violates laws or harms other users."
+        },
+        {
+          "title": "Service limits",
+          "body": "We may update features, pricing, and availability over time. Some capabilities can be limited by plan, account status, or operational constraints."
+        }
+      ]
+    }
+  },
+  "landing": {
+    "meta": {
+      "title": "ATS-optimized resume in 5 minutes - Rezynt",
+      "description": "Turn job hunting into job winning. AI helps shape your story into what hiring managers actually want to hear."
+    },
+    "nav": {
+      "howItWorks": "How it works",
+      "benefits": "Benefits",
+      "pricing": "Pricing",
+      "faq": "FAQ",
+      "login": "Log in",
+      "cta": "Start free"
+    },
+    "hero": {
+      "badge": "AI RESUME BUILDER",
+      "title": "ATS-optimized resume in 5 minutes",
+      "subtitleLead": "Turn job hunting into job winning.",
+      "subtitleTail": "AI helps shape your story into what hiring managers actually want to hear.",
+      "upload": {
+        "title": "Upgrade your resume",
+        "subtitle": "Just click or drop your resume to get started",
+        "notePrefix": "Do not have a resume?",
+        "noteLink": "Build it from scratch!",
+        "allowedFormats": "Allowed formats: pdf, docx, doc",
+        "error": "Upload failed. Please try again."
+      },
+      "showcase": {
+        "badges": {
+          "top": "ATS Compliant",
+          "bottom": "5 min Readiness"
+        },
+        "scoreAlt": "94 Score Excellent"
+      }
+    },
+    "pain": {
+      "title": "The job search shouldn't feel this painful",
+      "items": {
+        "0": {
+          "title": "WRITING THAT GOES NOWHERE",
+          "body": "You spend hours trying to write the perfect resume — rewriting, second-guessing, starting over. It still doesn't feel right."
+        },
+        "1": {
+          "title": "NO CALLS, NO INTERVIEWS",
+          "body": "You send it out again and again. Days pass. Nothing. Not even a rejection. Just silence."
+        },
+        "2": {
+          "title": "TIME IS MONEY — AND YOU'RE LOSING BOTH",
+          "body": "Every day without a job offer is a missed paycheck — and it's draining your motivation."
+        }
+      }
+    },
+    "solution": {
+      "text": "We turn painful job hunts into interview invites — with an AI that builds your resume for you."
+    },
+    "process": {
+      "title": "Your Next Job Starts in 4 Steps",
+      "subtitle": "Let AI build your resume, highlight your strengths, and help you stand out — fast.",
+      "items": {
+        "0": {
+          "title": "Upload Your Resume",
+          "body": "Start with your current resume or build one from scratch."
+        },
+        "1": {
+          "title": "Get Instant Score & Suggestions",
+          "body": "AI reviews your resume in seconds — running 200+ checks and highlighting exactly what to fix and how."
+        },
+        "2": {
+          "title": "Apply Fixes Effortlessly",
+          "body": "Apply AI-powered suggestions with a click. For incomplete sections, we'll highlight what's missing and help you fill it in — your resume updates instantly."
+        },
+        "3": {
+          "title": "Choose Template & Download",
+          "body": "Choose from our proven, high-converting templates and export your upgraded resume as a polished PDF."
+        }
+      },
+      "visual": {
+        "title": "Resume preview",
+        "lowScoreAlt": "Initial score",
+        "highScoreAlt": "Improved score",
+        "improvementAlt": "Improvement suggestion"
+      }
+    },
+    "benefits": {
+      "title": "What You Get",
+      "items": {
+        "0": {
+          "title": "Resume in Minutes",
+          "body": "Create or improve your resume from upload to perfection in under 5 minutes."
+        },
+        "1": {
+          "title": "AI Resume Rewrite",
+          "body": "Transform your existing resume into a recruiter-magnet version using advanced AI rewriting."
+        },
+        "2": {
+          "title": "Instant Resume Insights",
+          "body": "Get real-time clarity on weak points: missing skills, poor phrasing, or structure issues."
+        },
+        "3": {
+          "title": "One-Click Polishing",
+          "body": "Fix grammar, tone, and flow instantly with automatic AI enhancements."
+        },
+        "4": {
+          "title": "ATS Keyword Optimization",
+          "body": "AI scans job listings and adjusts your wording to boost interview chances."
+        },
+        "5": {
+          "title": "Performance-Backed Templates",
+          "body": "Use layouts designed from resumes that actually landed interviews."
+        }
+      }
+    },
+    "pricing": {
+      "title": "Ready to land your next interview?",
+      "subtitle": "Get your ATS-optimized resume today.",
+      "price": "$40",
+      "period": "/ 3 months",
+      "terms": "One-time payment · No auto-renewal · No hidden fees",
+      "cta": "Start Building",
+      "previewAlt": "Professional Resume Example",
+      "scoreAlt": "Excellent Score",
+      "features": {
+        "0": "Unlimited AI Analysis",
+        "1": "Smart improvement suggestions",
+        "2": "Polished PDF download",
+        "3": "Priority support"
+      }
+    },
+    "footer": {
+      "copy": "© All rights reserved",
+      "email": "team@rezynt.com",
+      "links": {
+        "privacy": "Privacy Policy",
+        "terms": "Terms of Service"
+      }
+    }
   }
 }

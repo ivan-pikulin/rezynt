@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React, { useEffect } from 'react';
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import { AuthProvider } from './shared/contexts/AuthContext';
+import DomainAwareHome from './shared/components/DomainAwareHome';
 import ProtectedRoute from './shared/components/ProtectedRoute';
 import OnboardingGuard from './shared/components/OnboardingGuard';
 import PublicOnboardingGuard from './shared/components/PublicOnboardingGuard';
@@ -26,11 +27,11 @@ const PasswordResetVerificationPage = React.lazy(() => import('./features/auth/P
 const RequestPasswordResetPage = React.lazy(() => import('./features/auth/RequestPasswordResetPage'));
 const ResetPasswordPage = React.lazy(() => import('./features/auth/ResetPasswordPage'));
 const OnboardingPage = React.lazy(() => import('./features/onboarding/OnboardingPage'));
-const HomeRedirect = React.lazy(() => import('./shared/components/HomeRedirect'));
 const PaymentSuccessPage = React.lazy(() => import('./features/export/PaymentSuccessPage'));
 const BuilderPage = React.lazy(() => import('./features/builder/BuilderPage'));
 const ProfileSettingsPage = React.lazy(() => import('./features/profile/ProfileSettingsPage'));
 const UpgradePage = React.lazy(() => import('./features/upgrade/UpgradePage'));
+const LegalPage = React.lazy(() => import('./features/legal/LegalPage'));
 
 function AppRoutes() {
   // Track page views automatically
@@ -49,16 +50,8 @@ function AppRoutes() {
     }>
       <Routes>
         {/* Public routes */}
-        <Route path="/login" element={
-          <ProtectedRoute requireAuth={false}>
-            <LoginPage />
-          </ProtectedRoute>
-        } />
-        <Route path="/signup" element={
-          <ProtectedRoute requireAuth={false}>
-            <SignupPage />
-          </ProtectedRoute>
-        } />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
         <Route path="/auth/email-confirmed" element={<EmailConfirmationPage />} />
         <Route path="/auth/email-confirmation-error" element={<EmailConfirmationPage />} />
         <Route path="/auth/verify-email" element={<EmailVerificationPage />} />
@@ -110,8 +103,12 @@ function AppRoutes() {
             </OnboardingGuard>
           </ProtectedRoute>
         } />
-        
-        <Route path="/" element={<HomeRedirect />} />
+        <Route path="/privacy" element={<LegalPage kind="privacy" />} />
+        <Route path="/terms" element={<LegalPage kind="terms" />} />
+        <Route path="/privacy-policy.html" element={<LegalPage kind="privacy" />} />
+        <Route path="/terms-of-service.html" element={<LegalPage kind="terms" />} />
+
+        <Route path="/" element={<DomainAwareHome />} />
       </Routes>
     </React.Suspense>
   );

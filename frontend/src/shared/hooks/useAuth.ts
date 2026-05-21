@@ -35,14 +35,8 @@ export const useAuth = (): UseAuthReturn => {
         const refreshToken = tokenService.getRefreshToken();
 
         if (!accessToken || !refreshToken) {
-          try {
-            const userData = await userApi.getCurrentUser();
-            setIsAuthenticated(true);
-            setUser(userData);
-          } catch (error) {
-            setIsAuthenticated(false);
-            setUser(null);
-          }
+          setIsAuthenticated(false);
+          setUser(null);
           setIsLoading(false);
           return;
         }

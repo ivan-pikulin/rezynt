@@ -98,7 +98,6 @@ baseApi.interceptors.response.use(
         }
       } catch (refreshError) {
         tokenService.clearTokens();
-        window.location.href = '/login';
         return Promise.reject(refreshError);
       }
     }
@@ -217,4 +216,4 @@ export class BaseApi {
   }
 }
 
-export default baseApi; 
+export default baseApi;
