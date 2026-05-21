@@ -11,13 +11,14 @@ React/Vite приложение в `frontend/`.
 - `src/features/refine` - AI review и улучшение резюме.
 - `src/features/export` - экспорт и оплата.
 - `src/features/profile` - настройки профиля.
-- `src/features/landing` - порт legacy landing из старого `landing/` проекта.
+- `src/features/landing` - публичный landing, который рендерится на `/`.
+- `src/features/landing-concept` - экспериментальный landing на `/landing-concept`.
 - `src/features/legal` - privacy / terms страницы.
 
 ## Важное
 
-- Публичный `"/"` рендерит landing через `DomainAwareHome`.
+- Публичный `"/"` рендерит landing через `DomainAwareHome`, а `/landing-concept` доступен как отдельный экспериментальный маршрут.
 - Все UI-строки лежат в `src/shared/i18n`.
 - Все цвета и токены для landing заведены в `src/shared/theme/theme.ts`.
 
-Последнее обновление: 2026-05-21
+Последнее обновление: 2026-05-22

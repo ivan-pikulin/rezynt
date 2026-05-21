@@ -205,9 +205,9 @@ Backend AI service integrates with OpenAI API for resume enhancement and content
 ## Important Development Rules
 
 ### General Rules
-1. Each meaningful folder contains `spec.xml` with feature descriptions and technical specifications. Always read these files to understand code structure.
-2. **When you change code, you MUST update the corresponding `spec.xml`** to reflect the present code state.
-3. When adding functionality described in spec.xml, use minimal changes - add new functionality and keep existing structure.
+1. Each meaningful domain is documented in `.memory_bank`; always read the relevant memory bank files before changing code.
+2. **When you change code, you MUST update the corresponding `.memory_bank` docs** to reflect the present code state.
+3. When adding functionality described in Memory Bank, use minimal changes - add new functionality and keep existing structure.
 4. All code runs on a remote server. NEVER try to find Docker containers locally. Analyze docker-compose.yml and .github workflows instead.
 
 ### Frontend Rules

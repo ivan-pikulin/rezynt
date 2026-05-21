@@ -1,9 +1,0 @@
-<spec>
-  <feature name="legal">
-    <purpose>Simple legal information pages linked from the public landing footer.</purpose>
-    <pages>
-      <page name="privacy">Explains data collection and use in concise sections.</page>
-      <page name="terms">Summarizes acceptable use and service limits.</page>
-    </pages>
-  </feature>
-</spec>
