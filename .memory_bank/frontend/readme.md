@@ -27,6 +27,7 @@
 
 ## Что читать по темам
 
+- [`../DESIGN.md`](../DESIGN.md)
 - [`auth.md`](./auth.md)
 - [`onboarding.md`](./onboarding.md)
 - [`start.md`](./start.md)
