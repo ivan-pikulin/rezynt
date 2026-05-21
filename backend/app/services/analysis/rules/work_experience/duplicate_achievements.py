@@ -51,15 +51,15 @@ class DuplicateAchievementsRule(BaseRule):
             for path, info in achievements_data.items()
         ])
         
-        prompt = f"""Analyze these achievements from different work positions. Identify achievements that are duplicates or very similar across different positions.
+        prompt = f"""Проанализируйте эти достижения с разных рабочих позиций. Определите достижения, которые повторяются или очень похожи на разных позициях.
 
-Achievements:
+Достижения:
 {achievements_text}
 
-Return a JSON object with:
-- "duplicate_groups": list of groups, where each group contains "field_paths" (list) and "suggested_unique_texts" (list of unique formulations for each position)
+Верните объект JSON с помощью:
+- "duplicate_groups": список групп, где каждая группа содержит "field_paths" (список) и "suggested_unique_texts" (список уникальных формулировок для каждой позиции)
 
-If no duplicates found, return empty duplicate_groups list."""
+Если дубликаты не найдены, верните пустой список дубликатов_групп."""
         
         try:
             result = await llm_helper.call_llm_structured(prompt, max_tokens=1000)
@@ -86,8 +86,8 @@ If no duplicates found, return empty duplicate_groups list."""
                                 
                                 points.append(self.create_point(
                                     field_path=field_path,
-                                    title="Duplicate Achievement",
-                                    description="Make this achievement unique to this position",
+                                    title="Повторяющееся достижение",
+                                    description="Сделайте это достижение уникальным для этой должности",
                                     fix_suggestion=fix_suggestion
                                 ))
                 except json.JSONDecodeError:

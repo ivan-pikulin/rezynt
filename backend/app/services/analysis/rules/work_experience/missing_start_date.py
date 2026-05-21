@@ -25,8 +25,8 @@ class MissingStartDateRule(BaseRule):
                 company = exp.get('company', 'this position')
                 points.append(self.create_point(
                     field_path=f"work_experience[{i}].start_date",
-                    title="Missing Start Date",
-                    description=f"Add start date for {company}"
+                    title="Отсутствует дата начала",
+                    description=f"Добавить дату начала для {company}"
                 ))
         
         return points

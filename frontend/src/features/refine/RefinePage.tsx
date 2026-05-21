@@ -31,7 +31,7 @@ const RefinePage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useUser();
   const { user: authUser, isAuthenticated, isLoading: authLoading } = useAuth();
-  
+
   // No more resume_id in URL - each user has one resume
   // Wait for auth to load before attempting to load resume
   const { resume, isLoading: loading, error: queryError, updateResumeInCache } = useResumeQuery(false);
@@ -47,25 +47,25 @@ const RefinePage: React.FC = () => {
   const [taskPollingError, setTaskPollingError] = useState<string | null>(null);
   const editorRef = useRef<EditorAccordionHandle>(null);
   const resumeRef = useRef<Resume | null>(null);
-  
+
   // Track dismissed/applied improvement points for dynamic score recalculation
   const [dismissedPointIds, setDismissedPointIds] = useState<Set<string>>(new Set());
-  
+
   // Auto-save state
   const [lastSavedResume, setLastSavedResume] = useState<Resume | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  
+
   // Undo/Redo state
   const [history, setHistory] = useState<Resume[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
   const isUndoRedoOperation = useRef(false);
   const historyIndexRef = useRef(historyIndex);
-  
+
   // Keep ref in sync with state
   useEffect(() => {
     historyIndexRef.current = historyIndex;
   }, [historyIndex]);
-  
+
   const clearAnalyzingParams = useCallback(() => {
     const next = new URLSearchParams(searchParams);
     next.delete('analyzing');
@@ -143,7 +143,7 @@ const RefinePage: React.FC = () => {
 
   useEffect(() => {
     if (isAnalyzing && !analyzingTaskId) {
-      setTaskPollingError(t('refine.error.missingTaskId', 'Unable to track resume status.'));
+      setTaskPollingError(t('refine.error.missingTaskId'));
     }
   }, [isAnalyzing, analyzingTaskId, t]);
 
@@ -175,7 +175,7 @@ const RefinePage: React.FC = () => {
 
     if (taskStatus.state === 'FAILURE') {
       setIsTaskAnalyzing(false);
-      setTaskPollingError(taskStatus.error || taskStatus.message || t('refine.error.analysisFailed', 'Failed to analyze resume.'));
+      setTaskPollingError(taskStatus.error || taskStatus.message || t('refine.error.analysisFailed'));
       return;
     }
 
@@ -209,66 +209,66 @@ const RefinePage: React.FC = () => {
       updatedResume: JSON.stringify(updatedResume).substring(0, 200) + '...'
     });
     setLocalResume(updatedResume);
-    
+
     // Add to history if flag is set
     if (addToHistoryFlag && !isUndoRedoOperation.current) {
       console.log('📚 Adding to history (explicit event)');
       addToHistory(updatedResume);
     }
   };
-  
+
   // Add to history helper
   const addToHistory = useCallback((resume: Resume) => {
     console.log('📚 addToHistory called');
-    
+
     setHistory(prevHistory => {
       // Trim future history if we're not at the end using ref
       const currentIndex = historyIndexRef.current;
       const trimmedHistory = prevHistory.slice(0, currentIndex + 1);
-      
+
       console.log('📚 Current history state:', {
         currentIndex,
         historyLength: prevHistory.length,
         trimmedLength: trimmedHistory.length
       });
-      
+
       // Check if the current state is different from the last entry
       const lastEntry = trimmedHistory[trimmedHistory.length - 1];
       if (lastEntry && JSON.stringify(lastEntry) === JSON.stringify(resume)) {
         console.log('📚 Skipping: identical to last entry');
         return prevHistory;
       }
-      
+
       // Add new state to history
       const updatedHistory = [...trimmedHistory, resume];
-      
+
       console.log('📚 Added to history:', {
         newLength: updatedHistory.length,
         newIndex: currentIndex + 1
       });
-      
+
       // Limit history size to 50 entries
       return updatedHistory.slice(-50);
     });
-    
+
     setHistoryIndex(prevIndex => {
       const newIndex = prevIndex + 1;
       console.log('📚 Updated history index:', { from: prevIndex, to: newIndex });
       return newIndex;
     });
   }, []);
-  
+
   // Track unsaved changes
   useEffect(() => {
     if (!localResume || !lastSavedResume) {
       setHasUnsavedChanges(false);
       return;
     }
-    
+
     const hasChanges = JSON.stringify(localResume) !== JSON.stringify(lastSavedResume);
     setHasUnsavedChanges(hasChanges);
   }, [localResume, lastSavedResume]);
-  
+
   // Auto-save interval (1 second)
   useEffect(() => {
     const interval = setInterval(() => {
@@ -276,31 +276,31 @@ const RefinePage: React.FC = () => {
         handleSaveNow();
       }
     }, 1000); // 1 second
-    
+
     return () => clearInterval(interval);
   }, [hasUnsavedChanges, localResume, isAuthenticated]);
-  
+
   // Manual history tracking - no automatic tracking
   // History is added explicitly when specific events occur (field blur, item add/delete)
-  
+
   // Undo handler
   const handleUndo = useCallback(() => {
     console.log('⬅️ Undo called:', { historyIndex, historyLength: history.length });
-    
+
     if (historyIndex > 0) {
       isUndoRedoOperation.current = true;
       const newIndex = historyIndex - 1;
       const previousState = history[newIndex];
-      
+
       console.log('⬅️ Undoing to index:', newIndex, {
         experienceCount: previousState.work_experience?.length,
         educationCount: previousState.education?.length
       });
-      
+
       setHistoryIndex(newIndex);
       // Create a new object to force re-render
       setLocalResume({ ...previousState });
-      
+
       setTimeout(() => {
         isUndoRedoOperation.current = false;
         console.log('⬅️ Undo operation complete');
@@ -309,25 +309,25 @@ const RefinePage: React.FC = () => {
       console.log('⬅️ Cannot undo: at beginning of history');
     }
   }, [historyIndex, history]);
-  
+
   // Redo handler
   const handleRedo = useCallback(() => {
     console.log('➡️ Redo called:', { historyIndex, historyLength: history.length });
-    
+
     if (historyIndex < history.length - 1) {
       isUndoRedoOperation.current = true;
       const newIndex = historyIndex + 1;
       const nextState = history[newIndex];
-      
+
       console.log('➡️ Redoing to index:', newIndex, {
         experienceCount: nextState.work_experience?.length,
         educationCount: nextState.education?.length
       });
-      
+
       setHistoryIndex(newIndex);
       // Create a new object to force re-render
       setLocalResume({ ...nextState });
-      
+
       setTimeout(() => {
         isUndoRedoOperation.current = false;
         console.log('➡️ Redo operation complete');
@@ -336,12 +336,12 @@ const RefinePage: React.FC = () => {
       console.log('➡️ Cannot redo: at end of history');
     }
   }, [historyIndex, history]);
-  
+
   // Keyboard shortcuts for undo/redo
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       const isCtrlOrCmd = event.ctrlKey || event.metaKey;
-      
+
       if (isCtrlOrCmd && event.shiftKey && event.key === 'Z') {
         // Ctrl+Shift+Z or Cmd+Shift+Z for redo
         event.preventDefault();
@@ -352,9 +352,9 @@ const RefinePage: React.FC = () => {
         handleUndo();
       }
     };
-    
+
     document.addEventListener('keydown', handleKeyDown);
-    
+
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
@@ -363,14 +363,14 @@ const RefinePage: React.FC = () => {
   // Save now handler - calls PUT /resume/ API
   const handleSaveNow = async () => {
     if (!localResume || !isAuthenticated) return;
-    
+
     setIsSaving(true);
     setShowSuccessAnimation(false);
-    
+
     try {
       const { resumeApi } = await import('../../shared/services/api');
       await resumeApi.updateResume(localResume);
-      
+
       // Update cache and timestamp
       updateResumeInCache(localResume);
       setLastSavedResume(localResume);
@@ -379,7 +379,7 @@ const RefinePage: React.FC = () => {
       const minutes = String(now.getMinutes()).padStart(2, '0');
       const seconds = String(now.getSeconds()).padStart(2, '0');
       setLastSaveTime(`${hours}:${minutes}:${seconds}`);
-      
+
       // Show success animation
       setShowSuccessAnimation(true);
       setTimeout(() => {
@@ -429,7 +429,7 @@ const RefinePage: React.FC = () => {
   // Refresh analysis handler
   const handleRefreshAnalysis = async () => {
     if (!resume) return;
-    
+
     setIsRefreshingAnalysis(true);
     try {
       const newAnalysis = await analysisApi.refreshAnalysis();
@@ -460,10 +460,10 @@ const RefinePage: React.FC = () => {
   const handleNavigateToField = (fieldPath: string) => {
     console.log('🎯 RefinePage.handleNavigateToField called:', fieldPath);
     console.log('📌 editorRef.current exists:', !!editorRef.current);
-    
+
     // Switch to editor tab on mobile
     setMobileTab('editor');
-    
+
     // Navigate to field in editor
     if (editorRef.current) {
       console.log('✅ Calling editorRef.current.navigateToField');
@@ -472,7 +472,7 @@ const RefinePage: React.FC = () => {
       console.error('❌ editorRef.current is null!');
     }
   };
-  
+
   // Handle fix applied - update resume and add to history
   const handleFixApplied = async (updatedResume: Resume, appliedPointId?: string) => {
     handleResumeUpdate(updatedResume, true); // Add to history
@@ -559,8 +559,8 @@ const RefinePage: React.FC = () => {
   // If loading (auth or resume), show indicator
   if (authLoading || loading) {
     return (
-      <Box sx={{ 
-        height: '100vh', 
+      <Box sx={{
+        height: '100vh',
         bgcolor: COLORS.resume.section.background
       }}>
         <LoadingSpinner message={t('refine.loading')} />
@@ -571,32 +571,32 @@ const RefinePage: React.FC = () => {
   // If error, show message
   if (queryError || !resume) {
     return (
-      <Box sx={{ 
-        height: '100vh', 
+      <Box sx={{
+        height: '100vh',
         bgcolor: COLORS.resume.section.background
       }}>
-        <ErrorMessage 
-          message={queryError || t('refine.error.notFound')} 
+        <ErrorMessage
+          message={queryError || t('refine.error.notFound')}
           onRetry={() => window.location.reload()}
         />
       </Box>
     );
   }
 
-  const marketingText = t('refine.marketing.hook', 'Reach 95%+ and watch job offers come to you.');
+  const marketingText = t('refine.marketing.hook');
 
   return (
-    <Box sx={{ 
-      height: '100vh', 
-      display: 'flex', 
-      flexDirection: 'column', 
+    <Box sx={{
+      height: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
       bgcolor: COLORS.resume.section.background,
       position: 'relative',
       overflow: 'hidden'
     }}>
       {/* Common header */}
-      <Header 
-        activeStep={1} 
+      <Header
+        activeStep={1}
         onNext={handleNext}
         onBack={handleBack}
         nextButtonText="Export"
@@ -612,9 +612,9 @@ const RefinePage: React.FC = () => {
       />
 
       {/* Main area */}
-      <Box sx={{ 
-        flex: 1, 
-        display: 'flex', 
+      <Box sx={{
+        flex: 1,
+        display: 'flex',
         flexDirection: 'column',
         gap: 0,
         overflow: 'hidden',
@@ -622,8 +622,8 @@ const RefinePage: React.FC = () => {
       }}>
         {/* Mobile tabs (xs only) */}
         <Box sx={{ display: { xs: 'block', md: 'none' }, borderBottom: `1px solid ${COLORS.resume.section.border}`, bgcolor: 'white' }}>
-          <Tabs 
-            value={mobileTab} 
+          <Tabs
+            value={mobileTab}
             onChange={(e, newValue) => setMobileTab(newValue)}
             variant="fullWidth"
             sx={{
@@ -640,16 +640,16 @@ const RefinePage: React.FC = () => {
         </Box>
 
         {/* Content area */}
-        <Box sx={{ 
+        <Box sx={{
           flex: 1,
-          display: 'flex', 
+          display: 'flex',
           flexDirection: { xs: 'column', md: 'row' },
           overflow: 'hidden',
         }}>
           {/* Left column: Score and Improvement sections */}
-          <Box sx={{ 
-            width: { xs: '100%', md: '40%' }, 
-            borderRight: { md: `1px solid ${COLORS.resume.section.border}` }, 
+          <Box sx={{
+            width: { xs: '100%', md: '40%' },
+            borderRight: { md: `1px solid ${COLORS.resume.section.border}` },
             bgcolor: '#F5F7FA',
             display: { xs: mobileTab === 'analysis' ? 'flex' : 'none', md: 'flex' },
             flexDirection: 'column',
@@ -657,7 +657,7 @@ const RefinePage: React.FC = () => {
             overflow: 'hidden'
           }}>
             {/* Fixed Score bar with Re-analyze button */}
-            <Box sx={{ 
+            <Box sx={{
               flexShrink: 0,
               bgcolor: '#F5F7FA',
               zIndex: 5
@@ -678,8 +678,8 @@ const RefinePage: React.FC = () => {
               </Box>
               {taskPollingError && (
                 <Box sx={{ px: 2, pb: 2 }}>
-                  <ErrorMessage 
-                    message={taskPollingError} 
+                  <ErrorMessage
+                    message={taskPollingError}
                     onRetry={() => window.location.reload()}
                   />
                 </Box>
@@ -744,19 +744,19 @@ const RefinePage: React.FC = () => {
             </Box>
           </Box>
           {/* Right column: Editor accordions */}
-          <Box sx={{ 
-            flex: 1, 
-            minWidth: 0, 
+          <Box sx={{
+            flex: 1,
+            minWidth: 0,
             position: 'relative',
             display: { xs: mobileTab === 'editor' ? 'block' : 'none', md: 'block' },
             overflow: 'auto'
           }}>
-            <EditorAccordion 
+            <EditorAccordion
               ref={editorRef}
-              resume={localResume || resume} 
-              onResumeUpdate={handleResumeUpdate} 
+              resume={localResume || resume}
+              onResumeUpdate={handleResumeUpdate}
             />
-          
+
           {/* Save Notification */}
           {showSaveNotification && (
             <Box sx={{
@@ -782,20 +782,20 @@ const RefinePage: React.FC = () => {
                   </Fade>
                 ) : hasUnsavedChanges ? (
                   <Zoom in={!isSaving} timeout={400}>
-                    <CircleIcon 
-                      sx={{ 
-                        width: '8px', 
-                        height: '8px', 
+                    <CircleIcon
+                      sx={{
+                        width: '8px',
+                        height: '8px',
                         color: '#f59e0b',
-                      }} 
+                      }}
                     />
                   </Zoom>
                 ) : (
                   <Zoom in={!isSaving} timeout={400} style={{ transitionDelay: showSuccessAnimation ? '0ms' : '0ms' }}>
-                    <CheckCircleIcon 
-                      sx={{ 
-                        width: '14px', 
-                        height: '14px', 
+                    <CheckCircleIcon
+                      sx={{
+                        width: '14px',
+                        height: '14px',
                         color: showSuccessAnimation ? '#10b981' : '#10b981',
                         animation: showSuccessAnimation ? 'pulse 0.5s ease-in-out' : 'none',
                         '@keyframes pulse': {
@@ -803,16 +803,16 @@ const RefinePage: React.FC = () => {
                           '50%': { transform: 'scale(1.2)' },
                           '100%': { transform: 'scale(1)' },
                         }
-                      }} 
+                      }}
                     />
                   </Zoom>
                 )}
               </Box>
-              
+
               <Typography sx={{ fontSize: '11px', color: '#6b7280' }}>
                 {hasUnsavedChanges ? 'Unsaved changes' : `All changes saved at ${lastSaveTime}`}
               </Typography>
-              <button 
+              <button
                 onClick={handleSaveNow}
                 disabled={isSaving}
                 style={{
@@ -850,4 +850,4 @@ const RefinePage: React.FC = () => {
   );
 };
 
-export default RefinePage; 
+export default RefinePage;

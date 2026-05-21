@@ -48,10 +48,10 @@ class AchievementsWithoutMetricsRule(BaseRule):
 
         # Batch process all achievements without metrics in single LLM call
         if achievements_to_fix:
-            task_description = """Add specific quantifiable metrics to each achievement below. Include numbers, percentages, dollar amounts, or measurable outcomes.
+            task_description = """Добавьте конкретные количественные показатели к каждому достижению ниже. Включите цифры, проценты, суммы в долларах или измеримые результаты.
 
-For each achievement, if you can add metrics, set has_fix to true and provide the improved text in fixed_text.
-If not possible, set has_fix to false and explain why in reasoning."""
+Если вы можете добавить метрики для каждого достижения, установите для has_fix значение true и предоставьте улучшенный текст в фиксированном_тексте.
+Если это невозможно, установите для has_fix значение false и объясните почему."""
 
             fix_responses = await llm_helper.call_llm_batch(
                 task_description=task_description,
@@ -72,8 +72,8 @@ If not possible, set has_fix to false and explain why in reasoning."""
 
                 points.append(self.create_point(
                     field_path=f"work_experience[{i}].achievements[{j}]",
-                    title="Missing Metrics",
-                    description="Add specific metrics to quantify your impact",
+                    title="Отсутствующие метрики",
+                    description="Добавьте конкретные показатели для количественной оценки вашего воздействия.",
                     fix_suggestion=fix_suggestion
                 ))
 

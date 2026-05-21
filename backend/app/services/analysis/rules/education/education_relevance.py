@@ -46,18 +46,18 @@ class EducationRelevanceRule(BaseRule):
             if not field_of_study:
                 continue
             
-            prompt = f"""Analyze if this education is relevant to the candidate's current role and work experience.
+            prompt = f"""Проанализируйте, насколько это образование соответствует текущей должности кандидата и его опыту работы.
 
-Current role: {current_role}
-Field of study: {field_of_study}
-Degree: {degree}
-Work experience: {work_exp[:200] if work_exp else 'None'}
+Текущая должность: {current_role}
+Область обучения: {field_of_study}
+Степень: {degree}
+Опыт работы: {work_exp[:200] if work_exp else 'None'}
 
-Return a JSON object with:
+Верните JSON-объект со следующими полями:
 - "is_relevant": boolean indicating if education is relevant
 - "reasoning": explanation
 
-If not relevant, set is_relevant to false and provide reasoning."""
+Если образование нерелевантно, установите is_relevant в false и поясните это в reasoning."""
             
             try:
                 result = await llm_helper.call_llm_structured(prompt, max_tokens=300)
@@ -69,7 +69,7 @@ If not relevant, set is_relevant to false and provide reasoning."""
                         if not data.get('is_relevant', True):
                             points.append(self.create_point(
                                 field_path=f"education[{i}].field_of_study",
-                                title="Education May Not Be Relevant",
+                                title="Образование может быть нерелевантным",
                                 description=data.get('reasoning', 'Field of study may not align with current role'),
                                 metadata={"severity": "low", "score_impact": 1}
                             ))

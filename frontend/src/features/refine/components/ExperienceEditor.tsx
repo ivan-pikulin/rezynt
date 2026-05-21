@@ -432,7 +432,7 @@ const ExperienceEditor = forwardRef<ExperienceEditorHandle, ExperienceEditorProp
               />
               <SimpleTextarea
                 id={`experience-${index}-short_description`}
-                placeholder={t('refine.editor.companyDescription', 'Brief company or project description')}
+                placeholder={t('refine.editor.companyDescription')}
                 value={formDataArray[index]?.short_description || ''}
                 onChange={(value) => handleFieldChange(index, 'short_description', value)}
                 onBlur={() => handleFieldBlur(index)}
@@ -441,14 +441,14 @@ const ExperienceEditor = forwardRef<ExperienceEditorHandle, ExperienceEditorProp
               <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
                 <SimpleInput
                   id={`experience-${index}-city`}
-                  placeholder={t('refine.editor.city', 'City')}
+                  placeholder={t('refine.editor.city')}
                   value={formDataArray[index]?.city || ''}
                   onChange={(value) => handleFieldChange(index, 'city', value)}
                   onBlur={() => handleFieldBlur(index)}
                 />
                 <SimpleInput
                   id={`experience-${index}-country`}
-                  placeholder={t('refine.editor.country', 'Country')}
+                  placeholder={t('refine.editor.country')}
                   value={formDataArray[index]?.country || ''}
                   onChange={(value) => handleFieldChange(index, 'country', value)}
                   onBlur={() => handleFieldBlur(index)}
@@ -457,7 +457,7 @@ const ExperienceEditor = forwardRef<ExperienceEditorHandle, ExperienceEditorProp
               <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
                 <SimpleInput
                   id={`experience-${index}-start_date`}
-                  placeholder="June 2024"
+                  placeholder={t('refine.editor.startDateExampleExperience')}
                   value={formDataArray[index]?.start_date || ''}
                   onChange={(value) => handleFieldChange(index, 'start_date', value)}
                   onBlur={() => handleFieldBlur(index)}
@@ -465,7 +465,7 @@ const ExperienceEditor = forwardRef<ExperienceEditorHandle, ExperienceEditorProp
                 <input
                   id={`experience-${index}-end_date`}
                   type="text"
-                  placeholder="August 2025"
+                  placeholder={t('refine.editor.endDateExampleExperience')}
                   value={formDataArray[index]?.end_date || ''}
                   onChange={(e) => handleFieldChange(index, 'end_date', e.target.value)}
                   disabled={formDataArray[index]?.is_current}

@@ -40,13 +40,13 @@ class UndefinedAbbreviationsRule(BaseRule):
                 pattern = rf'\([^)]*{abbr}[^)]*\)|{abbr}\s*\([^)]+\)'
                 if not re.search(pattern, summary):
                     # Try to expand via LLM with Structured Outputs
-                    prompt = f"""Expand this abbreviation on first use in the text.
+                    prompt = f"""Расширяйте это сокращение при первом употреблении в тексте.
 
-Text: "{summary}"
-Abbreviation to expand: "{abbr}"
+Текст: «{summary}»
+Сокращение для расширения: "{abbr}"
 
-Set has_fix to true and provide the text with the abbreviation expanded in fixed_text.
-For example: "ABC" → "Application Binary Code (ABC)" """
+Установите для has_fix значение true и предоставьте текст с сокращением, расширенным в фиксированном_тексте.
+Например: «ABC» → «Двоичный код приложения (ABC)»."""
                     
                     fix_response = await llm_helper.call_llm_structured(prompt)
                     
@@ -61,8 +61,8 @@ For example: "ABC" → "Application Binary Code (ABC)" """
                     
                     points.append(self.create_point(
                         field_path="professional_summary",
-                        title="Undefined Abbreviation",
-                        description=f"Define '{abbr}' on first use",
+                        title="Неопределенное сокращение",
+                        description=f"Определите «{abbr}» при первом использовании",
                         fix_suggestion=fix_suggestion
                     ))
         
@@ -77,13 +77,13 @@ For example: "ABC" → "Application Binary Code (ABC)" """
                     pattern = rf'\([^)]*{abbr}[^)]*\)|{abbr}\s*\([^)]+\)'
                     if not re.search(pattern, achievement):
                         # Try to expand via LLM with Structured Outputs
-                        prompt = f"""Expand this abbreviation on first use in the text.
+                        prompt = f"""Расширяйте это сокращение при первом употреблении в тексте.
 
-Text: "{achievement}"
-Abbreviation to expand: "{abbr}"
+Текст: «{achievement}»
+Сокращение для расширения: "{abbr}"
 
-Set has_fix to true and provide the text with the abbreviation expanded in fixed_text.
-For example: "ABC" → "Application Binary Code (ABC)" """
+Установите для has_fix значение true и предоставьте текст с сокращением, расширенным в фиксированном_тексте.
+Например: «ABC» → «Двоичный код приложения (ABC)»."""
                         
                         fix_response = await llm_helper.call_llm_structured(prompt)
                         
@@ -98,8 +98,8 @@ For example: "ABC" → "Application Binary Code (ABC)" """
                             
                         points.append(self.create_point(
                             field_path=f"work_experience[{i}].achievements[{j}]",
-                            title="Undefined Abbreviation",
-                            description=f"Define '{abbr}' on first use",
+                            title="Неопределенное сокращение",
+                            description=f"Определите «{abbr}» при первом использовании",
                             fix_suggestion=fix_suggestion
                         ))
         

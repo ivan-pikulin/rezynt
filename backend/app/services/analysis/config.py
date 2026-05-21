@@ -29,11 +29,11 @@ class AnalysisConfig:
     
     # Score labels
     SCORE_LABELS = {
-        (90, 100): ("Excellent", "Outstanding resume!"),
-        (80, 89): ("Strong", "Almost perfect!"),
-        (60, 79): ("Good", "Looking solid!"),
-        (40, 59): ("Fair", "You're on the right track!"),
-        (0, 39): ("Weak", "Let's work on it!")
+        (90, 100): ("Отлично", "Отличное резюме!"),
+        (80, 89): ("Сильное", "Почти идеально!"),
+        (60, 79): ("Хорошо", "Выглядит уверенно!"),
+        (40, 59): ("Средне", "Вы на верном пути!"),
+        (0, 39): ("Слабо", "Давайте поработаем над ним!")
     }
     
     @classmethod
@@ -42,5 +42,4 @@ class AnalysisConfig:
         for (min_score, max_score), (label, subtitle) in cls.SCORE_LABELS.items():
             if min_score <= score <= max_score:
                 return label, subtitle
-        return "Weak", "Let's work on it!"
-
+        return "Слабо", "Давайте поработаем над ним!"

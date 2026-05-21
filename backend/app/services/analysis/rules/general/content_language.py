@@ -66,16 +66,16 @@ class ContentLanguageRule(BaseRule):
         # Prepare prompt with all fields
         fields_text = '\n'.join([f'{path}: {text}' for path, text in fields_data.items()])
         
-        prompt = f"""Analyze the language of each field in this resume. Determine the language of each field and identify fields that are in a different language than the majority.
+        prompt = f"""Проанализируйте язык каждого поля в этом резюме. Определите язык каждого поля и определите поля, язык которых отличается от языка большинства.
 
-Fields:
+Поля:
 {fields_text}
 
-Return a JSON object with:
-- "main_language": the language used in most fields (e.g., "English", "Russian")
-- "inconsistent_fields": list of field paths that are in a different language
+Верните объект JSON с помощью:
+- «main_language»: язык, используемый в большинстве полей (например, «английский», «русский»)
+- «inconsistent_fields»: список путей к полям на другом языке.
 
-If all fields are in the same language, return empty inconsistent_fields list."""
+Если все поля написаны на одном языке, верните пустой список inconsistent_fields."""
         
         try:
             result = await llm_helper.call_llm_structured(prompt, max_tokens=500)
@@ -90,16 +90,16 @@ If all fields are in the same language, return empty inconsistent_fields list.""
                         if field_path in fields_data:
                             points.append(self.create_point(
                                 field_path=field_path,
-                                title="Language Inconsistency",
-                                description=f"This field is in a different language than the rest of the resume. All content should be in the same language.",
+                                title="Языковое несоответствие",
+                                description=f"Это поле написано на другом языке, чем остальная часть резюме. Весь контент должен быть на одном языке.",
                                 metadata={"main_language": data.get('main_language', 'Unknown')}
                             ))
                 except json.JSONDecodeError:
                     # If parsing fails, create a general warning
                     points.append(self.create_point(
                         field_path="professional_summary",
-                        title="Language Inconsistency",
-                        description="Check that all resume content is in the same language",
+                        title="Языковое несоответствие",
+                        description="Убедитесь, что все содержание резюме написано на одном языке.",
                     ))
         except Exception:
             # If LLM call fails, skip this rule

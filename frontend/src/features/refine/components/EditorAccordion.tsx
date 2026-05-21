@@ -30,15 +30,15 @@ import { addButtonStyle } from '../styles/buttonStyles';
 
 // Contact configuration
 const CONTACT_CONFIGS = [
-  { field: 'email', icon: EmailIcon, label: 'Email' },
-  { field: 'phone', icon: PhoneIcon, label: 'Phone' },
-  { field: 'telegram', icon: TelegramIcon, label: 'Telegram' },
-  { field: 'whatsapp', icon: WhatsAppIcon, label: 'WhatsApp' },
-  { field: 'linkedin', icon: LinkedInIcon, label: 'LinkedIn' },
-  { field: 'github', icon: GitHubIcon, label: 'GitHub' },
-  { field: 'website', icon: LanguageIcon, label: 'Website' },
-  { field: 'twitter', icon: TwitterIcon, label: 'Twitter' },
-  { field: 'instagram', icon: InstagramIcon, label: 'Instagram' },
+  { field: 'email', icon: EmailIcon, labelKey: 'email' },
+  { field: 'phone', icon: PhoneIcon, labelKey: 'phone' },
+  { field: 'telegram', icon: TelegramIcon, labelKey: 'telegram' },
+  { field: 'whatsapp', icon: WhatsAppIcon, labelKey: 'whatsapp' },
+  { field: 'linkedin', icon: LinkedInIcon, labelKey: 'linkedin' },
+  { field: 'github', icon: GitHubIcon, labelKey: 'github' },
+  { field: 'website', icon: LanguageIcon, labelKey: 'website' },
+  { field: 'twitter', icon: TwitterIcon, labelKey: 'twitter' },
+  { field: 'instagram', icon: InstagramIcon, labelKey: 'instagram' },
 ] as const;
 
 // Simple input component to replace MUI TextField
@@ -94,7 +94,7 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
   const [expandedAccordions, setExpandedAccordions] = useState<Set<string>>(
     new Set(['personal', 'summary', 'skills'])
   );
-  
+
   const experienceEditorRef = useRef<ExperienceEditorHandle>(null);
   const educationEditorRef = useRef<EducationEditorHandle>(null);
   const addContactButtonRef = useRef<HTMLButtonElement>(null);
@@ -152,7 +152,7 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
       twitter: resume.personal_info?.contacts?.twitter || '',
       instagram: resume.personal_info?.contacts?.instagram || ''
     });
-    
+
     // Update visible contacts
     const visible = new Set<string>();
     CONTACT_CONFIGS.forEach(({ field }) => {
@@ -180,23 +180,23 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
   useImperativeHandle(ref, () => {
     const navigateToField = (fieldPath: string) => {
       console.log('📍 EditorAccordion.navigateToField called:', fieldPath);
-      
+
       // Check for .new suffix (indicates pulse add button)
       const hasNewSuffix = fieldPath.endsWith('.new');
       const cleanPath = hasNewSuffix ? fieldPath.replace(/\.new$/, '') : fieldPath;
-      
+
       // Parse field_path (e.g., "work_experience[0].achievements", "professional_summary", "personal_info.email")
       const parts = cleanPath.split('.');
       const mainFieldWithIndex = parts[0]; // e.g., "work_experience[0]"
       const mainField = mainFieldWithIndex.split('[')[0]; // e.g., "work_experience"
-      
+
       // Extract array index if present
       const indexMatch = mainFieldWithIndex.match(/\[(\d+)\]/);
       const arrayIndex = indexMatch ? parseInt(indexMatch[1], 10) : null;
-      
+
       // Get sub-field (after the dot)
       const subField = parts.slice(1).join('.'); // e.g., "achievements" or "email"
-      
+
       console.log('🔍 Parsed field path:', {
         mainField,
         arrayIndex,
@@ -204,7 +204,7 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
         hasNewSuffix,
         fullPath: fieldPath
       });
-      
+
       // Map field to accordion ID
       let accordionId = '';
       if (mainField === 'personal_info') {
@@ -218,7 +218,7 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
       } else if (mainField === 'education') {
         accordionId = 'education';
       }
-      
+
       // Open the accordion if it's not already open
       if (accordionId) {
         setExpandedAccordions((prev) => {
@@ -226,7 +226,7 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
           newSet.add(accordionId);
           return newSet;
         });
-        
+
         // For nested fields (experience/education), delegate to child editor
         setTimeout(() => {
           if (mainField === 'work_experience' && arrayIndex !== null && experienceEditorRef.current) {
@@ -252,7 +252,7 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
             if (element) {
               element.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
-            
+
             // Try to focus on the specific field if it exists
             setTimeout(() => {
               let fieldId = '';
@@ -261,7 +261,7 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
                 if (subField === 'contacts' && hasNewSuffix) {
                   console.log('🔑 Field path is "contacts.new", pulsing Add Contact button');
                   console.log('🔍 addContactButtonRef.current exists:', !!addContactButtonRef.current);
-                  
+
                   if (addContactButtonRef.current) {
                     console.log('✅ Found Add Contact button, pulsing...');
                     pulseElement(addContactButtonRef.current);
@@ -278,8 +278,8 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
                   return;
                 } else {
                   // Handle nested contacts fields: contacts.email -> email
-                  const actualField = subField.includes('contacts.') 
-                    ? subField.replace('contacts.', '') 
+                  const actualField = subField.includes('contacts.')
+                    ? subField.replace('contacts.', '')
                     : subField;
                   fieldId = `personal-${actualField}`;
                   console.log('🔑 Generated field ID for personal_info:', { subField, actualField, fieldId });
@@ -295,51 +295,51 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
                 fieldId = 'skill-new';
                 console.log('🔑 Skills field, focusing on new skill input:', fieldId);
               }
-              
+
               if (fieldId) {
                 console.log('🔎 Trying to focus on field:', fieldId);
                 const inputElement = document.getElementById(fieldId) as HTMLInputElement | HTMLTextAreaElement | null;
-                
+
                 if (inputElement) {
                   console.log('✅ Input element found:', inputElement.tagName);
-                  
+
                   // Scroll into view
                   inputElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                  
+
                   // Additional delay to ensure scroll completes before focusing
                   setTimeout(() => {
                     console.log('🎯 Focusing on element...');
-                    
+
                     // Focus and select
                     inputElement.focus();
                     if (inputElement.select) {
                       inputElement.select();
                     }
-                    
+
                     // Add highlight animation
                     const originalTransition = inputElement.style.transition;
                     const originalBoxShadow = inputElement.style.boxShadow;
-                    
+
                     // Apply smooth pulsing highlight
                     inputElement.style.transition = 'box-shadow 0.3s ease-in-out';
                     inputElement.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.4)';
-                    
+
                     // Fade out after 2 seconds
                     setTimeout(() => {
                       inputElement.style.boxShadow = '0 0 0 0 rgba(37, 99, 235, 0)';
-                      
+
                       // Clean up after transition completes
                       setTimeout(() => {
                         inputElement.style.transition = originalTransition;
                         inputElement.style.boxShadow = originalBoxShadow;
                       }, 300);
                     }, 2000);
-                    
+
                     console.log('✅ Focus completed');
                   }, 100);
                 } else {
                   console.log('❌ Field element not found:', fieldId);
-                  console.log('Available personal fields:', 
+                  console.log('Available personal fields:',
                     Array.from(document.querySelectorAll('[id^="personal-"]')).map(el => el.id)
                   );
                 }
@@ -349,18 +349,18 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
         }, 150);
       }
     };
-    
+
     return { navigateToField };
   }, []);
 
   const handleFieldChange = (field: string, value: string, isBlur: boolean = false) => {
     console.log('✏️ EditorAccordion: field changed', { field, value, isBlur });
-    
+
     setFormData((prev) => ({ ...prev, [field]: value }));
-    
+
     // Contact fields
     const contactFields = ['email', 'phone', 'telegram', 'whatsapp', 'linkedin', 'github', 'website', 'twitter', 'instagram'];
-    
+
     // If blur event and value is empty and it's a contact field, hide it
     if (isBlur && !value.trim() && contactFields.includes(field)) {
       setVisibleContacts(prev => {
@@ -369,9 +369,9 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
         return newSet;
       });
     }
-    
+
     // Update local resume immediately with deep copy of nested objects
-    const updated = { 
+    const updated = {
       ...localResume,
       personal_info: localResume.personal_info ? {
         ...localResume.personal_info,
@@ -382,7 +382,7 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
         contacts: {}
       }
     };
-    
+
     if (field === 'professional_summary') {
       updated.professional_summary = value;
     } else if (contactFields.includes(field)) {
@@ -396,13 +396,13 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
       // Update personal info fields
       (updated.personal_info as any)[field] = value;
     }
-    
+
     console.log('✏️ EditorAccordion: calling onResumeUpdate', {
       field,
       isBlur,
       updatedResume: JSON.stringify(updated).substring(0, 150) + '...'
     });
-    
+
     setLocalResume(updated);
     // Add to history only on blur (field editing complete)
     onResumeUpdate(updated, isBlur);
@@ -416,7 +416,7 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
       return newSet;
     });
     setContactMenuAnchor(null);
-    
+
     // Focus on the new field after a short delay
     setTimeout(() => {
       const element = document.getElementById(`personal-${field}`);
@@ -432,7 +432,7 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
     boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
     mb: 2,
     backgroundColor: 'white',
-    '& .MuiAccordionSummary-root': { 
+    '& .MuiAccordionSummary-root': {
       minHeight: '48px',
       padding: '12px 16px',
       '&.Mui-expanded': { minHeight: '48px', padding: '12px 16px' }
@@ -473,9 +473,9 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <Box sx={{ flex: 1, overflow: 'auto', p: 2, bgcolor: '#F5F7FA' }}>
         {/* Personal Info */}
-        <Accordion 
+        <Accordion
           id="accordion-personal"
-          disableGutters 
+          disableGutters
           expanded={expandedAccordions.has('personal')}
           onChange={() => toggleAccordion('personal')}
           sx={accordionStyles}
@@ -487,22 +487,22 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
             <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2, mb: 2 }}>
               <SimpleInput
                 id="personal-first_name"
-                placeholder={t('refine.editor.firstName')} 
-                value={formData.first_name} 
+                placeholder={t('refine.editor.firstName')}
+                value={formData.first_name}
                 onChange={(value) => handleFieldChange('first_name', value, false)}
                 onBlur={() => handleFieldChange('first_name', formData.first_name, true)}
               />
               <SimpleInput
                 id="personal-last_name"
-                placeholder={t('refine.editor.lastName')} 
-                value={formData.last_name} 
+                placeholder={t('refine.editor.lastName')}
+                value={formData.last_name}
                 onChange={(value) => handleFieldChange('last_name', value, false)}
                 onBlur={() => handleFieldChange('last_name', formData.last_name, true)}
               />
               <SimpleInput
                 id="personal-current_role"
-                placeholder={t('refine.editor.currentRole', 'Current Role')} 
-                value={formData.current_role} 
+                placeholder={t('refine.editor.currentRole', 'Текущая должность')}
+                value={formData.current_role}
                 onChange={(value) => handleFieldChange('current_role', value, false)}
                 onBlur={() => handleFieldChange('current_role', formData.current_role, true)}
               />
@@ -510,15 +510,15 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
             <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2, mb: 2 }}>
               <SimpleInput
                 id="personal-city"
-                placeholder={t('refine.editor.city', 'City')} 
-                value={formData.city} 
+                placeholder={t('refine.editor.city', 'City')}
+                value={formData.city}
                 onChange={(value) => handleFieldChange('city', value, false)}
                 onBlur={() => handleFieldChange('city', formData.city, true)}
               />
               <SimpleInput
                 id="personal-country"
-                placeholder={t('refine.editor.country', 'Country')} 
-                value={formData.country} 
+                placeholder={t('refine.editor.country', 'Country')}
+                value={formData.country}
                 onChange={(value) => handleFieldChange('country', value, false)}
                 onBlur={() => handleFieldChange('country', formData.country, true)}
               />
@@ -528,19 +528,19 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
               {t('refine.editor.contacts')}
             </Typography>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              {CONTACT_CONFIGS.filter(({ field }) => visibleContacts.has(field)).map(({ field, icon: Icon, label }) => (
+              {CONTACT_CONFIGS.filter(({ field }) => visibleContacts.has(field)).map(({ field, icon: Icon, labelKey }) => (
                 <Box key={field} sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
                   <Icon sx={{ fontSize: '20px', color: '#6b7280', flexShrink: 0 }} />
                   <SimpleInput
                     id={`personal-${field}`}
-                    placeholder={label}
+                    placeholder={t(`refine.editor.contactLabels.${labelKey}`)}
                     value={formData[field as keyof typeof formData] as string}
                     onChange={(value) => handleFieldChange(field, value, false)}
                     onBlur={() => handleFieldChange(field, formData[field as keyof typeof formData] as string, true)}
                   />
                 </Box>
               ))}
-              
+
               {visibleContacts.size < CONTACT_CONFIGS.length && (
                 <>
                   <Button
@@ -551,21 +551,21 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
                     fullWidth
                     sx={addButtonStyle}
                   >
-                    Add contact
+                    {t('refine.editor.addContact')}
                   </Button>
                   <Menu
                     anchorEl={contactMenuAnchor}
                     open={Boolean(contactMenuAnchor)}
                     onClose={() => setContactMenuAnchor(null)}
                   >
-                    {CONTACT_CONFIGS.filter(({ field }) => !visibleContacts.has(field)).map(({ field, icon: Icon, label }) => (
+                    {CONTACT_CONFIGS.filter(({ field }) => !visibleContacts.has(field)).map(({ field, icon: Icon, labelKey }) => (
                       <MenuItem
                         key={field}
                         onClick={() => handleAddContact(field)}
                         sx={{ display: 'flex', gap: 1, alignItems: 'center' }}
                       >
                         <Icon sx={{ fontSize: '18px', color: '#6b7280' }} />
-                        <Typography sx={{ fontSize: '14px' }}>{label}</Typography>
+                        <Typography sx={{ fontSize: '14px' }}>{t(`refine.editor.contactLabels.${labelKey}`)}</Typography>
                       </MenuItem>
                     ))}
                   </Menu>
@@ -576,9 +576,9 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
         </Accordion>
 
         {/* Professional Summary */}
-        <Accordion 
+        <Accordion
           id="accordion-summary"
-          disableGutters 
+          disableGutters
           expanded={expandedAccordions.has('summary')}
           onChange={() => toggleAccordion('summary')}
           sx={accordionStyles}
@@ -587,11 +587,11 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
             <Typography sx={sectionNameStyles}>{t('refine.editor.professionalSummary')}</Typography>
           </AccordionSummary>
           <AccordionDetails>
-            <textarea 
+            <textarea
               id="professional-summary"
               rows={4}
               placeholder={t('refine.editor.professionalSummary')}
-              value={formData.professional_summary} 
+              value={formData.professional_summary}
               onChange={(e) => handleFieldChange('professional_summary', e.target.value, false)}
               onFocus={(e) => {
                 e.target.style.borderColor = COLORS.primary.main;
@@ -617,9 +617,9 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
         </Accordion>
 
         {/* Skills */}
-        <Accordion 
+        <Accordion
           id="accordion-skills"
-          disableGutters 
+          disableGutters
           expanded={expandedAccordions.has('skills')}
           onChange={() => toggleAccordion('skills')}
           sx={accordionStyles}
@@ -643,9 +643,9 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
         </Accordion>
 
         {/* Experience */}
-        <Accordion 
+        <Accordion
           id="accordion-experience"
-          disableGutters 
+          disableGutters
           expanded={expandedAccordions.has('experience')}
           onChange={() => toggleAccordion('experience')}
           sx={accordionStyles}
@@ -658,8 +658,8 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
               ref={experienceEditorRef}
               experience={localResume.work_experience || []}
               onExperienceUpdate={(updatedExperience) => {
-                console.log('💼 EditorAccordion: experience updated', { 
-                  itemsCount: updatedExperience.length 
+                console.log('💼 EditorAccordion: experience updated', {
+                  itemsCount: updatedExperience.length
                 });
                 const updated = { ...localResume, work_experience: updatedExperience };
                 setLocalResume(updated);
@@ -671,9 +671,9 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
         </Accordion>
 
         {/* Education */}
-        <Accordion 
+        <Accordion
           id="accordion-education"
-          disableGutters 
+          disableGutters
           expanded={expandedAccordions.has('education')}
           onChange={() => toggleAccordion('education')}
           sx={accordionStyles}
@@ -686,8 +686,8 @@ const EditorAccordion = forwardRef<EditorAccordionHandle, Props>(({ resume, onRe
               ref={educationEditorRef}
               education={localResume.education || []}
               onEducationUpdate={(updatedEducation) => {
-                console.log('🎓 EditorAccordion: education updated', { 
-                  itemsCount: updatedEducation.length 
+                console.log('🎓 EditorAccordion: education updated', {
+                  itemsCount: updatedEducation.length
                 });
                 const updated = { ...localResume, education: updatedEducation };
                 setLocalResume(updated);

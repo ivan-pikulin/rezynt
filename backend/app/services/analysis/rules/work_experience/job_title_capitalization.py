@@ -38,8 +38,8 @@ class JobTitleCapitalizationRule(BaseRule):
                     
                     points.append(self.create_point(
                         field_path=f"work_experience[{i}].job_title",
-                        title="Incorrect Capitalization",
-                        description="Use consistent Title Case for job title",
+                        title="Неправильная капитализация",
+                        description="Используйте единый регистр заголовков для названия должности.",
                         fix_suggestion=fix_suggestion
                     ))
         

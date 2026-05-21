@@ -261,9 +261,9 @@ class AnalysisService:
         # Build section objects
         sections = []
         for section_id, section_title in [
-            ('content', 'Content & Structure'),
-            ('ats', 'ATS Optimization'),
-            ('style', 'Style & Grammar')
+            ('content', 'Содержание и структура'),
+            ('ats', 'Оптимизация ATS'),
+            ('style', 'Стиль и грамматика')
         ]:
             points_list = section_points[section_id]
             
@@ -289,4 +289,3 @@ class AnalysisService:
 
 # Singleton instance
 analysis_service = AnalysisService()
-

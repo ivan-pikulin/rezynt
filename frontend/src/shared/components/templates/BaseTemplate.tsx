@@ -43,15 +43,15 @@ export abstract class BaseTemplate extends React.Component<BaseTemplateProps, {}
   protected getContactInfo(): string {
     const personal_info = this.props.data.personal_info;
     if (!personal_info?.contacts) return '';
-    
+
     const contacts = personal_info.contacts;
     const contactParts: string[] = [];
-    
+
     if (contacts.email) contactParts.push(contacts.email);
     if (contacts.phone) contactParts.push(contacts.phone);
     if (contacts.linkedin) contactParts.push(contacts.linkedin);
     if (contacts.website) contactParts.push(contacts.website);
-    
+
     return contactParts.join(' | ');
   }
 
@@ -60,17 +60,17 @@ export abstract class BaseTemplate extends React.Component<BaseTemplateProps, {}
    */
   protected formatDate(dateString: string): string {
     if (!dateString) return '';
-    
-    // If already in "Month YYYY" format, return as is
-    if (dateString.match(/^[A-Za-z]+ \d{4}$/)) {
+
+    // If already in a readable month-year format, return as is
+    if (dateString.match(/^[A-Za-zА-Яа-яЁё]+ \d{4}$/)) {
       return dateString;
     }
-    
+
     // Try to parse as ISO date
     const date = new Date(dateString);
     if (isNaN(date.getTime())) return dateString; // Return original if invalid
-    
-    return date.toLocaleDateString('en-US', {
+
+    return date.toLocaleDateString('ru-RU', {
       year: 'numeric',
       month: 'long'
     });
@@ -82,7 +82,7 @@ export abstract class BaseTemplate extends React.Component<BaseTemplateProps, {}
   protected getWorkPeriod(startDate: string, endDate?: string, isCurrent?: boolean): string {
     const start = this.formatDate(startDate);
     if (isCurrent || !endDate) {
-      return `${start} - Current`;
+      return `${start} - по настоящее время`;
     }
     return `${start} - ${this.formatDate(endDate)}`;
   }
@@ -103,13 +103,13 @@ export abstract class BaseTemplate extends React.Component<BaseTemplateProps, {}
     }
     // Fallback to English if translation function not provided
     const translations: Record<string, string> = {
-      'templates.sections.professionalSummary': 'Professional Summary',
-      'templates.sections.skills': 'Skills',
-      'templates.sections.experience': 'Experience',
-      'templates.sections.education': 'Education',
-      'templates.sections.languages': 'Languages',
-      'templates.sections.awards': 'Awards',
-      'templates.sections.notProvided': 'Professional summary not provided'
+      'templates.sections.professionalSummary': 'Профессиональное резюме',
+      'templates.sections.skills': 'Навыки',
+      'templates.sections.experience': 'Опыт',
+      'templates.sections.education': 'Образование',
+      'templates.sections.languages': 'Языки',
+      'templates.sections.awards': 'Награды',
+      'templates.sections.notProvided': 'Профессиональное резюме не предоставлено'
     };
     return translations[key] || key;
   }
@@ -175,4 +175,4 @@ export abstract class BaseTemplate extends React.Component<BaseTemplateProps, {}
       </Box>
     );
   }
-} 
+}

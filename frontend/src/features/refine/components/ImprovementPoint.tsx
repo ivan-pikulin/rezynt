@@ -73,7 +73,7 @@ const ImprovementPoint: React.FC<Props> = ({ point, resume, onFixApplied, onNavi
         // Use original_content from backend if available, otherwise fallback to resume
         const backendOriginal = normalizeContent(rawOriginalContent);
         const resumeOriginal = normalizeContent(getFieldValue(resume, point.field_path));
-        originalContent = backendOriginal || resumeOriginal || '(empty)';
+        originalContent = backendOriginal || resumeOriginal || t('refine.improvementPoint.empty');
         newContent = normalizeContent(rawNewContent);
         break;
       
@@ -82,7 +82,7 @@ const ImprovementPoint: React.FC<Props> = ({ point, resume, onFixApplied, onNavi
         shouldShowItemsList = true;
         const currentValue = getFieldValue(resume, point.field_path);
         if (Array.isArray(currentValue) && currentValue.length > 0) {
-          originalContent = `Current: ${currentValue.join(', ')}`;
+          originalContent = `${t('refine.improvementPoint.current')}: ${currentValue.join(', ')}`;
         } else {
           originalContent = undefined;
         }
@@ -91,13 +91,13 @@ const ImprovementPoint: React.FC<Props> = ({ point, resume, onFixApplied, onNavi
       
       case 'delete':
         // For deletions, show what will be removed
-        originalContent = normalizeContent(rawOriginalContent) || normalizeContent(getFieldValue(resume, point.field_path)) || '(empty)';
+        originalContent = normalizeContent(rawOriginalContent) || normalizeContent(getFieldValue(resume, point.field_path)) || t('refine.improvementPoint.empty');
         newContent = undefined;
         break;
     }
     
     return { originalContent, newContent, shouldShowItemsList };
-  }, [resume, point.fix_suggestion, point.field_path]);
+  }, [resume, point.fix_suggestion, point.field_path, t]);
   
   // Parse items to add from newContent (always for type='add')
   const itemsToAdd = useMemo(() => {
@@ -285,7 +285,7 @@ const ImprovementPoint: React.FC<Props> = ({ point, resume, onFixApplied, onNavi
           }}
         >
           <CheckCircleIcon sx={{ fontSize: '14px' }} />
-          Fixed
+          {t('refine.improvementPoint.fixed')}
         </Box>
       )}
 
@@ -356,7 +356,7 @@ const ImprovementPoint: React.FC<Props> = ({ point, resume, onFixApplied, onNavi
                 gap: '4px'
               }}>
                 <AddCircleOutlineIcon sx={{ fontSize: '16px' }} />
-                Items to add:
+                {t('refine.improvementPoint.itemsToAdd')}
               </Typography>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 {itemsToAdd.map((item, index) => {
@@ -406,7 +406,7 @@ const ImprovementPoint: React.FC<Props> = ({ point, resume, onFixApplied, onNavi
                             },
                           }}
                         >
-                          {isAnimating ? '...' : 'Add'}
+                          {isAnimating ? '...' : t('refine.improvementPoint.add')}
                         </Button>
                       )}
                       {isAdded && (
@@ -436,7 +436,7 @@ const ImprovementPoint: React.FC<Props> = ({ point, resume, onFixApplied, onNavi
               }}
             >
               {isDismissed ? '✓ ' : '+'}
-              {point.score_impact} points
+              {point.score_impact} {t('refine.improvementPoint.points')}
             </Typography>
             
             <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
@@ -465,7 +465,7 @@ const ImprovementPoint: React.FC<Props> = ({ point, resume, onFixApplied, onNavi
                     },
                   }}
                 >
-                  {isDismissed ? '✓ Applied' : isAnimating ? 'Applying...' : 'Apply Fix'}
+                  {isDismissed ? t('refine.improvementPoint.applied') : isAnimating ? t('refine.improvementPoint.applying') : t('refine.improvementPoint.applyFix')}
                 </Button>
               )}
               
@@ -489,7 +489,7 @@ const ImprovementPoint: React.FC<Props> = ({ point, resume, onFixApplied, onNavi
                   }),
                 }}
               >
-                {isDismissed ? '✓ Fixed' : isMarkingFixed ? '...' : 'Mark as Fixed'}
+                {isDismissed ? t('refine.improvementPoint.fixed') : isMarkingFixed ? '...' : t('refine.improvementPoint.markAsFixed')}
               </Button>
               
               {/* Go to Edit button - show always */}
@@ -504,7 +504,7 @@ const ImprovementPoint: React.FC<Props> = ({ point, resume, onFixApplied, onNavi
                   minWidth: 'auto',
                 }}
               >
-                Go to Edit
+                {t('refine.improvementPoint.goToEdit')}
               </Button>
             </Box>
           </Box>
@@ -577,4 +577,3 @@ const ImprovementPoint: React.FC<Props> = ({ point, resume, onFixApplied, onNavi
 };
 
 export default ImprovementPoint;
-

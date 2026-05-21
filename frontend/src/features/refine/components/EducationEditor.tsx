@@ -345,7 +345,7 @@ const EducationEditor = forwardRef<EducationEditorHandle, EducationEditorProps>(
               />
               <SimpleInput
                 id={`education-${index}-field_of_study`}
-                placeholder={t('refine.editor.fieldOfStudy', 'Field of Study')}
+                placeholder={t('refine.editor.fieldOfStudy')}
                 value={formDataArray[index]?.field_of_study || ''}
                 onChange={(value) => handleFieldChange(index, 'field_of_study', value)}
                 onBlur={() => handleFieldBlur(index)}
@@ -353,14 +353,14 @@ const EducationEditor = forwardRef<EducationEditorHandle, EducationEditorProps>(
               <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
                 <SimpleInput
                   id={`education-${index}-city`}
-                  placeholder={t('refine.editor.city', 'City')}
+                  placeholder={t('refine.editor.city')}
                   value={formDataArray[index]?.city || ''}
                   onChange={(value) => handleFieldChange(index, 'city', value)}
                   onBlur={() => handleFieldBlur(index)}
                 />
                 <SimpleInput
                   id={`education-${index}-country`}
-                  placeholder={t('refine.editor.country', 'Country')}
+                  placeholder={t('refine.editor.country')}
                   value={formDataArray[index]?.country || ''}
                   onChange={(value) => handleFieldChange(index, 'country', value)}
                   onBlur={() => handleFieldBlur(index)}
@@ -369,14 +369,14 @@ const EducationEditor = forwardRef<EducationEditorHandle, EducationEditorProps>(
               <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
                 <SimpleInput
                   id={`education-${index}-start_date`}
-                  placeholder="September 2020"
+                  placeholder={t('refine.editor.startDateExampleEducation')}
                   value={formDataArray[index]?.start_date || ''}
                   onChange={(value) => handleFieldChange(index, 'start_date', value)}
                   onBlur={() => handleFieldBlur(index)}
                 />
                 <SimpleInput
                   id={`education-${index}-end_date`}
-                  placeholder="May 2024"
+                  placeholder={t('refine.editor.endDateExampleEducation')}
                   value={formDataArray[index]?.end_date || ''}
                   onChange={(value) => handleFieldChange(index, 'end_date', value)}
                   onBlur={() => handleFieldBlur(index)}
@@ -384,7 +384,7 @@ const EducationEditor = forwardRef<EducationEditorHandle, EducationEditorProps>(
               </Box>
               
               <Typography variant="subtitle2" sx={{ mt: 2 }}>
-                {t('refine.editor.relevantCourses', 'Relevant Courses')}
+                {t('refine.editor.relevantCourses')}
               </Typography>
               {formDataArray[index]?.relevant_courses.map((course, courseIndex) => (
                 <Box key={courseIndex} sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
@@ -392,7 +392,7 @@ const EducationEditor = forwardRef<EducationEditorHandle, EducationEditorProps>(
                     id={`education-${index}-relevant_courses-${courseIndex}`}
                     value={course}
                     onChange={(value) => handleCourseChange(index, courseIndex, value)}
-                    placeholder={t('refine.editor.courseName', 'Course name')}
+                    placeholder={t('refine.editor.courseName')}
                   />
                   <Box 
                     component="div"
@@ -421,7 +421,7 @@ const EducationEditor = forwardRef<EducationEditorHandle, EducationEditorProps>(
                 fullWidth
                 sx={addButtonStyle}
               >
-                {t('refine.editor.addCourse', 'Add Course')}
+                {t('refine.editor.addCourse')}
               </Button>
             </Box>
           </AccordionDetails>

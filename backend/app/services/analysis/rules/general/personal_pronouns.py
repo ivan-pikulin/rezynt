@@ -27,11 +27,11 @@ class PersonalPronounsRule(BaseRule):
         summary = resume.get('professional_summary', '')
         if summary and re.search(pronoun_pattern, summary, re.IGNORECASE):
             # Generate fix via LLM with Structured Outputs
-            prompt = f"""Remove personal pronouns (I, me, my, mine, we, our, ours) from this text while maintaining clarity.
+            prompt = f"""Удалите из этого текста личные местоимения (я, мне, мой, мой, мы, наш, наш), сохранив ясность.
 
-Original: "{summary}"
+Оригинал: "{summary}"
 
-Set has_fix to true and provide the version without pronouns in fixed_text."""
+Установите для has_fix значение true и укажите версию без местоимений в фиксированном_тексте."""
             
             fix_response = await llm_helper.call_llm_structured(prompt)
             
@@ -46,8 +46,8 @@ Set has_fix to true and provide the version without pronouns in fixed_text."""
             
             points.append(self.create_point(
                 field_path="professional_summary",
-                title="Contains Personal Pronouns",
-                description="Remove personal pronouns from summary",
+                title="Содержит личные местоимения",
+                description="Удалить личные местоимения из резюме",
                 fix_suggestion=fix_suggestion
             ))
         
@@ -56,11 +56,11 @@ Set has_fix to true and provide the version without pronouns in fixed_text."""
             for j, achievement in enumerate(exp.get('achievements', [])):
                 if re.search(pronoun_pattern, achievement, re.IGNORECASE):
                     # Generate fix via LLM with Structured Outputs
-                    prompt = f"""Remove personal pronouns (I, me, my, mine, we, our, ours) from this text while maintaining clarity.
+                    prompt = f"""Удалите из этого текста личные местоимения (я, мне, мой, мой, мы, наш, наш), сохранив ясность.
 
-Original: "{achievement}"
+Оригинал: "{achievement}"
 
-Set has_fix to true and provide the version without pronouns in fixed_text."""
+Установите для has_fix значение true и укажите версию без местоимений в фиксированном_тексте."""
                     
                     fix_response = await llm_helper.call_llm_structured(prompt)
                     
@@ -75,8 +75,8 @@ Set has_fix to true and provide the version without pronouns in fixed_text."""
                     
                     points.append(self.create_point(
                         field_path=f"work_experience[{i}].achievements[{j}]",
-                        title="Contains Personal Pronouns",
-                        description="Remove personal pronouns",
+                        title="Содержит личные местоимения",
+                        description="Удалить личные местоимения",
                         fix_suggestion=fix_suggestion
                     ))
         

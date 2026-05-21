@@ -34,11 +34,11 @@ class AchievementsNotResponsibilitiesRule(BaseRule):
                 text_lower = achievement.lower()
                 if any(phrase in text_lower for phrase in responsibility_phrases):
                     # Generate fix via LLM with Structured Outputs
-                    prompt = f"""Rewrite this resume bullet to focus on results and impact rather than just responsibilities. Use strong action verbs and emphasize outcomes achieved.
+                    prompt = f"""Перепишите этот пункт резюме, чтобы сосредоточиться на результатах и ​​влиянии, а не только на обязанностях. Используйте сильные глаголы действия и подчеркивайте достигнутые результаты.
 
-Original: "{achievement}"
+Оригинал: "{achievement}"
 
-Set has_fix to true and provide the results-oriented text in fixed_text."""
+Установите для has_fix значение true и предоставьте текст, ориентированный на результат, в поле fixed_text."""
                     
                     fix_response = await llm_helper.call_llm_structured(prompt)
                     
@@ -53,8 +53,8 @@ Set has_fix to true and provide the results-oriented text in fixed_text."""
                     
                     points.append(self.create_point(
                         field_path=f"work_experience[{i}].achievements[{j}]",
-                        title="Focuses on Responsibilities",
-                        description="Rewrite to focus on results and impact, not just duties",
+                        title="Фокусируется на обязанностях",
+                        description="Перепишите, чтобы сосредоточиться на результатах и ​​влиянии, а не только на обязанностях.",
                         fix_suggestion=fix_suggestion
                     ))
         

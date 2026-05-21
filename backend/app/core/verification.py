@@ -55,14 +55,14 @@ class VerificationCodeGenerator:
             print(f"DEBUG: Token decoded successfully, user_id={user_id}")
         except Exception as e:
             print(f"DEBUG: Token decode failed: {e}")
-            raise ValueError("Invalid or expired token")
+            raise ValueError("Недействительный или просроченный токен")
         
         # Verify code matches token
         expected_code = self._token_to_code(token)
         print(f"DEBUG: Expected code: {expected_code}, received code: {code}")
         if code != expected_code:
             print(f"DEBUG: Code mismatch - expected: {expected_code}, received: {code}")
-            raise ValueError("Invalid verification code")
+            raise ValueError("Недействительный код подтверждения")
         
         print(f"DEBUG: Code verification successful for user {user_id}")
         return user_id

@@ -27,8 +27,8 @@ class MissingExperienceLocationRule(BaseRule):
                 company = exp.get('company', 'this position')
                 points.append(self.create_point(
                     field_path=f"work_experience[{i}].city",
-                    title="Missing Location",
-                    description=f"Add location for {company}"
+                    title="Отсутствует местоположение",
+                    description=f"Добавить местоположение для {company}"
                 ))
         
         return points

@@ -116,11 +116,11 @@ async def login(
     user = await service.authenticate_user(email=form_data.username, password=form_data.password)
     if not user:
         raise HTTPException(
-            status_code=400, detail="Incorrect email or password")
+            status_code=400, detail="Неверная электронная почта или пароль")
     elif not user_crud.is_active(user):
         raise HTTPException(
             status_code=400,
-            detail="Email not verified. Please check your email and confirm registration."
+            detail="Электронная почта не подтверждена. Проверьте почту и подтвердите регистрацию."
         )
 
     access_token_expires = timedelta(
@@ -219,14 +219,14 @@ async def confirm_registration(
         )
         response.headers["Location"] = success_url
 
-        return {"message": "Email confirmed", "redirect_url": success_url}
+        return {"message": "Электронная почта подтверждена", "redirect_url": success_url}
     except ValueError as e:
         # On error, redirect to error page
         error_url = f"{settings.FRONTEND_BASE_URL}/auth/email-confirmation-error?error={str(e)}"
         response.headers["Location"] = error_url
         response.status_code = status.HTTP_302_FOUND
         
-        return {"message": "Email confirmation failed", "redirect_url": error_url}
+        return {"message": "Не удалось подтвердить электронную почту", "redirect_url": error_url}
 
 
 @router.post("/request-password-reset", status_code=status.HTTP_200_OK)
@@ -243,12 +243,12 @@ async def request_password_reset(
         await service.request_password_reset(email=reset_request.email)
         
         return {
-            "message": "If an account with that email exists, a password reset link has been sent."
+            "message": "Если аккаунт с таким адресом существует, ссылка для сброса пароля отправлена."
         }
     except Exception as e:
         # For security, always return successful response
         return {
-            "message": "If an account with that email exists, a password reset link has been sent."
+            "message": "Если аккаунт с таким адресом существует, ссылка для сброса пароля отправлена."
         }
 
 
@@ -265,7 +265,7 @@ async def reset_password(
         service = UserService(db)
         await service.confirm_password_reset(token=reset_confirm.token, new_password=reset_confirm.new_password)
         
-        return {"message": "Password has been reset successfully"}
+        return {"message": "Пароль успешно сброшен"}
     except ValueError as e:
         raise HTTPException(
             status_code=400,
@@ -283,12 +283,12 @@ async def refresh_token(
     """
     user_id = security.verify_refresh_token(refresh_in.refresh_token)
     if not user_id:
-        raise HTTPException(status_code=401, detail="Invalid refresh token")
+        raise HTTPException(status_code=401, detail="Недействительный refresh-токен")
     
     # Get user to include guest_id and is_registered in new token
     user = await user_crud.get(db, id=int(user_id))
     if not user:
-        raise HTTPException(status_code=401, detail="User not found")
+        raise HTTPException(status_code=401, detail="Пользователь не найден")
     
     access_token_expires = timedelta(
         minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -346,7 +346,7 @@ async def confirm_email_by_code(
         temp_file = await temp_resume_file_crud.get_by_user_id(db, user.id)
         
         response_data = {
-            "message": "Email confirmed successfully",
+            "message": "Электронная почта успешно подтверждена",
             "access_token": access_token,
             "refresh_token": refresh_token,
             "token_type": "bearer"
@@ -407,7 +407,7 @@ async def reset_password_by_code(
         )
         
         return {
-            "message": "Password reset successfully"
+            "message": "Пароль успешно сброшен"
         }
     except ValueError as e:
         raise HTTPException(
@@ -428,7 +428,7 @@ async def resend_verification_code(
     if resend_request.code_type not in ['email_confirm', 'password_reset']:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid code type. Must be 'email_confirm' or 'password_reset'"
+            detail="Недопустимый тип кода. Допустимы только 'email_confirm' или 'password_reset'"
         )
     
     try:
@@ -440,15 +440,15 @@ async def resend_verification_code(
         
         if success:
             return {
-                "message": "Verification code resent successfully",
+                "message": "Код подтверждения отправлен повторно",
                 "token": token
             }
         else:
             return {
-                "message": "Failed to send verification code"
+                "message": "Не удалось отправить код подтверждения"
             }
     except Exception as e:
         # For security, always return successful response
         return {
-            "message": "If an account with that email exists, a verification code has been sent."
+            "message": "Если аккаунт с таким адресом существует, код подтверждения отправлен."
         }

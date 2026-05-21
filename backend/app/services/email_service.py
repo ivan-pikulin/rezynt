@@ -123,7 +123,7 @@ class EmailService:
         """
         logger.info(f"Sending confirmation email to {to_email}")
         
-        subject = "Email Confirmation - Rezynt"
+        subject = "Подтверждение электронной почты - Rezynt"
         
         # Choose template based on whether we have verification code
         if verification_code:
@@ -132,35 +132,35 @@ class EmailService:
 <html>
 <head>
 <meta charset="utf-8">
-<title>Email Confirmation</title>
+<title>Подтверждение электронной почты</title>
 </head>
 <body style="font-family:Arial,sans-serif;margin:0;padding:20px;background-color:#f4f4f4">
 <div style="max-width:600px;margin:0 auto;background-color:white;padding:30px;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,0.1)">
-<h1 style="color:#4caf50;text-align:center;margin-bottom:30px">Welcome to Rezynt!</h1>
-<h2 style="color:#333;margin-bottom:20px">Confirm your email</h2>
-<p style="color:#666;line-height:1.6;margin-bottom:30px">Thank you for signing up! To complete your registration, please confirm your email address using one of the methods below:</p>
+<h1 style="color:#4caf50;text-align:center;margin-bottom:30px">Добро пожаловать в Rezynt!</h1>
+<h2 style="color:#333;margin-bottom:20px">Подтвердите электронную почту</h2>
+<p style="color:#666;line-height:1.6;margin-bottom:30px">Спасибо за регистрацию! Чтобы завершить ее, подтвердите адрес электронной почты одним из способов ниже:</p>
 
 <!-- Verification Code Section -->
 <div style="background-color:#f8f9fa;border:2px solid #e9ecef;border-radius:8px;padding:25px;margin:30px 0;text-align:center">
-<h3 style="color:#333;margin:0 0 15px 0;font-size:18px">Verification Code</h3>
+<h3 style="color:#333;margin:0 0 15px 0;font-size:18px">Код подтверждения</h3>
 <div style="background-color:white;border:2px solid #4caf50;border-radius:8px;padding:20px;margin:15px 0;display:inline-block">
 <span style="font-size:32px;font-weight:bold;color:#4caf50;letter-spacing:8px;font-family:monospace">{{ code }}</span>
 </div>
-<p style="color:#666;margin:15px 0 0 0;font-size:14px">Copy this code and paste it in the verification form</p>
+<p style="color:#666;margin:15px 0 0 0;font-size:14px">Скопируйте этот код и вставьте его в форму подтверждения</p>
 </div>
 
 <div style="text-align:center;margin:30px 0">
-<p style="color:#666;margin-bottom:15px">Or click the button below:</p>
-<a href="{{ api_url }}/api/v1/auth/confirm-email?token={{ token }}" style="display:inline-block;padding:15px 30px;background-color:#4caf50;color:white;text-decoration:none;border-radius:6px;font-weight:bold;font-size:16px">Confirm Email</a>
+<p style="color:#666;margin-bottom:15px">Или нажмите кнопку ниже:</p>
+<a href="{{ api_url }}/api/v1/auth/confirm-email?token={{ token }}" style="display:inline-block;padding:15px 30px;background-color:#4caf50;color:white;text-decoration:none;border-radius:6px;font-weight:bold;font-size:16px">Подтвердить email</a>
 </div>
 
 <div style="background-color:#fff3cd;border:1px solid #ffeaa7;border-radius:4px;padding:15px;margin:30px 0">
-<p style="margin:0;color:#856404;font-size:14px"><strong>Alternative link:</strong> If the button doesn't work, copy and paste this link:</p>
+<p style="margin:0;color:#856404;font-size:14px"><strong>Альтернативная ссылка:</strong> если кнопка не работает, скопируйте и вставьте эту ссылку:</p>
 <p style="word-break:break-all;background-color:#f0f0f0;padding:10px;border-radius:4px;margin:10px 0;font-family:monospace;font-size:12px">{{ api_url }}/api/v1/auth/confirm-email?token={{ token }}</p>
 </div>
 
-<p style="color:#666;font-size:14px;line-height:1.6">The verification code is valid for 15 minutes. If you didn't sign up for our service, please ignore this email.</p>
-<p style="text-align:center;color:#999;font-size:12px;margin-top:40px;border-top:1px solid #eee;padding-top:20px">&copy; 2025 Rezynt. All rights reserved.</p>
+<p style="color:#666;font-size:14px;line-height:1.6">Код подтверждения действителен 15 минут. Если вы не регистрировались в нашем сервисе, просто проигнорируйте это письмо.</p>
+<p style="text-align:center;color:#999;font-size:12px;margin-top:40px;border-top:1px solid #eee;padding-top:20px">&copy; 2025 Rezynt. Все права защищены.</p>
 </div>
 </body>
 </html>"""
@@ -170,20 +170,20 @@ class EmailService:
 <html>
 <head>
 <meta charset="utf-8">
-<title>Email Confirmation</title>
+<title>Подтверждение электронной почты</title>
 </head>
 <body style="font-family:Arial,sans-serif;margin:0;padding:20px;background-color:#f4f4f4">
 <div style="max-width:600px;margin:0 auto;background-color:white;padding:20px">
-<h1 style="color:#4caf50;text-align:center;margin-bottom:30px">Welcome to Rezynt!</h1>
-<h2 style="color:#333">Confirm your email</h2>
-<p>Thank you for signing up! To complete your registration, please confirm your email address.</p>
+<h1 style="color:#4caf50;text-align:center;margin-bottom:30px">Добро пожаловать в Rezynt!</h1>
+<h2 style="color:#333">Подтвердите электронную почту</h2>
+<p>Спасибо за регистрацию! Чтобы завершить ее, подтвердите адрес электронной почты.</p>
 <p style="text-align:center;margin:30px 0">
-<a href="{{ api_url }}/api/v1/auth/confirm-email?token={{ token }}" style="display:inline-block;padding:12px 24px;background-color:#4caf50;color:white;text-decoration:none;border-radius:4px;font-weight:bold">Confirm Email</a>
+<a href="{{ api_url }}/api/v1/auth/confirm-email?token={{ token }}" style="display:inline-block;padding:12px 24px;background-color:#4caf50;color:white;text-decoration:none;border-radius:4px;font-weight:bold">Подтвердить email</a>
 </p>
-<p>If the button doesn't work, copy and paste the following link into your browser:</p>
+<p>Если кнопка не работает, скопируйте и вставьте следующую ссылку в браузер:</p>
 <p style="word-break:break-all;background-color:#f0f0f0;padding:10px;border-radius:4px;margin:20px 0">{{ api_url }}/api/v1/auth/confirm-email?token={{ token }}</p>
-<p>If you didn't sign up for our service, please ignore this email.</p>
-<p style="text-align:center;color:#666;font-size:12px;margin-top:30px">&copy; 2025 Rezynt. All rights reserved.</p>
+<p>Если вы не регистрировались в нашем сервисе, просто проигнорируйте это письмо.</p>
+<p style="text-align:center;color:#666;font-size:12px;margin-top:30px">&copy; 2025 Rezynt. Все права защищены.</p>
 </div>
 </body>
 </html>"""
@@ -217,7 +217,7 @@ class EmailService:
         """
         logger.info(f"Sending password reset email to {to_email}")
         
-        subject = "Password Reset - Rezynt"
+        subject = "Сброс пароля - Rezynt"
         
         # Choose template based on whether we have verification code
         if verification_code:
@@ -226,38 +226,38 @@ class EmailService:
 <html>
 <head>
 <meta charset="utf-8">
-<title>Password Reset</title>
+<title>Сброс пароля</title>
 </head>
 <body style="font-family:Arial,sans-serif;margin:0;padding:20px;background-color:#f4f4f4">
 <div style="max-width:600px;margin:0 auto;background-color:white;padding:30px;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,0.1)">
-<h1 style="color:#4caf50;text-align:center;margin-bottom:30px">Password Reset</h1>
-<h2 style="color:#333;margin-bottom:20px">Reset your password</h2>
-<p style="color:#666;line-height:1.6;margin-bottom:30px">You received this email because a password reset was requested for your Rezynt account. Use one of the methods below to reset your password:</p>
+<h1 style="color:#4caf50;text-align:center;margin-bottom:30px">Сброс пароля</h1>
+<h2 style="color:#333;margin-bottom:20px">Сбросьте пароль</h2>
+<p style="color:#666;line-height:1.6;margin-bottom:30px">Это письмо отправлено, потому что для вашего аккаунта Rezynt был запрошен сброс пароля. Используйте один из способов ниже, чтобы сбросить пароль:</p>
 
 <!-- Verification Code Section -->
 <div style="background-color:#f8f9fa;border:2px solid #e9ecef;border-radius:8px;padding:25px;margin:30px 0;text-align:center">
-<h3 style="color:#333;margin:0 0 15px 0;font-size:18px">Verification Code</h3>
+<h3 style="color:#333;margin:0 0 15px 0;font-size:18px">Код подтверждения</h3>
 <div style="background-color:white;border:2px solid #4caf50;border-radius:8px;padding:20px;margin:15px 0;display:inline-block">
 <span style="font-size:32px;font-weight:bold;color:#4caf50;letter-spacing:8px;font-family:monospace">{{ code }}</span>
 </div>
-<p style="color:#666;margin:15px 0 0 0;font-size:14px">Copy this code and paste it in the password reset form</p>
+<p style="color:#666;margin:15px 0 0 0;font-size:14px">Скопируйте этот код и вставьте его в форму сброса пароля</p>
 </div>
 
 <div style="text-align:center;margin:30px 0">
-<p style="color:#666;margin-bottom:15px">Or click the button below:</p>
-<a href="{{ frontend_url }}/auth/reset-password?token={{ token }}" style="display:inline-block;padding:15px 30px;background-color:#4caf50;color:white;text-decoration:none;border-radius:6px;font-weight:bold;font-size:16px">Reset Password</a>
+<p style="color:#666;margin-bottom:15px">Или нажмите кнопку ниже:</p>
+<a href="{{ frontend_url }}/auth/reset-password?token={{ token }}" style="display:inline-block;padding:15px 30px;background-color:#4caf50;color:white;text-decoration:none;border-radius:6px;font-weight:bold;font-size:16px">Сбросить пароль</a>
 </div>
 
 <div style="background-color:#fff3cd;border:1px solid #ffeaa7;border-radius:4px;padding:15px;margin:30px 0">
-<p style="margin:0;color:#856404;font-size:14px"><strong>Alternative link:</strong> If the button doesn't work, copy and paste this link:</p>
+<p style="margin:0;color:#856404;font-size:14px"><strong>Альтернативная ссылка:</strong> если кнопка не работает, скопируйте и вставьте эту ссылку:</p>
 <p style="word-break:break-all;background-color:#f0f0f0;padding:10px;border-radius:4px;margin:10px 0;font-family:monospace;font-size:12px">{{ frontend_url }}/auth/reset-password?token={{ token }}</p>
 </div>
 
 <div style="background-color:#ffe6e6;border:1px solid #ffb3b3;border-radius:4px;padding:15px;margin:30px 0">
-<p style="margin:0;color:#d63031;font-size:14px"><strong>Important:</strong> This code and link are valid for 15 minutes only. If you didn't request a password reset, please ignore this email and your account will remain secure.</p>
+<p style="margin:0;color:#d63031;font-size:14px"><strong>Важно:</strong> этот код и ссылка действительны только 15 минут. Если вы не запрашивали сброс пароля, просто проигнорируйте это письмо — ваш аккаунт останется в безопасности.</p>
 </div>
 
-<p style="text-align:center;color:#999;font-size:12px;margin-top:40px;border-top:1px solid #eee;padding-top:20px">&copy; 2025 Rezynt. All rights reserved.</p>
+<p style="text-align:center;color:#999;font-size:12px;margin-top:40px;border-top:1px solid #eee;padding-top:20px">&copy; 2025 Rezynt. Все права защищены.</p>
 </div>
 </body>
 </html>"""
@@ -267,20 +267,20 @@ class EmailService:
 <html>
 <head>
 <meta charset="utf-8">
-<title>Password Reset</title>
+<title>Сброс пароля</title>
 </head>
 <body style="font-family:Arial,sans-serif;margin:0;padding:20px;background-color:#f4f4f4">
 <div style="max-width:600px;margin:0 auto;background-color:white;padding:20px">
-<h1 style="color:#4caf50;text-align:center;margin-bottom:30px">Password Reset</h1>
-<h2 style="color:#333">Password Reset Request</h2>
-<p>You received this email because a password reset was requested for your Rezynt account.</p>
+<h1 style="color:#4caf50;text-align:center;margin-bottom:30px">Сброс пароля</h1>
+<h2 style="color:#333">Запрос на сброс пароля</h2>
+<p>Это письмо отправлено, потому что для вашего аккаунта Rezynt был запрошен сброс пароля.</p>
 <p style="text-align:center;margin:30px 0">
-<a href="{{ frontend_url }}/auth/reset-password?token={{ token }}" style="display:inline-block;padding:12px 24px;background-color:#4caf50;color:white;text-decoration:none;border-radius:4px;font-weight:bold">Reset Password</a>
+<a href="{{ frontend_url }}/auth/reset-password?token={{ token }}" style="display:inline-block;padding:12px 24px;background-color:#4caf50;color:white;text-decoration:none;border-radius:4px;font-weight:bold">Сбросить пароль</a>
 </p>
-<p>If the button doesn't work, copy and paste the following link into your browser:</p>
+<p>Если кнопка не работает, скопируйте и вставьте следующую ссылку в браузер:</p>
 <p style="word-break:break-all;background-color:#f0f0f0;padding:10px;border-radius:4px;margin:20px 0">{{ frontend_url }}/auth/reset-password?token={{ token }}</p>
-<p><strong>Important:</strong> This link is valid for 1 hour only. If you didn't request a password reset, please ignore this email.</p>
-<p style="text-align:center;color:#666;font-size:12px;margin-top:30px">&copy; 2025 Rezynt. All rights reserved.</p>
+<p><strong>Важно:</strong> эта ссылка действительна только 1 час. Если вы не запрашивали сброс пароля, просто проигнорируйте это письмо.</p>
+<p style="text-align:center;color:#666;font-size:12px;margin-top:30px">&copy; 2025 Rezynt. Все права защищены.</p>
 </div>
 </body>
 </html>"""
@@ -314,34 +314,34 @@ class EmailService:
         """
         logger.info(f"Sending email change confirmation to {to_email}")
         
-        subject = "Confirm Email Change - Rezynt"
+        subject = "Подтвердите смену email - Rezynt"
         
         html_template = """<!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8">
-<title>Confirm Email Change</title>
+<title>Подтверждение смены email</title>
 </head>
 <body style="font-family:Arial,sans-serif;margin:0;padding:20px;background-color:#f4f4f4">
 <div style="max-width:600px;margin:0 auto;background-color:white;padding:30px;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,0.1)">
-<h1 style="color:#4caf50;text-align:center;margin-bottom:30px">Confirm Email Change</h1>
-<h2 style="color:#333;margin-bottom:20px">Verify your new email address</h2>
-<p style="color:#666;line-height:1.6;margin-bottom:30px">You are changing your email address for your Rezynt account. To complete this change, please enter the verification code below:</p>
+<h1 style="color:#4caf50;text-align:center;margin-bottom:30px">Подтверждение смены email</h1>
+<h2 style="color:#333;margin-bottom:20px">Подтвердите новый адрес электронной почты</h2>
+<p style="color:#666;line-height:1.6;margin-bottom:30px">Вы меняете адрес электронной почты для аккаунта Rezynt. Чтобы завершить изменение, введите код подтверждения ниже:</p>
 
 <!-- Verification Code Section -->
 <div style="background-color:#f8f9fa;border:2px solid #e9ecef;border-radius:8px;padding:25px;margin:30px 0;text-align:center">
-<h3 style="color:#333;margin:0 0 15px 0;font-size:18px">Verification Code</h3>
+<h3 style="color:#333;margin:0 0 15px 0;font-size:18px">Код подтверждения</h3>
 <div style="background-color:white;border:2px solid #4caf50;border-radius:8px;padding:20px;margin:15px 0;display:inline-block">
 <span style="font-size:32px;font-weight:bold;color:#4caf50;letter-spacing:8px;font-family:monospace">{{ code }}</span>
 </div>
-<p style="color:#666;margin:15px 0 0 0;font-size:14px">Copy this code and paste it in the email change form</p>
+<p style="color:#666;margin:15px 0 0 0;font-size:14px">Скопируйте этот код и вставьте его в форму смены email</p>
 </div>
 
 <div style="background-color:#ffe6e6;border:1px solid #ffb3b3;border-radius:4px;padding:15px;margin:30px 0">
-<p style="margin:0;color:#d63031;font-size:14px"><strong>Important:</strong> This code is valid for 15 minutes only. If you didn't request this email change, please ignore this email and your account will remain secure.</p>
+<p style="margin:0;color:#d63031;font-size:14px"><strong>Важно:</strong> этот код действителен только 15 минут. Если вы не запрашивали смену email, просто проигнорируйте это письмо — ваш аккаунт останется в безопасности.</p>
 </div>
 
-<p style="text-align:center;color:#999;font-size:12px;margin-top:40px;border-top:1px solid #eee;padding-top:20px">&copy; 2025 Rezynt. All rights reserved.</p>
+<p style="text-align:center;color:#999;font-size:12px;margin-top:40px;border-top:1px solid #eee;padding-top:20px">&copy; 2025 Rezynt. Все права защищены.</p>
 </div>
 </body>
 </html>"""
@@ -372,44 +372,44 @@ class EmailService:
         """
         logger.info(f"Sending onboarding notification for user {user_email}")
         
-        subject = f"New Onboarding Completed - {user_email}"
+        subject = f"Завершен новый онбординг - {user_email}"
         
         html_template = """<!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8">
-<title>Onboarding Completed</title>
+<title>Онбординг завершен</title>
 </head>
 <body style="font-family:Arial,sans-serif;margin:0;padding:20px;background-color:#f4f4f4">
 <div style="max-width:600px;margin:0 auto;background-color:white;padding:30px;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,0.1)">
-<h1 style="color:#4caf50;text-align:center;margin-bottom:30px">New User Onboarding</h1>
-<h2 style="color:#333;margin-bottom:20px">User Information</h2>
+<h1 style="color:#4caf50;text-align:center;margin-bottom:30px">Онбординг нового пользователя</h1>
+<h2 style="color:#333;margin-bottom:20px">Информация о пользователе</h2>
 <div style="background-color:#f8f9fa;border-left:4px solid #4caf50;padding:15px;margin:20px 0">
-<p style="margin:5px 0"><strong>User ID:</strong> {{ user_id }}</p>
+<p style="margin:5px 0"><strong>ID пользователя:</strong> {{ user_id }}</p>
 <p style="margin:5px 0"><strong>Email:</strong> {{ user_email }}</p>
 </div>
 
-<h3 style="color:#333;margin-top:30px;margin-bottom:15px">Onboarding Responses</h3>
+<h3 style="color:#333;margin-top:30px;margin-bottom:15px">Ответы онбординга</h3>
 <div style="background-color:#ffffff;border:1px solid #e9ecef;border-radius:4px;padding:20px;margin:20px 0">
 <div style="margin-bottom:20px">
-<p style="margin:5px 0;color:#666;font-size:14px"><strong>Work Experience:</strong></p>
+<p style="margin:5px 0;color:#666;font-size:14px"><strong>Опыт работы:</strong></p>
 <p style="margin:5px 0;padding:10px;background-color:#f8f9fa;border-radius:4px">{{ experience }}</p>
 </div>
 <div style="margin-bottom:20px">
-<p style="margin:5px 0;color:#666;font-size:14px"><strong>Job Search Status:</strong></p>
+<p style="margin:5px 0;color:#666;font-size:14px"><strong>Статус поиска работы:</strong></p>
 <p style="margin:5px 0;padding:10px;background-color:#f8f9fa;border-radius:4px">{{ job_search_status }}</p>
 </div>
 <div style="margin-bottom:20px">
-<p style="margin:5px 0;color:#666;font-size:14px"><strong>Background Field:</strong></p>
+<p style="margin:5px 0;color:#666;font-size:14px"><strong>Сфера опыта:</strong></p>
 <p style="margin:5px 0;padding:10px;background-color:#f8f9fa;border-radius:4px">{{ background_field }}</p>
 </div>
 <div style="margin-bottom:0">
-<p style="margin:5px 0;color:#666;font-size:14px"><strong>Resume Goal:</strong></p>
+<p style="margin:5px 0;color:#666;font-size:14px"><strong>Цель резюме:</strong></p>
 <p style="margin:5px 0;padding:10px;background-color:#f8f9fa;border-radius:4px">{{ resume_goal }}</p>
 </div>
 </div>
 
-<p style="text-align:center;color:#999;font-size:12px;margin-top:40px;border-top:1px solid #eee;padding-top:20px">&copy; 2025 Rezynt. All rights reserved.</p>
+<p style="text-align:center;color:#999;font-size:12px;margin-top:40px;border-top:1px solid #eee;padding-top:20px">&copy; 2025 Rezynt. Все права защищены.</p>
 </div>
 </body>
 </html>"""

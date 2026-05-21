@@ -140,7 +140,7 @@ class PDFService:
         except Exception as e:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Failed to generate PDF: {str(e)}"
+                detail=f"Не удалось сгенерировать PDF: {str(e)}"
             )
     
     def save_pdf_temp(self, pdf_bytes: bytes, filename: str) -> str:
@@ -168,7 +168,7 @@ class PDFService:
         except Exception as e:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Failed to save PDF: {str(e)}"
+                detail=f"Не удалось сохранить PDF: {str(e)}"
             )
     
     def create_file_response(self, pdf_bytes: bytes, filename: str) -> FileResponse:

@@ -16,25 +16,25 @@ export const TEMPLATE_CONFIGS: Record<string, TemplateConfig> = {
   clarity: {
     id: 'clarity',
     name: 'Clarity',
-    description: 'Classic professional template with clear structure',
+    description: 'Классический профессиональный шаблон с понятной структурой',
     category: 'classic'
   },
   frame: {
     id: 'frame',
     name: 'Frame',
-    description: 'Centered template with horizontal separators',
+    description: 'Центрированный шаблон с горизонтальными разделителями',
     category: 'classic'
   },
   sidebar: {
     id: 'sidebar',
     name: 'Sidebar',
-    description: 'Two-column template with dark sidebar for contacts and skills',
+    description: 'Двухколоночный шаблон с темной боковой панелью для контактов и навыков',
     category: 'modern'
   },
   professional: {
     id: 'professional',
     name: 'Professional',
-    description: 'Template with square logo and contact information in header',
+    description: 'Шаблон с квадратным логотипом и контактной информацией в шапке',
     category: 'modern'
   }
 };
@@ -54,4 +54,4 @@ export function createTemplate(templateId: string, props: BaseTemplateProps): Re
     default:
       throw new Error(`Template with id "${templateId}" not found`);
   }
-}; 
+};

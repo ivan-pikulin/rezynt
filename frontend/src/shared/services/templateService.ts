@@ -45,11 +45,11 @@ export class TemplateService {
 
     // Soft checks for better user experience
     if (!data.personal_info?.first_name && !data.personal_info?.last_name) {
-      warnings.push(getWarning('templates.validation.nameRecommended', 'Name is recommended for better resume'));
+      warnings.push(getWarning('templates.validation.nameRecommended', 'Имя рекомендуется для более сильного резюме'));
     }
 
     if (!data.professional_summary) {
-      warnings.push(getWarning('templates.validation.summaryRecommended', 'Professional summary is recommended'));
+      warnings.push(getWarning('templates.validation.summaryRecommended', 'Профессиональное резюме рекомендуется'));
     }
 
     // All fields are optional now - always valid
@@ -58,4 +58,4 @@ export class TemplateService {
       errors: warnings
     };
   }
-} 
+}

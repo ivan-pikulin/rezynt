@@ -79,46 +79,46 @@ class ContactValidationRule(BaseRule):
         if available_contacts < 2:
             points.append(self.create_point(
                 field_path="personal_info.contacts.new",
-                title="Insufficient Contact Methods",
-                description=f"Add at least 2 ways to contact you (currently {available_contacts})"
+                title="Недостаточное количество способов связи",
+                description=f"Добавьте как минимум два способа связаться с вами (сейчас {available_contacts})"
             ))
         
         # Validate email format
         if email and not self._validate_email(email):
             points.append(self.create_point(
                 field_path="personal_info.contacts.email",
-                title="Invalid Email Format",
-                description="Use valid email format (e.g., name@example.com)"
+                title="Неверный формат электронной почты",
+                description="Используйте действительный формат электронной почты (например, name@example.com)."
             ))
         
         # Validate phone format
         if phone and not self._validate_phone(phone):
             points.append(self.create_point(
                 field_path="personal_info.contacts.phone",
-                title="Invalid Phone Format",
-                description="Use valid phone number format"
+                title="Неверный формат телефона",
+                description="Используйте действительный формат номера телефона"
             ))
         
         # Validate URLs
         if linkedin and not self._validate_url(linkedin):
             points.append(self.create_point(
                 field_path="personal_info.contacts.linkedin",
-                title="Invalid LinkedIn URL",
-                description="Use valid URL format (e.g., https://linkedin.com/in/username)"
+                title="Неверный URL-адрес LinkedIn",
+                description="Используйте действительный формат URL-адреса (например, https://linkedin.com/in/имя_пользователя)."
             ))
         
         if github and not self._validate_url(github):
             points.append(self.create_point(
                 field_path="personal_info.contacts.github",
-                title="Invalid GitHub URL",
-                description="Use valid URL format (e.g., https://github.com/username)"
+                title="Неверный URL-адрес GitHub",
+                description="Используйте действительный формат URL-адреса (например, https://github.com/username)."
             ))
         
         if website and not self._validate_url(website):
             points.append(self.create_point(
                 field_path="personal_info.contacts.website",
-                title="Invalid Website URL",
-                description="Use valid URL format (e.g., https://example.com)"
+                title="Неверный URL-адрес веб-сайта",
+                description="Используйте действительный формат URL (например, https://example.com)."
             ))
         
         return points

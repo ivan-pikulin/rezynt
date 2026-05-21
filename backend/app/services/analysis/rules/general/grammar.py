@@ -42,16 +42,16 @@ class GrammarRule(BaseRule):
         
         # Check each field separately
         for field_path, text in text_fields:
-            prompt = f"""Check this text for grammar and style issues:
-- Grammar and spelling errors
-- Capitalization consistency
-- Verb tense consistency
-- Number format consistency
+            prompt = f"""Проверьте этот текст на наличие проблем с грамматикой и стилем:
+- Грамматические и орфографические ошибки.
+- Последовательность капитализации
+- Временная последовательность глаголов.
+- Согласованность формата чисел
 
-Text: "{text}"
+Текст: «{text}»
 
-If issues are found, set has_fix to true and provide the corrected text in fixed_text.
-If no issues, set has_fix to false."""
+Если обнаружены проблемы, установите для has_fix значение true и укажите исправленный текст в файле fixed_text.
+Если проблем нет, установите для has_fix значение false."""
             
             fix_response = await llm_helper.call_llm_structured(prompt)
             
@@ -65,7 +65,7 @@ If no issues, set has_fix to false."""
                 
                 points.append(self.create_point(
                     field_path=field_path,
-                    title="Grammar and Style Issues",
+                    title="Проблемы грамматики и стиля",
                     description=fix_response.reasoning or "Fix grammar and style issues",
                     fix_suggestion=fix_suggestion
                 ))

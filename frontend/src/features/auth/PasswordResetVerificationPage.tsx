@@ -111,7 +111,7 @@ const PasswordResetVerificationPage: React.FC = () => {
     return (
       <AuthLayout title={t('auth.verification.title')}>
         <Alert severity="error">
-          Email parameter is missing. Please try requesting password reset again.
+          {t('auth.passwordReset.missingEmail')}
         </Alert>
       </AuthLayout>
     );

@@ -1,6 +1,6 @@
 <spec>
   <feature name="landing">
-    <purpose>Public marketing page ported from the legacy HTML landing into the React frontend.</purpose>
+    <purpose>Публичная маркетинговая страница, перенесенная из legacy HTML landing в React frontend, с русским текстом по умолчанию.</purpose>
     <layout>
       <section name="hero">Fixed header, hero headline, upload dropzone, and resume showcase with stickers and score badge.</section>
       <section name="pain">Three-card problem framing with legacy illustration assets.</section>

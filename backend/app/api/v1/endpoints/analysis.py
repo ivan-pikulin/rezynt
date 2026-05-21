@@ -41,7 +41,7 @@ async def get_analysis(
     if resume_data is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Resume not found"
+            detail="Резюме не найдено"
         )
     
     # Analyze the resume (skip premium-only rules for non-premium users)
@@ -75,7 +75,7 @@ async def refresh_analysis(
     if resume_data is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Resume not found"
+            detail="Резюме не найдено"
         )
     
     # Always regenerate analysis (skip premium-only rules for non-premium users)
@@ -115,7 +115,7 @@ async def mark_improvement_fixed(
     if not updated_analysis:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Analysis or improvement point not found"
+            detail="Анализ или пункт улучшения не найдены"
         )
     
     return AnalysisResult(**updated_analysis)

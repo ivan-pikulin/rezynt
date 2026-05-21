@@ -17,24 +17,24 @@ interface TemplateSelectionCardsProps {
 
 const descriptions: Array<{ title: string; subtitle: string; bullets: string[] }> = [
   {
-    title: 'Classic',
-    subtitle: 'Timeless design that conveys authority and experience',
-    bullets: ['ATS safe', 'Print-ready', 'Traditional layout', 'Industry standard']
+    title: 'Классический',
+    subtitle: 'Вневременной дизайн, который подчеркивает авторитет и опыт',
+    bullets: ['Подходит для ATS', 'Готов к печати', 'Традиционная компоновка', 'Отраслевой стандарт']
   },
   {
-    title: 'Elegant',
-    subtitle: 'Bold design for creative professionals and modern industries',
-    bullets: ['ATS safe', 'Print-ready', 'Visual impact', 'Executive & Managerial roles']
+    title: 'Элегантный',
+    subtitle: 'Смелый дизайн для творческих специалистов и современных отраслей',
+    bullets: ['Подходит для ATS', 'Готов к печати', 'Визуальный акцент', 'Для руководящих ролей']
   },
   {
-    title: 'Modern',
-    subtitle: 'Clean, contemporary design that stands out in any industry',
-    bullets: ['ATS safe', 'Print-ready', 'Clean typography', 'Easy to scan']
+    title: 'Современный',
+    subtitle: 'Чистый, актуальный дизайн, который выделяется в любой отрасли',
+    bullets: ['Подходит для ATS', 'Готов к печати', 'Чистая типографика', 'Легко просматривать']
   },
   {
-    title: 'Professional',
-    subtitle: 'Sophisticated template with bold header design',
-    bullets: ['ATS safe', 'Print-ready', 'Executive look', 'Distinguished style']
+    title: 'Профессиональный',
+    subtitle: 'Изящный шаблон с выразительной шапкой',
+    bullets: ['Подходит для ATS', 'Готов к печати', 'Вид для руководителя', 'Утонченный стиль']
   }
 ];
 
@@ -92,5 +92,4 @@ const TemplateSelectionCards: React.FC<TemplateSelectionCardsProps> = ({ selecte
 };
 
 export default TemplateSelectionCards;
-
 

@@ -9,7 +9,7 @@ from app.services.analysis.llm_helper import llm_helper
 
 class AchievementsCountRule(BaseRule):
     """Detects work experience entries with too few or too many achievements and generates suggestions via LLM."""
-    
+
     def __init__(self):
         super().__init__()
         self.section_id = "content"
@@ -18,40 +18,40 @@ class AchievementsCountRule(BaseRule):
         self.premium_only = True
         self.min_achievements = AnalysisConfig.MIN_ACHIEVEMENTS_COUNT
         self.max_achievements = AnalysisConfig.MAX_ACHIEVEMENTS_COUNT
-    
+
     async def check(self, resume: dict) -> List[ImprovementPoint]:
         """Check achievements count and generate suggestions via LLM."""
         points = []
-        
+
         for i, exp in enumerate(resume.get('work_experience', [])):
             achievements = exp.get('achievements', [])
             achievement_count = len(achievements)
-            
+
             job_title = exp.get('job_title', 'this role')
             short_description = exp.get('short_description', '')
             skills = resume.get('skills', [])
-            
+
             # Too few achievements
             if achievement_count < self.min_achievements:
                 # Generate new achievements via LLM
                 import json
-                prompt = f"""Generate {self.min_achievements - achievement_count} new quantifiable achievements for this work experience entry.
-                
-Job Title: {job_title}
-Company Description: {short_description}
-Existing Achievements: {json.dumps(achievements)}
-Relevant Skills: {', '.join(skills[:10])}
+                prompt = f"""Создайте {self.min_achievements - achievement_count} новых количественных достижений для этой записи об опыте работы.
 
-Generate achievements that:
-- Start with strong action verbs
-- Include quantifiable metrics (numbers, percentages, timeframes)
-- Focus on results and impact, not responsibilities
-- Are specific and measurable
+Должность: {job_title}
+Описание компании: {short_description}
+Существующие достижения: {json.dumps(achievements)}
+Соответствующие навыки: {', '.join(skills[:10])}
 
-Set has_fix to true and provide the new achievements as a JSON array in fixed_text (e.g., ["Achievement 1", "Achievement 2"])."""
+Создавайте достижения, которые:
+- Начните с глаголов сильного действия.
+- Включите количественные показатели (числа, проценты, сроки)
+- Фокус на результатах и воздействии, а не на обязанностях.
+- Являются конкретными и измеримыми.
+
+Установите для has_fix значение true и предоставьте новые достижения в виде массива JSON в фиксированном_тексте (например, ["Достижение 1", "Достижение 2"])."""
 
                 fix_response = await llm_helper.call_llm_structured(prompt, max_tokens=400)
-                
+
                 fix_suggestion = None
                 if fix_response.has_fix and fix_response.fixed_text:
                     # Try to parse as JSON array
@@ -73,32 +73,32 @@ Set has_fix to true and provide the new achievements as a JSON array in fixed_te
                                 field_path=f"work_experience[{i}].achievements.new",
                                 new_content=new_achievements
                             )
-                
+
                 points.append(self.create_point(
                     field_path=f"work_experience[{i}].achievements.new",
-                    title="Too Few Achievements",
-                    description=f"Add more quantifiable achievements to strengthen this role ({achievement_count} → {self.min_achievements}+ recommended)",
+                    title="Слишком мало достижений",
+                    description=f"Добавьте больше измеримых достижений, чтобы усилить эту роль (рекомендуется {achievement_count} → {self.min_achievements}+)",
                     fix_suggestion=fix_suggestion
                 ))
-            
+
             # Too many achievements
             elif achievement_count > self.max_achievements:
                 # Generate suggestion to consolidate/remove achievements via LLM
                 import json
-                prompt = f"""This work experience entry has too many achievements ({achievement_count}). 
-                
-Job Title: {job_title}
-Current Achievements: {json.dumps(achievements)}
+                prompt = f"""В этой записи опыта работы слишком много достижений ({achievement_count}).
 
-Select the {self.max_achievements} most impactful and relevant achievements. You can:
-- Keep the strongest achievements
-- Combine similar achievements
-- Remove less impactful ones
+Название должности: {job_title}
+Текущие достижения: {json.dumps(achievements)}
 
-Set has_fix to true and provide the curated achievements as a JSON array in fixed_text (e.g., ["Achievement 1", "Achievement 2"])."""
+Выберите {self.max_achievements} самых значимых и релевантных достижений. Вы можете:
+- Оставить самые сильные достижения
+- Объединить похожие достижения
+- Удалить менее значимые
+
+Установите has_fix в true и верните отобранные достижения в fixed_text в виде JSON-массива (например, ["Achievement 1", "Achievement 2"])."""
 
                 fix_response = await llm_helper.call_llm_structured(prompt, max_tokens=500)
-                
+
                 fix_suggestion = None
                 if fix_response.has_fix and fix_response.fixed_text:
                     # Try to parse as JSON array
@@ -122,12 +122,12 @@ Set has_fix to true and provide the curated achievements as a JSON array in fixe
                                 original_content=achievements,
                                 new_content=curated_achievements
                             )
-                
+
                 points.append(self.create_point(
                     field_path=f"work_experience[{i}].achievements",
-                    title="Too Many Achievements",
-                    description=f"Consolidate achievements to focus on the most impactful ones ({achievement_count} → ~{self.max_achievements} recommended)",
+                    title="Слишком много достижений",
+                    description=f"Объедините достижения, чтобы сосредоточиться на наиболее эффективных (рекомендуется {achievement_count} → ~{self.max_achievements})",
                     fix_suggestion=fix_suggestion
                 ))
-        
+
         return points

@@ -78,8 +78,8 @@ class EmploymentGapsRule(BaseRule):
                     
                     points.append(self.create_point(
                         field_path=f"work_experience[{current_index}].short_description",
-                        title="Employment Gap Detected",
-                        description=f"{gap_months}-month gap detected - consider adding explanation",
+                        title="Обнаружен разрыв в занятости",
+                        description=f"Обнаружен разрыв в {gap_months} месяца – рассмотрите возможность добавления объяснения",
                         metadata={"gap_months": gap_months}
                     ))
             except (ValueError, Exception):

@@ -142,7 +142,7 @@ export const AccountInformationSection: React.FC<AccountInformationSectionProps>
         setTimeout(() => setSuccess(false), 3000);
       } catch (err: any) {
         const errorMessage = err.response?.data?.detail || err.message || t('profileSettings.accountInfo.error');
-        if (errorMessage.includes('Invalid verification code') || errorMessage.includes('Verification code required')) {
+        if (errorMessage.includes(t('profileSettings.accountInfo.invalidCode')) || errorMessage.includes(t('profileSettings.accountInfo.codeRequired'))) {
           setError(t('profileSettings.accountInfo.invalidCode'));
         } else {
           setError(errorMessage);
@@ -311,4 +311,3 @@ export const AccountInformationSection: React.FC<AccountInformationSectionProps>
     </Box>
   );
 };
-

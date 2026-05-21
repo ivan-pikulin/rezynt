@@ -100,15 +100,12 @@ export const DeleteAccountSection: React.FC = () => {
           </Typography>
         </Box>
 
-        <Alert
-          severity="error"
-          icon={<WarningIcon />}
-          sx={{ mb: 2, fontSize: '12px' }}
-        >
-          <Typography sx={{ fontWeight: 600, display: 'inline' }}>
-            Warning:{' '}
-          </Typography>
-          {t('profileSettings.deleteAccount.warning').replace('Warning: ', '')}
+      <Alert
+        severity="error"
+        icon={<WarningIcon />}
+        sx={{ mb: 2, fontSize: '12px' }}
+      >
+          {t('profileSettings.deleteAccount.warning')}
         </Alert>
 
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
@@ -183,4 +180,3 @@ export const DeleteAccountSection: React.FC = () => {
     </>
   );
 };
-

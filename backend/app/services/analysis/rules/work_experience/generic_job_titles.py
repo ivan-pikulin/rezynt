@@ -40,13 +40,13 @@ class GenericJobTitlesRule(BaseRule):
                 achievements = exp.get('achievements', [])[:3]
                 
                 # Generate fix via LLM with Structured Outputs
-                prompt = f"""Suggest a more specific, industry-standard job title for this role.
+                prompt = f"""Предложите более конкретное и общепринятое в отрасли название должности для этой роли.
 
-Current title: "{original_title}"
-Job description: "{job_description}"
-Key achievements: {', '.join(achievements) if achievements else 'N/A'}
+Текущая должность: "{original_title}"
+Описание работы: "{job_description}"
+Ключевые достижения: {', '.join(achievements) if achievements else 'N/A'}
 
-Set has_fix to true and provide the suggested specific title in fixed_text."""
+Установите has_fix в true и укажите в fixed_text предложенное конкретное название должности."""
                 
                 fix_response = await llm_helper.call_llm_structured(prompt, max_tokens=100)
                 
@@ -61,8 +61,8 @@ Set has_fix to true and provide the suggested specific title in fixed_text."""
                 
                 points.append(self.create_point(
                     field_path=f"work_experience[{i}].job_title",
-                    title="Generic Job Title",
-                    description="Use more specific job title reflecting your actual role",
+                    title="Общее название должности",
+                    description="Используйте более конкретное название должности, отражающее вашу фактическую роль.",
                     fix_suggestion=fix_suggestion
                 ))
         

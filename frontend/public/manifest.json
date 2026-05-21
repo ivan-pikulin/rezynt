@@ -1,7 +1,7 @@
 {
   "short_name": "Rezynt",
-  "name": "Rezynt - AI Resume Builder",
-  "description": "ATS-optimized resume in 5 minutes",
+  "name": "Rezynt - конструктор резюме с ИИ",
+  "description": "Оптимизированное под ATS резюме за 5 минут",
   "icons": [
     {
       "src": "/public/favicon.ico",

@@ -55,16 +55,16 @@ class ContactsForRoleRule(BaseRule):
         if is_technical and not linkedin and not github:
             points.append(self.create_point(
                 field_path="personal_info.contacts.new",
-                title="Missing Professional Profile",
-                description="For technical roles, consider adding LinkedIn or GitHub profile"
+                title="Отсутствует профессиональный профиль",
+                description="Для технических должностей рассмотрите возможность добавления профиля LinkedIn или GitHub."
             ))
         
         # For developers, recommend GitHub
         if is_developer and not github:
             points.append(self.create_point(
                 field_path="personal_info.contacts.new",
-                title="Missing GitHub Profile",
-                description="For developer roles, GitHub profile is highly recommended"
+                title="Отсутствует профиль GitHub",
+                description="Для ролей разработчика настоятельно рекомендуется использовать профиль GitHub."
             ))
         
         return points

@@ -34,16 +34,16 @@ class SummaryLengthRule(BaseRule):
             skills = resume.get('skills', [])[:5]
             latest_job = resume.get('work_experience', [{}])[0].get('job_title', '') if resume.get('work_experience') else ''
 
-            prompt = f"""Expand this professional summary to at least {self.min_length} characters while keeping it focused and impactful.
+            prompt = f"""Расширьте это профессиональное summary минимум до {self.min_length} символов, сохранив фокус и выразительность.
 
-Current summary: "{summary}"
+Текущее резюме: "{summary}"
 
-Context for enrichment:
-- Top skills: {', '.join(skills)}
-- Latest role: {latest_job}
+Контекст для расширения:
+- Главные навыки: {', '.join(skills)}
+- Последняя должность: {latest_job}
 
-Set has_fix to true and provide the expanded summary in fixed_text.
-If you cannot expand it meaningfully, set has_fix to false and explain in reasoning."""
+Установите has_fix в true и верните расширенный summary в fixed_text.
+Если расширить его содержательно нельзя, установите has_fix в false и объясните это в reasoning."""
 
             fix_response = await llm_helper.call_llm_structured(prompt, max_tokens=350)
 
@@ -58,19 +58,19 @@ If you cannot expand it meaningfully, set has_fix to false and explain in reason
 
             points.append(self.create_point(
                 field_path="professional_summary",
-                title="Summary Too Short",
-                description=f"Expand your summary to make it more impactful and showcase your expertise ({len(summary)} → {self.min_length}+ characters)",
+                title="Резюме слишком короткое",
+                description=f"Расширьте свое резюме, чтобы сделать его более впечатляющим и продемонстрировать свой опыт ({len(summary)} → {self.min_length}+ символов)",
                 fix_suggestion=fix_suggestion,
                 metadata={"severity": "low", "score_impact": 3}
             ))
 
         # Check if too long
         elif len(summary) > self.max_length:
-            prompt = f"""Condense this professional summary to under {self.max_length} characters while keeping the most important points.
+            prompt = f"""Сократите это профессиональное summary до {self.max_length} символов, сохранив самые важные пункты.
 
-Current summary ({len(summary)} characters): "{summary}"
+Текущее резюме ({len(summary)} символов): "{summary}"
 
-Set has_fix to true and provide the condensed summary in fixed_text."""
+Установите has_fix в true и верните сокращенное summary в fixed_text."""
 
             fix_response = await llm_helper.call_llm_structured(prompt, max_tokens=300)
 
@@ -85,8 +85,8 @@ Set has_fix to true and provide the condensed summary in fixed_text."""
 
             points.append(self.create_point(
                 field_path="professional_summary",
-                title="Summary Too Long",
-                description=f"Condense your summary to keep it focused and easy to read ({len(summary)} → <{self.max_length} characters)",
+                title="Резюме слишком длинное",
+                description=f"Сократите свое резюме, чтобы оно было целенаправленным и легко читаемым ({len(summary)} → <{self.max_length} символов)",
                 fix_suggestion=fix_suggestion,
                 metadata={"severity": "low", "score_impact": 2}
             ))

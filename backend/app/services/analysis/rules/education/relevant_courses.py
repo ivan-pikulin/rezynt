@@ -35,19 +35,19 @@ class RelevantCoursesRule(BaseRule):
             if not courses:
                 continue
             
-            prompt = f"""Analyze if these courses are relevant to the field of study and current role. Check for duplicates.
+            prompt = f"""Проанализируйте, насколько эти курсы соответствуют области обучения и текущей должности. Проверьте наличие дубликатов.
 
-Field of study: {field_of_study}
-Degree: {degree}
-Current role: {current_role}
-Courses: {', '.join(courses)}
+Область обучения: {field_of_study}
+Степень: {degree}
+Текущая должность: {current_role}
+Курсы: {', '.join(courses)}
 
-Return a JSON object with:
+Верните JSON-объект со следующими полями:
 - "irrelevant_courses": list of course names that should be removed
 - "missing_courses": list of relevant courses that could be added
 - "duplicates": list of duplicate course names
 
-If all courses are relevant and no duplicates, return empty lists."""
+Если все курсы релевантны и дубликатов нет, верните пустые списки."""
             
             try:
                 result = await llm_helper.call_llm_structured(prompt, max_tokens=500)
@@ -77,8 +77,8 @@ If all courses are relevant and no duplicates, return empty lists."""
                                 
                                 points.append(self.create_point(
                                     field_path=f"education[{i}].relevant_courses",
-                                    title="Irrelevant Courses",
-                                    description=f"Remove courses not relevant to field of study: {', '.join(irrelevant[:3])}",
+                                    title="Нерелевантные курсы",
+                                    description=f"Удалить курсы, не относящиеся к области обучения: {', '.join(irrelevant[:3])}",
                                     fix_suggestion=fix_suggestion
                                 ))
                         
@@ -93,8 +93,8 @@ If all courses are relevant and no duplicates, return empty lists."""
                             
                             points.append(self.create_point(
                                 field_path=f"education[{i}].relevant_courses",
-                                title="Consider Adding Relevant Courses",
-                                description=f"Add relevant courses: {', '.join(missing[:3])}",
+                                title="Рассмотрите возможность добавления соответствующих курсов",
+                                description=f"Добавьте соответствующие курсы: {', '.join(missing[:3])}",
                                 fix_suggestion=fix_suggestion
                             ))
                         
@@ -103,8 +103,8 @@ If all courses are relevant and no duplicates, return empty lists."""
                         if duplicates:
                             points.append(self.create_point(
                                 field_path=f"education[{i}].relevant_courses",
-                                title="Duplicate Courses",
-                                description=f"Remove duplicate courses: {', '.join(duplicates[:3])}"
+                                title="Дублирующиеся курсы",
+                                description=f"Удалить повторяющиеся курсы: {', '.join(duplicates[:3])}"
                             ))
                     except json.JSONDecodeError:
                         pass

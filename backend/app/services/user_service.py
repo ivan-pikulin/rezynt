@@ -24,7 +24,7 @@ class UserService:
         # Check if user with this email already exists
         existing_user = await user_crud.get_by_email(self.db, email=user_in.email)
         if existing_user:
-            raise ValueError("User with this email already exists")
+            raise ValueError("Пользователь с таким адресом электронной почты уже существует")
         
         # Create user
         user = await user_crud.create(self.db, obj_in=user_in)
@@ -54,12 +54,12 @@ class UserService:
             user_id = self.serializer.loads(token, salt='email-confirm', max_age=86400)
             user_id_int = int(user_id)
         except Exception:
-            raise ValueError("Invalid or expired token")
+            raise ValueError("Недействительный или просроченный токен")
         
         # Confirm email
         user = await user_crud.confirm_email(self.db, user_id=user_id_int)
         if not user:
-            raise ValueError("User not found")
+            raise ValueError("Пользователь не найден")
         
         return user
 
@@ -92,12 +92,12 @@ class UserService:
             user_id = self.serializer.loads(token, salt='password-reset', max_age=3600)
             user_id_int = int(user_id)
         except Exception:
-            raise ValueError("Invalid or expired token")
+            raise ValueError("Недействительный или просроченный токен")
         
         # Update user password
         user = await user_crud.update_password(self.db, user_id=user_id_int, new_password=new_password)
         if not user:
-            raise ValueError("User not found")
+            raise ValueError("Пользователь не найден")
         
         return user
 
@@ -109,20 +109,20 @@ class UserService:
         user = await user_crud.verify_code(self.db, email=email, code=code, code_type='email_confirm')
         if not user:
             print(f"DEBUG: Code verification failed - invalid code or user not found")
-            raise ValueError("Invalid verification code")
+            raise ValueError("Недействительный код подтверждения")
         
         print(f"DEBUG: Code verification successful for user {user.id}")
         
         # Check if user is already confirmed
         if user.is_verified:
             print(f"DEBUG: User {user.id} is already verified")
-            raise ValueError("Email already confirmed")
+            raise ValueError("Электронная почта уже подтверждена")
         
         # Confirm email
         user = await user_crud.confirm_email(self.db, user_id=user.id)
         if not user:
             print(f"DEBUG: Failed to confirm email for user {user.id}")
-            raise ValueError("User not found")
+            raise ValueError("Пользователь не найден")
         
         print(f"DEBUG: Email confirmed successfully for user {user.id}")
         return user
@@ -132,12 +132,12 @@ class UserService:
         # Verify code against stored code in database
         user = await user_crud.verify_code(self.db, email=email, code=code, code_type='password_reset')
         if not user:
-            raise ValueError("Invalid verification code")
+            raise ValueError("Недействительный код подтверждения")
         
         # Update user password
         user = await user_crud.update_password(self.db, user_id=user.id, new_password=new_password)
         if not user:
-            raise ValueError("User not found")
+            raise ValueError("Пользователь не найден")
         
         return user
 
@@ -166,7 +166,7 @@ class UserService:
             elif code_type == 'password_reset':
                 success = email_service.send_password_reset_email(email, token, code)
             else:
-                raise ValueError("Invalid code type")
+                raise ValueError("Недопустимый тип кода")
             
             return success, token
         except Exception as e:
@@ -178,7 +178,7 @@ class UserService:
         # Check if new email is already taken
         existing_user = await user_crud.get_by_email(self.db, email=new_email)
         if existing_user and existing_user.id != user_id:
-            raise ValueError("User with this email already exists")
+            raise ValueError("Пользователь с таким адресом электронной почты уже существует")
         
         # Generate token and code for email change
         token, code = verification_generator.generate_token_and_code(user_id, 'email-change')
@@ -212,7 +212,7 @@ class UserService:
 
     async def _verify_google_id_token(self, id_token: str) -> dict[str, Any]:
         if not settings.GOOGLE_CLIENT_ID:
-            raise ValueError("Google authentication is not configured")
+            raise ValueError("Аутентификация через Google не настроена")
 
         def _verify() -> dict[str, Any]:
             request = google_requests.Request()
@@ -226,13 +226,13 @@ class UserService:
             return await asyncio.to_thread(_verify)
         except GoogleAuthError as error:
             self.logger.warning(f"Google token issuer validation failed: {error}")
-            raise ValueError("Invalid Google token issuer")
+            raise ValueError("Недействительный issuer Google-токена")
         except ValueError as error:
             self.logger.warning(f"Google token validation failed: {error}")
-            raise ValueError("Invalid Google token")
+            raise ValueError("Недействительный Google-токен")
         except Exception as error:
             self.logger.error(f"Unexpected Google token verification error: {error}")
-            raise ValueError("Failed to verify Google token")
+            raise ValueError("Не удалось проверить Google-токен")
 
     async def authenticate_google_user(self, *, id_token: str, guest_id: Optional[str] = None) -> User:
         payload = await self._verify_google_id_token(id_token)
@@ -244,12 +244,12 @@ class UserService:
         last_name = payload.get("family_name")
 
         if not google_sub or not email:
-            raise ValueError("Google token is missing required user data")
+            raise ValueError("В Google-токене отсутствуют обязательные данные пользователя")
 
         if isinstance(email_verified, str):
             email_verified = email_verified.lower() == "true"
         if email_verified is not True:
-            raise ValueError("Google email is not verified")
+            raise ValueError("Электронная почта Google не подтверждена")
 
         user_by_google_sub = await user_crud.get_by_google_sub(self.db, google_sub=google_sub)
         if user_by_google_sub:

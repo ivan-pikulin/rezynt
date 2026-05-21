@@ -27,7 +27,7 @@ async def get_resume(
     if resume_data is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found"
+            detail="Пользователь не найден"
         )
     return resume_data
 
@@ -48,7 +48,7 @@ async def update_resume(
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found"
+            detail="Пользователь не найден"
         )
     return user.resume_data
 
@@ -67,12 +67,12 @@ async def delete_resume(
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found"
+            detail="Пользователь не найден"
         )
     
     return {
         "status": "success",
-        "message": "Resume deleted successfully"
+        "message": "Резюме успешно удалено"
     }
 
 
@@ -97,7 +97,7 @@ async def upload_resume(
         logger.warning(f"Invalid file type: {file.filename}")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Only PDF, DOC, and DOCX files are allowed"
+            detail="Разрешены только файлы PDF, DOC и DOCX"
         )
     
     try:
@@ -135,14 +135,14 @@ async def upload_resume(
 
         return {
             "task_id": task.id,
-            "message": "File uploaded and processing started"
+            "message": "Файл загружен, обработка начата"
         }
         
     except Exception as e:
         logger.error(f"Error in resume upload for user {current_user.id}: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to upload file: {str(e)}"
+            detail=f"Не удалось загрузить файл: {str(e)}"
         )
 
 
@@ -165,7 +165,7 @@ async def temp_upload_resume(
         logger.warning(f"Invalid file type: {file.filename}")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Only PDF, DOC, and DOCX files are allowed"
+            detail="Разрешены только файлы PDF, DOC и DOCX"
         )
     
     try:
@@ -179,7 +179,7 @@ async def temp_upload_resume(
         if len(file_content) > max_size:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="File size exceeds 10MB limit"
+                detail="Размер файла превышает лимит 10 МБ"
             )
         
         # Create temporary file record
@@ -196,7 +196,7 @@ async def temp_upload_resume(
         
         return {
             "file_id": temp_file.file_id,
-            "message": "File uploaded temporarily"
+            "message": "Файл временно загружен"
         }
         
     except HTTPException:
@@ -205,7 +205,7 @@ async def temp_upload_resume(
         logger.error(f"Error in temp resume upload: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to upload file: {str(e)}"
+            detail=f"Не удалось загрузить файл: {str(e)}"
         )
 
 
@@ -233,7 +233,7 @@ async def claim_temp_file(
             logger.warning(f"Temp file not found: {temp_file_id}")
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="File not found or expired"
+                detail="Файл не найден или срок его действия истек"
             )
         
         # Check if file is expired
@@ -241,7 +241,7 @@ async def claim_temp_file(
             logger.warning(f"Temp file expired: {temp_file_id}")
             raise HTTPException(
                 status_code=status.HTTP_410_GONE,
-                detail="File has expired"
+                detail="Срок действия файла истек"
             )
         
         # Check if file is already claimed
@@ -249,7 +249,7 @@ async def claim_temp_file(
             logger.warning(f"Temp file already claimed: {temp_file_id} by user {temp_file.user_id}")
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail="File has already been claimed"
+                detail="Файл уже закреплен за пользователем"
             )
         
         # Read file content from disk
@@ -258,7 +258,7 @@ async def claim_temp_file(
             logger.error(f"Temp file not found on disk: {temp_file.file_path}")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="File not found on server"
+                detail="Файл не найден на сервере"
             )
         
         with open(temp_file.file_path, 'rb') as f:
@@ -305,7 +305,7 @@ async def claim_temp_file(
         
         return {
             "task_id": task.id,
-            "message": "File claimed and processing started"
+            "message": "Файл закреплен, обработка начата"
         }
         
     except HTTPException:
@@ -314,7 +314,7 @@ async def claim_temp_file(
         logger.error(f"Error claiming temp file: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to claim file: {str(e)}"
+            detail=f"Не удалось закрепить файл: {str(e)}"
         )
 
 
@@ -338,22 +338,22 @@ async def get_upload_status(
         if task.state == 'PENDING':
             response = {
                 'state': task.state,
-                'message': 'Task is pending'
+                'message': 'Задача ожидает выполнения'
             }
         elif task.state == 'STARTED':
             response = {
                 'state': task.state,
-                'message': 'Processing resume with ParseService'
+                'message': 'Обработка резюме через ParseService'
             }
         elif task.state == 'PARSING':
             response = {
                 'state': task.state,
-                'message': 'Parsing resume file...'
+                'message': 'Разбор файла резюме...'
             }
         elif task.state == 'ANALYZING':
             response = {
                 'state': task.state,
-                'message': 'Analyzing resume...'
+                'message': 'Анализ резюме...'
             }
         elif task.state == 'SUCCESS':
             task_result = task.result or {}
@@ -364,13 +364,13 @@ async def get_upload_status(
         elif task.state == 'FAILURE':
             response = {
                 'state': task.state,
-                'message': 'Task failed',
-                'error': str(task.result) if task.result is not None else 'Unknown error'
+                'message': 'Задача завершилась с ошибкой',
+                'error': str(task.result) if task.result is not None else 'Неизвестная ошибка'
             }
         else:
             response = {
                 'state': task.state,
-                'message': 'Unknown task state'
+                'message': 'Неизвестное состояние задачи'
             }
         
         return response
@@ -378,7 +378,7 @@ async def get_upload_status(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get task status: {str(e)}"
+            detail=f"Не удалось получить статус задачи: {str(e)}"
         )
 
 
@@ -398,7 +398,7 @@ async def export_resume_pdf(
     if export_request.template_slug not in settings.VALID_TEMPLATE_SLUGS:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Invalid template_slug. Must be one of: {', '.join(settings.VALID_TEMPLATE_SLUGS)}"
+            detail=f"Недопустимый template_slug. Допустимы только: {', '.join(settings.VALID_TEMPLATE_SLUGS)}"
         )
     
     try:
@@ -434,7 +434,7 @@ async def export_resume_pdf(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to export PDF: {str(e)}"
+            detail=f"Не удалось экспортировать PDF: {str(e)}"
         )
 
 
@@ -455,7 +455,7 @@ async def export_resume_txt(
         if not resume_data:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="Resume not found"
+                detail="Резюме не найдено"
             )
         
         # Build TXT content from resume data
@@ -616,5 +616,5 @@ async def export_resume_txt(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to export TXT: {str(e)}"
+            detail=f"Не удалось экспортировать TXT: {str(e)}"
         )

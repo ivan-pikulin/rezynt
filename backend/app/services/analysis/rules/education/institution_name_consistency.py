@@ -43,16 +43,16 @@ class InstitutionNameConsistencyRule(BaseRule):
         # Prepare prompt with all institution names
         institutions_text = '\n'.join([f'{path}: {name}' for path, name in institutions_data.items()])
         
-        prompt = f"""Analyze institution name format consistency. Check if all institution names use consistent format (full name vs abbreviation).
+        prompt = f"""Проанализируйте согласованность формата названия учреждения. Убедитесь, что названия всех учреждений имеют единый формат (полное название или сокращение).
 
-Institution names:
+Названия учреждений:
 {institutions_text}
 
-Return a JSON object with:
-- "inconsistent_fields": list of objects with "field_path" and "fixed_text" for institution names that need format fixes
+Верните объект JSON с помощью:
+- «inconsistent_fields»: список объектов с «field_path» и «fixed_text» для названий учреждений, требующих исправления формата.
 
-If all names are consistent, return empty inconsistent_fields list.
-Recommendation: Use consistent format across all institution names."""
+Если все имена согласованы, верните пустой список inconsistent_fields.
+Рекомендация: используйте единый формат для всех названий учреждений."""
         
         try:
             result = await llm_helper.call_llm_structured(prompt, max_tokens=500)
@@ -77,8 +77,8 @@ Recommendation: Use consistent format across all institution names."""
                             
                             points.append(self.create_point(
                                 field_path=field_path,
-                                title="Inconsistent Institution Name Format",
-                                description="Standardize institution name format to match the rest of the resume",
+                                title="Несогласованный формат названия учреждения",
+                                description="Стандартизировать формат названия учреждения, чтобы он соответствовал остальной части резюме.",
                                 fix_suggestion=fix_suggestion
                             ))
                 except json.JSONDecodeError:

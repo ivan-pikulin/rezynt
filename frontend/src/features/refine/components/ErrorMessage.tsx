@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, Typography, Button } from '@mui/material';
 import { Refresh as RefreshIcon } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
 
 interface ErrorMessageProps {
   message: string;
@@ -8,6 +9,7 @@ interface ErrorMessageProps {
 }
 
 const ErrorMessage: React.FC<ErrorMessageProps> = ({ message, onRetry }) => {
+  const { t } = useTranslation();
   return (
     <Box sx={{ 
       display: 'flex', 
@@ -17,9 +19,9 @@ const ErrorMessage: React.FC<ErrorMessageProps> = ({ message, onRetry }) => {
       height: '100%',
       gap: 2,
       p: 3
-    }}>
+      }}>
       <Typography variant="h6" color="error" align="center">
-        Error
+        {t('common.error')}
       </Typography>
       <Typography variant="body2" color="text.secondary" align="center">
         {message}
@@ -31,7 +33,7 @@ const ErrorMessage: React.FC<ErrorMessageProps> = ({ message, onRetry }) => {
           onClick={onRetry}
           sx={{ mt: 2 }}
         >
-          Try Again
+          {t('common.tryAgain')}
         </Button>
       )}
     </Box>

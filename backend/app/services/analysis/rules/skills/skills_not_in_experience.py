@@ -37,20 +37,20 @@ class SkillsNotInExperienceRule(BaseRule):
                 experience_text += " " + (tech or '')
         
         # Detect orphaned skills via LLM with Structured Outputs
-        prompt = f"""Analyze if these skills are mentioned or demonstrated in the work experience.
+        prompt = f"""Проанализируйте, упоминаются ли или демонстрируются ли эти навыки в опыте работы.
 
-Skills claimed: {', '.join(skills)}
+Заявленные навыки: {', '.join(skills)}
 
-Work experience text: {experience_text[:1000]}
+Текст опыта работы: {experience_text[:1000]}
 
-Task:
-1. Identify skills NOT found in the experience
-2. For each orphaned skill, suggest a brief achievement that demonstrates it
-3. If found, set has_fix to true and in fixed_text provide JSON with:
-   - orphaned_skills: list of skill names
-   - suggestions: list of objects with skill, field_path, and addition (achievement text)
+Задача:
+1. Определите навыки, НЕ обнаруженные в ходе опыта.
+2. Для каждого потерянного навыка предложите краткое достижение, которое его демонстрирует.
+3. Если он найден, установите для has_fix значение true и в файле fixed_text укажите JSON:
+   - orphaned_skills: список названий навыков
+   - предложения: список объектов с навыком, field_path и дополнением (текст достижения)
 
-If no orphaned skills found, set has_fix to false."""
+Если потерянные навыки не найдены, установите для has_fix значение false."""
         
         result = await llm_helper.call_llm_structured(prompt, max_tokens=600)
         
@@ -75,8 +75,8 @@ If no orphaned skills found, set has_fix to false."""
                         
                         points.append(self.create_point(
                             field_path=field_path,
-                            title=f"Skill Not Demonstrated: {skill}",
-                            description=f"Add example of using {skill} in your experience",
+                            title=f"Навык не продемонстрирован: {skill}",
+                            description=f"Добавьте пример использования {skill} из своего опыта.",
                             fix_suggestion=fix_suggestion
                         ))
             except json.JSONDecodeError:

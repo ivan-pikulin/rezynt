@@ -54,8 +54,8 @@ class ResumeLengthRule(BaseRule):
             
             points.append(self.create_point(
                 field_path=field_path,
-                title="Resume Too Short",
-                description=f"Resume is too brief ({total_words} words) - add more details"
+                title="Резюме слишком короткое",
+                description=f"Резюме слишком краткое ({total_words} слов) – добавьте больше деталей"
             ))
         elif total_words > AnalysisConfig.MAX_RESUME_WORDS:
             # Point to first work experience to condense
@@ -63,8 +63,8 @@ class ResumeLengthRule(BaseRule):
             
             points.append(self.create_point(
                 field_path=field_path,
-                title="Resume Too Long",
-                description=f"Resume is too long ({total_words} words) - consider condensing"
+                title="Возобновить слишком долго",
+                description=f"Резюме слишком длинное ({total_words} слов). Попробуйте сократить его."
             ))
         
         return points

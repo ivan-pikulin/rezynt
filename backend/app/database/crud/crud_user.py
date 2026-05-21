@@ -79,7 +79,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         # Check if email already exists
         existing_user = await self.get_by_email(db, email=email)
         if existing_user and existing_user.id != guest_user.id:
-            raise ValueError("User with this email already exists")
+            raise ValueError("Пользователь с таким адресом электронной почты уже существует")
         
         # Update guest user to registered
         guest_user.email = email
@@ -106,11 +106,11 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
     ) -> User:
         existing_user = await self.get_by_email(db, email=email)
         if existing_user:
-            raise ValueError("User with this email already exists")
+            raise ValueError("Пользователь с таким адресом электронной почты уже существует")
 
         existing_google = await self.get_by_google_sub(db, google_sub=google_sub)
         if existing_google:
-            raise ValueError("Google account is already linked to another user")
+            raise ValueError("Аккаунт Google уже привязан к другому пользователю")
 
         db_obj = User(
             email=email,
@@ -141,12 +141,12 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
     ) -> User:
         existing_google = await self.get_by_google_sub(db, google_sub=google_sub)
         if existing_google and existing_google.id != user.id:
-            raise ValueError("Google account is already linked to another user")
+            raise ValueError("Аккаунт Google уже привязан к другому пользователю")
 
         if user.email != email:
             existing_email = await self.get_by_email(db, email=email)
             if existing_email and existing_email.id != user.id:
-                raise ValueError("User with this email already exists")
+                raise ValueError("Пользователь с таким адресом электронной почты уже существует")
 
         if not user.email:
             user.email = email
@@ -177,7 +177,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         if update_data.get("email") and update_data["email"] != db_obj.email:
             existing_user = await self.get_by_email(db, email=update_data["email"])
             if existing_user and existing_user.id != db_obj.id:
-                raise ValueError("User with this email already exists")
+                raise ValueError("Пользователь с таким адресом электронной почты уже существует")
         
         if update_data.get("password"):
             hashed_password = get_password_hash(update_data["password"])

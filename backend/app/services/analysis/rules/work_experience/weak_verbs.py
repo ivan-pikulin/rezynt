@@ -46,9 +46,9 @@ class WeakVerbsRule(BaseRule):
 
         # Batch process all achievements with weak verbs
         if achievements_to_fix:
-            task_description = """Replace weak verbs with strong, impactful action verbs in each resume bullet below.
+            task_description = """Замените слабые глаголы сильными и эффективными глаголами действия в каждом пункте резюме ниже.
 
-For each achievement, set has_fix to true and provide the improved text in fixed_text."""
+Для каждого достижения установите для has_fix значение true и укажите улучшенный текст в файле fixed_text."""
 
             fix_responses = await llm_helper.call_llm_batch(
                 task_description=task_description,
@@ -69,8 +69,8 @@ For each achievement, set has_fix to true and provide the improved text in fixed
 
                 points.append(self.create_point(
                     field_path=f"work_experience[{i}].achievements[{j}]",
-                    title="Uses Weak Verb",
-                    description=f"Replace '{weak_verb}' with a stronger action verb",
+                    title="Использует слабый глагол",
+                    description=f"Замените «{weak_verb}» более сильным глаголом действия.",
                     fix_suggestion=fix_suggestion
                 ))
 

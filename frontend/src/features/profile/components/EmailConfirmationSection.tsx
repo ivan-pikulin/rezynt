@@ -61,10 +61,7 @@ export const EmailConfirmationSection: React.FC<EmailConfirmationSectionProps> =
         icon={<WarningIcon />}
         sx={{ mb: 2 }}
       >
-        <Typography sx={{ fontWeight: 600, display: 'inline' }}>
-          Email not confirmed:{' '}
-        </Typography>
-        {t('profileSettings.emailConfirmation.warning').replace('Email not confirmed: ', '')}
+        {t('profileSettings.emailConfirmation.warning')}
       </Alert>
 
       {success && (
@@ -96,4 +93,3 @@ export const EmailConfirmationSection: React.FC<EmailConfirmationSectionProps> =
     </Box>
   );
 };
-

@@ -36,15 +36,15 @@ class SkillsCountRule(BaseRule):
                     'achievements': exp.get('achievements', [])[:3]
                 })
 
-            prompt = f"""Suggest 5-10 relevant technical skills for this candidate based on their work experience.
+            prompt = f"""Предложите 5-10 подходящих технических навыков для этого кандидата на основе его опыта работы.
 
-Current skills: {', '.join(skills)}
+Текущие навыки: {', '.join(skills)}
 
-Work experience: {json.dumps(exp_summary)}
+Опыт работы: {json.dumps(exp_summary)}
 
-Return only skills NOT already listed. Focus on technical skills and tools commonly used in their role.
-Set has_fix to true and provide comma-separated skills in fixed_text (e.g., "Python, Docker, Kubernetes, AWS").
-Format: Capitalize first letter of each skill (e.g., "Python", "Machine Learning", "Docker")."""
+Возвращайте только навыки, которых еще нет в списке. Сосредоточьтесь на технических навыках и инструментах, которые обычно используются в этой роли.
+Установите has_fix в true и укажите навыки через запятую в fixed_text (например, "Python, Docker, Kubernetes, AWS").
+Формат: пишите первый символ каждого навыка с заглавной буквы (например, "Python", "Machine Learning", "Docker")."""
 
             fix_response = await llm_helper.call_llm_structured(prompt, max_tokens=200)
 
@@ -58,8 +58,8 @@ Format: Capitalize first letter of each skill (e.g., "Python", "Machine Learning
 
             points.append(self.create_point(
                 field_path="skills",
-                title="Too Few Skills",
-                description=f"Add more relevant skills to strengthen your profile and improve ATS matching (currently {len(skills)}, recommended {self.min_skills}+)",
+                title="Слишком мало навыков",
+                description=f"Добавьте больше подходящих навыков, чтобы усилить свой профиль и улучшить соответствие ATS (сейчас {len(skills)}, рекомендуется {self.min_skills}+)",
                 fix_suggestion=fix_suggestion,
                 metadata={"severity": "medium", "score_impact": 4}
             ))
@@ -75,15 +75,15 @@ Format: Capitalize first letter of each skill (e.g., "Python", "Machine Learning
                     'achievements': exp.get('achievements', [])[:3]
                 })
 
-            prompt = f"""This resume has too many skills ({len(skills)}). Select the 12-15 most relevant and impactful skills based on the candidate's work experience.
+            prompt = f"""В этом резюме слишком много навыков ({len(skills)}). Выберите 12-15 самых релевантных и значимых навыков на основе опыта работы кандидата.
 
-Current skills: {', '.join(skills)}
+Текущие навыки: {', '.join(skills)}
 
-Work experience: {json.dumps(exp_summary)}
+Опыт работы: {json.dumps(exp_summary)}
 
-Prioritize: technical skills, specialized knowledge, in-demand technologies.
-Set has_fix to true and provide comma-separated curated skills in fixed_text.
-Format: Capitalize first letter of each skill (e.g., "Python", "Machine Learning", "Docker")."""
+В приоритете: технические навыки, специализированные знания, востребованные технологии.
+Установите has_fix в true и укажите отобранные навыки через запятую в fixed_text.
+Формат: пишите первый символ каждого навыка с заглавной буквы (например, "Python", "Machine Learning", "Docker")."""
 
             fix_response = await llm_helper.call_llm_structured(prompt, max_tokens=300)
 
@@ -100,8 +100,8 @@ Format: Capitalize first letter of each skill (e.g., "Python", "Machine Learning
 
             points.append(self.create_point(
                 field_path="skills",
-                title="Too Many Skills",
-                description=f"Focus on your most relevant skills to avoid overwhelming recruiters and improve resume clarity ({len(skills)} → ~{self.max_skills})",
+                title="Слишком много навыков",
+                description=f"Сосредоточьтесь на своих наиболее важных навыках, чтобы не перегружать рекрутеров и сделать резюме более понятным ({len(skills)} → ~{self.max_skills})",
                 fix_suggestion=fix_suggestion,
                 metadata={"severity": "low", "score_impact": 2}
             ))

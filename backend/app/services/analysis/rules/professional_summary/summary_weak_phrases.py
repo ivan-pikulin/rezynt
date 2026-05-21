@@ -37,13 +37,13 @@ class SummaryWeakPhrasesRule(BaseRule):
         found_weak = [phrase for phrase in weak_phrases if phrase in summary_lower]
         
         if found_weak:
-            prompt = f"""Replace weak phrases with stronger, more confident language in this professional summary.
+            prompt = f"""Замените слабые фразы более сильным и уверенным языком в этом профессиональном summary.
 
-Summary: "{summary}"
-Current role: {current_role}
-Weak phrases to replace: {', '.join(found_weak)}
+Резюме: "{summary}"
+Текущая должность: {current_role}
+Слабые фразы для замены: {', '.join(found_weak)}
 
-Set has_fix to true and provide the improved summary in fixed_text."""
+Установите has_fix в true и верните улучшенное summary в fixed_text."""
             
             fix_response = await llm_helper.call_llm_structured(prompt, max_tokens=300)
             
@@ -57,10 +57,9 @@ Set has_fix to true and provide the improved summary in fixed_text."""
                 
                 points.append(self.create_point(
                     field_path="professional_summary",
-                    title="Weak Phrases in Summary",
-                    description=f"Replace weak phrases with stronger language: {', '.join(found_weak[:3])}",
+                    title="Слабые фразы в резюме",
+                    description=f"Замените слабые фразы более сильными: {', '.join(found_weak[:3])}.",
                     fix_suggestion=fix_suggestion
                 ))
         
         return points
-

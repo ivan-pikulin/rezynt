@@ -41,9 +41,9 @@ class PassiveVoiceRule(BaseRule):
 
         # Batch process all achievements with passive voice
         if achievements_to_fix:
-            task_description = """Convert each resume bullet below from passive voice to active voice.
+            task_description = """Преобразуйте каждый пункт резюме ниже из пассивного залога в активный.
 
-For each achievement, set has_fix to true and provide the active voice version in fixed_text."""
+Для каждого достижения установите для has_fix значение true и укажите активную голосовую версию в фиксированном_тексте."""
 
             fix_responses = await llm_helper.call_llm_batch(
                 task_description=task_description,
@@ -64,8 +64,8 @@ For each achievement, set has_fix to true and provide the active voice version i
 
                 points.append(self.create_point(
                     field_path=f"work_experience[{i}].achievements[{j}]",
-                    title="Uses Passive Voice",
-                    description="Convert to active voice for stronger impact",
+                    title="Использует пассивный залог",
+                    description="Преобразование в активный залог для более сильного воздействия",
                     fix_suggestion=fix_suggestion
                 ))
 

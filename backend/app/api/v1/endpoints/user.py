@@ -45,7 +45,7 @@ async def update_user_me(
                 if not user_update.verification_code:
                     raise HTTPException(
                         status_code=status.HTTP_400_BAD_REQUEST,
-                        detail="Verification code required for email change"
+                        detail="Для смены email требуется код подтверждения"
                     )
                 
                 # Verify the code
@@ -58,7 +58,7 @@ async def update_user_me(
                 if not is_valid:
                     raise HTTPException(
                         status_code=status.HTTP_400_BAD_REQUEST,
-                        detail="Invalid verification code"
+                        detail="Недействительный код подтверждения"
                     )
                 
                 # Code is valid - update email and mark as verified
@@ -76,7 +76,7 @@ async def update_user_me(
         if not user:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="User not found"
+                detail="Пользователь не найден"
             )
         return user
     except ValueError as e:
@@ -106,11 +106,11 @@ async def request_email_change_code(
         if not success:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Failed to send verification code"
+                detail="Не удалось отправить код подтверждения"
             )
         
         return {
-            "message": "Verification code sent to new email address",
+            "message": "Код подтверждения отправлен на новый адрес электронной почты",
             "token": token
         }
     except ValueError as e:
@@ -139,10 +139,10 @@ async def change_password(
     if not user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Current password is incorrect"
+            detail="Текущий пароль неверный"
         )
     
-    return {"message": "Password changed successfully"}
+    return {"message": "Пароль успешно изменен"}
 
 
 @router.delete("/me", response_model=dict)
@@ -163,10 +163,10 @@ async def delete_user_me(
     if not user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Password is incorrect"
+            detail="Пароль неверный"
         )
     
-    return {"message": "Account deleted successfully"}
+    return {"message": "Аккаунт успешно удален"}
 
 
 @router.patch("/{user_id}/premium/enable", response_model=user_schemas.UserPublic)
@@ -182,7 +182,7 @@ async def enable_premium(
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found"
+            detail="Пользователь не найден"
         )
     return user
 
@@ -200,7 +200,7 @@ async def disable_premium(
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found"
+            detail="Пользователь не найден"
         )
     return user
 
@@ -217,7 +217,7 @@ async def complete_onboarding(
     if current_user.has_completed_onboarding:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Onboarding already completed"
+            detail="Онбординг уже завершен"
         )
     
     user = await user_crud.complete_onboarding(
@@ -229,7 +229,7 @@ async def complete_onboarding(
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found"
+            detail="Пользователь не найден"
         )
     
     # Send onboarding notification email asynchronously
@@ -258,5 +258,5 @@ async def complete_onboarding(
             "created_at": user.created_at.isoformat(),
             "updated_at": user.updated_at.isoformat()
         },
-        "message": "Onboarding completed"
+        "message": "Онбординг завершен"
     }

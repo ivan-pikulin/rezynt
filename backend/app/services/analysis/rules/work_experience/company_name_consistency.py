@@ -43,16 +43,16 @@ class CompanyNameConsistencyRule(BaseRule):
         # Prepare prompt with all company names
         companies_text = '\n'.join([f'{path}: {name}' for path, name in companies_data.items()])
         
-        prompt = f"""Analyze company name format consistency. Check if all company names use consistent format (with/without Inc., Ltd., Corp., etc.).
+        prompt = f"""Анализ соответствия формата названия компании. Убедитесь, что все названия компаний имеют единый формат (с Inc., Ltd., Corp. и т. д.) или без них.
 
-Company names:
+Названия компаний:
 {companies_text}
 
-Return a JSON object with:
-- "inconsistent_fields": list of objects with "field_path" and "fixed_text" for company names that need format fixes
+Верните объект JSON с помощью:
+- «inconsistent_fields»: список объектов с «field_path» и «fixed_text» для названий компаний, требующих исправления формата.
 
-If all names are consistent, return empty inconsistent_fields list.
-Recommendation: Use consistent format across all company names."""
+Если все имена согласованы, верните пустой список inconsistent_fields.
+Рекомендация: используйте единый формат для всех названий компаний."""
         
         try:
             result = await llm_helper.call_llm_structured(prompt, max_tokens=500)
@@ -77,8 +77,8 @@ Recommendation: Use consistent format across all company names."""
                             
                             points.append(self.create_point(
                                 field_path=field_path,
-                                title="Inconsistent Company Name Format",
-                                description="Standardize company name format to match the rest of the resume",
+                                title="Несогласованный формат названия компании",
+                                description="Стандартизируйте формат названия компании, чтобы он соответствовал остальной части резюме.",
                                 fix_suggestion=fix_suggestion
                             ))
                 except json.JSONDecodeError:

@@ -27,8 +27,8 @@ class MissingRequiredFieldsRule(BaseRule):
         if not first_name.strip():
             points.append(self.create_point(
                 field_path="personal_info.first_name",
-                title="Missing First Name",
-                description="Add your first name to the resume",
+                title="Отсутствует имя",
+                description="Добавьте свое имя в резюме",
                 metadata={"severity": "high", "score_impact": 8}
             ))
 
@@ -37,8 +37,8 @@ class MissingRequiredFieldsRule(BaseRule):
         if not last_name.strip():
             points.append(self.create_point(
                 field_path="personal_info.last_name",
-                title="Missing Last Name",
-                description="Add your last name to the resume",
+                title="Отсутствует фамилия",
+                description="Добавьте свою фамилию в резюме",
                 metadata={"severity": "high", "score_impact": 8}
             ))
 
@@ -47,8 +47,8 @@ class MissingRequiredFieldsRule(BaseRule):
         if not current_role.strip():
             points.append(self.create_point(
                 field_path="personal_info.current_role",
-                title="Missing Current Role",
-                description="Add your current role or target job title to help employers understand your career goals",
+                title="Отсутствует текущая роль",
+                description="Добавьте свою текущую должность или целевую должность, чтобы помочь работодателям понять ваши карьерные цели.",
                 metadata={"severity": "high", "score_impact": 7}
             ))
 
@@ -57,8 +57,8 @@ class MissingRequiredFieldsRule(BaseRule):
         if not city.strip():
             points.append(self.create_point(
                 field_path="personal_info.city",
-                title="Missing City",
-                description="Add your city to help employers understand your location and potential relocation needs",
+                title="Пропавший город",
+                description="Добавьте свой город, чтобы помочь работодателям понять ваше местоположение и потенциальные потребности в переезде.",
                 metadata={"severity": "medium", "score_impact": 4}
             ))
 
@@ -67,8 +67,8 @@ class MissingRequiredFieldsRule(BaseRule):
         if not email.strip():
             points.append(self.create_point(
                 field_path="personal_info.contacts.new",
-                title="Missing Email Address",
-                description="Add your email address - this is essential for employers to contact you",
+                title="Отсутствует адрес электронной почты",
+                description="Добавьте свой адрес электронной почты — это необходимо, чтобы работодатели могли связаться с вами.",
                 metadata={"severity": "high", "score_impact": 8}
             ))
 
@@ -77,8 +77,8 @@ class MissingRequiredFieldsRule(BaseRule):
         if not phone.strip():
             points.append(self.create_point(
                 field_path="personal_info.contacts.new",
-                title="Missing Phone Number",
-                description="Add your phone number to provide an additional contact method",
+                title="Отсутствует номер телефона",
+                description="Добавьте свой номер телефона, чтобы предоставить дополнительный способ связи.",
                 metadata={"severity": "medium", "score_impact": 5}
             ))
 
@@ -94,8 +94,8 @@ class MissingRequiredFieldsRule(BaseRule):
         if available_contacts < 2:
             points.append(self.create_point(
                 field_path="personal_info.contacts.new",
-                title="Insufficient Contact Methods",
-                description=f"Add at least 2 ways to contact you (currently {available_contacts}).",
+                title="Недостаточное количество способов связи",
+                description=f"Добавьте как минимум два способа связаться с вами (сейчас {available_contacts}).",
                 metadata={"severity": "medium", "score_impact": 4}
             ))
 
@@ -104,27 +104,27 @@ class MissingRequiredFieldsRule(BaseRule):
         if not summary:
             points.append(self.create_point(
                 field_path="professional_summary",
-                title="Missing Professional Summary",
-                description="Add a compelling professional summary that highlights your key strengths, expertise, and career objectives",
+                title="Отсутствует профессиональное резюме",
+                description="Добавьте убедительное профессиональное резюме, подчеркивающее ваши основные сильные стороны, опыт и карьерные цели.",
                 metadata={"severity": "high", "score_impact": 6}
             ))
 
         # 9. Check work experience
         work_exp = resume.get('work_experience') or []
         if len(work_exp) == 0:
-            description = """Add your work experience to showcase your professional background. If you don't have formal work experience yet, consider including:
-• Personal projects or side projects
-• Internships or apprenticeships
-• Volunteer work or community involvement
-• Freelance or contract work
-• Academic projects with real-world applications
-• Open-source contributions
+            description = """Добавьте свой опыт работы, чтобы продемонстрировать свой профессиональный опыт. Если у вас еще нет официального опыта работы, рассмотрите возможность включения:
+• Личные проекты или побочные проекты
+• Стажировки или ученичество
+• Волонтерская работа или участие в общественной жизни
+• Внештатная или контрактная работа
+• Академические проекты с практическим применением.
+• Вклад с открытым исходным кодом
 
-These experiences demonstrate your skills and initiative to potential employers."""
+Этот опыт продемонстрирует ваши навыки и инициативу потенциальным работодателям."""
 
             points.append(self.create_point(
                 field_path="work_experience.new",
-                title="Missing Work Experience",
+                title="Отсутствует опыт работы",
                 description=description,
                 metadata={"severity": "high", "score_impact": 8}
             ))
@@ -134,8 +134,8 @@ These experiences demonstrate your skills and initiative to potential employers.
         if len(education) == 0:
             points.append(self.create_point(
                 field_path="education.new",
-                title="Missing Education",
-                description="Add your educational background (university degree, college, professional courses, certifications, or relevant training programs)",
+                title="Отсутствующее образование",
+                description="Добавьте свое образование (высшее образование, колледж, профессиональные курсы, сертификаты или соответствующие программы обучения)",
                 metadata={"severity": "high", "score_impact": 7}
             ))
 

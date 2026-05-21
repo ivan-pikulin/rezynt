@@ -41,12 +41,12 @@ class FillerPhrasesRule(BaseRule):
                 
                 if found_fillers:
                     # Generate fix via LLM with Structured Outputs
-                    prompt = f"""Remove filler phrases to make this text more concise and impactful.
+                    prompt = f"""Удалите фразы-вставки, чтобы сделать текст более кратким и эффектным.
 
-Original: "{achievement}"
-Filler phrases to remove: {', '.join(found_fillers)}
+Оригинал: "{achievement}"
+Фразы-вставки, которые следует удалить: {', '.join(found_fillers)}.
 
-Set has_fix to true and provide the improved text in fixed_text."""
+Установите для has_fix значение true и предоставьте улучшенный текст в фиксированном_тексте."""
                     
                     fix_response = await llm_helper.call_llm_structured(prompt)
                     
@@ -61,8 +61,8 @@ Set has_fix to true and provide the improved text in fixed_text."""
                     
                     points.append(self.create_point(
                         field_path=f"work_experience[{i}].achievements[{j}]",
-                        title="Contains Filler Phrases",
-                        description=f"Remove filler phrase: '{found_fillers[0]}'",
+                        title="Содержит дополнительные фразы",
+                        description=f"Удалить фразу-заполнитель: '{found_fillers[0]}'",
                         fix_suggestion=fix_suggestion
                     ))
         

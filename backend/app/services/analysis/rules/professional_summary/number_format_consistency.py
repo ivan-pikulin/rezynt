@@ -47,20 +47,20 @@ class NumberFormatConsistencyRule(BaseRule):
         # Prepare prompt with all fields
         fields_text = '\n'.join([f'{path}: {text}' for path, text in fields_data.items()])
         
-        prompt = f"""Analyze number formatting consistency across these resume fields. Check for:
-- Consistent use of digits vs words for numbers (e.g., "15" vs "fifteen")
-- Consistent percentage format (e.g., "15%" vs "15 percent" vs "fifteen percent")
-- Consistent currency format (e.g., "$1K" vs "$1,000" vs "$1000")
-- Consistent date format
+        prompt = f"""Проанализируйте согласованность форматирования чисел в этих полях резюме. Проверьте:
+– Последовательное использование цифр и слов для чисел (например, «15» и «пятнадцать»).
+– Последовательный процентный формат (например, «15%» против «15 процентов» против «пятнадцати процентов»).
+– Согласованный формат валюты (например, «1 тыс. долларов США», «1000 долларов США» или «1000 долларов США»).
+- Согласованный формат даты
 
-Fields:
+Поля:
 {fields_text}
 
-Return a JSON object with:
-- "inconsistent_fields": list of objects with "field_path" and "fixed_text" for fields that need formatting fixes
+Верните объект JSON с помощью:
+- «inconsistent_fields»: список объектов с «field_path» и «fixed_text» для полей, требующих исправления форматирования.
 
-If all fields are consistent, return empty inconsistent_fields list.
-Recommendation: Use digits for all numbers >10, use "%" symbol instead of word "percent", use "$1,000" format for currency."""
+Если все поля согласованы, вернуть пустой список inconsistent_fields.
+Рекомендация: используйте цифры для всех чисел >10, используйте символ «%» вместо слова «процент», используйте формат «1000 долларов США» для обозначения валюты."""
         
         try:
             result = await llm_helper.call_llm_structured(prompt, max_tokens=800)
@@ -85,8 +85,8 @@ Recommendation: Use digits for all numbers >10, use "%" symbol instead of word "
                             
                             points.append(self.create_point(
                                 field_path=field_path,
-                                title="Inconsistent Number Format",
-                                description="Standardize number formatting to match the rest of the resume",
+                                title="Несовместимый числовой формат",
+                                description="Стандартизируйте форматирование чисел, чтобы оно соответствовало остальной части резюме.",
                                 fix_suggestion=fix_suggestion
                             ))
                 except json.JSONDecodeError:

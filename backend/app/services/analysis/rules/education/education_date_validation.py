@@ -46,14 +46,14 @@ class EducationDateValidationRule(BaseRule):
                     if start_date > datetime.now():
                         points.append(self.create_point(
                             field_path=f"education[{i}].start_date",
-                            title="Invalid Start Date",
-                            description="Start date cannot be in the future"
+                            title="Неверная дата начала",
+                            description="Дата начала не может быть в будущем."
                         ))
                 except ValueError:
                     points.append(self.create_point(
                         field_path=f"education[{i}].start_date",
-                        title="Invalid Date Format",
-                        description="Use format YYYY-MM or 'Month YYYY'"
+                        title="Неверный формат даты",
+                        description="Используйте формат ГГГГ-ММ или «Месяц ГГГГ»."
                     ))
             
             # Check end date format and logic
@@ -64,8 +64,8 @@ class EducationDateValidationRule(BaseRule):
                     if end_date > datetime.now():
                         points.append(self.create_point(
                             field_path=f"education[{i}].end_date",
-                            title="Invalid End Date",
-                            description="End date cannot be in the future"
+                            title="Неверная дата окончания",
+                            description="Дата окончания не может быть в будущем."
                         ))
                     
                     # Check if start_date < end_date
@@ -75,16 +75,16 @@ class EducationDateValidationRule(BaseRule):
                             if start_date >= end_date:
                                 points.append(self.create_point(
                                     field_path=f"education[{i}].end_date",
-                                    title="Invalid Date Range",
-                                    description="End date must be after start date"
+                                    title="Неверный диапазон дат",
+                                    description="Дата окончания должна быть позже даты начала."
                                 ))
                         except ValueError:
                             pass
                 except ValueError:
                     points.append(self.create_point(
                         field_path=f"education[{i}].end_date",
-                        title="Invalid Date Format",
-                        description="Use format YYYY-MM or 'Month YYYY'"
+                        title="Неверный формат даты",
+                        description="Используйте формат ГГГГ-ММ или «Месяц ГГГГ»."
                     ))
         
         return points

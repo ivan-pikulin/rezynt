@@ -8,43 +8,43 @@ export function generatePremiumPoints(sectionId: 'content' | 'ats' | 'style', co
   const points: ImprovementPoint[] = [];
   
   const titles = [
-    'Missing Metrics',
-    'Add Specific Numbers',
-    'Show Measurable Results',
-    'Quantify Your Impact',
-    'Include Key Skills',
-    'Add Relevant Courses',
-    'Highlight Achievements',
-    'Improve Description',
-    'Add Technical Details',
-    'Enhance Summary',
+    'Не хватает метрик',
+    'Добавьте конкретные цифры',
+    'Покажите измеримые результаты',
+    'Оцифруйте свой вклад',
+    'Добавьте ключевые навыки',
+    'Добавьте релевантные курсы',
+    'Подчеркните достижения',
+    'Улучшите описание',
+    'Добавьте технические детали',
+    'Улучшите резюме',
   ];
   
   const descriptions = [
-    'Add specific metrics to quantify your impact.',
-    'Include numbers to demonstrate achievements.',
-    'Show concrete evidence of contributions.',
-    'Add metrics that highlight success.',
-    'Include relevant skills for this role.',
-    'Add courses related to your field.',
-    'Highlight key achievements and results.',
-    'Improve description with more details.',
-    'Add technical specifications and tools.',
-    'Enhance summary with specific examples.',
+    'Добавьте конкретные метрики, чтобы показать свой вклад.',
+    'Используйте цифры, чтобы продемонстрировать достижения.',
+    'Покажите конкретные доказательства вклада.',
+    'Добавьте метрики, которые подчеркивают успех.',
+    'Укажите навыки, релевантные этой роли.',
+    'Добавьте курсы, связанные с вашей областью.',
+    'Подчеркните ключевые достижения и результаты.',
+    'Улучшите описание, добавив больше деталей.',
+    'Добавьте технические спецификации и инструменты.',
+    'Улучшите резюме с помощью конкретных примеров.',
   ];
   
   // Short old text templates for replace type
   const oldTextTemplates = [
-    'improved performance',
-    'led team successfully',
-    'managed projects',
-    'increased satisfaction',
-    'optimized processes',
-    'delivered results',
-    'contributed to success',
-    'handled challenges',
-    'achieved milestones',
-    'worked on tasks',
+    'улучшил производительность',
+    'успешно руководил командой',
+    'управлял проектами',
+    'повысил удовлетворенность',
+    'оптимизировал процессы',
+    'добился результатов',
+    'внес вклад в успех',
+    'справился с вызовами',
+    'достиг ключевых этапов',
+    'работал над задачами',
   ];
   
   // Short new text templates for replace type
@@ -103,11 +103,11 @@ export function generatePremiumPoints(sectionId: 'content' | 'ats' | 'style', co
       
       // Add some filler words or extend the last part
       const fillerPhrases = [
-        ' with measurable results',
-        ' demonstrating clear impact',
-        ' showing significant improvement',
-        ' resulting in positive outcomes',
-        ' achieving outstanding performance',
+        ' с измеримыми результатами',
+        ' демонстрируя заметный эффект',
+        ' показывая значительное улучшение',
+        ' приводя к положительным результатам',
+        ' достигая выдающейся эффективности',
       ];
       
       let result = baseText;
@@ -126,7 +126,7 @@ export function generatePremiumPoints(sectionId: 'content' | 'ats' | 'style', co
       // If still not long enough, add generic extensions
       if (currentLength < targetLength) {
         const remaining = targetLength - currentLength;
-        result += ' ' + 'and more'.substring(0, Math.min(remaining - 1, 9));
+        result += ' ' + 'и еще'.substring(0, Math.min(remaining - 1, 6));
       }
       
       return result.substring(0, targetLength);
@@ -239,4 +239,3 @@ export function generatePremiumPoints(sectionId: 'content' | 'ats' | 'style', co
   
   return points;
 }
-

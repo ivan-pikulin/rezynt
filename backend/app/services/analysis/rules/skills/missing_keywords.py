@@ -38,21 +38,21 @@ class MissingKeywordsRule(BaseRule):
         ])
         
         # Detect missing keywords via LLM with Structured Outputs
-        prompt = f"""Analyze if this resume has appropriate industry-standard keywords for a {job_title} role.
+        prompt = f"""Проанализируйте, содержит ли это резюме подходящие отраслевые ключевые слова для роли {job_title}.
 
-Summary: {summary}
-Current skills: {', '.join(skills)}
-Experience highlights: {exp_text[:500]}
+Резюме: {summary}
+Текущие навыки: {', '.join(skills)}
+Ключевые моменты опыта: {exp_text[:500]}
 
-Task:
-1. Identify 3-5 missing industry-standard keywords/technologies for this role
-2. If found, set has_fix to true and in fixed_text provide JSON with:
-   - missing_keywords: list of keyword strings (each starting with capital letter)
-   - suggested_addition: comma-separated string of keywords to add (each starting with capital letter)
+Задача:
+1. Определите 3-5 недостающих отраслевых ключевых слов или технологий для этой роли
+2. Если такие слова найдены, установите has_fix в true и в fixed_text верните JSON со следующими полями:
+   - missing_keywords: список ключевых слов (каждое должно начинаться с заглавной буквы)
+   - suggested_addition: строка с ключевыми словами через запятую, которые нужно добавить (каждое должно начинаться с заглавной буквы)
 
 Format: Capitalize first letter of each skill/keyword (e.g., "Python", "Machine Learning", "Docker").
 
-If no keywords are missing, set has_fix to false and explain in reasoning."""
+Если недостающих ключевых слов нет, установите has_fix в false и объясните это в reasoning."""
         
         result = await llm_helper.call_llm_structured(prompt, max_tokens=400)
         
@@ -73,8 +73,8 @@ If no keywords are missing, set has_fix to false and explain in reasoning."""
                     keywords_list = ", ".join(missing_keywords[:5])
                     points.append(self.create_point(
                         field_path="skills",
-                        title="Missing Industry Keywords",
-                        description=f"Consider adding relevant keywords: {keywords_list}",
+                        title="Отсутствуют ключевые слова отрасли",
+                        description=f"Рассмотрите возможность добавления релевантных ключевых слов: {keywords_list}.",
                         fix_suggestion=fix_suggestion,
                         metadata={"missing_keywords": missing_keywords}
                     ))

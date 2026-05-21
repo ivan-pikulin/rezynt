@@ -27,11 +27,11 @@ class AchivementLengthRule(BaseRule):
                 
                 if word_count > self.max_words:
                     # Generate fix via LLM with Structured Outputs
-                    prompt = f"""Shorten this resume bullet to under {self.max_words} words while preserving key impact and achievements.
+                    prompt = f"""Сократите этот список резюме до {self.max_words} слов, сохранив при этом ключевые результаты и достижения.
 
-Original ({word_count} words): "{achievement}"
+Оригинал ({word_count} слов): "{achievement}"
 
-Set has_fix to true and provide the shortened text in fixed_text."""
+Установите для has_fix значение true и укажите сокращенный текст в фиксированном_тексте."""
                     
                     fix_response = await llm_helper.call_llm_structured(prompt, max_tokens=200)
                     
@@ -46,8 +46,8 @@ Set has_fix to true and provide the shortened text in fixed_text."""
                     
                     points.append(self.create_point(
                         field_path=f"work_experience[{i}].achievements[{j}]",
-                        title="Bullet Too Long",
-                        description=f"Shorten bullet ({word_count} words → <{self.max_words} words)",
+                        title="Пуля слишком длинная",
+                        description=f"Сократить маркер ({word_count} слов → <{self.max_words} слов)",
                         fix_suggestion=fix_suggestion
                     ))
         

@@ -66,20 +66,20 @@ class CapitalizationConsistencyRule(BaseRule):
         # Prepare prompt with all fields
         fields_text = '\n'.join([f'{path}: {text}' for path, text in fields_data.items()])
         
-        prompt = f"""Analyze capitalization consistency across these resume fields. Check for:
-- Names (first_name, last_name): consistent style (Title Case, UPPERCASE, or lowercase)
-- Job titles: consistent capitalization style
-- Achievements: consistent sentence start style (first letter capitalized)
-- Skills: consistent capitalization style
+        prompt = f"""Проанализируйте согласованность использования заглавных букв в этих полях резюме. Проверьте:
+– Имена (имя, фамилия): единый стиль (регистр заголовка, ПРОПИСНЫЙ или строчный регистр).
+- Названия должностей: последовательный стиль написания с заглавных букв.
+- Достижения: единообразный стиль начала предложений (первая буква заглавная).
+- Навыки: последовательный стиль капитализации
 
-Fields:
+Поля:
 {fields_text}
 
-Return a JSON object with:
-- "inconsistent_fields": list of objects with "field_path" and "fixed_text" for fields that need capitalization fixes
+Верните объект JSON с помощью:
+- «inconsistent_fields»: список объектов с «field_path» и «fixed_text» для полей, требующих исправления капитализации.
 
-If all fields are consistent, return empty inconsistent_fields list.
-Recommendation: Use Title Case for names and job titles, capitalize first letter for sentences."""
+Если все поля согласованы, вернуть пустой список inconsistent_fields.
+Рекомендация: используйте регистр заголовков для имен и должностей, а первую букву в предложениях начинайте с заглавной буквы."""
         
         try:
             result = await llm_helper.call_llm_structured(prompt, max_tokens=800)
@@ -116,8 +116,8 @@ Recommendation: Use Title Case for names and job titles, capitalize first letter
                             
                             points.append(self.create_point(
                                 field_path=field_path,
-                                title="Inconsistent Capitalization",
-                                description="Standardize capitalization to match the rest of the resume",
+                                title="Непоследовательная капитализация",
+                                description="Стандартизируйте заглавные буквы, чтобы они соответствовали остальной части резюме.",
                                 fix_suggestion=fix_suggestion
                             ))
                 except json.JSONDecodeError:

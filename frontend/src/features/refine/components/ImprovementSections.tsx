@@ -7,6 +7,7 @@ import Skeleton from '@mui/material/Skeleton';
 import Stack from '@mui/material/Stack';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import React, { useState, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { AnalysisSection, Resume } from '../../../shared/services/api/types';
 import ImprovementPoint from './ImprovementPoint';
 import { COLORS } from '../../../shared/theme/theme';
@@ -52,6 +53,7 @@ const statusToText = {
 };
 
 const ImprovementSections: React.FC<Props> = ({ sections, resume, onFixApplied, onNavigateToField, onFixMarked, dismissedPointIds, isPremium = false, isAnalyzing = false }) => {
+  const { t } = useTranslation();
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
 
   // Initialize all sections as expanded when sections change
@@ -131,7 +133,11 @@ const ImprovementSections: React.FC<Props> = ({ sections, resume, onFixApplied, 
         const pct = s.percentage;
         const color = statusToColor[s.status as keyof typeof statusToColor];
         const bgColor = statusToBackground[s.status as keyof typeof statusToBackground];
-        const statusLabel = s.status === 'NeedsWork' ? 'Needs Work' : s.status;
+        const statusLabel = s.status === 'NeedsWork'
+          ? t('refine.sectionStatus.needsWork')
+          : s.status === 'Good'
+            ? t('refine.sectionStatus.good')
+            : t('refine.sectionStatus.strong');
         const done = s.improvement_points.length;
         const total = done; // All points shown are issues to fix
 
@@ -203,7 +209,7 @@ const ImprovementSections: React.FC<Props> = ({ sections, resume, onFixApplied, 
                 <Box sx={breakdownTitle}>
                   <Typography sx={breakdownName}>{s.title}</Typography>
                   <Typography sx={breakdownCount}>
-                    ({done} {done === 1 ? 'issue' : 'issues'})
+                    ({done})
                   </Typography>
                 </Box>
                 <Box sx={breakdownProgress}>
@@ -224,7 +230,7 @@ const ImprovementSections: React.FC<Props> = ({ sections, resume, onFixApplied, 
             <AccordionDetails sx={{ padding: '6px 12px 12px' }}>
               {s.improvement_points.length === 0 ? (
                 <Typography sx={{ fontSize: '14px', color: '#6b7280', textAlign: 'center', padding: '12px' }}>
-                  No issues found in this section. Great job!
+                  {t('refine.sections.noIssuesFound')}
                 </Typography>
               ) : (
                 s.improvement_points.map((point) => (
@@ -250,5 +256,4 @@ const ImprovementSections: React.FC<Props> = ({ sections, resume, onFixApplied, 
 };
 
 export default ImprovementSections;
-
 

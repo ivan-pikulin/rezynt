@@ -178,7 +178,7 @@ const ScoreBar: React.FC<ScoreBarProps> = ({ score, label, subtitle, marketingTe
                 0
               )}
             </Typography>
-            <Typography sx={styles.scoreLabel}>Score</Typography>
+            <Typography sx={styles.scoreLabel}>{t('refine.scoreLabel')}</Typography>
           </Box>
         </Box>
         <Box sx={{
@@ -246,5 +246,4 @@ const ScoreBar: React.FC<ScoreBarProps> = ({ score, label, subtitle, marketingTe
 };
 
 export default ScoreBar;
-
 

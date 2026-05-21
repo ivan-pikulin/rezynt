@@ -30,15 +30,15 @@ class GenerateMissingSummaryRule(BaseRule):
             skills = resume.get('skills') or []
             years = len(work_exp) * 2  # Rough estimate
 
-            prompt = f"""Generate a professional summary (150-200 characters) for this resume based on the candidate's experience and skills.
+            prompt = f"""Составьте профессиональное резюме (150–200 символов) для этого резюме на основе опыта и навыков кандидата.
 
-Work Experience: {json.dumps(work_exp[:3])}
-Education: {json.dumps(education)}
-Skills: {', '.join(skills[:10])}
-Estimated years of experience: {years}
+Опыт работы: {json.dumps(work_exp[:3])}
+Образование: {json.dumps(education)}
+Навыки: {', '.join(skills[:10])}
+Предполагаемый опыт работы: {years}
 
-Focus on key strengths, expertise areas, and career level.
-Set has_fix to true and provide the professional summary in fixed_text."""
+Сосредоточьтесь на ключевых сильных сторонах, областях знаний и уровне карьеры.
+Установите для has_fix значение true и предоставьте профессиональное резюме в файле fixed_text."""
 
             fix_response = await llm_helper.call_llm_structured(prompt, max_tokens=250)
 
@@ -53,8 +53,8 @@ Set has_fix to true and provide the professional summary in fixed_text."""
 
             points.append(self.create_point(
                 field_path="professional_summary",
-                title="Generate Professional Summary",
-                description="AI-generated professional summary based on your experience and skills",
+                title="Создать профессиональное резюме",
+                description="Профессиональное резюме, созданное искусственным интеллектом на основе вашего опыта и навыков.",
                 fix_suggestion=fix_suggestion,
                 metadata={"severity": "high", "score_impact": 0}  # 0 impact since MissingRequiredFieldsRule already counted it
             ))

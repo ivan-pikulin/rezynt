@@ -26,7 +26,7 @@ async def get_current_user(
 ) -> User:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
+        detail="Не удалось проверить учетные данные",
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
@@ -55,7 +55,7 @@ async def get_current_verified_user(
     if not current_user.is_verified:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Email not verified. Please confirm your email address."
+            detail="Электронная почта не подтверждена. Подтвердите адрес."
         )
     return current_user
 
@@ -70,13 +70,13 @@ async def verify_api_key(x_api_key: Optional[str] = Header(None)) -> bool:
     if not x_api_key:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="API key is required"
+            detail="Требуется API-ключ"
         )
     
     if x_api_key != settings.APP_API_KEY:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid API key"
+            detail="Недействительный API-ключ"
         )
     
     return True

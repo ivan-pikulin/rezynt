@@ -25,8 +25,8 @@ class MissingCompanyRule(BaseRule):
                 job_title = exp.get('job_title', 'this position')
                 points.append(self.create_point(
                     field_path=f"work_experience[{i}].company",
-                    title="Missing Company Name",
-                    description=f"Add company name for {job_title}"
+                    title="Отсутствует название компании",
+                    description=f"Добавьте название компании для {job_title}"
                 ))
         
         return points

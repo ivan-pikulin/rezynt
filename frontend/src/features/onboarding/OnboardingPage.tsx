@@ -136,7 +136,7 @@ const OnboardingPage: React.FC<OnboardingPageProps> = ({ redirectUrl }) => {
       setError(errorMessage);
       
       // If onboarding already completed, redirect to refine after showing error
-      if (errorMessage === 'Onboarding already completed') {
+      if (errorMessage === t('onboarding.errorAlreadyCompleted')) {
         setTimeout(() => {
           navigate('/refine', { replace: true });
         }, 200);

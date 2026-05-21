@@ -34,12 +34,12 @@ class BuzzwordsRule(BaseRule):
         
         if summary_buzzwords:
             # Generate fix via LLM with Structured Outputs
-            prompt = f"""Replace these buzzwords with concrete, specific terms and examples.
+            prompt = f"""Замените эти модные словечки конкретными терминами и примерами.
 
-Original: "{summary_text}"
-Buzzwords to replace: {', '.join(summary_buzzwords)}
+Оригинал: "{summary_text}"
+Модные слова, которые следует заменить: {', '.join(summary_buzzwords)}.
 
-Set has_fix to true and provide the improved text in fixed_text."""
+Установите для has_fix значение true и предоставьте улучшенный текст в фиксированном_тексте."""
             
             fix_response = await llm_helper.call_llm_structured(prompt)
             
@@ -54,8 +54,8 @@ Set has_fix to true and provide the improved text in fixed_text."""
             
             points.append(self.create_point(
                 field_path="professional_summary",
-                title="Contains Buzzwords",
-                description=f"Replace buzzwords with specific terms: {', '.join(summary_buzzwords[:3])}",
+                title="Содержит модные слова",
+                description=f"Замените модные слова конкретными терминами: {', '.join(summary_buzzwords[:3])}.",
                 fix_suggestion=fix_suggestion
             ))
         
@@ -66,12 +66,12 @@ Set has_fix to true and provide the improved text in fixed_text."""
                 
                 if found_buzzwords:
                     # Generate fix via LLM with Structured Outputs
-                    prompt = f"""Replace these buzzwords with concrete, specific terms and examples.
+                    prompt = f"""Замените эти модные словечки конкретными терминами и примерами.
 
-Original: "{achievement}"
-Buzzwords to replace: {', '.join(found_buzzwords)}
+Оригинал: "{achievement}"
+Модные слова, которые следует заменить: {', '.join(found_buzzwords)}.
 
-Set has_fix to true and provide the improved text in fixed_text."""
+Установите для has_fix значение true и предоставьте улучшенный текст в фиксированном_тексте."""
                     
                     fix_response = await llm_helper.call_llm_structured(prompt)
                     
@@ -86,8 +86,8 @@ Set has_fix to true and provide the improved text in fixed_text."""
                     
                     points.append(self.create_point(
                         field_path=f"work_experience[{i}].achievements[{j}]",
-                        title="Contains Buzzwords",
-                        description=f"Replace: {', '.join(found_buzzwords[:2])}",
+                        title="Содержит модные слова",
+                        description=f"Заменить: {', '.join(found_buzzwords[:2])}",
                         fix_suggestion=fix_suggestion
                     ))
         
