@@ -2,6 +2,7 @@ import { BaseApi } from './baseApi';
 import { 
   LoginCredentials, 
   SignupCredentials, 
+  Resume,
   TokenResponse, 
   User, 
   RefreshRequest 
@@ -36,6 +37,11 @@ export interface ResendVerificationCode {
 export interface GoogleLoginRequest {
   id_token: string;
   guest_id?: string;
+}
+
+export interface LandingSignupRequest {
+  email: string;
+  resume_data: Resume;
 }
 
 export class AuthApi extends BaseApi {
@@ -82,6 +88,13 @@ export class AuthApi extends BaseApi {
     console.log('AuthApi.signup - sending request:', requestData);
     
     return this.post<User>('/auth/signup', requestData);
+  }
+
+  /**
+   * Create and authenticate a full account from the landing questionnaire.
+   */
+  async signupFromLanding(request: LandingSignupRequest): Promise<TokenResponse> {
+    return this.post<TokenResponse>('/auth/landing-signup', request);
   }
 
   /**

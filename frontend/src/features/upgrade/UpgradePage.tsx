@@ -1,3 +1,4 @@
+import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
 import CheckIcon from '@mui/icons-material/Check';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -10,7 +11,6 @@ import { COLORS } from '../../shared/theme/theme';
 import { landingConceptVars } from '../landing-concept/LandingConceptTheme';
 import '../landing-concept/LandingConceptPage.css';
 
-const STRIPE_CHECKOUT_URL = 'https://buy.stripe.com/7sY28t1jrf0n1mt3g743S0K';
 const planIds = ['best'] as const;
 
 type UpgradePlanId = (typeof planIds)[number];
@@ -31,30 +31,31 @@ const plans: UpgradePlan[] = [
 
 export const UpgradePage: React.FC = () => {
   const { t } = useTranslation();
-  const [processingPlanId, setProcessingPlanId] = useState<UpgradePlanId | null>(null);
+  const [selectedPlanId, setSelectedPlanId] = useState<UpgradePlanId | null>(null);
 
-  const handleUpgrade = async (planId: UpgradePlanId) => {
-    setProcessingPlanId(planId);
-    try {
-      window.location.assign(STRIPE_CHECKOUT_URL);
-    } catch (error) {
-      console.error('Failed to process upgrade:', error);
-      setProcessingPlanId(null);
-    }
+  const handleUpgrade = (planId: UpgradePlanId) => {
+    setSelectedPlanId(planId);
   };
 
   const landingHeader = (
     <header className="lc-header">
       <div className="lc-shell lc-header__inner">
-        <Link to="/landing-concept" className="lc-brand" aria-label="Rezynt">
-          <img
-            src="/rezynt-logo-with-name.svg"
-            alt="Rezynt"
-            className="lc-brand__image"
-            width="206"
-            height="52"
-          />
-        </Link>
+        <div className="lc-header__start">
+          <Link to="/export" className="lc-header-back" aria-label={t('upgrade.backToTemplates')}>
+            <ArrowBackRoundedIcon aria-hidden="true" />
+            <span className="lc-header-back__label">{t('upgrade.backToTemplates')}</span>
+          </Link>
+
+          <Link to="/landing-concept" className="lc-brand" aria-label="Rezynt">
+            <img
+              src="/rezynt-logo-with-name.svg"
+              alt="Rezynt"
+              className="lc-brand__image"
+              width="206"
+              height="52"
+            />
+          </Link>
+        </div>
 
         <nav className="lc-nav" aria-label={t('landingConcept.nav.label')}>
           <Link to="/landing-concept#builder">{t('landingConcept.nav.builder')}</Link>
@@ -125,7 +126,7 @@ export const UpgradePage: React.FC = () => {
           }}
         >
           {plans.map((plan) => {
-            const isProcessing = processingPlanId === plan.id;
+            const isSelected = selectedPlanId === plan.id;
 
             return (
               <Box
@@ -241,7 +242,6 @@ export const UpgradePage: React.FC = () => {
                   variant="contained"
                   fullWidth
                   onClick={() => handleUpgrade(plan.id)}
-                  disabled={Boolean(processingPlanId)}
                   sx={{
                     mt: { xs: 3.5, md: 4.5 },
                     minHeight: { xs: 58, md: 68 },
@@ -263,7 +263,7 @@ export const UpgradePage: React.FC = () => {
                     },
                   }}
                 >
-                  {isProcessing ? t('upgrade.buttons.processing') : t('upgrade.buttons.pay')}
+                  {isSelected ? t('upgrade.buttons.selected') : t('upgrade.buttons.pay')}
                 </Button>
               </Box>
             );

@@ -40,7 +40,8 @@ Experimental marketing page for Rezynt focused on creating a resume from scratch
 - Header arrow navigation is not rendered in the landing questionnaire.
 - The final section has no internal CTA. A separate final CTA block renders below all section cards.
 - The final CTA block is always visible below all accordion section cards. The button says `Перейти к выбору шаблона`, is larger than section-scroll buttons, and remains disabled until the user checks personal data processing consent.
-- Clicking the final CTA saves the builder data and navigates directly to the existing template selection/export screen at `/export`: authenticated users are saved through `resumeApi.updateResume`, while guests are saved through `guestResumeService` and the guest React Query cache.
+- Clicking the final CTA saves the builder data and navigates directly to the existing template selection/export screen at `/export`: authenticated users are saved through `resumeApi.updateResume`; unauthenticated users are registered through `authApi.signupFromLanding` using the email from the contacts step, receive auth tokens, are stored as full logged-in users, and then continue to `/export`.
+- The landing signup flow rejects existing emails instead of silently logging in by email alone. The UI shows a diagnostic error and keeps the user on the form.
 - The consent text links to `/privacy-policy.html`.
 - The summary step is labeled `Саммари` in Russian builder UI to avoid confusing the section with the whole resume document.
 - The page ends immediately after the final questionnaire CTA/consent block with a footer copied from the public landing pattern: logo, copyright, email, privacy policy, and terms links.

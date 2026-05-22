@@ -8,7 +8,7 @@ from app.database.crud import user_crud
 from app.database.crud.crud_temp_resume_file import temp_resume_file_crud
 from app.schemas import (EmailVerificationByCode, GoogleLoginRequest,
                          GuestSessionRequest, GuestSessionResponse,
-                         PasswordResetByCode, PasswordResetConfirm,
+                         LandingSignupRequest, PasswordResetByCode, PasswordResetConfirm,
                          PasswordResetRequest, RefreshRequest,
                          ResendVerificationCode, Token, UserCreate,
                          UserPublic)
@@ -102,6 +102,54 @@ async def signup(
             status_code=400,
             detail=str(e),
         )
+
+
+@router.post("/landing-signup", response_model=Token, status_code=status.HTTP_201_CREATED)
+async def landing_signup(
+    *,
+    db: AsyncDB,
+    signup_in: LandingSignupRequest,
+) -> dict:
+    """
+    Create a full user account from the landing questionnaire and return auth tokens.
+    Existing emails are rejected to avoid authenticating someone by email alone.
+    """
+    resume_data = signup_in.resume_data.model_dump(exclude_none=True)
+    personal_info = resume_data.get("personal_info") or {}
+
+    try:
+        user = await user_crud.create_landing_user(
+            db,
+            email=str(signup_in.email),
+            resume_data=resume_data,
+            first_name=personal_info.get("first_name"),
+            last_name=personal_info.get("last_name"),
+        )
+    except ValueError as error:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=str(error),
+        )
+
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = security.create_access_token(
+        user.id,
+        expires_delta=access_token_expires,
+        guest_id=user.guest_id,
+        is_registered=user.is_registered,
+    )
+    refresh_token = security.create_refresh_token(
+        user.id,
+        guest_id=user.guest_id,
+        is_registered=user.is_registered,
+    )
+
+    return {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "token_type": "bearer",
+        "guest_id": user.guest_id,
+    }
 
 
 @router.post("/login", response_model=Token)

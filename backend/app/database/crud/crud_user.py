@@ -129,6 +129,36 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         await db.refresh(db_obj)
         return db_obj
 
+    async def create_landing_user(
+        self,
+        db: AsyncSession,
+        *,
+        email: str,
+        resume_data: Dict[str, Any],
+        first_name: Optional[str] = None,
+        last_name: Optional[str] = None,
+    ) -> User:
+        existing_user = await self.get_by_email(db, email=email)
+        if existing_user:
+            raise ValueError("Пользователь с таким адресом электронной почты уже существует")
+
+        db_obj = User(
+            email=email,
+            password_hash=None,
+            first_name=first_name,
+            last_name=last_name,
+            auth_provider="landing",
+            is_verified=True,
+            is_registered=True,
+            is_premium=False,
+            credits=20,
+            resume_data=resume_data,
+        )
+        db.add(db_obj)
+        await db.commit()
+        await db.refresh(db_obj)
+        return db_obj
+
     async def link_google_account(
         self,
         db: AsyncSession,

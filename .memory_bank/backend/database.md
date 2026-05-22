@@ -24,6 +24,7 @@
 ## CRUD
 
 - Пользовательская логика: `backend/app/database/crud/crud_user.py`
+- `CRUDUser.create_landing_user` создает полноценного verified-пользователя из лендинга с `auth_provider="landing"`, `is_premium=False`, `credits=20` и сохраненным `resume_data`.
 - Временные файлы: `backend/app/database/crud/crud_temp_resume_file.py`
 
 ## Миграции

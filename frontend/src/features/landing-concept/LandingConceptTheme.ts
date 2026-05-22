@@ -33,4 +33,5 @@ export const landingConceptVars: React.CSSProperties & Record<string, string> = 
   "--lc-gold-dark": COLORS.landing.goldDark,
   "--lc-brown": COLORS.landing.brown,
   "--lc-success": COLORS.landing.success,
+  "--lc-error": COLORS.error.text,
 };

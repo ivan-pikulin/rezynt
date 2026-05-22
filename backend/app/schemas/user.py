@@ -3,6 +3,8 @@ from typing import Optional, Dict, Any
 
 from pydantic import BaseModel, EmailStr
 
+from .resume import ResumeData
+
 
 class UserBase(BaseModel):
     email: Optional[EmailStr] = None
@@ -15,6 +17,11 @@ class UserCreate(BaseModel):
     password: str
     temp_file_id: Optional[str] = None
     guest_id: Optional[str] = None
+
+
+class LandingSignupRequest(BaseModel):
+    email: EmailStr
+    resume_data: ResumeData
 
 
 class UserUpdate(BaseModel):

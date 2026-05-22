@@ -6,16 +6,18 @@ import { Box, Button, Paper } from "@mui/material";
 import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
 import { useAuthContext } from "../../shared/contexts/AuthContext";
 import { useBuilder } from "../builder/hooks/useBuilder";
-import { BUILDER_STEPS, type BuilderStep } from "../builder/types/builder";
+import { BUILDER_STEPS, type BuilderState, type BuilderStep } from "../builder/types/builder";
 import { ContactInfoStep } from "../builder/components/ContactInfoStep";
 import { WorkExperienceStep } from "../builder/components/WorkExperienceStep";
 import { EducationStep } from "../builder/components/EducationStep";
 import { SkillsStep } from "../builder/components/SkillsStep";
 import { SummaryStep } from "../builder/components/SummaryStep";
+import type { ResumeData } from "../../shared/types/resume";
 
 const getLandingStepSectionId = (stepId: BuilderStep) => `landing-builder-${stepId}`;
 const OPEN_LANDING_BUILDER_STEP_EVENT = "landing-builder:open-step";
 const TEMPLATE_SELECTION_ROUTE = "/export";
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const stepFieldSelector = [
   'input:not([type="hidden"]):not([disabled]):not([readonly])',
   "textarea:not([disabled]):not([readonly])",
@@ -33,12 +35,24 @@ const focusFirstStepField = (stepId: BuilderStep) => {
   field?.focus({ preventScroll: true });
 };
 
+const getResumePayload = (builderState: BuilderState): ResumeData => ({
+  personal_info: builderState.personal_info,
+  professional_summary: builderState.professional_summary,
+  skills: builderState.skills,
+  work_experience: builderState.work_experience,
+  education: builderState.education,
+  languages_spoken: builderState.languages_spoken,
+  awards: builderState.awards,
+});
+
 function LandingConceptQuestionnaire() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { isAuthenticated } = useAuthContext();
+  const { isAuthenticated, login } = useAuthContext();
   const [hasPersonalDataConsent, setHasPersonalDataConsent] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [finishError, setFinishError] = useState<string | null>(null);
   const [expandedStepIds, setExpandedStepIds] = useState<Record<BuilderStep, boolean>>({
     "contact-info": true,
     "work-experience": false,
@@ -109,21 +123,61 @@ function LandingConceptQuestionnaire() {
   }, [openStepAndScroll]);
 
   const handleFinish = async () => {
+    if (isSubmitting) {
+      return;
+    }
+
+    setFinishError(null);
+    setIsSubmitting(true);
+
     try {
+      const resumeData = getResumePayload(state);
+
       if (isAuthenticated) {
         const { resumeApi } = await import("../../shared/services/api");
-        const savedResume = await resumeApi.updateResume(state);
+        const savedResume = await resumeApi.updateResume(resumeData);
         queryClient.setQueryData(["resume", "user"], savedResume);
       } else {
-        const { guestResumeService } = await import("../../shared/services/guestResumeService");
-        const savedResume = guestResumeService.update(state);
-        queryClient.setQueryData(["resume", "guest"], savedResume);
+        const email = state.personal_info?.contacts?.email?.trim() ?? "";
+
+        if (!emailPattern.test(email)) {
+          setFinishError(t("landingConcept.builder.emailRequiredForAccount"));
+          openStepAndScroll("contact-info", true);
+          return;
+        }
+
+        const [{ authApi }, { guestResumeService }] = await Promise.all([
+          import("../../shared/services/api"),
+          import("../../shared/services/guestResumeService"),
+        ]);
+
+        const tokens = await authApi.signupFromLanding({
+          email,
+          resume_data: resumeData,
+        });
+
+        const loginSucceeded = await login(tokens);
+        if (!loginSucceeded) {
+          throw new Error("Landing signup created tokens, but user authorization failed");
+        }
+
+        guestResumeService.clear();
+        queryClient.setQueryData(["resume", "user"], resumeData);
+        queryClient.removeQueries({ queryKey: ["resume", "guest"] });
       }
 
       clearBuilder();
       navigate(TEMPLATE_SELECTION_ROUTE);
     } catch (error) {
       console.error("Error saving resume from builder:", error);
+      const responseStatus = (error as { response?: { status?: number } }).response?.status;
+      setFinishError(
+        responseStatus === 409
+          ? t("landingConcept.builder.emailAlreadyExists")
+          : t("landingConcept.builder.submitError"),
+      );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -189,10 +243,16 @@ function LandingConceptQuestionnaire() {
             className="lc-builder__final-button"
             variant="contained"
             onClick={handleFinish}
-            disabled={!hasPersonalDataConsent}
+            disabled={!hasPersonalDataConsent || isSubmitting}
           >
-            {t("landingConcept.builder.finalCta")}
+            {isSubmitting ? t("landingConcept.builder.finalCtaLoading") : t("landingConcept.builder.finalCta")}
           </Button>
+
+          {finishError && (
+            <p className="lc-builder__error" role="alert">
+              {finishError}
+            </p>
+          )}
 
           <label className="lc-builder__consent">
             <input

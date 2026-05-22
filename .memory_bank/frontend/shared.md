@@ -33,6 +33,7 @@ Shared-слой содержит всё, что переиспользуется
 
 - Shared не импортирует feature-код.
 - Все API-запросы идут через `shared/services/api`.
+- `authApi.signupFromLanding` creates and authenticates a full user account from landing questionnaire data; the auth context `login` method returns `Promise<boolean>` because it stores tokens and verifies them through `/user/me`.
 - Все текстовые строки должны быть в `shared/i18n`.
 - Все цвета и токены дизайна должны жить в `shared/theme/theme.ts`.
 

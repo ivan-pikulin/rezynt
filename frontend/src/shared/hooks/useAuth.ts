@@ -9,7 +9,7 @@ interface UseAuthReturn {
   isAuthenticated: boolean;
   isLoading: boolean;
   user: User | null;
-  login: (tokens: TokenResponse) => void;
+  login: (tokens: TokenResponse) => Promise<boolean>;
   logout: () => void;
   refreshTokens: () => Promise<boolean>;
   updateUser: (user: User) => void;
@@ -108,10 +108,12 @@ export const useAuth = (): UseAuthReturn => {
     try {
       const userData = await userApi.getCurrentUser();
       setUser(userData);
+      return true;
     } catch (error) {
       tokenService.clearTokens();
       setIsAuthenticated(false);
       setUser(null);
+      return false;
     }
   }, []);
 

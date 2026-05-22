@@ -7,7 +7,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   user: User | null;
-  login: (tokens: TokenResponse) => void;
+  login: (tokens: TokenResponse) => Promise<boolean>;
   logout: () => void;
   refreshTokens: () => Promise<boolean>;
   updateUser: (user: User) => void;

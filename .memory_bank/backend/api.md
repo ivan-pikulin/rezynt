@@ -8,6 +8,7 @@ API v1 - основной HTTP контракт backend.
 
 - `POST /auth/guest`
 - `POST /auth/signup`
+- `POST /auth/landing-signup`
 - `POST /auth/login`
 - `POST /auth/google`
 - `GET /auth/confirm-email`
@@ -66,6 +67,7 @@ API v1 - основной HTTP контракт backend.
 ## Notes
 
 - `confirm-email` redirects to frontend with tokens on success and error page on failure.
+- `landing-signup` creates a full verified, free-tier user from the landing questionnaire resume data and returns tokens immediately. Existing emails return conflict instead of logging in by email alone.
 - Resume upload uses Celery task ids as user-visible progress state.
 - Analysis endpoints operate on `User.analysis_result` JSONB cache.
 

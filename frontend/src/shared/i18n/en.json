@@ -457,6 +457,7 @@
   "upgrade": {
     "title": "Start applying today",
     "subtitle": "Getting hired one day earlier can repay this many times over.",
+    "backToTemplates": "Back to templates",
     "plans": {
       "best": {
         "price": "149 ₽",
@@ -472,6 +473,7 @@
     "buttons": {
       "continue": "Get Started Now",
       "pay": "Pay",
+      "selected": "Payment temporarily disabled",
       "processing": "Processing..."
     },
     "bottomNote": "14-days money-back guarantee"
@@ -479,6 +481,7 @@
   "export": {
     "title": "Export",
     "pageTitle": "Resume",
+    "backToEdit": "Back to editing",
     "templateSelection": {
       "title": "We tested hundreds of resume templates — these 4 work best",
       "tabsAria": "Resume template selection",
