@@ -1,9 +1,10 @@
 import React from 'react';
 import Box from '@mui/material/Box';
+import ButtonBase from '@mui/material/ButtonBase';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
-// Radio and Button removed to make entire card clickable
+import { useTranslation } from 'react-i18next';
 import { COLORS } from '../../../shared/theme/theme';
 import ResumeRenderer from '../../../shared/components/ResumeRenderer';
 import { TemplateService } from '../../../shared/services/templateService';
@@ -15,81 +16,130 @@ interface TemplateSelectionCardsProps {
   resumeData: any;
 }
 
-const descriptions: Array<{ title: string; subtitle: string; bullets: string[] }> = [
-  {
-    title: 'Классический',
-    subtitle: 'Вневременной дизайн, который подчеркивает авторитет и опыт',
-    bullets: ['Подходит для ATS', 'Готов к печати', 'Традиционная компоновка', 'Отраслевой стандарт']
-  },
-  {
-    title: 'Элегантный',
-    subtitle: 'Смелый дизайн для творческих специалистов и современных отраслей',
-    bullets: ['Подходит для ATS', 'Готов к печати', 'Визуальный акцент', 'Для руководящих ролей']
-  },
-  {
-    title: 'Современный',
-    subtitle: 'Чистый, актуальный дизайн, который выделяется в любой отрасли',
-    bullets: ['Подходит для ATS', 'Готов к печати', 'Чистая типографика', 'Легко просматривать']
-  },
-  {
-    title: 'Профессиональный',
-    subtitle: 'Изящный шаблон с выразительной шапкой',
-    bullets: ['Подходит для ATS', 'Готов к печати', 'Вид для руководителя', 'Утонченный стиль']
-  }
-];
+const templateIds = ['clarity', 'frame', 'sidebar', 'professional'];
 
 const TemplateSelectionCards: React.FC<TemplateSelectionCardsProps> = ({ selectedTemplateId, onSelect, resumeData }) => {
-  // Use all four templates
-  const templates = ['clarity', 'frame', 'sidebar', 'professional']
+  const { t } = useTranslation();
+  const templates = templateIds
     .map(id => TemplateService.getTemplateById(id)!)
     .filter(Boolean);
+  const selectedTemplate = templates.find((template) => template.id === selectedTemplateId) || templates[0];
+
+  const getTemplateTitle = (templateId: string) => t(`export.templateSelection.templates.${templateId}`);
+  const getMobileTemplateTitle = (templateId: string) => t(`export.templateSelection.mobileTemplates.${templateId}`);
 
   return (
-    <Box sx={{ 
-      display: 'grid', 
-      gridTemplateColumns: { 
-        xs: 'repeat(2, 1fr)',  // 2 columns on mobile
-        sm: 'repeat(2, 1fr)',  // 2 columns on small screens
-        md: 'repeat(4, minmax(200px, 220px))'  // 4 columns on desktop (always in one row)
-      },
-      justifyContent: { xs: 'stretch', md: 'center' },
-      gap: 2 
-    }}>
-      {templates.map((template, idx) => {
-        const isSelected = selectedTemplateId === template.id;
-        const content = descriptions[idx] || descriptions[0];
-        return (
-          <Card 
-            key={template.id}
-            onClick={() => onSelect(template)}
-            sx={{ 
-              width: { xs: '100%', md: 220 }, 
-              borderRadius: 2, 
-              border: `2px solid ${isSelected ? COLORS.primary.main : COLORS.grey[200]}`,
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              '&:hover': { boxShadow: '0 6px 16px rgba(0,0,0,0.08)' }
-            }}
-          >
-            <CardContent sx={{ p: 1.5 }}>
-              {/* Title centered above preview */}
-              <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1, textAlign: 'center' }}>
-                {content.title}
-              </Typography>
+    <>
+      <Box sx={{ display: { xs: 'block', sm: 'none' }, width: '100%' }}>
+        <Box
+          role="tablist"
+          aria-label={t('export.templateSelection.tabsAria')}
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
+            alignItems: 'end',
+            borderBottom: `1px solid ${COLORS.landing.borderSoft}`,
+          }}
+        >
+          {templates.map((template) => {
+            const isSelected = selectedTemplate.id === template.id;
+            return (
+              <ButtonBase
+                key={template.id}
+                role="tab"
+                aria-selected={isSelected}
+                onClick={() => onSelect(template)}
+                sx={{
+                  position: 'relative',
+                  minHeight: 46,
+                  px: 0.5,
+                  pb: 1.25,
+                  color: isSelected ? COLORS.primary.main : COLORS.landing.mutedText,
+                  fontSize: '0.78rem',
+                  fontWeight: isSelected ? 800 : 650,
+                  lineHeight: 1.12,
+                  textAlign: 'center',
+                  whiteSpace: 'nowrap',
+                  transition: 'color 180ms ease',
+                  '&::after': {
+                    content: '""',
+                    position: 'absolute',
+                    right: 8,
+                    bottom: -1,
+                    left: 8,
+                    height: 2,
+                    borderRadius: 999,
+                    bgcolor: isSelected ? COLORS.primary.main : 'transparent',
+                    transition: 'background-color 180ms ease',
+                  },
+                }}
+              >
+                {getMobileTemplateTitle(template.id)}
+              </ButtonBase>
+            );
+          })}
+        </Box>
 
-              <Box sx={{ mb: 2 }}>
-                <Box sx={{ width: '100%', aspectRatio: '210 / 297', overflow: 'hidden', borderRadius: 1, bgcolor: '#fafafa' }}>
-                  <ResumeRenderer data={resumeData} templateId={template.id} isPreview={true} fitToContainer={true} />
+        <Box
+          sx={{
+            width: 'min(100%, 330px)',
+            mx: 'auto',
+            mt: 2,
+            p: 1.25,
+            borderRadius: 3,
+            border: `1px solid ${COLORS.landing.borderSoft}`,
+            bgcolor: COLORS.landing.surfaceStrong,
+            boxShadow: COLORS.landing.shadow,
+          }}
+        >
+          <Box sx={{ width: '100%', aspectRatio: '210 / 297', overflow: 'hidden', borderRadius: 2, bgcolor: COLORS.grey[50] }}>
+            <ResumeRenderer data={resumeData} templateId={selectedTemplate.id} isPreview={true} fitToContainer={true} />
+          </Box>
+        </Box>
+      </Box>
+
+      <Box sx={{
+        display: { xs: 'none', sm: 'grid' },
+        gridTemplateColumns: {
+          sm: 'repeat(2, 1fr)',
+          md: 'repeat(4, minmax(200px, 220px))'
+        },
+        justifyContent: { sm: 'stretch', md: 'center' },
+        gap: 2
+      }}>
+        {templates.map((template) => {
+          const isSelected = selectedTemplate.id === template.id;
+          return (
+            <Card
+              key={template.id}
+              onClick={() => onSelect(template)}
+              sx={{
+                width: { sm: '100%', md: 220 },
+                borderRadius: 2,
+                border: `2px solid ${isSelected ? COLORS.primary.main : COLORS.grey[200]}`,
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                '&:hover': { boxShadow: COLORS.landing.shadow }
+              }}
+            >
+              <CardContent sx={{ p: 1.5 }}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1, textAlign: 'center' }}>
+                  {getTemplateTitle(template.id)}
+                </Typography>
+
+                <Box sx={{ mb: 2 }}>
+                  <Box sx={{ width: '100%', aspectRatio: '210 / 297', overflow: 'hidden', borderRadius: 1, bgcolor: COLORS.grey[50] }}>
+                    <ResumeRenderer data={resumeData} templateId={template.id} isPreview={true} fitToContainer={true} />
+                  </Box>
                 </Box>
-              </Box>
 
-            </CardContent>
-          </Card>
-        );
-      })}
-    </Box>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </Box>
+    </>
   );
 };
 
 export default TemplateSelectionCards;
-

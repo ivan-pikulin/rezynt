@@ -4,8 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { Box, Button, Paper } from "@mui/material";
 import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
-import { useAuth } from "../../shared/hooks/useAuth";
-import { useUser } from "../../shared/hooks";
+import { useAuthContext } from "../../shared/contexts/AuthContext";
 import { useBuilder } from "../builder/hooks/useBuilder";
 import { BUILDER_STEPS, type BuilderStep } from "../builder/types/builder";
 import { ContactInfoStep } from "../builder/components/ContactInfoStep";
@@ -16,6 +15,7 @@ import { SummaryStep } from "../builder/components/SummaryStep";
 
 const getLandingStepSectionId = (stepId: BuilderStep) => `landing-builder-${stepId}`;
 const OPEN_LANDING_BUILDER_STEP_EVENT = "landing-builder:open-step";
+const TEMPLATE_SELECTION_ROUTE = "/export";
 const stepFieldSelector = [
   'input:not([type="hidden"]):not([disabled]):not([readonly])',
   "textarea:not([disabled]):not([readonly])",
@@ -37,8 +37,7 @@ function LandingConceptQuestionnaire() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { isAuthenticated } = useAuth();
-  const { user } = useUser();
+  const { isAuthenticated } = useAuthContext();
   const [hasPersonalDataConsent, setHasPersonalDataConsent] = useState(false);
   const [expandedStepIds, setExpandedStepIds] = useState<Record<BuilderStep, boolean>>({
     "contact-info": true,
@@ -111,27 +110,20 @@ function LandingConceptQuestionnaire() {
 
   const handleFinish = async () => {
     try {
-      const { resumeApi } = await import("../../shared/services/api");
-      await resumeApi.updateResume(state);
-
-      const cacheKey = isAuthenticated ? "user" : "guest";
-      queryClient.setQueryData(["resume", cacheKey], state);
-
-      if (!isAuthenticated) {
+      if (isAuthenticated) {
+        const { resumeApi } = await import("../../shared/services/api");
+        const savedResume = await resumeApi.updateResume(state);
+        queryClient.setQueryData(["resume", "user"], savedResume);
+      } else {
         const { guestResumeService } = await import("../../shared/services/guestResumeService");
-        guestResumeService.update(state);
+        const savedResume = guestResumeService.update(state);
+        queryClient.setQueryData(["resume", "guest"], savedResume);
       }
 
       clearBuilder();
-
-      if (isAuthenticated && user && !user.has_completed_onboarding) {
-        navigate("/onboarding?redirect=/export");
-      } else {
-        navigate("/export");
-      }
+      navigate(TEMPLATE_SELECTION_ROUTE);
     } catch (error) {
       console.error("Error saving resume from builder:", error);
-      navigate("/export");
     }
   };
 

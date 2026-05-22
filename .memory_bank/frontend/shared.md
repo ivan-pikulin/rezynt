@@ -40,6 +40,6 @@ Shared-слой содержит всё, что переиспользуется
 
 - API base: `frontend/src/shared/services/api/baseApi.ts`
 - Auth state: `frontend/src/shared/contexts/AuthContext.tsx`
-- Resume data hooks: `frontend/src/shared/hooks/useResumeData.ts`, `frontend/src/shared/hooks/useResumeQuery.ts`
+- Resume data hooks: `frontend/src/shared/hooks/useResumeData.ts`, `frontend/src/shared/hooks/useResumeQuery.ts`. `useResumeQuery` uses `AuthContext` for authenticated resume loading and switches to `guestResumeService` when called in guest mode.
 
-*Последнее обновление: 2026-05-21*
+*Последнее обновление: 2026-05-22*

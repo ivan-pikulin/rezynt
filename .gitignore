@@ -3,3 +3,6 @@ frontend/.env.local
 
 # Landing build output
 landing_html/
+
+# Local dev runtime data
+backend/temp_uploads/

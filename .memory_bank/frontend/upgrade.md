@@ -8,10 +8,12 @@ Upgrade - full-page paywall вместо старого modal-only flow.
 
 ## Поведение
 
-- Показывает preview резюме слева и value proposition справа.
-- Берёт preview через `useResumeQuery` и `useTemplate`.
-- CTA ведёт напрямую на Stripe checkout.
-- Использует статический набор feature bullets и pricing block из translations.
+- Показывает одну тарифную карточку `best` за `149 ₽` с подписью под ценой.
+- Срок доступа отображается в списке преимуществ, а не отдельной строкой под ценой.
+- Список преимуществ включает пункт о разовом платеже без дополнительных списаний.
+- Кнопка оплаты ведет на текущий Stripe checkout URL.
+- Тексты тарифов, цены, сроки доступа и feature bullets хранятся в `upgrade.plans`.
+- Страница использует visual shell нового лендинга: `lc-page`, `lc-header`, `/rezynt-logo-with-name.svg` и `LandingConceptTheme`.
 
 ## Точка входа
 
@@ -23,4 +25,4 @@ Upgrade - full-page paywall вместо старого modal-only flow.
 - Profile subscription section.
 - Любых paywall-trigger сценариев.
 
-*Последнее обновление: 2026-05-21*
+*Последнее обновление: 2026-05-22*

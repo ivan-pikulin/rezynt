@@ -1,321 +1,277 @@
 import CheckIcon from '@mui/icons-material/Check';
-import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
-import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
-import ResumeRenderer from '../../shared/components/ResumeRenderer';
-import { useResumeQuery } from '../../shared/hooks/useResumeQuery';
-import { useTemplate } from '../../shared/hooks/useTemplate';
-import { convertApiResumeToDisplayData } from '../refine/utils/resumeDataConverter';
+import { Link } from 'react-router-dom';
 import { COLORS } from '../../shared/theme/theme';
+import { landingConceptVars } from '../landing-concept/LandingConceptTheme';
+import '../landing-concept/LandingConceptPage.css';
+
+const STRIPE_CHECKOUT_URL = 'https://buy.stripe.com/7sY28t1jrf0n1mt3g743S0K';
+const planIds = ['best'] as const;
+
+type UpgradePlanId = (typeof planIds)[number];
+
+type UpgradePlan = {
+  id: UpgradePlanId;
+  formats: string[];
+  featureCount: number;
+};
+
+const plans: UpgradePlan[] = [
+  {
+    id: 'best',
+    formats: ['pdf', 'word'],
+    featureCount: 4,
+  },
+];
 
 export const UpgradePage: React.FC = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
-  const [isProcessing, setIsProcessing] = useState(false);
-  const { resume: resumeData, isLoading } = useResumeQuery(false);
-  const { selectedTemplate } = useTemplate(null, undefined);
+  const [processingPlanId, setProcessingPlanId] = useState<UpgradePlanId | null>(null);
 
-  const features = [
-    t('upgrade.features.unlimitedAnalysis'),
-    t('upgrade.features.aiImprovements'),
-    t('upgrade.features.cleanPDF'),
-    t('upgrade.features.prioritySupport')
-  ];
-
-  const handleUpgrade = async () => {
-    setIsProcessing(true);
+  const handleUpgrade = async (planId: UpgradePlanId) => {
+    setProcessingPlanId(planId);
     try {
-      window.location.assign('https://buy.stripe.com/7sY28t1jrf0n1mt3g743S0K');
+      window.location.assign(STRIPE_CHECKOUT_URL);
     } catch (error) {
       console.error('Failed to process upgrade:', error);
-    } finally {
-      setIsProcessing(false);
+      setProcessingPlanId(null);
     }
   };
 
+  const landingHeader = (
+    <header className="lc-header">
+      <div className="lc-shell lc-header__inner">
+        <Link to="/landing-concept" className="lc-brand" aria-label="Rezynt">
+          <img
+            src="/rezynt-logo-with-name.svg"
+            alt="Rezynt"
+            className="lc-brand__image"
+            width="206"
+            height="52"
+          />
+        </Link>
+
+        <nav className="lc-nav" aria-label={t('landingConcept.nav.label')}>
+          <Link to="/landing-concept#builder">{t('landingConcept.nav.builder')}</Link>
+        </nav>
+      </div>
+    </header>
+  );
+
   return (
     <Box
+      className="lc-page"
+      style={landingConceptVars}
       sx={{
-        height: '100vh',
-        backgroundColor: COLORS.grey[50],
+        minHeight: '100vh',
+        overflow: 'visible',
         display: 'flex',
         flexDirection: 'column',
-        overflow: 'hidden'
       }}
     >
+      {landingHeader}
 
-      <Container 
-        maxWidth={false}
-        sx={{ 
-          py: 4,
-          px: { xs: 2, sm: 3, md: 4 },
+      <Container
+        maxWidth="xl"
+        sx={{
+          position: 'relative',
+          zIndex: 1,
           flex: 1,
           display: 'flex',
+          flexDirection: 'column',
           justifyContent: 'center',
-          alignItems: 'center',
-          overflow: 'hidden'
+          px: { xs: 2, sm: 3, md: 5 },
+          py: { xs: 4, sm: 5, md: 7 },
         }}
       >
-        <Paper
+        <Box sx={{ textAlign: 'center', maxWidth: 760, mx: 'auto', mb: { xs: 3, md: 4.5 } }}>
+          <Typography
+            component="h1"
+            sx={{
+              color: COLORS.landing.text,
+              fontSize: { xs: '1.75rem', md: '2.35rem' },
+              lineHeight: 1.1,
+              fontWeight: 850,
+              mb: 1.25,
+            }}
+          >
+            {t('upgrade.title')}
+          </Typography>
+          <Typography
+            sx={{
+              color: COLORS.landing.mutedText,
+              fontSize: { xs: '0.98rem', md: '1.08rem' },
+              lineHeight: 1.55,
+            }}
+          >
+            {t('upgrade.subtitle')}
+          </Typography>
+        </Box>
+
+        <Box
           sx={{
-            borderRadius: '16px',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+            display: 'grid',
+            gridTemplateColumns: 'minmax(0, 1fr)',
+            gap: { xs: 2.5, md: 4 },
+            alignItems: 'stretch',
             width: '100%',
-            maxWidth: 900,
-            height: 'auto',
-            maxHeight: 700,
-            overflow: 'hidden',
-            display: 'flex'
+            maxWidth: 620,
+            mx: 'auto',
           }}
         >
-          <Box sx={{ display: 'flex', gap: 0, width: '100%', height: '100%' }}>
-            {/* Left Side - Resume Preview */}
-            <Box 
-              sx={{ 
-                width: { xs: 300, sm: 350, md: 400 },
-                display: 'none',
-                '@media (min-width: 800px)': {
-                  display: 'flex'
-                },
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignItems: 'center',
-                p: { xs: 2, sm: 2.5, md: 3 }
-              }}
-            >
-              {isLoading ? (
-                <Typography sx={{ color: COLORS.resume.text.secondary }}>
-                  {t('common.loading')}
-                </Typography>
-              ) : resumeData && selectedTemplate ? (
-                <ResumeRenderer
-                  data={convertApiResumeToDisplayData(resumeData)}
-                  templateId={selectedTemplate.id}
-                  scale={0.35}
-                />
-              ) : null}
-            </Box>
+          {plans.map((plan) => {
+            const isProcessing = processingPlanId === plan.id;
 
-            {/* Right Side - Upgrade Content */}
-            <Box 
-              sx={{ 
-                flex: 1,
-                overflow: 'auto',
-                p: 4,
-                display: 'flex',
-                flexDirection: 'column'
-              }}
-            >
+            return (
               <Box
+                key={plan.id}
                 sx={{
-                  maxWidth: 650,
-                  mx: 'auto',
-                  width: '100%',
-                  flex: 1,
+                  position: 'relative',
+                  overflow: 'hidden',
+                  minHeight: { xs: 'auto', md: 620 },
                   display: 'flex',
-                  flexDirection: 'column'
+                  flexDirection: 'column',
+                  p: { xs: 3, sm: 4, md: 5 },
+                  pt: { xs: 3, sm: 4, md: 6 },
+                  borderRadius: 3,
+                  border: `1px solid ${COLORS.landing.border}`,
+                  bgcolor: COLORS.landing.surfaceStrong,
+                  boxShadow: COLORS.landing.shadow,
                 }}
               >
-              {/* Header - Fixed at top */}
-              <Box sx={{ flexShrink: 0 }}>
-                <Typography
-                  variant="h5"
-                  sx={{
-                    fontWeight: 700,
-                    mb: 1.5,
-                    color: COLORS.resume.text.primary,
-                    fontSize: { xs: '1.25rem', md: '1.5rem' }
-                  }}
-                >
-                  {t('upgrade.title')}
-                </Typography>
-
-                <Typography
-                  variant="body1"
-                  sx={{
-                    color: COLORS.resume.text.secondary,
-                    mb: 3,
-                    fontSize: '0.875rem',
-                    lineHeight: 1.5
-                  }}
-                >
-                  {t('upgrade.subtitle')}
-                </Typography>
-              </Box>
-
-              {/* Features List - Centered */}
-              <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                {features.map((feature) => (
-                  <Box
-                    key={feature}
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      mb: 1.5
-                    }}
-                  >
-                    <CheckIcon
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, minHeight: 34, mb: { xs: 2, md: 3 } }}>
+                  {plan.formats.map((format) => (
+                    <Box
+                      key={format}
                       sx={{
-                        color: '#4caf50',
-                        fontSize: 18,
-                        mr: 1.5
-                      }}
-                    />
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        color: COLORS.resume.text.primary,
-                        fontSize: '0.85rem',
-                        fontWeight: 500
+                        minWidth: format === 'word' ? 88 : 62,
+                        height: 34,
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        px: 1.5,
+                        borderRadius: 999,
+                        border: `1px solid ${format === 'pdf' ? COLORS.error.main : COLORS.primary.main}`,
+                        color: format === 'pdf' ? COLORS.error.main : COLORS.primary.main,
+                        fontSize: '0.96rem',
+                        fontWeight: 650,
+                        lineHeight: 1,
                       }}
                     >
-                      {feature}
-                    </Typography>
-                  </Box>
-                ))}
-              </Box>
+                      {format}
+                    </Box>
+                  ))}
+                </Box>
 
-              {/* Bottom Section - Fixed at bottom */}
-              <Box sx={{ flexShrink: 0 }}>
-                {/* Pricing */}
-                <Box
-                  sx={{
-                    bgcolor: 'rgba(103, 58, 183, 0.08)',
-                    borderRadius: '10px',
-                    p: 2.5,
-                    mb: 3,
-                    border: `2px solid ${COLORS.primary.main}`
-                  }}
-                >
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'baseline',
-                      mb: 1.5
-                    }}
-                  >
-                    <Typography
-                      sx={{
-                        fontWeight: 600,
-                        color: COLORS.resume.text.primary,
-                        fontSize: '1rem'
-                      }}
-                    >
-                      {t('upgrade.pricing.period')}
-                    </Typography>
-                    <Typography
-                      sx={{
-                        fontWeight: 700,
-                        color: COLORS.primary.main,
-                        fontSize: '1.35rem'
-                      }}
-                    >
-                      {t('upgrade.pricing.price')}
-                    </Typography>
-                  </Box>
-
+                <Box sx={{ textAlign: 'center', mb: { xs: 3, md: 4 } }}>
                   <Typography
-                    variant="body2"
                     sx={{
-                      color: COLORS.resume.text.secondary,
-                      fontSize: '0.8rem',
-                      lineHeight: 1.5
+                      color: COLORS.primary.main,
+                      fontSize: { xs: '3.35rem', md: '4.3rem' },
+                      lineHeight: 1,
+                      fontWeight: 900,
+                      mb: 1.25,
                     }}
                   >
-                    {t('upgrade.pricing.description')}
+                    {t(`upgrade.plans.${plan.id}.price`)}
+                  </Typography>
+                  <Typography
+                    sx={{
+                      color: COLORS.landing.mutedText,
+                      fontSize: { xs: '1rem', md: '1.08rem' },
+                      lineHeight: 1.35,
+                      fontWeight: 650,
+                    }}
+                  >
+                    {t(`upgrade.plans.${plan.id}.priceNote`)}
                   </Typography>
                 </Box>
 
-                {/* CTA Button with Bottom Note */}
-                <Box>
+                <Box
+                  component="ul"
+                  sx={{
+                    listStyle: 'none',
+                    p: 0,
+                    m: 0,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: { xs: 1.45, md: 1.7 },
+                    flex: 1,
+                  }}
+                >
+                  {Array.from({ length: plan.featureCount }, (_, index) => (
+                    <Box
+                      key={index}
+                      component="li"
+                      sx={{
+                        display: 'grid',
+                        gridTemplateColumns: '26px 1fr',
+                        gap: 1.4,
+                        alignItems: 'start',
+                      }}
+                    >
+                      <CheckIcon
+                        sx={{
+                          mt: 0.15,
+                          color: COLORS.primary.main,
+                          fontSize: 22,
+                          strokeWidth: 2,
+                        }}
+                      />
+                      <Typography
+                        sx={{
+                          color: COLORS.landing.text,
+                          fontSize: { xs: '1.02rem', md: '1.18rem' },
+                          lineHeight: 1.48,
+                          fontWeight: 650,
+                        }}
+                      >
+                        {t(`upgrade.plans.${plan.id}.features.${index}`)}
+                      </Typography>
+                    </Box>
+                  ))}
+                </Box>
+
                 <Button
                   variant="contained"
                   fullWidth
-                  onClick={handleUpgrade}
-                  disabled={isProcessing}
+                  onClick={() => handleUpgrade(plan.id)}
+                  disabled={Boolean(processingPlanId)}
                   sx={{
+                    mt: { xs: 3.5, md: 4.5 },
+                    minHeight: { xs: 58, md: 68 },
                     bgcolor: COLORS.primary.main,
-                    color: 'white',
-                    py: 1.1,
-                    fontSize: '0.9rem',
-                    fontWeight: 600,
+                    color: COLORS.button.primary.text,
                     textTransform: 'none',
-                    borderRadius: '8px',
-                    boxShadow: '0 3px 10px rgba(103, 58, 183, 0.3)',
-                    animation: 'pulse 2s ease-in-out infinite',
-                    '@keyframes pulse': {
-                      '0%, 100%': {
-                        transform: 'scale(1)',
-                        boxShadow: '0 3px 10px rgba(103, 58, 183, 0.3)'
-                      },
-                      '50%': {
-                        transform: 'scale(1.02)',
-                        boxShadow: '0 5px 20px rgba(103, 58, 183, 0.5)'
-                      }
-                    },
+                    borderRadius: 2,
+                    fontSize: { xs: '1.16rem', md: '1.35rem' },
+                    fontWeight: 800,
+                    boxShadow: COLORS.landing.shadowButton,
                     '&:hover': {
                       bgcolor: COLORS.primary.dark,
-                      boxShadow: '0 4px 14px rgba(103, 58, 183, 0.4)',
-                      animation: 'none'
+                      boxShadow: COLORS.landing.shadowButtonHover,
                     },
                     '&:disabled': {
-                      bgcolor: 'rgba(103, 58, 183, 0.5)',
-                      color: 'rgba(255, 255, 255, 0.7)',
-                      animation: 'none'
-                    }
+                      bgcolor: COLORS.button.primary.backgroundDisabled,
+                      color: COLORS.button.primary.textDisabled,
+                      boxShadow: 'none',
+                    },
                   }}
                 >
-                  {isProcessing
-                    ? t('upgrade.buttons.processing')
-                    : t('upgrade.buttons.continue')}
+                  {isProcessing ? t('upgrade.buttons.processing') : t('upgrade.buttons.pay')}
                 </Button>
-
-                {/* Bottom Note */}
-                <Box
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    mt: 1.5
-                  }}
-                >
-                  <VerifiedUserIcon
-                    sx={{
-                      fontSize: '0.9rem',
-                      color: COLORS.resume.text.secondary,
-                      opacity: 0.8,
-                      mr: 0.5
-                    }}
-                  />
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      color: COLORS.resume.text.secondary,
-                      fontSize: '0.7rem',
-                      fontStyle: 'italic',
-                      opacity: 0.8
-                    }}
-                  >
-                    {t('upgrade.bottomNote')}
-                  </Typography>
-                </Box>
-                </Box>
               </Box>
-              </Box>
-            </Box>
-          </Box>
-        </Paper>
+            );
+          })}
+        </Box>
       </Container>
     </Box>
   );
 };
 
 export default UpgradePage;
-

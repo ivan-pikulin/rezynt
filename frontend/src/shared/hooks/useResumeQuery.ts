@@ -2,11 +2,11 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { resumeApi } from '../services/api';
 import { Resume } from '../services/api/types';
 import { guestResumeService } from '../services/guestResumeService';
-import { useAuth } from './useAuth';
+import { useAuthContext } from '../contexts/AuthContext';
 
 export const useResumeQuery = (isGuest: boolean = false) => {
   const queryClient = useQueryClient();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading: authLoading } = useAuthContext();
 
   const {
     data: resume,
@@ -21,7 +21,7 @@ export const useResumeQuery = (isGuest: boolean = false) => {
       }
       return resumeApi.getResume();
     },
-    enabled: isGuest || isAuthenticated,
+    enabled: isGuest || (!authLoading && isAuthenticated),
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
     refetchOnWindowFocus: false,
@@ -52,7 +52,7 @@ export const useResumeQuery = (isGuest: boolean = false) => {
 
   return {
     resume,
-    isLoading,
+    isLoading: isLoading || (!isGuest && authLoading),
     error: error?.message || null,
     refreshResume,
     updateResumeInCache,

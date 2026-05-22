@@ -10,6 +10,11 @@ Export - экран выбора шаблона и выгрузки резюме
 ## Поведение
 
 - Использует `useResumeQuery` и `useTemplate`.
+- Для авторизованных пользователей `/export` читает единственное пользовательское резюме из backend. Для гостей страница читает локальное резюме из `guestResumeService` через guest-режим `useResumeQuery`; отдельный `resume_id` в URL не используется.
+- Шапка страницы повторяет новый лендинг: использует `lc-header`, логотип `/rezynt-logo-with-name.svg`, ссылку на `/landing-concept#builder` и общие landing CSS variables из `LandingConceptTheme`.
+- Заголовок блока выбора шаблонов хранится в `export.templateSelection.title`.
+- На мобильной ширине выбор шаблона показывает один preview резюме и четыре коротких текстовых таба над ним. На `sm+` остается сетка карточек шаблонов с полными названиями.
+- Внизу страницы есть одна основная кнопка `Скачать`; она ведет на `/upgrade`, где находится paywall.
 - Показывает preview резюме через `ResumeRenderer`.
 - Даёт выбор шаблонов через `TemplateSelectionCards`.
 - TXT export идёт напрямую через backend.

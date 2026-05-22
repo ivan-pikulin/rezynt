@@ -455,21 +455,23 @@
     }
   },
   "upgrade": {
-    "title": "Turn Your Resume Into a Job-Magnet",
-    "subtitle": "Great resumes get noticed faster. That's why we keep things simple — one payment, full access, real results.",
-    "features": {
-      "unlimitedAnalysis": "Unlimited Analysis",
-      "aiImprovements": "AI-powered improvements",
-      "cleanPDF": "Clean PDF download",
-      "prioritySupport": "Priority email support"
-    },
-    "pricing": {
-      "period": "3-Month Access",
-      "price": "$40",
-      "description": "Job searching is stressful enough. So we made payment simple — one time, no renewal, nothing to remember."
+    "title": "Start applying today",
+    "subtitle": "Getting hired one day earlier can repay this many times over.",
+    "plans": {
+      "best": {
+        "price": "149 ₽",
+        "priceNote": "One hour without responses costs more",
+        "features": {
+          "0": "5-day access",
+          "1": "One-time payment, no additional charges",
+          "2": "Unlimited resume downloads in PDF and Word formats",
+          "3": "Personal link to your resume"
+        }
+      }
     },
     "buttons": {
       "continue": "Get Started Now",
+      "pay": "Pay",
       "processing": "Processing..."
     },
     "bottomNote": "14-days money-back guarantee"
@@ -477,8 +479,25 @@
   "export": {
     "title": "Export",
     "pageTitle": "Resume",
+    "templateSelection": {
+      "title": "We tested hundreds of resume templates — these 4 work best",
+      "tabsAria": "Resume template selection",
+      "templates": {
+        "clarity": "Classic",
+        "frame": "Elegant",
+        "sidebar": "Modern",
+        "professional": "Professional"
+      },
+      "mobileTemplates": {
+        "clarity": "Classic",
+        "frame": "Elegant",
+        "sidebar": "Modern",
+        "professional": "Business"
+      }
+    },
     "buttons": {
       "refine": "Refine",
+      "download": "Download",
       "downloadTxt": "Download TXT",
       "downloadPdf": "Download PDF",
       "downloadTxtFree": "Download TXT (Free)",

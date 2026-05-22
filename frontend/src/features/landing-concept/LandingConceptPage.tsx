@@ -3,46 +3,12 @@ import { useCallback, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
-import { COLORS } from "../../shared/theme/theme";
 import ResumeRenderer from "../../shared/components/ResumeRenderer";
 import type { ResumeData } from "../../shared/types/resume";
+import { landingConceptVars } from "./LandingConceptTheme";
 import "./LandingConceptPage.css";
 import LandingConceptQuestionnaire from "./LandingConceptQuestionnaire";
 import LandingConceptPreviewBadge from "./LandingConceptPreviewBadge";
-
-const landingConceptVars: React.CSSProperties & Record<string, string> = {
-  "--lc-bg": COLORS.landing.background,
-  "--lc-bg-alt": COLORS.landing.backgroundAlt,
-  "--lc-surface": COLORS.landing.surface,
-  "--lc-surface-strong": COLORS.landing.surfaceStrong,
-  "--lc-text": COLORS.landing.text,
-  "--lc-muted": COLORS.landing.mutedText,
-  "--lc-accent": COLORS.landing.accent,
-  "--lc-accent-alt": COLORS.landing.accentAlt,
-  "--lc-border": COLORS.landing.border,
-  "--lc-border-soft": COLORS.landing.borderSoft,
-  "--lc-shadow": COLORS.landing.shadow,
-  "--lc-shadow-hover": COLORS.landing.shadowHover,
-  "--lc-shadow-strong": COLORS.landing.shadowStrong,
-  "--lc-shadow-button": COLORS.landing.shadowButton,
-  "--lc-shadow-button-hover": COLORS.landing.shadowButtonHover,
-  "--lc-shadow-card": COLORS.landing.shadowCard,
-  "--lc-shadow-overlay": COLORS.landing.shadowOverlay,
-  "--lc-shadow-overlay-soft": COLORS.landing.shadowOverlaySoft,
-  "--lc-shadow-success": COLORS.landing.shadowSuccess,
-  "--lc-shadow-strong-hover": COLORS.landing.shadowStrongHover,
-  "--lc-gradient": COLORS.landing.gradient,
-  "--lc-gradient-soft": COLORS.landing.gradientSoft,
-  "--lc-mask-fade": COLORS.landing.maskFade,
-  "--lc-blue-tint": COLORS.landing.blueTint,
-  "--lc-lavender": COLORS.landing.lavender,
-  "--lc-cream": COLORS.landing.cream,
-  "--lc-cream-border": COLORS.landing.creamBorder,
-  "--lc-gold": COLORS.landing.gold,
-  "--lc-gold-dark": COLORS.landing.goldDark,
-  "--lc-brown": COLORS.landing.brown,
-  "--lc-success": COLORS.landing.success,
-};
 
 const OPEN_LANDING_BUILDER_STEP_EVENT = "landing-builder:open-step";
 
