@@ -1,28 +1,36 @@
-import React, { useMemo } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
-import { Box, Button, Paper, Typography } from "@mui/material";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import { Box, Button, Paper } from "@mui/material";
+import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
 import { useAuth } from "../../shared/hooks/useAuth";
 import { useUser } from "../../shared/hooks";
 import { useBuilder } from "../builder/hooks/useBuilder";
-import { BUILDER_STEPS } from "../builder/types/builder";
+import { BUILDER_STEPS, type BuilderStep } from "../builder/types/builder";
 import { ContactInfoStep } from "../builder/components/ContactInfoStep";
 import { WorkExperienceStep } from "../builder/components/WorkExperienceStep";
 import { EducationStep } from "../builder/components/EducationStep";
 import { SkillsStep } from "../builder/components/SkillsStep";
 import { SummaryStep } from "../builder/components/SummaryStep";
 
-type StepKey = "contact-info" | "work-experience" | "education" | "skills" | "summary";
+const getLandingStepSectionId = (stepId: BuilderStep) => `landing-builder-${stepId}`;
+const OPEN_LANDING_BUILDER_STEP_EVENT = "landing-builder:open-step";
+const stepFieldSelector = [
+  'input:not([type="hidden"]):not([disabled]):not([readonly])',
+  "textarea:not([disabled]):not([readonly])",
+  "select:not([disabled])",
+].join(", ");
 
-const stepKeyMap: Record<StepKey, string> = {
-  "contact-info": "contactInfo",
-  "work-experience": "workExperience",
-  education: "education",
-  skills: "skills",
-  summary: "summary",
+type OpenLandingBuilderStepEventDetail = {
+  stepId?: BuilderStep;
+  focusFirstField?: boolean;
+};
+
+const focusFirstStepField = (stepId: BuilderStep) => {
+  const section = document.getElementById(getLandingStepSectionId(stepId));
+  const field = section?.querySelector<HTMLElement>(stepFieldSelector);
+  field?.focus({ preventScroll: true });
 };
 
 function LandingConceptQuestionnaire() {
@@ -31,35 +39,26 @@ function LandingConceptQuestionnaire() {
   const queryClient = useQueryClient();
   const { isAuthenticated } = useAuth();
   const { user } = useUser();
+  const [hasPersonalDataConsent, setHasPersonalDataConsent] = useState(false);
+  const [expandedStepIds, setExpandedStepIds] = useState<Record<BuilderStep, boolean>>({
+    "contact-info": true,
+    "work-experience": false,
+    education: false,
+    skills: false,
+    summary: false,
+  });
   const {
     state,
     updateField,
-    goToStep,
-    goToNextStep,
-    goToPreviousStep,
-    canGoNext,
-    canGoBack,
-    getNextStepLabel,
     clearBuilder,
   } = useBuilder();
 
-  const currentStepIndex = BUILDER_STEPS.findIndex((step) => step.id === state.currentStep);
-  const safeStepIndex = currentStepIndex >= 0 ? currentStepIndex : 0;
   const stepLabels = useMemo(
     () => BUILDER_STEPS.map((step) => t(`builder.steps.${step.id}`)),
     [t],
   );
-
-  const getStepHeaderInfo = () => {
-    const stepKey = stepKeyMap[state.currentStep as StepKey];
-    return {
-      title: t(`builder.${stepKey}.title`),
-      description: t(`builder.${stepKey}.description`),
-    };
-  };
-
-  const renderStepContent = () => {
-    switch (state.currentStep) {
+  const renderStepContent = (stepId: BuilderStep) => {
+    switch (stepId) {
       case "contact-info":
         return <ContactInfoStep state={state} onUpdate={updateField} />;
       case "work-experience":
@@ -74,6 +73,41 @@ function LandingConceptQuestionnaire() {
         return null;
     }
   };
+
+  const scrollToStep = useCallback((stepId: BuilderStep, focusFirstField = false) => {
+    const nextSection = document.getElementById(getLandingStepSectionId(stepId));
+    nextSection?.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (focusFirstField) {
+      window.setTimeout(() => focusFirstStepField(stepId), 450);
+    }
+  }, []);
+
+  const openStepAndScroll = useCallback((stepId: BuilderStep, focusFirstField = false) => {
+    setExpandedStepIds((previous) => ({ ...previous, [stepId]: true }));
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => scrollToStep(stepId, focusFirstField));
+    });
+  }, [scrollToStep]);
+
+  const toggleStep = (stepId: BuilderStep) => {
+    setExpandedStepIds((previous) => ({ ...previous, [stepId]: !previous[stepId] }));
+  };
+
+  useEffect(() => {
+    const handleExternalStepOpen = (event: Event) => {
+      const detail = (event as CustomEvent<OpenLandingBuilderStepEventDetail>).detail;
+      const stepId = detail?.stepId;
+      if (!stepId) {
+        return;
+      }
+
+      event.preventDefault();
+      openStepAndScroll(stepId, detail.focusFirstField ?? true);
+    };
+
+    document.addEventListener(OPEN_LANDING_BUILDER_STEP_EVENT, handleExternalStepOpen);
+    return () => document.removeEventListener(OPEN_LANDING_BUILDER_STEP_EVENT, handleExternalStepOpen);
+  }, [openStepAndScroll]);
 
   const handleFinish = async () => {
     try {
@@ -91,119 +125,98 @@ function LandingConceptQuestionnaire() {
       clearBuilder();
 
       if (isAuthenticated && user && !user.has_completed_onboarding) {
-        navigate("/onboarding?redirect=/refine");
+        navigate("/onboarding?redirect=/export");
       } else {
-        navigate("/refine");
+        navigate("/export");
       }
     } catch (error) {
       console.error("Error saving resume from builder:", error);
-      navigate("/refine");
+      navigate("/export");
     }
   };
 
   return (
     <section className="lc-builder" id="builder">
       <div className="lc-shell">
-        <div className="lc-builder__head" data-lc-reveal>
-          <div className="lc-section__eyebrow">{t("landingConcept.builder.eyebrow")}</div>
-          <h2 className="lc-section__title">{t("landingConcept.builder.title")}</h2>
-          <p className="lc-section__lead">{t("landingConcept.builder.subtitle")}</p>
-        </div>
+        <div className="lc-builder__stack" aria-label={t("landingConcept.builder.stepperLabel")}>
+          {BUILDER_STEPS.map((step, index) => {
+            const nextStep = BUILDER_STEPS[index + 1];
+            const isExpanded = expandedStepIds[step.id];
+            const contentId = `${getLandingStepSectionId(step.id)}-content`;
 
-        <Paper className="lc-builder__panel" data-lc-reveal>
-          <div className="lc-builder__top">
-            <div className="lc-builder__headline">
-              <div className="lc-builder__eyebrow">{t(`builder.steps.${state.currentStep}`)}</div>
-              <Typography variant="h5" className="lc-builder__title">
-                {getStepHeaderInfo().title}
-              </Typography>
-              <Typography variant="body2" className="lc-builder__description">
-                {getStepHeaderInfo().description}
-              </Typography>
-            </div>
-
-            <div className="lc-builder__progress" aria-label={t("landingConcept.builder.progressLabel")}>
-              <div className="lc-builder__progress-meta">
-                <span>{safeStepIndex + 1}</span>
-                <span>/</span>
-                <span>{BUILDER_STEPS.length}</span>
-              </div>
-              <div className="lc-builder__bar" aria-hidden="true">
-                <i style={{ width: `${((safeStepIndex + 1) / BUILDER_STEPS.length) * 100}%` }} />
-              </div>
-            </div>
-          </div>
-
-          <div className="lc-builder__steps" aria-label={t("landingConcept.builder.stepperLabel")}>
-            {BUILDER_STEPS.map((step, index) => {
-              const isActive = step.id === state.currentStep;
-              const isDone = state.completedSteps.includes(step.id);
-
-              return (
+            return (
+              <Paper
+                key={step.id}
+                className="lc-builder__panel"
+                id={getLandingStepSectionId(step.id)}
+                data-lc-reveal
+              >
                 <button
-                  key={step.id}
                   type="button"
-                  className={`lc-builder__step${isActive ? " is-active" : ""}${isDone ? " is-done" : ""}`}
-                  onClick={() => goToStep(step.id)}
-                  aria-current={isActive ? "step" : undefined}
+                  className={`lc-builder__current-step${isExpanded ? " is-expanded" : ""}`}
+                  onClick={() => toggleStep(step.id)}
+                  aria-expanded={isExpanded}
+                  aria-controls={contentId}
                 >
                   <span className="lc-builder__step-index">{index + 1}</span>
-                  <span className="lc-builder__step-label">{stepLabels[index]}</span>
+                  <h2 className="lc-builder__step-label">{stepLabels[index]}</h2>
+                  <KeyboardArrowDownRoundedIcon className="lc-builder__section-chevron" aria-hidden="true" />
                 </button>
-              );
-            })}
-          </div>
 
-          <Box className="lc-builder__content">{renderStepContent()}</Box>
+                {isExpanded && (
+                  <div id={contentId}>
+                    <Box className="lc-builder__content">{renderStepContent(step.id)}</Box>
 
-          <Box className="lc-builder__actions">
-            <Button
-              variant="outlined"
-              startIcon={<ArrowBackIcon />}
-              onClick={goToPreviousStep}
-              disabled={!canGoBack()}
-              sx={{
-                borderRadius: "999px",
-                textTransform: "none",
-                px: 3,
-                width: { xs: "100%", sm: "auto" },
-              }}
-            >
-              {t("builder.navigation.back")}
-            </Button>
+                    {nextStep && (
+                      <Box className="lc-builder__actions">
+                        <Button
+                          variant="contained"
+                          endIcon={<KeyboardArrowDownRoundedIcon />}
+                          onClick={() => openStepAndScroll(nextStep.id, true)}
+                          sx={{
+                            borderRadius: "999px",
+                            textTransform: "none",
+                            px: 3,
+                            fontWeight: 700,
+                            width: { xs: "100%", sm: "auto" },
+                          }}
+                        >
+                          {stepLabels[index + 1]}
+                        </Button>
+                      </Box>
+                    )}
+                  </div>
+                )}
+              </Paper>
+            );
+          })}
+        </div>
 
-            {canGoNext() ? (
-              <Button
-                variant="contained"
-                endIcon={<ArrowForwardIcon />}
-                onClick={goToNextStep}
-                sx={{
-                  borderRadius: "999px",
-                  textTransform: "none",
-                  px: 3,
-                  fontWeight: 700,
-                  width: { xs: "100%", sm: "auto" },
-                }}
-              >
-                {t("builder.navigation.next")}: {getNextStepLabel()}
-              </Button>
-            ) : (
-              <Button
-                variant="contained"
-                onClick={handleFinish}
-                sx={{
-                  borderRadius: "999px",
-                  textTransform: "none",
-                  px: 3,
-                  fontWeight: 700,
-                  width: { xs: "100%", sm: "auto" },
-                }}
-              >
-                {t("builder.navigation.finish")}
-              </Button>
-            )}
-          </Box>
-        </Paper>
+        <div className="lc-builder__final" data-lc-reveal>
+          <Button
+            className="lc-builder__final-button"
+            variant="contained"
+            onClick={handleFinish}
+            disabled={!hasPersonalDataConsent}
+          >
+            {t("landingConcept.builder.finalCta")}
+          </Button>
+
+          <label className="lc-builder__consent">
+            <input
+              type="checkbox"
+              checked={hasPersonalDataConsent}
+              onChange={(event) => setHasPersonalDataConsent(event.target.checked)}
+              aria-label={t("landingConcept.builder.consentAria")}
+            />
+            <span>
+              {t("landingConcept.builder.consentPrefix")}{" "}
+              <a href="/privacy-policy.html" target="_blank" rel="noreferrer">
+                {t("landingConcept.builder.consentLink")}
+              </a>
+            </span>
+          </label>
+        </div>
       </div>
     </section>
   );

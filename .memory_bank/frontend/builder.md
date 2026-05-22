@@ -19,9 +19,16 @@ Builder - пошаговый editor для ручного заполнения �
 - Состояние управляется через `useBuilder`.
 - Данные сохраняются локально в `builderStorageService`.
 - Header получает `customSteps` и работает как stepper для 5 шагов.
+- The Next button label is derived from localized `builder.steps.*` labels instead of the hardcoded `BUILDER_STEPS.label` values.
+- In Russian UI, the `summary` step is shown as `Саммари`.
 - На финальном шаге данные сохраняются в backend через `resumeApi.updateResume`.
 - После успешного сохранения builder очищает local state и переводит пользователя на `/refine` или `/onboarding?redirect=/refine`.
 - Есть desktop preview через `ResumeRenderer`.
+- Russian locale placeholders use Russian examples for contact info, work experience, and education. Avoid US-specific placeholder examples such as Google, San Francisco, United States, Stanford, or +1 phone formats in the Russian UI.
+- Contact location fields in Russian UI are labeled `Город` and `Страна`; do not use US-market labels like state/territory or city/suburb.
+- Delete icon controls in repeatable builder sections use fixed circular dimensions from `shared/design/iconButtonStyles.ts`, so they stay round next to textareas and other stretched flex content.
+- Professional advice blocks in builder steps use `ProTipBox` with a Material icon, not emoji.
+- The skills step does not render a large empty-state field when no skills have been added; it only renders skill chips after at least one skill exists.
 
 ## Связанные файлы
 
@@ -30,4 +37,4 @@ Builder - пошаговый editor для ручного заполнения �
 - `frontend/src/features/builder/types/builder.ts`
 - `frontend/src/features/builder/components/*`
 
-*Последнее обновление: 2026-05-21*
+*Последнее обновление: 2026-05-22*

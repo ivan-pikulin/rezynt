@@ -17,27 +17,45 @@ Experimental marketing page for Rezynt focused on creating a resume from scratch
 
 - Sticky header with image logo.
 - One compact badge in the hero: `Конструктор резюме онлайн`.
-- Hero headline: `Сильное резюме за 5 мин`.
-- Short subheading about building a resume from scratch in a few minutes.
-- Horizontal visual product flow with three steps and arrows between them.
-- The three flow labels live in each card header, to the right of the step number:
-  - `Заполните форму`
-  - `Выберите шаблон`
-  - `Скачайте файл`
-- Under the flow, the page embeds the full builder questionnaire from the product:
+- Hero headline: `Сборка резюме за 5 мин`.
+- Short subheading: `Меньше возни с резюме, больше откликов и собеседований.`
+- Hero includes a filled Russian-language resume preview rendered through the real `ResumeRenderer` using the `professional` template. The preview sits to the right of the hero headline/subtitle on desktop and below it on compact screens, with a static tilted 3D card treatment that animates only on hover.
+- The resume preview uses two green-check overlay pills instead of a score badge:
+  - `Готово к отправке`
+  - `Оптимизировано под ATS`
+- Below the resume preview there is an animated pill CTA `Собрать резюме`, which smooth-scrolls to the embedded builder form (`#builder`).
+- The former three-card hero flow (`Заполните форму`, `Выберите шаблон`, `Скачайте файл`) is not rendered.
+- Below the hero, the page embeds the full builder questionnaire from the product as a vertical landing-page form:
   - contact info
   - work experience
   - education
   - skills
   - summary
-- There are no marketing sections or footer below the questionnaire.
-- On compact screens the hero flow collapses into a vertical stack with downward arrows, and the questionnaire becomes a horizontal scroll stepper with one step card at a time.
+- The questionnaire starts immediately with stacked accordion section cards. There is no extra section header, subtitle, or progress card inside the builder block.
+- All builder section headers are visible one under another on the landing page; only `Контакты` is expanded by default.
+- Users can collapse/expand each section by clicking its heading.
+- Each non-final expanded section has one bottom CTA labeled only with the next section name and a down arrow. It expands the next section and smooth-scrolls it into view.
+- Section transition CTAs also move focus into the first editable field of the newly opened section.
+- Header arrow navigation is not rendered in the landing questionnaire.
+- The final section has no internal CTA. A separate final CTA block renders below all section cards.
+- The final CTA block is always visible below all accordion section cards. The button says `Перейти к выбору шаблона`, is larger than section-scroll buttons, and remains disabled until the user checks personal data processing consent.
+- The consent text links to `/privacy-policy.html`.
+- The summary step is labeled `Саммари` in Russian builder UI to avoid confusing the section with the whole resume document.
+- After the questionnaire, the page renders a practical resume-writing guide instead of the old pain-points block:
+  - heading `Как составить резюме, которое работает`
+  - short lead explaining that a strong resume should show the target role, relevant value, and reason to invite the candidate
+  - six compact principles mapped to the form structure: contacts/target role, summary, experience, metrics, skills, and final cleanup
+  - a right-side visual card that currently uses `/project-manager-resume-professional.png` as a temporary image placeholder until a final custom image is provided
+  - a checklist of often-forgotten details: recent achievements, tools in context, relevant links, work format, and separate versions for different roles
+  - a final `Собрать резюме` CTA that expands the first questionnaire section, scrolls back up to `Контакты`, and focuses the first field
+- The page ends with a footer copied from the public landing pattern: logo, copyright, email, privacy policy, and terms links.
 
 ## Important behavior
 
 - The hero does not use CTA buttons.
-- The visual flow is meant to be understood primarily through graphics on larger screens, with short labels in the card header.
+- No separate product-flow cards are rendered in the hero.
 - The questionnaire reuses the same builder state, navigation, and step content as the main product flow.
+- The resume guide copy is based on current hiring/resume-writing guidance and is intentionally concise enough for a landing page rather than a long article.
 - The page is separate from the public `/` landing and does not replace it.
 
 *Последнее обновление: 2026-05-22*

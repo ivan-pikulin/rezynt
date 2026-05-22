@@ -12,6 +12,7 @@ import { BuilderState } from '../types/builder';
 import { Education } from '../../../shared/types/resume';
 import { COLORS } from '../../../shared/theme/theme';
 import { useTranslation } from 'react-i18next';
+import { circularIconButtonSx } from '../../../shared/design/iconButtonStyles';
 
 // Simple input component
 const SimpleInput: React.FC<{
@@ -115,7 +116,7 @@ export const EducationStep: React.FC<EducationStepProps> = ({ state, onUpdate })
               <IconButton 
                 size="small" 
                 onClick={() => handleDeleteEducation(index)}
-                sx={{ color: COLORS.error.main }}
+                sx={{ ...circularIconButtonSx, color: COLORS.error.main }}
               >
                 <DeleteIcon fontSize="small" />
               </IconButton>
@@ -252,4 +253,3 @@ export const EducationStep: React.FC<EducationStepProps> = ({ state, onUpdate })
     </Box>
   );
 };
-

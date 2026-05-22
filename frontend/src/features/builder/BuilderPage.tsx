@@ -38,7 +38,6 @@ export const BuilderPage: React.FC = () => {
     goToPreviousStep,
     canGoNext,
     canGoBack,
-    getNextStepLabel,
     clearBuilder,
   } = useBuilder();
 
@@ -49,6 +48,7 @@ export const BuilderPage: React.FC = () => {
     BUILDER_STEPS.map(step => t(`builder.steps.${step.id}`)),
     [t]
   );
+  const nextStepLabel = currentStepIndex >= 0 ? (customSteps[currentStepIndex + 1] ?? '') : '';
 
   const handleStepClick = (stepIndex: number) => {
     const step = BUILDER_STEPS[stepIndex];
@@ -254,7 +254,7 @@ export const BuilderPage: React.FC = () => {
                         fontWeight: 600,
                       }}
                     >
-                      {t('builder.navigation.next')}: {getNextStepLabel()}
+                      {t('builder.navigation.next')}: {nextStepLabel}
                     </Button>
                   ) : (
                     <Button
@@ -300,4 +300,3 @@ export const BuilderPage: React.FC = () => {
 };
 
 export default BuilderPage;
-

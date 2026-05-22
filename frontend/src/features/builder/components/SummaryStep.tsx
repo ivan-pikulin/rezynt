@@ -3,6 +3,7 @@ import { Box, Typography } from '@mui/material';
 import { BuilderState } from '../types/builder';
 import { COLORS } from '../../../shared/theme/theme';
 import { useTranslation } from 'react-i18next';
+import { ProTipBox } from './ProTipBox';
 
 interface SummaryStepProps {
   state: BuilderState;
@@ -39,21 +40,11 @@ export const SummaryStep: React.FC<SummaryStepProps> = ({ state, onUpdate }) => 
         }}
       />
 
-      <Box 
-        sx={{ 
-          mt: 2,
-          p: 2, 
-          backgroundColor: COLORS.primary.light,
-          borderRadius: '8px',
-          border: `1px solid ${COLORS.primary.main}`,
-        }}
-      >
-        <Typography variant="body2" sx={{ fontWeight: 500, mb: 1 }}>
-          💡 {t('builder.summary.tip')}
-        </Typography>
-        <Typography variant="body2" sx={{ color: COLORS.resume.text.secondary }}>
-          {t('builder.summary.tipDescription')}
-        </Typography>
+      <Box sx={{ mt: 2 }}>
+        <ProTipBox
+          title={t('builder.summary.tip')}
+          description={t('builder.summary.tipDescription')}
+        />
       </Box>
 
       <Box sx={{ mt: 2 }}>
@@ -64,4 +55,3 @@ export const SummaryStep: React.FC<SummaryStepProps> = ({ state, onUpdate }) => 
     </Box>
   );
 };
-

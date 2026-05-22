@@ -9,6 +9,7 @@ import AddIcon from '@mui/icons-material/Add';
 import { BuilderState } from '../types/builder';
 import { COLORS } from '../../../shared/theme/theme';
 import { useTranslation } from 'react-i18next';
+import { ProTipBox } from './ProTipBox';
 
 // Simple input component
 const SimpleInput: React.FC<{
@@ -97,28 +98,17 @@ export const SkillsStep: React.FC<SkillsStepProps> = ({ state, onUpdate }) => {
           </Button>
         </Box>
 
-        <Box sx={{ 
-          display: 'flex', 
-          flexWrap: 'wrap', 
-          gap: 1,
-          minHeight: '100px',
-          p: 2,
-          border: `1px solid ${COLORS.common.border}`,
-          borderRadius: '12px',
-          backgroundColor: COLORS.grey[50],
-        }}>
-          {(state.skills || []).length === 0 ? (
-            <Typography 
-              variant="body2" 
-              sx={{ 
-                color: COLORS.resume.text.secondary,
-                fontStyle: 'italic',
-              }}
-            >
-              {t('builder.skills.noSkills')}
-            </Typography>
-          ) : (
-            (state.skills || []).map((skill, index) => (
+        {(state.skills || []).length > 0 && (
+          <Box sx={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: 1,
+            p: 1.5,
+            border: `1px solid ${COLORS.common.border}`,
+            borderRadius: '12px',
+            backgroundColor: COLORS.grey[50],
+          }}>
+            {(state.skills || []).map((skill, index) => (
               <Chip
                 key={index}
                 label={skill}
@@ -130,27 +120,15 @@ export const SkillsStep: React.FC<SkillsStepProps> = ({ state, onUpdate }) => {
                   },
                 }}
               />
-            ))
-          )}
-        </Box>
+            ))}
+          </Box>
+        )}
       </Box>
 
-      <Box 
-        sx={{ 
-          p: 2, 
-          backgroundColor: COLORS.primary.light,
-          borderRadius: '8px',
-          border: `1px solid ${COLORS.primary.main}`,
-        }}
-      >
-        <Typography variant="body2" sx={{ fontWeight: 500, mb: 1 }}>
-          💡 {t('builder.skills.tip')}
-        </Typography>
-        <Typography variant="body2" sx={{ color: COLORS.resume.text.secondary }}>
-          {t('builder.skills.tipDescription')}
-        </Typography>
-      </Box>
+      <ProTipBox
+        title={t('builder.skills.tip')}
+        description={t('builder.skills.tipDescription')}
+      />
     </Box>
   );
 };
-

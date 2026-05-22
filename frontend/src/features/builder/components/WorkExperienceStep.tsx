@@ -14,6 +14,7 @@ import { BuilderState } from '../types/builder';
 import { WorkExperience } from '../../../shared/types/resume';
 import { COLORS } from '../../../shared/theme/theme';
 import { useTranslation } from 'react-i18next';
+import { circularIconButtonSx } from '../../../shared/design/iconButtonStyles';
 
 // Simple input component
 const SimpleInput: React.FC<{
@@ -183,7 +184,7 @@ export const WorkExperienceStep: React.FC<WorkExperienceStepProps> = ({ state, o
               <IconButton 
                 size="small" 
                 onClick={() => handleDeleteExperience(index)}
-                sx={{ color: COLORS.error.main }}
+                sx={{ ...circularIconButtonSx, color: COLORS.error.main }}
               >
                 <DeleteIcon fontSize="small" />
               </IconButton>
@@ -310,7 +311,7 @@ export const WorkExperienceStep: React.FC<WorkExperienceStepProps> = ({ state, o
                   {t('builder.workExperience.achievements')}
                 </Typography>
                 {(exp.achievements || []).map((ach, achIndex) => (
-                  <Box key={achIndex} sx={{ display: 'flex', gap: 1, mb: 1 }}>
+                  <Box key={achIndex} sx={{ display: 'flex', alignItems: 'flex-start', gap: 1, mb: 1 }}>
                     <SimpleTextarea
                       placeholder={t('builder.workExperience.achievementPlaceholder')}
                       value={ach}
@@ -320,7 +321,7 @@ export const WorkExperienceStep: React.FC<WorkExperienceStepProps> = ({ state, o
                     <IconButton 
                       size="small"
                       onClick={() => handleDeleteAchievement(index, achIndex)}
-                      sx={{ color: COLORS.error.main }}
+                      sx={{ ...circularIconButtonSx, color: COLORS.error.main, mt: 0.5 }}
                     >
                       <DeleteIcon fontSize="small" />
                     </IconButton>
@@ -356,4 +357,3 @@ export const WorkExperienceStep: React.FC<WorkExperienceStepProps> = ({ state, o
     </Box>
   );
 };
-
