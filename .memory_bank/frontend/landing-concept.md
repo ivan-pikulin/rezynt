@@ -41,21 +41,13 @@ Experimental marketing page for Rezynt focused on creating a resume from scratch
 - The final CTA block is always visible below all accordion section cards. The button says `Перейти к выбору шаблона`, is larger than section-scroll buttons, and remains disabled until the user checks personal data processing consent.
 - The consent text links to `/privacy-policy.html`.
 - The summary step is labeled `Саммари` in Russian builder UI to avoid confusing the section with the whole resume document.
-- After the questionnaire, the page renders a practical resume-writing guide instead of the old pain-points block:
-  - heading `Как составить резюме, которое работает`
-  - short lead explaining that a strong resume should show the target role, relevant value, and reason to invite the candidate
-  - six compact principles mapped to the form structure: contacts/target role, summary, experience, metrics, skills, and final cleanup
-  - a right-side visual card that currently uses `/project-manager-resume-professional.png` as a temporary image placeholder until a final custom image is provided
-  - a checklist of often-forgotten details: recent achievements, tools in context, relevant links, work format, and separate versions for different roles
-  - a final `Собрать резюме` CTA that expands the first questionnaire section, scrolls back up to `Контакты`, and focuses the first field
-- The page ends with a footer copied from the public landing pattern: logo, copyright, email, privacy policy, and terms links.
+- The page ends immediately after the final questionnaire CTA/consent block with a footer copied from the public landing pattern: logo, copyright, email, privacy policy, and terms links.
 
 ## Important behavior
 
 - The hero does not use CTA buttons.
 - No separate product-flow cards are rendered in the hero.
 - The questionnaire reuses the same builder state, navigation, and step content as the main product flow.
-- The resume guide copy is based on current hiring/resume-writing guidance and is intentionally concise enough for a landing page rather than a long article.
 - The page is separate from the public `/` landing and does not replace it.
 
 *Последнее обновление: 2026-05-22*

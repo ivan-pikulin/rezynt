@@ -3,18 +3,12 @@ import { useCallback, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
-import KeyboardArrowUpRoundedIcon from "@mui/icons-material/KeyboardArrowUpRounded";
 import { COLORS } from "../../shared/theme/theme";
 import ResumeRenderer from "../../shared/components/ResumeRenderer";
 import type { ResumeData } from "../../shared/types/resume";
 import "./LandingConceptPage.css";
 import LandingConceptQuestionnaire from "./LandingConceptQuestionnaire";
 import LandingConceptPreviewBadge from "./LandingConceptPreviewBadge";
-
-type CopyItem = {
-  title: string;
-  body: string;
-};
 
 const landingConceptVars: React.CSSProperties & Record<string, string> = {
   "--lc-bg": COLORS.landing.background,
@@ -50,7 +44,6 @@ const landingConceptVars: React.CSSProperties & Record<string, string> = {
   "--lc-success": COLORS.landing.success,
 };
 
-const resumeGuideImageSrc = "/project-manager-resume-professional.png";
 const OPEN_LANDING_BUILDER_STEP_EVENT = "landing-builder:open-step";
 
 function LandingConceptPage() {
@@ -82,47 +75,6 @@ function LandingConceptPage() {
   const heroBadges = useMemo(
     () => [
       t("landingConcept.hero.badges.0"),
-    ],
-    [t],
-  );
-
-  const resumeGuidePrinciples = useMemo<CopyItem[]>(
-    () => [
-      {
-        title: t("landingConcept.resumeGuide.principles.0.title"),
-        body: t("landingConcept.resumeGuide.principles.0.body"),
-      },
-      {
-        title: t("landingConcept.resumeGuide.principles.1.title"),
-        body: t("landingConcept.resumeGuide.principles.1.body"),
-      },
-      {
-        title: t("landingConcept.resumeGuide.principles.2.title"),
-        body: t("landingConcept.resumeGuide.principles.2.body"),
-      },
-      {
-        title: t("landingConcept.resumeGuide.principles.3.title"),
-        body: t("landingConcept.resumeGuide.principles.3.body"),
-      },
-      {
-        title: t("landingConcept.resumeGuide.principles.4.title"),
-        body: t("landingConcept.resumeGuide.principles.4.body"),
-      },
-      {
-        title: t("landingConcept.resumeGuide.principles.5.title"),
-        body: t("landingConcept.resumeGuide.principles.5.body"),
-      },
-    ],
-    [t],
-  );
-
-  const resumeGuideChecklist = useMemo(
-    () => [
-      t("landingConcept.resumeGuide.checklist.items.0"),
-      t("landingConcept.resumeGuide.checklist.items.1"),
-      t("landingConcept.resumeGuide.checklist.items.2"),
-      t("landingConcept.resumeGuide.checklist.items.3"),
-      t("landingConcept.resumeGuide.checklist.items.4"),
     ],
     [t],
   );
@@ -290,54 +242,6 @@ function LandingConceptPage() {
       </section>
 
       <LandingConceptQuestionnaire />
-
-      <section className="lc-resume-guide" data-lc-reveal>
-        <div className="lc-shell lc-resume-guide__grid">
-          <div className="lc-resume-guide__copy">
-            <span className="lc-resume-guide__eyebrow">{t("landingConcept.resumeGuide.eyebrow")}</span>
-            <h2 className="lc-resume-guide__title">{t("landingConcept.resumeGuide.title")}</h2>
-            <p className="lc-resume-guide__lead">{t("landingConcept.resumeGuide.lead")}</p>
-
-            <div className="lc-resume-guide__principles">
-              {resumeGuidePrinciples.map((item, index) => (
-                <article key={item.title} className="lc-resume-guide__principle">
-                  <span className="lc-resume-guide__number">{String(index + 1).padStart(2, "0")}</span>
-                  <div>
-                    <h3>{item.title}</h3>
-                    <p>{item.body}</p>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </div>
-
-          <aside className="lc-resume-guide__visual" aria-label={t("landingConcept.resumeGuide.visualAriaLabel")}>
-            <div className="lc-resume-guide__image-card">
-              <img
-                src={resumeGuideImageSrc}
-                alt={t("landingConcept.resumeGuide.imageAlt")}
-                className="lc-resume-guide__image"
-              />
-            </div>
-
-            <div className="lc-resume-guide__checklist">
-              <h3>{t("landingConcept.resumeGuide.checklist.title")}</h3>
-              <ul>
-                {resumeGuideChecklist.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-            </div>
-          </aside>
-        </div>
-
-        <div className="lc-shell lc-resume-guide__cta">
-          <a className="lc-resume-guide__button" href="#builder" onClick={scrollToBuilder}>
-            <KeyboardArrowUpRoundedIcon aria-hidden="true" />
-            <span>{t("landingConcept.resumeGuide.cta")}</span>
-          </a>
-        </div>
-      </section>
 
       <footer className="lc-footer">
         <div className="lc-shell lc-footer__inner">
