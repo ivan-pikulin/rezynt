@@ -20,6 +20,7 @@ import { WorkExperience } from '../../../shared/services/api/types';
 import { COLORS } from '../../../shared/theme/theme';
 import { pulseElement } from '../utils/pulseAnimation';
 import { addButtonStyle } from '../styles/buttonStyles';
+import { circularSmallIconButtonSx } from '../../../shared/design/iconButtonStyles';
 
 // Simple input component
 const SimpleInput: React.FC<{
@@ -400,12 +401,10 @@ const ExperienceEditor = forwardRef<ExperienceEditorHandle, ExperienceEditorProp
                 component="div"
                 onClick={(e) => { e.stopPropagation(); handleDeleteExperience(index); }}
                 sx={{
+                  ...circularSmallIconButtonSx,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  width: '28px',
-                  height: '28px',
-                  borderRadius: '50%',
                   cursor: 'pointer',
                   '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' },
                 }}
@@ -516,14 +515,11 @@ const ExperienceEditor = forwardRef<ExperienceEditorHandle, ExperienceEditorProp
                     component="div"
                     onClick={() => handleDeleteAchievement(index, achIndex)}
                     sx={{
+                      ...circularSmallIconButtonSx,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      width: '32px',
-                      height: '32px',
-                      borderRadius: '50%',
                       cursor: 'pointer',
-                      flexShrink: 0,
                       backgroundColor: '#F3F4F6',
                       '&:hover': { backgroundColor: '#E5E7EB' },
                     }}
