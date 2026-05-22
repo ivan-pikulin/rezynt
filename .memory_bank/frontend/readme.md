@@ -21,4 +21,8 @@ React/Vite приложение в `frontend/`.
 - Все UI-строки лежат в `src/shared/i18n`.
 - Все цвета и токены для landing заведены в `src/shared/theme/theme.ts`.
 
+## См. также
+
+- [`landing.md`](./landing.md) - структура публичного marketing landing.
+
 Последнее обновление: 2026-05-22
