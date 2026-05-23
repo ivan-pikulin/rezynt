@@ -18,6 +18,20 @@ export interface BuilderState extends ResumeData {
   completedSteps: BuilderStep[];
 }
 
+export type BuilderFieldUpdater<K extends keyof BuilderState> = (
+  previousValue: BuilderState[K],
+  previousState: BuilderState
+) => BuilderState[K];
+
+export type BuilderFieldUpdate<K extends keyof BuilderState> =
+  | BuilderState[K]
+  | BuilderFieldUpdater<K>;
+
+export type BuilderUpdateHandler = <K extends keyof BuilderState>(
+  field: K,
+  value: BuilderFieldUpdate<K>
+) => void;
+
 export const BUILDER_STEPS: BuilderStepConfig[] = [
   { id: 'contact-info', label: 'Contacts', order: 0 },
   { id: 'work-experience', label: 'Experience', order: 1 },
@@ -25,4 +39,3 @@ export const BUILDER_STEPS: BuilderStepConfig[] = [
   { id: 'skills', label: 'Skills', order: 3 },
   { id: 'summary', label: 'Summary', order: 4 },
 ];
-

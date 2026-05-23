@@ -1,13 +1,13 @@
 import React from 'react';
 import { Box, Typography } from '@mui/material';
-import { BuilderState } from '../types/builder';
+import { BuilderState, BuilderUpdateHandler } from '../types/builder';
 import { COLORS } from '../../../shared/theme/theme';
 import { useTranslation } from 'react-i18next';
 import { ProTipBox } from './ProTipBox';
 
 interface SummaryStepProps {
   state: BuilderState;
-  onUpdate: <K extends keyof BuilderState>(field: K, value: BuilderState[K]) => void;
+  onUpdate: BuilderUpdateHandler;
 }
 
 export const SummaryStep: React.FC<SummaryStepProps> = ({ state, onUpdate }) => {

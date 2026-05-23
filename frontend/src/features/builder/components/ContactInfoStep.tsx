@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Typography } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import { BuilderState } from '../types/builder';
+import { BuilderState, BuilderUpdateHandler } from '../types/builder';
 import { COLORS } from '../../../shared/theme/theme';
 import { useTranslation } from 'react-i18next';
 
@@ -90,28 +90,28 @@ const formatRussianPhoneNumber = (value: string): string => {
 
 interface ContactInfoStepProps {
   state: BuilderState;
-  onUpdate: <K extends keyof BuilderState>(field: K, value: BuilderState[K]) => void;
+  onUpdate: BuilderUpdateHandler;
 }
 
 export const ContactInfoStep: React.FC<ContactInfoStepProps> = ({ state, onUpdate }) => {
   const { t } = useTranslation();
 
   const handlePersonalInfoChange = (field: string, value: string) => {
-    onUpdate('personal_info', {
-      ...state.personal_info,
+    onUpdate('personal_info', (personalInfo) => ({
+      ...personalInfo,
       [field]: value,
-    });
+    }));
   };
 
 
   const handleContactChange = (field: string, value: string) => {
-    onUpdate('personal_info', {
-      ...state.personal_info,
+    onUpdate('personal_info', (personalInfo) => ({
+      ...personalInfo,
       contacts: {
-        ...state.personal_info?.contacts,
+        ...personalInfo?.contacts,
         [field]: value,
       },
-    });
+    }));
   };
 
   const getFieldValue = (field: string): string => {

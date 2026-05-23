@@ -8,7 +8,7 @@ import {
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
-import { BuilderState } from '../types/builder';
+import { BuilderState, BuilderUpdateHandler } from '../types/builder';
 import { Education } from '../../../shared/types/resume';
 import { COLORS } from '../../../shared/theme/theme';
 import { useTranslation } from 'react-i18next';
@@ -49,7 +49,7 @@ const SimpleInput: React.FC<{
 
 interface EducationStepProps {
   state: BuilderState;
-  onUpdate: <K extends keyof BuilderState>(field: K, value: BuilderState[K]) => void;
+  onUpdate: BuilderUpdateHandler;
 }
 
 export const EducationStep: React.FC<EducationStepProps> = ({ state, onUpdate }) => {
@@ -82,18 +82,19 @@ export const EducationStep: React.FC<EducationStepProps> = ({ state, onUpdate })
       end_date: '',
     };
 
-    onUpdate('education', [...(state.education || []), newEducation]);
+    onUpdate('education', (education) => [...(education || []), newEducation]);
   };
 
   const handleUpdateEducation = (index: number, field: keyof Education, value: any) => {
-    const updated = [...(state.education || [])];
-    updated[index] = { ...updated[index], [field]: value };
-    onUpdate('education', updated);
+    onUpdate('education', (education) => {
+      const updated = [...(education || [])];
+      updated[index] = { ...updated[index], [field]: value };
+      return updated;
+    });
   };
 
   const handleDeleteEducation = (index: number) => {
-    const updated = (state.education || []).filter((_, i) => i !== index);
-    onUpdate('education', updated);
+    onUpdate('education', (education) => (education || []).filter((_, i) => i !== index));
   };
 
   return (

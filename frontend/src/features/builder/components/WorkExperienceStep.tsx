@@ -10,7 +10,7 @@ import {
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
-import { BuilderState } from '../types/builder';
+import { BuilderState, BuilderUpdateHandler } from '../types/builder';
 import { WorkExperience } from '../../../shared/types/resume';
 import { COLORS } from '../../../shared/theme/theme';
 import { useTranslation } from 'react-i18next';
@@ -86,7 +86,7 @@ const SimpleTextarea: React.FC<{
 
 interface WorkExperienceStepProps {
   state: BuilderState;
-  onUpdate: <K extends keyof BuilderState>(field: K, value: BuilderState[K]) => void;
+  onUpdate: BuilderUpdateHandler;
 }
 
 export const WorkExperienceStep: React.FC<WorkExperienceStepProps> = ({ state, onUpdate }) => {
@@ -120,44 +120,51 @@ export const WorkExperienceStep: React.FC<WorkExperienceStepProps> = ({ state, o
       achievements: [],
     };
 
-    onUpdate('work_experience', [...(state.work_experience || []), newExperience]);
+    onUpdate('work_experience', (workExperience) => [...(workExperience || []), newExperience]);
     setEditingIndex((state.work_experience || []).length);
   };
 
   const handleUpdateExperience = (index: number, field: keyof WorkExperience, value: any) => {
-    const updated = [...(state.work_experience || [])];
-    updated[index] = { ...updated[index], [field]: value };
-    onUpdate('work_experience', updated);
+    onUpdate('work_experience', (workExperience) => {
+      const updated = [...(workExperience || [])];
+      updated[index] = { ...updated[index], [field]: value };
+      return updated;
+    });
   };
 
   const handleDeleteExperience = (index: number) => {
-    const updated = (state.work_experience || []).filter((_, i) => i !== index);
-    onUpdate('work_experience', updated);
+    onUpdate('work_experience', (workExperience) => (workExperience || []).filter((_, i) => i !== index));
     if (editingIndex === index) {
       setEditingIndex(null);
     }
   };
 
   const handleAddAchievement = (expIndex: number) => {
-    const updated = [...(state.work_experience || [])];
-    const achievements = [...(updated[expIndex].achievements || []), ''];
-    updated[expIndex] = { ...updated[expIndex], achievements };
-    onUpdate('work_experience', updated);
+    onUpdate('work_experience', (workExperience) => {
+      const updated = [...(workExperience || [])];
+      const achievements = [...(updated[expIndex].achievements || []), ''];
+      updated[expIndex] = { ...updated[expIndex], achievements };
+      return updated;
+    });
   };
 
   const handleUpdateAchievement = (expIndex: number, achIndex: number, value: string) => {
-    const updated = [...(state.work_experience || [])];
-    const achievements = [...(updated[expIndex].achievements || [])];
-    achievements[achIndex] = value;
-    updated[expIndex] = { ...updated[expIndex], achievements };
-    onUpdate('work_experience', updated);
+    onUpdate('work_experience', (workExperience) => {
+      const updated = [...(workExperience || [])];
+      const achievements = [...(updated[expIndex].achievements || [])];
+      achievements[achIndex] = value;
+      updated[expIndex] = { ...updated[expIndex], achievements };
+      return updated;
+    });
   };
 
   const handleDeleteAchievement = (expIndex: number, achIndex: number) => {
-    const updated = [...(state.work_experience || [])];
-    const achievements = (updated[expIndex].achievements || []).filter((_, i) => i !== achIndex);
-    updated[expIndex] = { ...updated[expIndex], achievements };
-    onUpdate('work_experience', updated);
+    onUpdate('work_experience', (workExperience) => {
+      const updated = [...(workExperience || [])];
+      const achievements = (updated[expIndex].achievements || []).filter((_, i) => i !== achIndex);
+      updated[expIndex] = { ...updated[expIndex], achievements };
+      return updated;
+    });
   };
 
   const toggleCurrentPosition = (index: number, isChecked: boolean) => {

@@ -30,6 +30,7 @@ Builder - пошаговый editor для ручного заполнения �
 - Delete icon controls in repeatable builder sections use fixed circular dimensions from `shared/design/iconButtonStyles.ts`, so they stay round next to textareas and other stretched flex content.
 - Professional advice blocks in builder steps use `ProTipBox` with a Material icon, not emoji.
 - The skills step does not render a large empty-state field when no skills have been added; it only renders skill chips after at least one skill exists.
+- `useBuilder.updateField` supports functional updates. Repeatable/nested sections must use functional updates when deriving next `work_experience`, `education`, `skills`, or nested `personal_info` values so rapid sequential field edits cannot overwrite each other with stale render state.
 
 ## Связанные файлы
 

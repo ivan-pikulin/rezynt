@@ -6,7 +6,7 @@ import {
   Chip,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import { BuilderState } from '../types/builder';
+import { BuilderState, BuilderUpdateHandler } from '../types/builder';
 import { COLORS } from '../../../shared/theme/theme';
 import { useTranslation } from 'react-i18next';
 import { ProTipBox } from './ProTipBox';
@@ -48,7 +48,7 @@ const SimpleInput: React.FC<{
 
 interface SkillsStepProps {
   state: BuilderState;
-  onUpdate: <K extends keyof BuilderState>(field: K, value: BuilderState[K]) => void;
+  onUpdate: BuilderUpdateHandler;
 }
 
 export const SkillsStep: React.FC<SkillsStepProps> = ({ state, onUpdate }) => {
@@ -57,14 +57,13 @@ export const SkillsStep: React.FC<SkillsStepProps> = ({ state, onUpdate }) => {
 
   const handleAddSkill = () => {
     if (newSkill.trim()) {
-      onUpdate('skills', [...(state.skills || []), newSkill.trim()]);
+      onUpdate('skills', (skills) => [...(skills || []), newSkill.trim()]);
       setNewSkill('');
     }
   };
 
   const handleDeleteSkill = (index: number) => {
-    const updated = (state.skills || []).filter((_, i) => i !== index);
-    onUpdate('skills', updated);
+    onUpdate('skills', (skills) => (skills || []).filter((_, i) => i !== index));
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {

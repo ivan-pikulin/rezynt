@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { BuilderState, BuilderStep, BUILDER_STEPS } from '../types/builder';
+import { BuilderFieldUpdate, BuilderState, BuilderStep, BUILDER_STEPS } from '../types/builder';
 import { BuilderStorageService } from '../services/builderStorageService';
 
 export function useBuilder() {
@@ -14,9 +14,15 @@ export function useBuilder() {
 
   const updateField = useCallback(<K extends keyof BuilderState>(
     field: K, 
-    value: BuilderState[K]
+    value: BuilderFieldUpdate<K>
   ) => {
-    setState(prev => ({ ...prev, [field]: value }));
+    setState(prev => {
+      const nextValue =
+        typeof value === 'function'
+          ? value(prev[field], prev)
+          : value;
+      return { ...prev, [field]: nextValue };
+    });
   }, []);
 
   const goToStep = useCallback((step: BuilderStep) => {
@@ -92,4 +98,3 @@ export function useBuilder() {
     getProgress,
   };
 }
-

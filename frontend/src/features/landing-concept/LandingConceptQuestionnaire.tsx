@@ -7,7 +7,7 @@ import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownR
 import { useAuthContext } from "../../shared/contexts/AuthContext";
 import { yandexMetrikaService } from "../../shared/services/yandexMetrikaService";
 import { useBuilder } from "../builder/hooks/useBuilder";
-import { BUILDER_STEPS, type BuilderState, type BuilderStep } from "../builder/types/builder";
+import { BUILDER_STEPS, type BuilderFieldUpdate, type BuilderState, type BuilderStep } from "../builder/types/builder";
 import { ContactInfoStep } from "../builder/components/ContactInfoStep";
 import { WorkExperienceStep } from "../builder/components/WorkExperienceStep";
 import { EducationStep } from "../builder/components/EducationStep";
@@ -91,13 +91,13 @@ function LandingConceptQuestionnaire() {
     yandexMetrikaService.trackLandingFormStepCompleted(stepId, stepIndex);
   }, []);
 
-  const handleStepUpdate = useCallback((stepId: BuilderStep, field: keyof BuilderState, value: BuilderState[keyof BuilderState]) => {
+  const handleStepUpdate = useCallback(<K extends keyof BuilderState>(stepId: BuilderStep, field: K, value: BuilderFieldUpdate<K>) => {
     trackFormStartedOnce(stepId);
-    updateField(field as any, value as any);
+    updateField(field, value);
   }, [trackFormStartedOnce, updateField]);
 
   const renderStepContent = (stepId: BuilderStep) => {
-    const onUpdate = (field: keyof BuilderState, value: BuilderState[keyof BuilderState]) => {
+    const onUpdate = <K extends keyof BuilderState>(field: K, value: BuilderFieldUpdate<K>) => {
       handleStepUpdate(stepId, field, value);
     };
 
