@@ -40,6 +40,8 @@
 
 - Backend PDF generation.
 - WeasyPrint-based rendering и watermark support.
+- HTML export получает `FRONTEND_BASE_URL` как `base_url`, чтобы относительные `/assets/...` ссылки из frontend HTML не ломали генерацию.
+- FileResponse оставляет Starlette сформировать `Content-Disposition`, потому что имена файлов могут содержать UTF-8.
 
 ## DOCXService
 
@@ -47,6 +49,7 @@
 - Uses prepared `docxtpl` Word templates from `backend/app/templates/docx/`.
 - Builds the same resume context as the DOCX prototype generator: contact lines, skill pairs, formatted dates, company/location rows and education rows.
 - Generates the Professional template monogram as a temporary PNG image before rendering, then deletes it after packaging the DOCX.
+- FileResponse оставляет Starlette сформировать `Content-Disposition`, потому что имена файлов могут содержать UTF-8.
 
 ## DOCX export prototype
 

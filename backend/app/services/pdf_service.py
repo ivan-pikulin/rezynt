@@ -98,7 +98,7 @@ class PDFService:
         """
         try:
             # Create HTML object
-            html = HTML(string=html_content)
+            html = HTML(string=html_content, base_url=settings.FRONTEND_BASE_URL)
             
             # Get watermark CSS only if requested
             watermark_css = self._get_watermark_css() if use_watermark else ""
@@ -190,9 +190,6 @@ class PDFService:
             path=temp_file_path,
             filename=filename,
             media_type='application/pdf',
-            headers={
-                'Content-Disposition': f'attachment; filename="{filename}"'
-            }
         )
 
 

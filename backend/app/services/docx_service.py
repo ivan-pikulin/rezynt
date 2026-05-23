@@ -224,9 +224,6 @@ class DOCXService:
             path=temp_file_path,
             filename=filename,
             media_type=self.DOCX_MEDIA_TYPE,
-            headers={
-                "Content-Disposition": f'attachment; filename="{filename}"',
-            },
         )
 
 
