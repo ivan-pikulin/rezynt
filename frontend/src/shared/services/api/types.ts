@@ -166,6 +166,11 @@ export interface PDFExportRequest {
   template_slug?: string; // Options: nume, luma, alto, vero
 }
 
+export interface DOCXExportRequest {
+  filename?: string;
+  template_slug?: string; // Options: clarity, sidebar, professional, frame
+}
+
 // Onboarding types
 export interface OnboardingResponse {
   experience: string;

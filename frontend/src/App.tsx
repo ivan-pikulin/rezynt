@@ -31,6 +31,7 @@ const PaymentSuccessPage = React.lazy(() => import('./features/export/PaymentSuc
 const BuilderPage = React.lazy(() => import('./features/builder/BuilderPage'));
 const ProfileSettingsPage = React.lazy(() => import('./features/profile/ProfileSettingsPage'));
 const UpgradePage = React.lazy(() => import('./features/upgrade/UpgradePage'));
+const PaymentWelcomePage = React.lazy(() => import('./features/upgrade/PaymentWelcomePage'));
 const LegalPage = React.lazy(() => import('./features/legal/LegalPage'));
 const LandingPage = React.lazy(() => import('./features/landing/LandingPage'));
 const LandingConceptPage = React.lazy(() => import('./features/landing-concept/LandingConceptPage'));
@@ -81,6 +82,7 @@ function AppRoutes() {
           </PublicOnboardingGuard>
         } />
         <Route path="/payment/success" element={<PaymentSuccessPage />} />
+        <Route path="/payment/welcome" element={<PaymentWelcomePage />} />
         <Route path="/builder" element={
           <PublicOnboardingGuard>
             <BuilderPage />

@@ -20,6 +20,13 @@
 - Отправляет HTML emails с DKIM signature.
 - В пользовательских письмах используется бренд `Резинт`.
 - Используется для confirmation, password reset и onboarding notification.
+- После успешной оплаты отправляет письмо с логином (email) и сгенерированным паролем, не разлогинивая текущую сессию.
+
+## PaymentService
+
+- Единая активация платного доступа для mock-payment endpoint и YooKassa webhook.
+- Для успешной оплаты выставляет `is_premium=True`, `is_verified=True`, `is_registered=True`, генерирует новый пароль, сохраняет hash и отправляет письмо с доступом.
+- Повторный вызов для уже premium пользователя с паролем считается идемпотентным no-op.
 
 ## PlatformChatflow
 

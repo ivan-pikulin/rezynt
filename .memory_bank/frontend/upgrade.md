@@ -16,10 +16,13 @@ Upgrade - full-page paywall вместо старого modal-only flow.
 - Тексты тарифов, цены, сроки доступа и feature bullets хранятся в `upgrade.plans`.
 - Страница использует visual shell нового лендинга: `lc-page`, `lc-header`, `/rezynt-logo-with-name.svg` и `LandingConceptTheme`, без правой ссылки `Опросник`.
 - В шапке есть ненавязчивая back-ссылка `К выбору шаблона`, ведущая обратно на `/export`.
+- Кнопка оплаты временно вызывает backend `POST /payment/simulate-success`, обновляет auth user в контексте и ведет на `/payment/welcome`.
+- `/payment/welcome` подтверждает активацию доступа; кнопка `Продолжить` возвращает на `/export`.
 
 ## Точка входа
 
 - `/upgrade`
+- `/payment/welcome`
 
 ## Используется из
 

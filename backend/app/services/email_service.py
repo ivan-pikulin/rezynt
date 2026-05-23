@@ -430,3 +430,40 @@ class EmailService:
         result = self.send_email("pikulin.ivan.pelikan@gmail.com", subject, html_content)
         logger.info(f"Onboarding notification send result: {result}")
         return result
+
+    def send_paid_access_email(self, to_email: str, password: str) -> bool:
+        """
+        Sends paid access credentials after a successful payment.
+        """
+        logger.info(f"Sending paid access email to {to_email}")
+
+        subject = "Доступ к Резинт активирован"
+
+        html_template = """<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Доступ активирован</title>
+</head>
+<body style="font-family:Arial,sans-serif;margin:0;padding:20px;background-color:#f4f4f4">
+<div style="max-width:600px;margin:0 auto;background-color:white;padding:30px;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,0.1)">
+<h1 style="color:#4caf50;text-align:center;margin-bottom:30px">Доступ активирован</h1>
+<p style="color:#333;line-height:1.6;margin-bottom:20px">Оплата прошла успешно. Платные функции Резинт доступны в вашем текущем аккаунте.</p>
+<div style="background-color:#f8f9fa;border:1px solid #e9ecef;border-radius:8px;padding:20px;margin:25px 0">
+<p style="margin:6px 0;color:#333"><strong>Логин:</strong> {{ email }}</p>
+<p style="margin:6px 0;color:#333"><strong>Пароль:</strong> {{ password }}</p>
+</div>
+<p style="color:#666;line-height:1.6;margin-bottom:0">Вы уже авторизованы в сервисе. Эти данные нужны, чтобы вернуться в аккаунт позже или с другого устройства.</p>
+<p style="text-align:center;color:#999;font-size:12px;margin-top:40px;border-top:1px solid #eee;padding-top:20px">&copy; 2026 Резинт. Все права защищены.</p>
+</div>
+</body>
+</html>"""
+
+        html_content = Template(html_template).render({
+            "email": to_email,
+            "password": password,
+        })
+
+        result = self.send_email(to_email, subject, html_content)
+        logger.info(f"Paid access email send result: {result}")
+        return result

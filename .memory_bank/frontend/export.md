@@ -15,7 +15,9 @@ Export - экран выбора шаблона и выгрузки резюме
 - В шапке есть ненавязчивая back-ссылка `К редактированию`, ведущая на `/#builder`.
 - Заголовок блока выбора шаблонов хранится в `export.templateSelection.title`.
 - На мобильной ширине выбор шаблона показывает один preview резюме и четыре коротких текстовых таба над ним. На `sm+` остается сетка карточек шаблонов с полными названиями.
-- Внизу страницы есть одна основная кнопка `Скачать`; она ведет на `/upgrade`, где находится paywall.
+- Внизу страницы для free/non-premium есть одна основная кнопка `Скачать`; она ведет на `/upgrade`, где находится paywall.
+- Для premium users вместо paywall-кнопки показываются отдельные кнопки `Скачать PDF` и `Скачать DOCX`.
+- PDF скачивание для premium users идет через backend `POST /resume/export-pdf`; DOCX скачивание идет через backend `POST /resume/export-docx`.
 - Показывает preview резюме через `ResumeRenderer`.
 - Даёт выбор шаблонов через `TemplateSelectionCards`.
 - Yandex Metrika events:
@@ -25,7 +27,7 @@ Export - экран выбора шаблона и выгрузки резюме
   - `payment_success` on `/payment/success`.
   - `resume_export_success` when legacy direct export components complete PDF generation.
 - TXT export идёт напрямую через backend.
-- PDF export для premium users идёт через backend PDF generation.
+- PDF export для premium users идёт через backend PDF generation с HTML выбранного шаблона.
 - Non-premium users отправляются на `/upgrade`.
 - Unauthenticated users открывают registration modal.
 - После удачного экспорта показывается success page.
@@ -33,6 +35,7 @@ Export - экран выбора шаблона и выгрузки резюме
 ## API
 
 - `POST /resume/export-pdf`
+- `POST /resume/export-docx`
 - `GET /resume/export-txt`
 
 ## Связанные компоненты

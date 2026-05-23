@@ -3,6 +3,7 @@ import {
   Resume,
   ResumeUpdate,
   PDFExportRequest,
+  DOCXExportRequest,
   TaskStatus
 } from './types';
 
@@ -68,6 +69,16 @@ export class ResumeApi extends BaseApi {
    */
   async exportResumePDF(data: PDFExportRequest): Promise<Blob> {
     return this.post<Blob>('/resume/export-pdf', data, {
+      responseType: 'blob'
+    });
+  }
+
+  /**
+   * Export stored resume to DOCX
+   * @param data DOCX export request with template slug
+   */
+  async exportResumeDOCX(data: DOCXExportRequest): Promise<Blob> {
+    return this.post<Blob>('/resume/export-docx', data, {
       responseType: 'blob'
     });
   }

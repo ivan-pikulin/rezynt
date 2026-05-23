@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from typing import Any, Union
 
-from jose import jwt
+from jose import JWTError, jwt
 from passlib.context import CryptContext
 
 from app.core.config import settings
@@ -44,9 +44,10 @@ def create_refresh_token(
     is_registered: bool = True
 ) -> str:
     """
-    Create a refresh token that doesn't expire.
+    Create a refresh token that expires according to REFRESH_TOKEN_EXPIRE_MINUTES.
     """
-    to_encode = {"sub": str(subject), "is_registered": is_registered}
+    expire = datetime.utcnow() + timedelta(minutes=settings.REFRESH_TOKEN_EXPIRE_MINUTES)
+    to_encode = {"exp": expire, "sub": str(subject), "is_registered": is_registered}
     if guest_id:
         to_encode["guest_id"] = guest_id
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=ALGORITHM)
@@ -60,5 +61,5 @@ def verify_refresh_token(token: str) -> Union[str, None]:
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[ALGORITHM])
         return payload.get("sub")
-    except jwt.JWTError:
-        return None 
+    except JWTError:
+        return None

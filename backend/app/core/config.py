@@ -84,6 +84,9 @@ class Settings(BaseSettings):
     
     # API Key for AI endpoints
     APP_API_KEY: str
+
+    # Payment/webhook settings
+    YOOKASSA_WEBHOOK_SECRET: str
     
     # PDF settings
     PDF_WATERMARK_PATH: str = "app/static/watermarks/watermark.svg"

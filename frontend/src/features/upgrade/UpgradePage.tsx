@@ -6,7 +6,9 @@ import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuthContext } from '../../shared/contexts/AuthContext';
+import { paymentApi } from '../../shared/services/api';
 import { yandexMetrikaService } from '../../shared/services/yandexMetrikaService';
 import { COLORS } from '../../shared/theme/theme';
 import { landingConceptVars } from '../landing-concept/LandingConceptTheme';
@@ -32,11 +34,21 @@ const plans: UpgradePlan[] = [
 
 export const UpgradePage: React.FC = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { updateUser } = useAuthContext();
   const [selectedPlanId, setSelectedPlanId] = useState<UpgradePlanId | null>(null);
 
-  const handleUpgrade = (planId: UpgradePlanId) => {
+  const handleUpgrade = async (planId: UpgradePlanId) => {
     yandexMetrikaService.trackPaymentButtonClick(planId);
     setSelectedPlanId(planId);
+
+    try {
+      const response = await paymentApi.simulateSuccessfulPayment();
+      updateUser(response.user);
+      navigate('/payment/welcome');
+    } catch (error) {
+      setSelectedPlanId(null);
+    }
   };
 
   const landingHeader = (
@@ -241,6 +253,7 @@ export const UpgradePage: React.FC = () => {
                   variant="contained"
                   fullWidth
                   onClick={() => handleUpgrade(plan.id)}
+                  disabled={isSelected}
                   sx={{
                     mt: { xs: 3.5, md: 4.5 },
                     minHeight: { xs: 58, md: 68 },
@@ -262,7 +275,7 @@ export const UpgradePage: React.FC = () => {
                     },
                   }}
                 >
-                  {isSelected ? t('upgrade.buttons.selected') : t('upgrade.buttons.pay')}
+                  {isSelected ? t('upgrade.buttons.processing') : t('upgrade.buttons.pay')}
                 </Button>
               </Box>
             );

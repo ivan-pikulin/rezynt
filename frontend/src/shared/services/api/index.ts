@@ -7,12 +7,14 @@ export { UserApi } from './userApi';
 export { AuthApi } from './authApi';
 export { ResumeApi } from './resumeApi';
 export { AnalysisApi } from './analysisApi';
+export { PaymentApi } from './paymentApi';
 
 // API Instances
 export { userApi } from './userApi';
 export { authApi } from './authApi';
 export { resumeApi } from './resumeApi';
 export { analysisApi } from './analysisApi';
+export { paymentApi } from './paymentApi';
 
 // Types
 export * from './types';
