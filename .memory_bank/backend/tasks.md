@@ -6,6 +6,7 @@ Celery используется для email, onboarding notification и обр�
 
 - `send_confirmation_email_task`
 - `send_password_reset_email_task`
+- `send_paid_access_email_task`
 - `send_onboarding_notification_task`
 - `process_resume_upload_task`
 
@@ -24,9 +25,14 @@ Celery используется для email, onboarding notification и обр�
 - `backend/app/services/parse_service.py`
 - `backend/app/services/email_service.py`
 
+## Payment email
+
+- `send_paid_access_email_task` отправляет логин и сгенерированный пароль после успешной оплаты.
+- Payment endpoint/webhook не ждут SMTP: premium-доступ активируется сразу, а ошибка отправки видна в Celery task result и логах.
+
 ## Что важно для агентов
 
 - Не предполагай, что task state хранится отдельно от Celery.
 - Не добавляй silent fallback, если задача ломается: ошибки должны быть видимы в логах и в результате задачи.
 
-*Последнее обновление: 2026-05-21*
+*Последнее обновление: 2026-05-23*

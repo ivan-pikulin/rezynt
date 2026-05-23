@@ -27,7 +27,7 @@
 
 - Единая активация платного доступа для mock-payment endpoint и YooKassa webhook.
 - Для успешной оплаты выставляет `is_premium=True`, `is_verified=True`, `is_registered=True`, генерирует новый пароль, сохраняет hash и отправляет письмо с доступом.
-- Premium-доступ коммитится до отправки письма; если SMTP недоступен, результат явно возвращает `email_sent=false`, а ошибка логируется без отката доступа.
+- Premium-доступ коммитится до отправки письма; письмо ставится в Celery через `send_paid_access_email_task`, поэтому payment response не блокируется на SMTP.
 - Повторный вызов для уже premium пользователя с паролем считается идемпотентным no-op.
 
 ## PlatformChatflow

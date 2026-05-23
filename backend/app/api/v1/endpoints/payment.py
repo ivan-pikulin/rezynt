@@ -17,6 +17,7 @@ class PaymentActivationResponse(BaseModel):
     ok: bool
     user: UserPublic
     email_sent: bool
+    email_queued: bool
     already_active: bool
 
 
@@ -58,6 +59,7 @@ async def simulate_payment_success(
         "ok": True,
         "user": result.user,
         "email_sent": result.email_sent,
+        "email_queued": result.email_queued,
         "already_active": result.already_active,
     }
 
@@ -115,5 +117,6 @@ async def yookassa_webhook(
         "ok": True,
         "user_id": result.user.id,
         "email_sent": result.email_sent,
+        "email_queued": result.email_queued,
         "already_active": result.already_active,
     }

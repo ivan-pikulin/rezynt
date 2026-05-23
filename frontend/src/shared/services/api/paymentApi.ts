@@ -5,6 +5,7 @@ export interface PaymentActivationResponse {
   ok: boolean;
   user: User;
   email_sent: boolean;
+  email_queued: boolean;
   already_active: boolean;
 }
 

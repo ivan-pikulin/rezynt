@@ -7,7 +7,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security import get_password_hash
 from app.database.models import User
-from app.services.email_service import EmailService
 
 logger = logging.getLogger(__name__)
 
@@ -16,6 +15,7 @@ logger = logging.getLogger(__name__)
 class PaymentActivationResult:
     user: User
     email_sent: bool
+    email_queued: bool
     already_active: bool
 
 
@@ -40,7 +40,12 @@ class PaymentService:
                 payment_id,
                 user.id,
             )
-            return PaymentActivationResult(user=user, email_sent=False, already_active=True)
+            return PaymentActivationResult(
+                user=user,
+                email_sent=False,
+                email_queued=False,
+                already_active=True,
+            )
 
         password = self._generate_password()
         user.password_hash = get_password_hash(password)
@@ -51,10 +56,15 @@ class PaymentService:
         await db.commit()
         await db.refresh(user)
 
-        email_sent = EmailService().send_paid_access_email(user.email, password)
-        if not email_sent:
-            logger.error(
-                "Payment %s activated paid access for user %s, but paid access email was not sent",
+        email_queued = False
+        try:
+            from app.core.tasks import send_paid_access_email_task
+
+            send_paid_access_email_task.delay(user.email, password)
+            email_queued = True
+        except Exception:
+            logger.exception(
+                "Payment %s activated paid access for user %s, but paid access email task was not queued",
                 payment_id,
                 user.id,
             )
@@ -62,7 +72,8 @@ class PaymentService:
         logger.info("Payment %s activated paid access for user %s", payment_id, user.id)
         return PaymentActivationResult(
             user=user,
-            email_sent=email_sent,
+            email_sent=False,
+            email_queued=email_queued,
             already_active=False,
         )
 

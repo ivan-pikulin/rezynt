@@ -68,6 +68,29 @@ async def _send_password_reset_email_task(email: str, token: str, code: str = No
         return {"status": "error", "email": email, "error": str(e)}
 
 
+@celery_app.task(name="send_paid_access_email_task")
+def send_paid_access_email_task(email: str, password: str):
+    """Send generated paid access credentials via EmailService."""
+    logger.info(f"Starting paid access email task for {email}")
+
+    try:
+        email_service = EmailService()
+        logger.info("EmailService initialized successfully")
+
+        success = email_service.send_paid_access_email(email, password)
+
+        if success:
+            logger.info(f"Paid access email sent successfully to {email}")
+            return {"status": "success", "email": email}
+
+        logger.error(f"Failed to send paid access email to {email}")
+        return {"status": "error", "email": email, "error": "Failed to send email"}
+
+    except Exception as e:
+        logger.error(f"Exception in send_paid_access_email task: {e}", exc_info=True)
+        return {"status": "error", "email": email, "error": str(e)}
+
+
 @celery_app.task(name="send_onboarding_notification_task")
 def send_onboarding_notification_task(user_email: str, user_id: int, responses: dict):
     
