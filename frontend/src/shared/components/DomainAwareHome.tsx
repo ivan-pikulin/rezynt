@@ -12,7 +12,7 @@ function resolveHomeVariant(): HomeVariant {
 	}
 
 	const host = window.location.hostname;
-	if (host === "app.rezynt.com") {
+	if (host === "app.rezynt.ru" || host === "app.rezynt.com") {
 		return "app";
 	}
 

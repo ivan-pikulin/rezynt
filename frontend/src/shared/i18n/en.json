@@ -226,7 +226,7 @@
     }
   },
   "onboarding": {
-    "title": "Welcome to Rezynt!",
+    "title": "Welcome to Резинт!",
     "subtitle": "Let's get to know you better to personalize your experience",
     "questions": {
       "experience": "How many years of work experience do you have?",
@@ -718,7 +718,7 @@
     "terms": {
       "badge": "Terms",
       "title": "Terms of Service",
-      "subtitle": "Use Rezynt responsibly and keep your account secure. These terms summarize the basic rules for using the service.",
+      "subtitle": "Use Резинт responsibly and keep your account secure. These terms summarize the basic rules for using the service.",
       "sections": [
         {
           "title": "Acceptable use",
@@ -733,7 +733,7 @@
   },
   "landing": {
     "meta": {
-      "title": "ATS-optimized resume in 5 minutes - Rezynt",
+      "title": "ATS-optimized resume in 5 minutes - Резинт",
       "description": "Turn job hunting into job winning. AI helps shape your story into what hiring managers actually want to hear."
     },
     "nav": {

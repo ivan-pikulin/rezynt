@@ -1,6 +1,6 @@
 # Landing Concept
 
-Experimental marketing page for Rezynt focused on creating a resume from scratch.
+Experimental marketing page for `Резинт` focused on creating a resume from scratch.
 
 ## Route
 
@@ -16,7 +16,7 @@ Experimental marketing page for Rezynt focused on creating a resume from scratch
 
 ## Layout
 
-- Sticky header with image logo.
+- Sticky header with the `Резинт` image logo.
 - One compact badge in the hero: `Конструктор резюме онлайн`.
 - Hero headline: `Сборка резюме за 5 мин`.
 - Short subheading: `Меньше возни с резюме, больше откликов и собеседований.`
@@ -24,7 +24,7 @@ Experimental marketing page for Rezynt focused on creating a resume from scratch
 - The resume preview uses two green-check overlay pills instead of a score badge:
   - `Готово к отправке`
   - `Оптимизировано под ATS`
-- Below the resume preview there is an animated pill CTA `Собрать резюме`, which smooth-scrolls to the embedded builder form (`#builder`).
+- In the hero copy column, directly below the headline/subtitle, there is an animated pill CTA `Собрать резюме`, which smooth-scrolls to the embedded builder form (`#builder`).
 - The former three-card hero flow (`Заполните форму`, `Выберите шаблон`, `Скачайте файл`) is not rendered.
 - Below the hero, the page embeds the full builder questionnaire from the product as a vertical landing-page form:
   - contact info
@@ -35,11 +35,11 @@ Experimental marketing page for Rezynt focused on creating a resume from scratch
 - The questionnaire starts immediately with stacked accordion section cards. There is no extra section header, subtitle, or progress card inside the builder block.
 - All builder section headers are visible one under another on the landing page; only `Контакты` is expanded by default.
 - Users can collapse/expand each section by clicking its heading.
-- Each non-final expanded section has one bottom CTA labeled only with the next section name and a down arrow. It expands the next section and smooth-scrolls it into view.
+- Each non-final expanded section has one centered, wide bottom CTA labeled only with the next section name and a down arrow. It expands the next section and smooth-scrolls it into view.
 - Section transition CTAs also move focus into the first editable field of the newly opened section.
 - Header arrow navigation is not rendered in the landing questionnaire.
 - The final section has no internal CTA. A separate final CTA block renders below all section cards.
-- The final CTA block is always visible below all accordion section cards. The button says `Перейти к выбору шаблона`, is larger than section-scroll buttons, and remains disabled until the user checks personal data processing consent.
+- The final CTA block is always visible below all accordion section cards. The button says `Перейти к выбору шаблона`, is more prominent than section-scroll buttons without using oversized desktop text, and remains disabled until the user checks personal data processing consent.
 - Clicking the final CTA saves the builder data and navigates directly to the existing template selection/export screen at `/export`: authenticated users are saved through `resumeApi.updateResume`; unauthenticated users are registered through `authApi.signupFromLanding` using the email from the contacts step, receive auth tokens, are stored as full logged-in users, and then continue to `/export`.
 - The landing signup flow rejects existing emails instead of silently logging in by email alone. The UI shows a diagnostic error and keeps the user on the form.
 - The consent text links to `/privacy-policy.html`.

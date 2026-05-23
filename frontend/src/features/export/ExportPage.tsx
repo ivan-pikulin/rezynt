@@ -41,10 +41,10 @@ const ExportPage: React.FC = () => {
             <span className="lc-header-back__label">{t('export.backToEdit')}</span>
           </Link>
 
-          <Link to="/landing-concept" className="lc-brand" aria-label="Rezynt">
+          <Link to="/landing-concept" className="lc-brand" aria-label="Резинт">
             <img
               src="/rezynt-logo-with-name.svg"
-              alt="Rezynt"
+              alt="Резинт"
               className="lc-brand__image"
               width="206"
               height="52"

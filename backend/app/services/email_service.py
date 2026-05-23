@@ -60,7 +60,7 @@ class EmailService:
             
             # Create MIME message as in test_email_send.py
             msg = MIMEText(body, 'html')
-            msg['From'] = f"Rezynt <{self.sender_email}>"
+            msg['From'] = f"Резинт <{self.sender_email}>"
             msg['To'] = to_email
             msg['Subject'] = subject
             
@@ -123,7 +123,7 @@ class EmailService:
         """
         logger.info(f"Sending confirmation email to {to_email}")
         
-        subject = "Подтверждение электронной почты - Rezynt"
+        subject = "Подтверждение электронной почты - Резинт"
         
         # Choose template based on whether we have verification code
         if verification_code:
@@ -136,7 +136,7 @@ class EmailService:
 </head>
 <body style="font-family:Arial,sans-serif;margin:0;padding:20px;background-color:#f4f4f4">
 <div style="max-width:600px;margin:0 auto;background-color:white;padding:30px;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,0.1)">
-<h1 style="color:#4caf50;text-align:center;margin-bottom:30px">Добро пожаловать в Rezynt!</h1>
+<h1 style="color:#4caf50;text-align:center;margin-bottom:30px">Добро пожаловать в Резинт!</h1>
 <h2 style="color:#333;margin-bottom:20px">Подтвердите электронную почту</h2>
 <p style="color:#666;line-height:1.6;margin-bottom:30px">Спасибо за регистрацию! Чтобы завершить ее, подтвердите адрес электронной почты одним из способов ниже:</p>
 
@@ -160,7 +160,7 @@ class EmailService:
 </div>
 
 <p style="color:#666;font-size:14px;line-height:1.6">Код подтверждения действителен 15 минут. Если вы не регистрировались в нашем сервисе, просто проигнорируйте это письмо.</p>
-<p style="text-align:center;color:#999;font-size:12px;margin-top:40px;border-top:1px solid #eee;padding-top:20px">&copy; 2025 Rezynt. Все права защищены.</p>
+<p style="text-align:center;color:#999;font-size:12px;margin-top:40px;border-top:1px solid #eee;padding-top:20px">&copy; 2025 Резинт. Все права защищены.</p>
 </div>
 </body>
 </html>"""
@@ -174,7 +174,7 @@ class EmailService:
 </head>
 <body style="font-family:Arial,sans-serif;margin:0;padding:20px;background-color:#f4f4f4">
 <div style="max-width:600px;margin:0 auto;background-color:white;padding:20px">
-<h1 style="color:#4caf50;text-align:center;margin-bottom:30px">Добро пожаловать в Rezynt!</h1>
+<h1 style="color:#4caf50;text-align:center;margin-bottom:30px">Добро пожаловать в Резинт!</h1>
 <h2 style="color:#333">Подтвердите электронную почту</h2>
 <p>Спасибо за регистрацию! Чтобы завершить ее, подтвердите адрес электронной почты.</p>
 <p style="text-align:center;margin:30px 0">
@@ -183,7 +183,7 @@ class EmailService:
 <p>Если кнопка не работает, скопируйте и вставьте следующую ссылку в браузер:</p>
 <p style="word-break:break-all;background-color:#f0f0f0;padding:10px;border-radius:4px;margin:20px 0">{{ api_url }}/api/v1/auth/confirm-email?token={{ token }}</p>
 <p>Если вы не регистрировались в нашем сервисе, просто проигнорируйте это письмо.</p>
-<p style="text-align:center;color:#666;font-size:12px;margin-top:30px">&copy; 2025 Rezynt. Все права защищены.</p>
+<p style="text-align:center;color:#666;font-size:12px;margin-top:30px">&copy; 2025 Резинт. Все права защищены.</p>
 </div>
 </body>
 </html>"""
@@ -217,7 +217,7 @@ class EmailService:
         """
         logger.info(f"Sending password reset email to {to_email}")
         
-        subject = "Сброс пароля - Rezynt"
+        subject = "Сброс пароля - Резинт"
         
         # Choose template based on whether we have verification code
         if verification_code:
@@ -232,7 +232,7 @@ class EmailService:
 <div style="max-width:600px;margin:0 auto;background-color:white;padding:30px;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,0.1)">
 <h1 style="color:#4caf50;text-align:center;margin-bottom:30px">Сброс пароля</h1>
 <h2 style="color:#333;margin-bottom:20px">Сбросьте пароль</h2>
-<p style="color:#666;line-height:1.6;margin-bottom:30px">Это письмо отправлено, потому что для вашего аккаунта Rezynt был запрошен сброс пароля. Используйте один из способов ниже, чтобы сбросить пароль:</p>
+<p style="color:#666;line-height:1.6;margin-bottom:30px">Это письмо отправлено, потому что для вашего аккаунта Резинт был запрошен сброс пароля. Используйте один из способов ниже, чтобы сбросить пароль:</p>
 
 <!-- Verification Code Section -->
 <div style="background-color:#f8f9fa;border:2px solid #e9ecef;border-radius:8px;padding:25px;margin:30px 0;text-align:center">
@@ -257,7 +257,7 @@ class EmailService:
 <p style="margin:0;color:#d63031;font-size:14px"><strong>Важно:</strong> этот код и ссылка действительны только 15 минут. Если вы не запрашивали сброс пароля, просто проигнорируйте это письмо — ваш аккаунт останется в безопасности.</p>
 </div>
 
-<p style="text-align:center;color:#999;font-size:12px;margin-top:40px;border-top:1px solid #eee;padding-top:20px">&copy; 2025 Rezynt. Все права защищены.</p>
+<p style="text-align:center;color:#999;font-size:12px;margin-top:40px;border-top:1px solid #eee;padding-top:20px">&copy; 2025 Резинт. Все права защищены.</p>
 </div>
 </body>
 </html>"""
@@ -273,14 +273,14 @@ class EmailService:
 <div style="max-width:600px;margin:0 auto;background-color:white;padding:20px">
 <h1 style="color:#4caf50;text-align:center;margin-bottom:30px">Сброс пароля</h1>
 <h2 style="color:#333">Запрос на сброс пароля</h2>
-<p>Это письмо отправлено, потому что для вашего аккаунта Rezynt был запрошен сброс пароля.</p>
+<p>Это письмо отправлено, потому что для вашего аккаунта Резинт был запрошен сброс пароля.</p>
 <p style="text-align:center;margin:30px 0">
 <a href="{{ frontend_url }}/auth/reset-password?token={{ token }}" style="display:inline-block;padding:12px 24px;background-color:#4caf50;color:white;text-decoration:none;border-radius:4px;font-weight:bold">Сбросить пароль</a>
 </p>
 <p>Если кнопка не работает, скопируйте и вставьте следующую ссылку в браузер:</p>
 <p style="word-break:break-all;background-color:#f0f0f0;padding:10px;border-radius:4px;margin:20px 0">{{ frontend_url }}/auth/reset-password?token={{ token }}</p>
 <p><strong>Важно:</strong> эта ссылка действительна только 1 час. Если вы не запрашивали сброс пароля, просто проигнорируйте это письмо.</p>
-<p style="text-align:center;color:#666;font-size:12px;margin-top:30px">&copy; 2025 Rezynt. Все права защищены.</p>
+<p style="text-align:center;color:#666;font-size:12px;margin-top:30px">&copy; 2025 Резинт. Все права защищены.</p>
 </div>
 </body>
 </html>"""
@@ -314,7 +314,7 @@ class EmailService:
         """
         logger.info(f"Sending email change confirmation to {to_email}")
         
-        subject = "Подтвердите смену email - Rezynt"
+        subject = "Подтвердите смену email - Резинт"
         
         html_template = """<!DOCTYPE html>
 <html>
@@ -326,7 +326,7 @@ class EmailService:
 <div style="max-width:600px;margin:0 auto;background-color:white;padding:30px;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,0.1)">
 <h1 style="color:#4caf50;text-align:center;margin-bottom:30px">Подтверждение смены email</h1>
 <h2 style="color:#333;margin-bottom:20px">Подтвердите новый адрес электронной почты</h2>
-<p style="color:#666;line-height:1.6;margin-bottom:30px">Вы меняете адрес электронной почты для аккаунта Rezynt. Чтобы завершить изменение, введите код подтверждения ниже:</p>
+<p style="color:#666;line-height:1.6;margin-bottom:30px">Вы меняете адрес электронной почты для аккаунта Резинт. Чтобы завершить изменение, введите код подтверждения ниже:</p>
 
 <!-- Verification Code Section -->
 <div style="background-color:#f8f9fa;border:2px solid #e9ecef;border-radius:8px;padding:25px;margin:30px 0;text-align:center">
@@ -341,7 +341,7 @@ class EmailService:
 <p style="margin:0;color:#d63031;font-size:14px"><strong>Важно:</strong> этот код действителен только 15 минут. Если вы не запрашивали смену email, просто проигнорируйте это письмо — ваш аккаунт останется в безопасности.</p>
 </div>
 
-<p style="text-align:center;color:#999;font-size:12px;margin-top:40px;border-top:1px solid #eee;padding-top:20px">&copy; 2025 Rezynt. Все права защищены.</p>
+<p style="text-align:center;color:#999;font-size:12px;margin-top:40px;border-top:1px solid #eee;padding-top:20px">&copy; 2025 Резинт. Все права защищены.</p>
 </div>
 </body>
 </html>"""
@@ -409,7 +409,7 @@ class EmailService:
 </div>
 </div>
 
-<p style="text-align:center;color:#999;font-size:12px;margin-top:40px;border-top:1px solid #eee;padding-top:20px">&copy; 2025 Rezynt. Все права защищены.</p>
+<p style="text-align:center;color:#999;font-size:12px;margin-top:40px;border-top:1px solid #eee;padding-top:20px">&copy; 2025 Резинт. Все права защищены.</p>
 </div>
 </body>
 </html>"""

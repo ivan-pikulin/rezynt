@@ -45,6 +45,10 @@ RUN uv sync --frozen
 # Copy application code
 COPY . .
 
+# Keep baked Alembic revisions available when production mounts a persistent
+# versions directory for server-generated migrations.
+RUN cp -a /app/app/database/migrations /app/app/database/migrations_baked
+
 # Make migration script executable
 RUN chmod +x /app/app/scripts/migrate.sh
 

@@ -224,7 +224,7 @@ function LandingConceptQuestionnaire() {
                             textTransform: "none",
                             px: 3,
                             fontWeight: 700,
-                            width: { xs: "100%", sm: "auto" },
+                            width: "min(100%, 360px)",
                           }}
                         >
                           {stepLabels[index + 1]}

@@ -400,6 +400,8 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
+  align-self: flex-start;
+  width: fit-content;
   min-height: 54px;
   padding: 0 24px;
   border-radius: 999px;
@@ -547,30 +549,34 @@
 .lc-builder__actions {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: center;
   gap: 12px;
   padding-top: 20px;
   border-top: 1px solid rgba(107, 127, 215, 0.12);
+}
+
+.lc-builder__actions .MuiButton-root {
+  min-width: min(100%, 360px);
 }
 
 .lc-builder__final {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 22px;
+  gap: 18px;
   width: 100%;
   margin-top: 30px;
 }
 
 .lc-builder__final-button.MuiButton-root {
-  width: min(100%, 680px);
-  min-height: 78px;
-  border-radius: 14px;
+  width: min(100%, 560px);
+  min-height: 60px;
+  border-radius: 12px;
   background:
     linear-gradient(110deg, rgba(255, 255, 255, 0.2), transparent 34%),
     linear-gradient(135deg, var(--lc-accent) 0%, var(--lc-accent-alt) 100%);
   color: #ffffff;
-  font-size: clamp(22px, 2.6vw, 32px);
+  font-size: clamp(18px, 1.45vw, 24px);
   font-weight: 800;
   line-height: 1.2;
   letter-spacing: 0;
@@ -600,21 +606,21 @@
 
 .lc-builder__consent {
   display: grid;
-  grid-template-columns: 30px minmax(0, 1fr);
-  gap: 14px;
-  width: min(100%, 740px);
+  grid-template-columns: 24px minmax(0, 1fr);
+  gap: 12px;
+  width: min(100%, 680px);
   color: rgba(38, 48, 67, 0.48);
-  font-size: clamp(16px, 2vw, 25px);
+  font-size: clamp(13px, 1.1vw, 16px);
   font-weight: 500;
-  line-height: 1.55;
-  letter-spacing: 0.08em;
+  line-height: 1.5;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
 .lc-builder__consent input {
-  width: 24px;
-  height: 24px;
-  margin-top: 7px;
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
   accent-color: var(--lc-accent);
   cursor: pointer;
 }
@@ -1492,6 +1498,8 @@
   }
 
   .lc-preview-cta {
+    align-self: stretch;
+    width: 100%;
     min-height: 50px;
     padding: 0 20px;
     font-size: 14px;
@@ -1546,7 +1554,11 @@
 
   .lc-builder__actions {
     flex-direction: column;
-    align-items: stretch;
+    align-items: center;
+  }
+
+  .lc-builder__actions .MuiButton-root {
+    width: min(100%, 360px);
   }
 
   .lc-builder__final {

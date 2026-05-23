@@ -48,9 +48,9 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", case_sensitive=True)
 
     # Project settings
-    PROJECT_NAME: str = "Rezynt API"
+    PROJECT_NAME: str = "Резинт API"
     API_V1_STR: str = "/api/v1"
-    CORS_ORIGINS: List[str] = ["https://rezynt.com", "https://www.rezynt.com", "https://app.rezynt.com", "http://localhost:3000", "http://localhost:5173"]
+    CORS_ORIGINS: List[str] = ["https://rezynt.ru", "https://www.rezynt.ru", "https://app.rezynt.ru", "https://rezynt.com", "https://www.rezynt.com", "https://app.rezynt.com", "http://localhost:3000", "http://localhost:5173"]
     FRONTEND_BASE_URL: str
     API_BASE_URL: str
 

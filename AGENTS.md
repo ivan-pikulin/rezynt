@@ -13,10 +13,11 @@ rezynt/
 ├── backend/         # FastAPI backend server
 ├── frontend/        # React + Vite frontend application
 ├── landing/         # Static landing page (Vite + vanilla JS)
-├── nginx/           # Nginx reverse proxy configuration
+├── nginx/           # Legacy standalone Nginx reverse proxy configuration
 ├── ai/              # AI prompt templates for resume improvements
 ├── .github/         # GitHub Actions CI/CD workflows
-└── docker-compose.yml  # Production orchestration
+├── docker-compose.yml       # Legacy standalone production orchestration
+└── docker-compose.prod.yml  # Current production orchestration for shared server
 ```
 
 ## Technology Stack
@@ -49,8 +50,8 @@ rezynt/
 ### Infrastructure
 - **Database:** PostgreSQL 15-alpine
 - **Cache/Queue:** Redis 7-alpine
-- **Reverse Proxy:** Nginx alpine
-- **SSL/TLS:** Certbot (Let's Encrypt)
+- **Reverse Proxy:** Shared Caddy in `/opt/shared-proxy` on the production server
+- **SSL/TLS:** Caddy automatic Let's Encrypt certificates
 - **Containerization:** Docker + Docker Compose
 
 ## Common Commands
@@ -101,7 +102,13 @@ docker compose -f docker-compose-local.yml --env-file .env up -d
 ```
 
 ### Production Deployment
-Production deployment runs on a remote server. NEVER try to find Docker containers or prod-specific services locally. Deployment is automated via GitHub Actions on push to `main` branch.
+Production deployment runs on the remote `personal-sara` server. NEVER try to find Docker containers or prod-specific services locally. Deployment is automated via GitHub Actions on push to `main` branch.
+
+Current deployment is registry-based:
+- GitHub Actions builds `rezynt-backend` and `rezynt-frontend` images.
+- Images are pushed to GHCR.
+- The server only pulls images and runs `docker compose up -d --no-build`.
+- Do not add server-side `docker compose build` steps.
 
 ## Code Architecture
 
@@ -260,8 +267,8 @@ EMAIL_PASSWORD=<password>
 EMAIL_DKIM_PRIVATE_KEY_PATH=/app/dkim-key.private
 
 # URLs
-FRONTEND_BASE_URL=https://rezynt.com
-API_BASE_URL=https://api.rezynt.com
+FRONTEND_BASE_URL=https://rezynt.ru
+API_BASE_URL=https://rezynt.ru
 
 # OpenAI
 OPENAI_API_KEY=<key>
@@ -312,34 +319,60 @@ Frontend API clients are in `frontend/src/shared/services/api/` with a baseApi.t
 - PDF generation
 - Resume analysis
 
-## Docker Services (Production)
+## Production Docker Structure
 
-Services defined in docker-compose.yml:
-- **nginx** - Reverse proxy, SSL termination (ports 80, 443)
-- **frontend** - React app served by Nginx
-- **landing** - Static landing page
-- **backend** - FastAPI app (internal port 8000)
-- **celery** - Background task worker (1GB memory limit)
-- **postgres** - PostgreSQL database with health checks
-- **redis** - Cache and task queue
-- **certbot** - SSL certificate renewal
+Current production compose file: `docker-compose.prod.yml`.
+
+Rezynt app services:
+- **frontend** - React app served by its internal Nginx on port `80`.
+- **backend** - FastAPI app on internal port `8000`.
+- **celery** - Background task worker.
+- **postgres** - PostgreSQL database.
+- **redis** - Redis cache and Celery broker.
+
+Rezynt does **not** run a public reverse proxy, Nginx, or Certbot in current production. Public `80/443` are owned by the shared Caddy stack.
 
 Networks:
-- `app-network` - Frontend, Nginx, Backend communication
-- `backend-network` - Backend, Database, Redis communication
+- `sara-help_default` - external shared network used by Caddy, Sara Help, and Rezynt. Rezynt joins it with aliases `rezynt-frontend` and `rezynt-backend`.
+- `app-network` - internal frontend/backend communication.
+- `backend-network` - backend/postgres/redis/celery communication.
 
 Volumes:
-- `postgres_data` - Database persistence
-- `redis_data` - Cache persistence
-- `migrations_data` - Migration files
-- `temp_uploads_data` - Temporary file uploads
-- `frontend_node_modules` - Node modules cache
+- `postgres_data` - database persistence.
+- `redis_data` - cache persistence.
+- `migrations_data` - persistent Alembic `versions/`.
+- `temp_uploads_data` - temporary uploads.
+
+Alembic note: the backend image stores baked migrations in `/app/app/database/migrations_baked`; production startup seeds the persistent `versions/` volume before running `backend/app/scripts/migrate.sh`.
+
+## Shared Proxy Structure
+
+The shared public proxy is not owned by this repository.
+
+Source of truth:
+- Local repo: `/Users/ivan/Desktop/repositories/Personal/sara-help/shared-proxy/`
+- Server path: `/opt/shared-proxy/`
+- Compose file: `/opt/shared-proxy/docker-compose.yml`
+- Caddyfile: `/opt/shared-proxy/Caddyfile`
+- Container: `shared-proxy-caddy-1`
+
+Caddy routes both applications on the same server:
+- `sarahelp.ru` and `mastra.sarahelp.ru` -> Sara Help services.
+- `rezynt.ru` and `www.rezynt.ru` -> Rezynt services.
+
+Rezynt workflow may update only the block between:
+```
+# BEGIN REZYNT MANAGED BLOCK
+# END REZYNT MANAGED BLOCK
+```
+
+Always validate candidate Caddy config before replacing `/opt/shared-proxy/Caddyfile`, then use `caddy reload`. Do not restart the Caddy container for app-only deploys.
 
 ## Production Server
 
 ### SSH Access
 ```bash
-ssh rezynt   # root@46.149.70.254
+ssh personal-sara   # root@46.149.70.254
 ```
 
 ### Server Specs
@@ -351,74 +384,63 @@ ssh rezynt   # root@46.149.70.254
 - **IP:** 46.149.70.254
 
 ### Project Location
-- **Path:** `/root/rezynt/`
-- **Env file:** `/root/rezynt/.env`
+- **Path:** `/opt/rezynt/`
+- **Env file:** `/opt/rezynt/.env`
 - **DKIM key:** `/root/rezynt.com.private`
 
 ### Docker Containers (Production)
 All containers are prefixed with `rezynt-`:
 ```
-rezynt-nginx-1      — Reverse proxy + SSL (ports 80, 443)
-rezynt-frontend-1   — React app
-rezynt-landing-1    — Static landing page
-rezynt-backend-1    — FastAPI (port 8000 internal)
+rezynt-frontend-1   — React app, internal port 80
+rezynt-backend-1    — FastAPI, internal port 8000
 rezynt-celery-1     — Background task worker
-rezynt-postgres-1   — PostgreSQL (port 5432)
-rezynt-redis-1      — Redis (port 6379)
-rezynt-certbot-1    — Let's Encrypt certificate renewal
+rezynt-postgres-1   — PostgreSQL
+rezynt-redis-1      — Redis
+shared-proxy-caddy-1 — Shared public proxy for Sara Help and Rezynt (ports 80, 443)
 ```
 
 ### SSL Certificates
-- **Managed by:** Docker certbot container (auto-renews every 12h)
-- **Domains:** `rezynt.com`, `www.rezynt.com`, `app.rezynt.com`
-- **Storage:** Docker volume `rezynt_letsencrypt`
-- **Nginx reload:** Cron job on host every 12h: `docker exec rezynt-nginx-1 nginx -s reload`
-- **OCSP stapling:** Disabled (Let's Encrypt ECDSA certs don't include OCSP responder URL)
+- **Managed by:** shared Caddy container.
+- **Domains:** `rezynt.ru`, `www.rezynt.ru`.
+- **Storage:** Docker volumes `sara-help_caddy_data` and `sara-help_caddy_config`, mounted by `/opt/shared-proxy/docker-compose.yml`.
+- **Reload:** `docker compose -f /opt/shared-proxy/docker-compose.yml exec -T caddy caddy reload --config /etc/caddy/Caddyfile`.
 
 ### Common Server Commands
 ```bash
 # Check container status
-ssh rezynt "docker ps -a"
+ssh personal-sara "docker ps -a"
 
 # View backend logs
-ssh rezynt "docker logs rezynt-backend-1 --tail 100"
+ssh personal-sara "docker logs rezynt-backend-1 --tail 100"
 
-# View nginx logs
-ssh rezynt "docker logs rezynt-nginx-1 --tail 100"
+# View shared proxy logs
+ssh personal-sara "docker logs shared-proxy-caddy-1 --tail 100"
 
-# Reload nginx (after config/cert changes)
-ssh rezynt "docker exec rezynt-nginx-1 nginx -s reload"
+# Validate shared Caddy config
+ssh personal-sara "docker compose -f /opt/shared-proxy/docker-compose.yml exec -T caddy caddy validate --config /etc/caddy/Caddyfile"
 
-# Check SSL certificate expiry
-ssh rezynt "docker exec rezynt-certbot-1 certbot certificates"
+# Reload shared Caddy
+ssh personal-sara "docker compose -f /opt/shared-proxy/docker-compose.yml exec -T caddy caddy reload --config /etc/caddy/Caddyfile"
 
-# Force certificate renewal
-ssh rezynt "docker exec rezynt-certbot-1 certbot renew --force-renewal"
-
-# Restart all containers
-ssh rezynt "cd /root/rezynt && docker compose up -d"
-
-# View crontab
-ssh rezynt "crontab -l"
+# Restart Rezynt app containers only
+ssh personal-sara "cd /opt/rezynt && docker compose -f docker-compose.prod.yml --env-file .env up -d --no-build"
 ```
 
 ### Known Issues
-- Host has an old certbot (v1.21.0) with broken/expired certs in `/etc/letsencrypt/` — these are NOT used by Docker. Docker certbot uses its own volume.
-- Many orphaned Docker volumes exist on server (80+). Can be cleaned with `docker volume prune`.
+- Do not run Rezynt Nginx/Certbot on ports `80/443`; those ports belong to `shared-proxy-caddy-1`.
+- `rezynt.ru` DNS is managed in Timeweb. The Timeweb authoritative zone has `A` records for `rezynt.ru` and `www.rezynt.ru`, but `.ru` TLD propagation may lag after initial registration/delegation.
+- DKIM key path is `/root/rezynt.com.private`; if it is empty, email sends without DKIM signing.
 
 ## CI/CD Pipeline
 
 GitHub Actions workflow (`.github/workflows/deploy.yml`) triggers on push to `main`:
-1. Setup Node.js 20
-2. Build landing page with yarn
-3. SCP landing files to remote server
-4. SSH to server and execute deployment script:
-   - Pull latest code
-   - Stop containers
-   - Build Docker images
-   - Start containers with `docker compose up -d`
-   - Restart nginx
-   - Cleanup old images
+1. Build backend and frontend Docker images on GitHub-hosted runners.
+2. Push images to GHCR as `${GITHUB_SHA}` and `main`.
+3. SSH to `personal-sara`.
+4. Update `/opt/rezynt` checkout using the read-only deploy key alias `github.com-rezynt`.
+5. Write runtime `.env` from GitHub secret `PROD_ENV`.
+6. Pull images and run `docker compose -f docker-compose.prod.yml --env-file .env up -d --no-build --remove-orphans`.
+7. Update the Rezynt managed block in `/opt/shared-proxy/Caddyfile`, validate candidate config, and gracefully reload Caddy.
 
 ## Analytics
 

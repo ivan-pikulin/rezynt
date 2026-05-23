@@ -11,6 +11,7 @@ Shared-слой содержит всё, что переиспользуется
 - `theme/` - единая тема приложения.
 - `i18n/` - переводы.
 - `types/` - общие типы `user.ts` и `resume.ts`.
+- `public/` - web assets including the `Резинт` logo, favicon, and PWA icons.
 
 ## Ключевые компоненты
 
@@ -23,6 +24,7 @@ Shared-слой содержит всё, что переиспользуется
 - `frontend/src/shared/components/OnboardingGuard.tsx`
 - `frontend/src/shared/components/PublicOnboardingGuard.tsx`
 - `frontend/src/shared/components/templates/`
+- Brand assets: `frontend/public/rezynt-logo-with-name.svg`, `frontend/public/rezynt-symbol.webp`, `frontend/public/favicon.ico`, `frontend/public/favicon-16.png`, `frontend/public/favicon-32.png`, `frontend/public/logo192.png`, `frontend/public/logo512.png`.
 
 ## Смежные документы
 
@@ -34,6 +36,8 @@ Shared-слой содержит всё, что переиспользуется
 - Shared не импортирует feature-код.
 - Все API-запросы идут через `shared/services/api`.
 - `authApi.signupFromLanding` creates and authenticates a full user account from landing questionnaire data; the auth context `login` method returns `Promise<boolean>` because it stores tokens and verifies them through `/user/me`.
+- `tokenService` shares auth and guest cookies across `rezynt.ru`/subdomains and keeps legacy `rezynt.com` support during migration.
+- GA4 cross-domain linking includes `rezynt.ru`, `www.rezynt.ru`, `app.rezynt.ru` and legacy `rezynt.com` hosts.
 - Все текстовые строки должны быть в `shared/i18n`.
 - Все цвета и токены дизайна должны жить в `shared/theme/theme.ts`.
 

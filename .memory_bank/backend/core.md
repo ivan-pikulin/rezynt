@@ -5,10 +5,12 @@ Core содержит settings, security, verification и celery integration.
 ## Config
 
 - Settings читаются из `.env`.
+- `PROJECT_NAME = Резинт API`.
 - `API_V1_STR = /api/v1`.
-- `CORS_ORIGINS` включает production domains и local dev.
+- `CORS_ORIGINS` включает `rezynt.ru` production domains, legacy `rezynt.com` domains and local dev.
 - Есть отдельные settings для email, redis и OpenAI.
 - Хранятся `PLATFORM_*` keys и `TEMP_UPLOAD_DIR`.
+- Backend image keeps baked Alembic migrations in `/app/app/database/migrations_baked` for production seeding of persistent `versions/`.
 
 ## Security
 
@@ -29,4 +31,4 @@ Core содержит settings, security, verification и celery integration.
 - `tasks.py` - email tasks, onboarding notification, resume upload processing.
 - Fail-fast policy: task errors должны быть видимы и не скрываться silent fallback-ом.
 
-*Последнее обновление: 2026-05-21*
+*Последнее обновление: 2026-05-22*

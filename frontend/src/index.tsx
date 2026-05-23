@@ -9,7 +9,7 @@ import posthog from 'posthog-js';
 
 // Initialize PostHog with reverse proxy
 posthog.init(import.meta.env.VITE_PUBLIC_POSTHOG_KEY, {
-  api_host: import.meta.env.VITE_PUBLIC_POSTHOG_HOST || 'https://app.rezynt.com/ingest',
+  api_host: import.meta.env.VITE_PUBLIC_POSTHOG_HOST || 'https://rezynt.ru/ingest',
   ui_host: 'https://us.posthog.com', // for PostHog UI features
   person_profiles: 'identified_only',
   capture_pageview: true,

@@ -1,19 +1,21 @@
 # Infra
 
-Infra покрывает landing page, nginx и production delivery.
+Infra покрывает shared reverse proxy, Docker Compose production delivery и GitHub Actions.
 
 ## Доменная карта
 
-- `landing/` - статический marketing site.
-- `nginx/` - reverse proxy, SSL и routing.
-- GitHub Actions - deployment pipeline.
+- `docker-compose.prod.yml` - production services for the shared `personal-sara` server.
+- Shared Caddy in `/opt/shared-proxy` - public reverse proxy, SSL and routing.
+- GitHub Actions - GHCR image build/push and SSH deploy pipeline.
 - Remote production server - единственная production среда.
+- Shared proxy source-of-truth is `shared-proxy/` in the `sara-help` repo.
 
 ## Что помнить
 
 - Продакшн не запускается локально и не ищется через локальные контейнеры.
-- Landing build и app build разделены.
-- Nginx обслуживает `rezynt.com`, `www.rezynt.com` и `app.rezynt.com`.
+- Сервер не собирает application images; deploy only pulls GHCR images.
+- Rezynt не владеет портами 80/443 на сервере; они заняты `shared-proxy-caddy-1`.
+- Caddy обслуживает `rezynt.ru` и `www.rezynt.ru`.
 
 ## Подфайлы
 
@@ -21,4 +23,4 @@ Infra покрывает landing page, nginx и production delivery.
 - [`nginx.md`](./nginx.md)
 - [`landing.md`](./landing.md)
 
-*Последнее обновление: 2026-05-21*
+*Последнее обновление: 2026-05-22*

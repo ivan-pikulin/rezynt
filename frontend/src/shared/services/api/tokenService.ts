@@ -2,24 +2,33 @@ import FingerprintJS from '@fingerprintjs/fingerprintjs';
 import { TokenResponse } from '../../../features/auth/types/auth';
 
 const isBrowser = typeof document !== 'undefined';
-const COOKIE_DOMAIN = '.rezynt.com';
+const SHARED_COOKIE_DOMAINS = ['rezynt.ru', 'rezynt.com'];
 const ACCESS_COOKIE = 'rz_access_token';
 const REFRESH_COOKIE = 'rz_refresh_token';
 const GUEST_COOKIE = 'rz_guest_id';
 
-const shouldUseSharedCookies = () => {
+const getSharedCookieDomain = (): string | null => {
   if (!isBrowser) {
-    return false;
+    return null;
   }
+
   const hostname = window.location.hostname;
-  return hostname === 'rezynt.com' || hostname.endsWith('.rezynt.com');
+  const baseDomain = SHARED_COOKIE_DOMAINS.find(
+    domain => hostname === domain || hostname.endsWith(`.${domain}`)
+  );
+  return baseDomain ? `.${baseDomain}` : null;
+};
+
+const shouldUseSharedCookies = () => {
+  return Boolean(getSharedCookieDomain());
 };
 
 const setCookie = (name: string, value: string, maxAgeSeconds?: number) => {
   if (!isBrowser || !shouldUseSharedCookies()) return;
   let cookie = `${name}=${encodeURIComponent(value)};path=/;SameSite=None;Secure`;
-  if (COOKIE_DOMAIN) {
-    cookie += `;domain=${COOKIE_DOMAIN}`;
+  const cookieDomain = getSharedCookieDomain();
+  if (cookieDomain) {
+    cookie += `;domain=${cookieDomain}`;
   }
   if (typeof maxAgeSeconds === 'number') {
     cookie += `;Max-Age=${Math.max(0, maxAgeSeconds)}`;
@@ -42,8 +51,9 @@ const getCookie = (name: string): string | null => {
 const clearCookie = (name: string) => {
   if (!isBrowser || !shouldUseSharedCookies()) return;
   let cookie = `${name}=;path=/;Max-Age=0;SameSite=None;Secure`;
-  if (COOKIE_DOMAIN) {
-    cookie += `;domain=${COOKIE_DOMAIN}`;
+  const cookieDomain = getSharedCookieDomain();
+  if (cookieDomain) {
+    cookie += `;domain=${cookieDomain}`;
   }
   document.cookie = cookie;
 };

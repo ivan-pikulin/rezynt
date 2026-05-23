@@ -148,10 +148,10 @@ function LandingConceptPage() {
 
       <header className="lc-header">
         <div className="lc-shell lc-header__inner">
-          <Link to="/landing-concept" className="lc-brand" aria-label="Rezynt">
+          <Link to="/landing-concept" className="lc-brand" aria-label="Резинт">
             <img
               src="/rezynt-logo-with-name.svg"
-              alt="Rezynt"
+              alt="Резинт"
               className="lc-brand__image"
               width="206"
               height="52"
@@ -180,6 +180,10 @@ function LandingConceptPage() {
               <span className="lc-title__lead">{t("landingConcept.hero.titleTail")}</span>
             </h1>
             <p className="lc-lead">{t("landingConcept.hero.subtitle")}</p>
+            <a className="lc-preview-cta" href="#builder" onClick={scrollToBuilder}>
+              <span>{t("landingConcept.hero.cta")}</span>
+              <KeyboardArrowDownRoundedIcon className="lc-preview-cta__icon" aria-hidden="true" />
+            </a>
           </div>
           <div className="lc-hero__resume" data-lc-reveal style={{ "--lc-delay": "120ms" } as React.CSSProperties}>
             <div className="lc-resume-showcase" aria-label={t("landingConcept.preview.ariaLabel")}>
@@ -199,10 +203,6 @@ function LandingConceptPage() {
                 ]}
               />
             </div>
-            <a className="lc-preview-cta" href="#builder" onClick={scrollToBuilder}>
-              <span>{t("landingConcept.hero.cta")}</span>
-              <KeyboardArrowDownRoundedIcon className="lc-preview-cta__icon" aria-hidden="true" />
-            </a>
           </div>
         </div>
       </section>
@@ -212,7 +212,7 @@ function LandingConceptPage() {
       <footer className="lc-footer">
         <div className="lc-shell lc-footer__inner">
           <div className="lc-footer__meta">
-            <img src="/rezynt-logo-with-name.svg" alt="Rezynt" className="lc-footer__brand" />
+            <img src="/rezynt-logo-with-name.svg" alt="Резинт" className="lc-footer__brand" />
             <p>{t("landing.footer.copy")}</p>
           </div>
 

@@ -1,62 +1,189 @@
-name: Deploy to Production
+name: Build Images and Deploy
 
 on:
   push:
     branches:
       - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  IMAGE_TAG: main
 
 jobs:
-  deploy:
+  build-images:
     runs-on: ubuntu-latest
-    timeout-minutes: 60  # Increase if needed for long builds/migrations
+    outputs:
+      owner_lc: ${{ steps.meta.outputs.owner_lc }}
+      image_prefix: ${{ steps.meta.outputs.image_prefix }}
     steps:
       - uses: actions/checkout@v4
 
-      - name: Deploy to Server
-        uses: appleboy/ssh-action@v1.0.0
+      - name: Set metadata
+        id: meta
+        shell: bash
+        run: |
+          owner_lc="${GITHUB_REPOSITORY_OWNER,,}"
+          echo "owner_lc=$owner_lc" >> "$GITHUB_OUTPUT"
+          echo "image_prefix=ghcr.io/$owner_lc" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
         with:
-          host: ${{ vars.SSH_HOST }}
-          username: ${{ vars.SSH_USER }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - name: Build and push backend image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          push: true
+          tags: |
+            ${{ steps.meta.outputs.image_prefix }}/rezynt-backend:${{ github.sha }}
+            ${{ steps.meta.outputs.image_prefix }}/rezynt-backend:${{ env.IMAGE_TAG }}
+          cache-from: type=gha,scope=rezynt-backend
+          cache-to: type=gha,mode=max,scope=rezynt-backend
+
+      - name: Build and push frontend image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          push: true
+          build-args: |
+            VITE_API_URL=${{ vars.VITE_API_URL || 'https://rezynt.ru' }}
+            VITE_GA4_MEASUREMENT_ID=${{ vars.VITE_GA4_MEASUREMENT_ID }}
+            VITE_GOOGLE_CLIENT_ID=${{ secrets.VITE_GOOGLE_CLIENT_ID }}
+            VITE_PUBLIC_POSTHOG_KEY=${{ vars.VITE_PUBLIC_POSTHOG_KEY }}
+            VITE_PUBLIC_POSTHOG_HOST=${{ vars.VITE_PUBLIC_POSTHOG_HOST || 'https://rezynt.ru/ingest' }}
+          tags: |
+            ${{ steps.meta.outputs.image_prefix }}/rezynt-frontend:${{ github.sha }}
+            ${{ steps.meta.outputs.image_prefix }}/rezynt-frontend:${{ env.IMAGE_TAG }}
+          cache-from: type=gha,scope=rezynt-frontend
+          cache-to: type=gha,mode=max,scope=rezynt-frontend
+
+  deploy:
+    name: Deploy on Server
+    needs: build-images
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    env:
+      PROD_ENV: ${{ secrets.PROD_ENV }}
+      GHCR_USER: ${{ github.actor }}
+      GHCR_TOKEN: ${{ github.token }}
+      IMAGE_PREFIX: ${{ needs.build-images.outputs.image_prefix }}
+      IMAGE_TAG: main
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          timeout: 3600s  # 1 hour, increase if needed
+          envs: PROD_ENV,GHCR_USER,GHCR_TOKEN,IMAGE_PREFIX,IMAGE_TAG
+          command_timeout: 25m
           script: |
-            set -e
+            set -euo pipefail
 
-            echo "Starting deployment to production..."
+            DEPLOY_DIR="/opt/rezynt"
+            REPO_SSH="git@github.com-rezynt:${{ github.repository }}.git"
+            CADDY_DIR="/opt/shared-proxy"
+            CADDY_CANDIDATE="$CADDY_DIR/Caddyfile.rezynt-candidate"
 
-            # Navigate to project directory
-            cd /root/rezynt
-            
-            # Backup current .env if exists
-            if [ -f .env ]; then
-              cp .env .env.backup
+            docker network inspect sara-help_default >/dev/null
+
+            if [ -d "$DEPLOY_DIR/.git" ]; then
+              cd "$DEPLOY_DIR"
+              git fetch origin main
+              git reset --hard origin/main
+            else
+              rm -rf "$DEPLOY_DIR"
+              git clone --depth 1 --branch main "$REPO_SSH" "$DEPLOY_DIR"
+              cd "$DEPLOY_DIR"
             fi
-            
-            # Create new .env from GitHub variable
-            echo "${{ vars.PROD_ENV }}" > .env
-            
-            # Pull latest changes
-            echo "Pulling latest changes from git..."
-            git pull origin main
-            
-            # Stop all containers before building
-            echo "Stopping all containers..."
-            docker compose down
-            
-            # Build new images
-            echo "Building Docker images..."
-            docker compose -f docker-compose.yml build
-            
-            # Start new containers with zero-downtime (recreate only changed)
-            echo "Starting containers..."
-            docker compose --env-file .env up -d --remove-orphans
-            
-            # Restart nginx container to ensure it picks up any configuration changes
-            echo "Restarting nginx container..."
-            docker compose --env-file .env restart nginx
-            
-            # Cleanup old images
-            echo "Cleaning up old Docker images..."
+
+            echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
+
+            umask 077
+            printf '%s\n' "$PROD_ENV" > "$DEPLOY_DIR/.env"
+            printf 'IMAGE_PREFIX=%s\nIMAGE_TAG=%s\n' "$IMAGE_PREFIX" "$IMAGE_TAG" > "$DEPLOY_DIR/.deploy.env"
+            set -a
+            . "$DEPLOY_DIR/.deploy.env"
+            set +a
+
+            DKIM_PATH="$(grep -E '^EMAIL_DKIM_PRIVATE_KEY_PATH=' "$DEPLOY_DIR/.env" | tail -n1 | cut -d= -f2- || true)"
+            if [ -n "$DKIM_PATH" ] && [ ! -s "$DKIM_PATH" ]; then
+              echo "WARNING: $DKIM_PATH is missing or empty; email will run without DKIM signing."
+            fi
+
+            docker compose -f "$DEPLOY_DIR/docker-compose.prod.yml" --env-file "$DEPLOY_DIR/.env" pull
+            docker compose -f "$DEPLOY_DIR/docker-compose.prod.yml" --env-file "$DEPLOY_DIR/.env" up -d --no-build --remove-orphans
+
+            python3 - <<'PY'
+            from pathlib import Path
+
+            caddyfile = Path("/opt/shared-proxy/Caddyfile")
+            candidate = Path("/opt/shared-proxy/Caddyfile.rezynt-candidate")
+            content = caddyfile.read_text()
+            start = "# BEGIN REZYNT MANAGED BLOCK"
+            end = "# END REZYNT MANAGED BLOCK"
+            block = f"""{start}
+            rezynt.ru, www.rezynt.ru {{
+              handle /api* {{
+                reverse_proxy rezynt-backend:8000
+              }}
+
+              handle /docs* {{
+                reverse_proxy rezynt-backend:8000
+              }}
+
+              handle /openapi.json {{
+                reverse_proxy rezynt-backend:8000
+              }}
+
+              handle /ingest/* {{
+                uri strip_prefix /ingest
+                reverse_proxy https://us.i.posthog.com {{
+                  header_up Host us.i.posthog.com
+                }}
+              }}
+
+              handle /static/* {{
+                reverse_proxy https://us-assets.i.posthog.com {{
+                  header_up Host us-assets.i.posthog.com
+                }}
+              }}
+
+              handle {{
+                reverse_proxy rezynt-frontend:80
+              }}
+            }}
+            {end}
+            """
+            if start in content and end in content:
+                before, rest = content.split(start, 1)
+                _, after = rest.split(end, 1)
+                content = before.rstrip() + "\n\n" + block + after.lstrip()
+            else:
+                content = content.rstrip() + "\n\n" + block
+            candidate.write_text(content)
+            PY
+
+            docker compose -f "$CADDY_DIR/docker-compose.yml" exec -T caddy sh -c "cat > /tmp/Caddyfile.rezynt-candidate && caddy validate --config /tmp/Caddyfile.rezynt-candidate" < "$CADDY_CANDIDATE"
+            cp "$CADDY_CANDIDATE" "$CADDY_DIR/Caddyfile"
+            rm -f "$CADDY_CANDIDATE"
+            docker compose -f "$CADDY_DIR/docker-compose.yml" exec -T caddy caddy reload --config /etc/caddy/Caddyfile
+
+            docker compose -f "$DEPLOY_DIR/docker-compose.prod.yml" --env-file "$DEPLOY_DIR/.env" ps
             docker image prune -f
-            
-            echo "Deployment completed successfully!"
+            docker logout ghcr.io || true

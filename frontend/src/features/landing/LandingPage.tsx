@@ -316,8 +316,8 @@ function LandingPage() {
       <header className="header">
         <div className="container">
           <div className="nav">
-            <Link to="/" className="logo" aria-label="Rezynt home">
-              <img src="/rezynt-logo-with-name.svg" alt="Rezynt" className="logo-img" />
+            <Link to="/" className="logo" aria-label="Резинт">
+              <img src="/rezynt-logo-with-name.svg" alt="Резинт" className="logo-img" />
             </Link>
           </div>
         </div>
@@ -603,7 +603,7 @@ function LandingPage() {
         <div className="container">
           <div className="footer-top">
             <div className="footer-logo">
-              <img src="/rezynt-logo-with-name.svg" alt="Rezynt" className="footer-logo-img" />
+              <img src="/rezynt-logo-with-name.svg" alt="Резинт" className="footer-logo-img" />
             </div>
             <p className="footer-copyright">{t("landing.footer.copy")}</p>
           </div>

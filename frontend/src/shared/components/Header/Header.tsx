@@ -125,7 +125,7 @@ const Header: React.FC<HeaderProps> = ({
         >
           <img 
             src="/rezynt-logo-with-name.svg" 
-            alt="Rezynt" 
+            alt="Резинт"
             style={{ 
               height: '32px', 
               width: 'auto',
@@ -461,4 +461,4 @@ const Header: React.FC<HeaderProps> = ({
   );
 };
 
-export default Header; 
+export default Header;

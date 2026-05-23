@@ -18,6 +18,7 @@
 ## EmailService
 
 - Отправляет HTML emails с DKIM signature.
+- В пользовательских письмах используется бренд `Резинт`.
 - Используется для confirmation, password reset и onboarding notification.
 
 ## PlatformChatflow
