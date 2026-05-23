@@ -24,7 +24,7 @@
 ## CRUD
 
 - Пользовательская логика: `backend/app/database/crud/crud_user.py`
-- `CRUDUser.create_landing_user` создает полноценного verified-пользователя из лендинга с `auth_provider="landing"`, `is_premium=False`, `credits=20` и сохраненным `resume_data`.
+- `CRUDUser.create_landing_user` создает полноценного verified-пользователя из лендинга с `auth_provider="landing"`, `has_completed_onboarding=True`, `is_premium=False`, `credits=20` и сохраненным `resume_data`, чтобы landing-concept поток сразу вел на выбор шаблона без survey/onboarding intercept.
 - Временные файлы: `backend/app/database/crud/crud_temp_resume_file.py`
 
 ## Миграции
@@ -32,4 +32,4 @@
 - Работать с текущей схемой через `alembic upgrade head`.
 - Не пытаться восстанавливать старые доктринальные правила из устаревших спеки.
 
-*Последнее обновление: 2026-05-21*
+*Последнее обновление: 2026-05-23*

@@ -150,6 +150,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             auth_provider="landing",
             is_verified=True,
             is_registered=True,
+            has_completed_onboarding=True,
             is_premium=False,
             credits=20,
             resume_data=resume_data,
