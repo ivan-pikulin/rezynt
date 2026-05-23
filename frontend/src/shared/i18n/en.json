@@ -476,7 +476,7 @@
       "selected": "Payment temporarily disabled",
       "processing": "Processing..."
     },
-    "bottomNote": "14-days money-back guarantee"
+    "bottomNote": "One-time payment · No auto-renewal"
   },
   "export": {
     "title": "Export",
@@ -700,33 +700,223 @@
   },
   "legal": {
     "back": "Back to home",
+    "close": "Close and return home",
     "privacy": {
-      "badge": "Privacy",
-      "title": "Privacy Policy",
-      "subtitle": "We keep data handling deliberately simple: we only collect what is needed to run the product, improve the experience, and support your resume workflow.",
+      "title": "Personal Data Processing Policy",
+      "subtitle": "This document explains what personal data Rezynt processes, why it is needed for the resume builder, who it may be shared with, and how users can manage their data.",
+      "updatedAt": "Version dated May 23, 2026",
       "sections": [
         {
-          "title": "What we collect",
-          "body": "We collect account details, resume content, usage events, and technical data required to operate the service. We do not sell personal data."
+          "title": "1. General",
+          "paragraphs": [
+            "This Policy applies to https://rezynt.ru, the resume builder pages, the landing-page form, template selection, paid access, and resume export.",
+            "The operator processes personal data under Russian Federal Law No. 152-FZ On Personal Data, other applicable Russian legal requirements, this Policy, user actions in the service, and consents provided in the interface.",
+            "Rezynt does not sell users' personal data or use it for hidden commercial sharing with third parties."
+          ]
         },
         {
-          "title": "How we use it",
-          "body": "We use data to provide the resume builder, store your progress, analyze product quality, and prevent abuse. Access is limited to what is needed for these purposes."
+          "title": "2. Operator and contact",
+          "paragraphs": [
+            "The personal data operator is Ivan Sergeevich Pikulin, self-employed payer of professional income tax, taxpayer ID 504030510176, Moscow Region, Russia.",
+            "For personal data questions, consent withdrawal, access, correction, or deletion requests, contact team@rezynt.com. Include the account email and the substance of your request so we can identify the account and respond."
+          ]
+        },
+        {
+          "title": "3. Data we process",
+          "items": [
+            "Account data: email, first name, last name, verification status, registration method, technical session identifiers, and guest-user identifiers.",
+            "Resume data: name, role, city, country, email, phone number, profile and website links, work experience, education, skills, languages, achievements, professional summary, selected template, and export settings.",
+            "Usage data: selected features, form steps, interface events, errors, technical logs, IP address, browser and device data, cookies, and localStorage.",
+            "Payment and plan data: price, access period, payment status, order and payment identifiers needed to confirm payment through YooKassa. Full bank card details are processed by the payment provider and are not stored in Rezynt.",
+            "Support messages: message text, reply email, and information required to resolve the request."
+          ]
+        },
+        {
+          "title": "4. Purposes and legal grounds",
+          "items": [
+            "Creating, editing, storing, selecting templates for, and exporting resumes.",
+            "Registration, login, email confirmation, account protection, and access recovery.",
+            "Providing paid access to export and related features after payment.",
+            "User support, request handling, error diagnostics, and abuse prevention.",
+            "Product analytics, interface improvement, and page performance measurement using Yandex Metrica where such tools are enabled.",
+            "Performance of the agreement with the user and compliance with legal, payment, accounting, and tax obligations."
+          ]
+        },
+        {
+          "title": "5. Resume content",
+          "paragraphs": [
+            "Users decide what information to include in a resume and are responsible for its accuracy, legality, and relevance.",
+            "Rezynt does not specifically request sensitive personal data, health data, political views, religion, biometric data, or third-party data. If a user adds such information to a resume, it is processed as part of user-provided content to perform the selected action."
+          ]
+        },
+        {
+          "title": "6. Cookies, localStorage, and Yandex Metrica",
+          "paragraphs": [
+            "The service uses technical cookies, local storage, and similar technologies for account login, builder progress, session protection, and correct interface behavior.",
+            "Yandex Metrica may be used for analytics: page views, clicks, transitions, traffic sources, browser technical parameters, and similar events. These data help improve the product and measure page performance and are not used to sell personal data.",
+            "Users may restrict cookies and similar technologies in browser settings, but some service functions may stop working correctly."
+          ]
+        },
+        {
+          "title": "7. Sharing with third parties",
+          "paragraphs": [
+            "We may use hosting, database, email, analytics, payment, and technical support providers. They receive access only to the data needed for their function and must follow confidentiality and security requirements.",
+            "Payments are processed through YooKassa. The payment provider receives data needed to process payments, handle legally required refunds, and confirm transactions.",
+            "Analytics data may be processed by Yandex LLC through Yandex Metrica. Data are not sold or shared with third parties for their independent commercial use."
+          ]
+        },
+        {
+          "title": "8. Cross-border transfer",
+          "paragraphs": [
+            "The service is oriented toward the Russian market. For the main flow described in this Policy, Russian payment and analytics providers are used.",
+            "If cross-border transfer of personal data becomes necessary in the future, it will be performed only where a legal basis exists and in compliance with Russian personal data law, including regulator notice requirements where applicable."
+          ]
+        },
+        {
+          "title": "9. Retention",
+          "paragraphs": [
+            "Account and resume data are kept while the account is active or while they are needed to provide the service. Users may request account or data deletion.",
+            "Payment, accounting, and legally significant records are retained as needed for legal compliance, transaction confirmation, tax accounting, dispute resolution, and protection of the operator's rights.",
+            "Technical logs and backups may be retained for a limited period needed for security, recovery, and diagnostics. After applicable periods expire, data are deleted or anonymized."
+          ]
+        },
+        {
+          "title": "10. User rights",
+          "items": [
+            "Receive information about processing of your personal data.",
+            "Request correction, blocking, or deletion of data if it is incomplete, outdated, inaccurate, unlawfully obtained, or no longer needed for the stated purposes.",
+            "Withdraw consent to personal data processing, understanding that some features may become unavailable.",
+            "Challenge operator actions or inaction before Roskomnadzor or in court."
+          ]
+        },
+        {
+          "title": "11. Security",
+          "paragraphs": [
+            "We apply organizational and technical safeguards: access limitation, role separation, secure connections, authorization token storage, error monitoring, and backups.",
+            "No internet service can guarantee absolute security, so users should also protect access to their email and devices and avoid sharing session data with third parties."
+          ]
+        },
+        {
+          "title": "12. Policy changes",
+          "paragraphs": [
+            "We may update this Policy when the product, infrastructure, or legal requirements change. The current version is published on this page and applies from publication unless a new version states otherwise."
+          ]
         }
       ]
     },
     "terms": {
-      "badge": "Terms",
       "title": "Terms of Service",
-      "subtitle": "Use Резинт responsibly and keep your account secure. These terms summarize the basic rules for using the service.",
+      "subtitle": "These terms govern the use of Rezynt: the resume builder, template selection, paid access, and resume export.",
+      "updatedAt": "Version dated May 23, 2026",
       "sections": [
         {
-          "title": "Acceptable use",
-          "body": "Do not upload unlawful content, attempt to break the service, or use the platform in a way that violates laws or harms other users."
+          "title": "1. General and acceptance",
+          "paragraphs": [
+            "These Terms are a public offer under Article 437 of the Civil Code of the Russian Federation and govern relations between Ivan Sergeevich Pikulin, self-employed payer of professional income tax, taxpayer ID 504030510176, Moscow Region, Russia, email: team@rezynt.com, and users of Rezynt.",
+            "The service is available at https://rezynt.ru. By using the site, landing-page form, builder, template selection, payment, or resume export, the user confirms that they have read and accepted these Terms.",
+            "If a user does not agree with these Terms, they must stop using the service."
+          ]
         },
         {
-          "title": "Service limits",
-          "body": "We may update features, pricing, and availability over time. Some capabilities can be limited by plan, account status, or operational constraints."
+          "title": "2. Service description",
+          "paragraphs": [
+            "Rezynt provides web tools for manually entering resume data, selecting a template, previewing, and exporting a finished resume.",
+            "The service is not a recruitment agency, employer, educational organization, or job-placement guarantor. Rezynt does not guarantee responses, interview invitations, ATS approval, or employment."
+          ]
+        },
+        {
+          "title": "3. Account and access",
+          "paragraphs": [
+            "An account may be created to save a resume, process payment, and export files. When registering through the landing-page form, an account may be created automatically based on the user's email and entered resume data.",
+            "The user must provide a valid email and protect access to their email, devices, and session data. Actions performed from the user's account are considered the user's actions unless proven otherwise.",
+            "The service is intended for users with sufficient legal capacity to enter into an agreement and pay for digital access. If a user is under 18, they must use the service with the consent of a legal representative."
+          ]
+        },
+        {
+          "title": "4. Resume data and user responsibility",
+          "paragraphs": [
+            "The user enters resume information independently and is responsible for its accuracy, legality, relevance, and lawful use of third-party data if any are added.",
+            "It is prohibited to publish unlawful information, third-party personal data without a legal basis, malicious code, misleading content, or materials that violate third-party rights."
+          ]
+        },
+        {
+          "title": "5. Templates, export, and result",
+          "paragraphs": [
+            "Templates, visual layouts, interface elements, and exported files are intended for user-prepared resumes. The appearance of a file may vary depending on the browser, device, print settings, and amount of entered text.",
+            "The user may use the resume they created for personal career purposes, including downloading, sending to employers, and posting on job-search services."
+          ]
+        },
+        {
+          "title": "6. Payment and access period",
+          "paragraphs": [
+            "Paid access costs 149 ₽ and is provided for 5 days after payment confirmation. Payment is one-time; there is no auto-renewal and no recurring additional charges.",
+            "Payments are accepted through YooKassa. Full bank card details are entered on the payment provider's side and are not stored in Rezynt.",
+            "Access is considered provided after the payment provider confirms successful payment and paid functions are technically activated in the user's account."
+          ]
+        },
+        {
+          "title": "7. Refunds",
+          "paragraphs": [
+            "Refunds are not provided because the user receives access to the digital service functionality after payment.",
+            "Exceptions may apply if payment was charged by mistake, access was not provided due to a technical error on the service side, or a refund is mandatory under applicable law. To request review, contact team@rezynt.com and include the account email, payment date, and amount."
+          ]
+        },
+        {
+          "title": "8. Acceptable use",
+          "items": [
+            "Do not attempt to disrupt the service, bypass access restrictions, overload infrastructure, or obtain unauthorized access to others' data.",
+            "Do not use the service for unlawful purposes, fraud, spam, phishing, or violation of third-party rights.",
+            "Do not copy the interface, templates, design, or software code to create a competing product without the operator's written permission."
+          ]
+        },
+        {
+          "title": "9. Intellectual property",
+          "paragraphs": [
+            "Rights to the service, interface, design, text, logo, templates, and software code belong to the operator or are used lawfully.",
+            "Rights to resume content entered by the user remain with the user. The user grants the operator the right to process such content only as needed to operate the service, store, display, export, provide support, and protect rights."
+          ]
+        },
+        {
+          "title": "10. Personal data",
+          "paragraphs": [
+            "Personal data are processed under the Personal Data Processing Policy published on the site. The Policy is part of these Terms.",
+            "By using the service and checking consent in the interface, the user confirms that they have read the Policy and understand what data are needed for the builder, payment, and export."
+          ]
+        },
+        {
+          "title": "11. Limitation of liability",
+          "paragraphs": [
+            "The service is provided as a tool for independently preparing a resume. The operator is not responsible for employer decisions, external job-search sites, requirements of specific ATS systems, user resume content, or consequences of using inaccurate data.",
+            "The operator aims to keep the service available but does not guarantee uninterrupted or error-free operation where failure is caused by maintenance, providers, payment systems, network issues, force majeure, or user actions.",
+            "To the extent permitted by law, the operator's liability is limited to the amount actually paid by the user for the disputed access period."
+          ]
+        },
+        {
+          "title": "12. Suspension and termination",
+          "paragraphs": [
+            "The operator may restrict or terminate a user's access to the service in case of violation of these Terms, attempts to bypass payment, abuse, security threats, or legal requirements.",
+            "The user may stop using the service at any time and send an account or personal data deletion request to team@rezynt.com."
+          ]
+        },
+        {
+          "title": "13. Changes to Terms",
+          "paragraphs": [
+            "The operator may update these Terms when the product, pricing, law, or payment infrastructure changes. The current version is published on this page.",
+            "Changes apply from publication unless the new version states otherwise. Material changes affecting already paid access do not worsen the terms of such access until the paid period ends unless required by law."
+          ]
+        },
+        {
+          "title": "14. Governing law and disputes",
+          "paragraphs": [
+            "These Terms are governed by the laws of the Russian Federation. Claims and questions must be sent to team@rezynt.com. The response period for claims is up to 30 calendar days.",
+            "If a dispute cannot be resolved by correspondence, it will be considered in court under Russian law."
+          ]
+        },
+        {
+          "title": "15. Operator details",
+          "paragraphs": [
+            "Ivan Sergeevich Pikulin. Self-employed payer of professional income tax. Taxpayer ID 504030510176. Moscow Region, Russia. Email: team@rezynt.com."
+          ]
         }
       ]
     }

@@ -141,24 +141,6 @@
   object-fit: contain;
 }
 
-.lc-nav {
-  display: inline-flex;
-  align-items: center;
-  gap: 22px;
-}
-
-.lc-nav a {
-  color: var(--lc-muted);
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 600;
-  transition: color 180ms ease;
-}
-
-.lc-nav a:hover {
-  color: var(--lc-text);
-}
-
 .lc-button {
   display: inline-flex;
   align-items: center;
@@ -449,6 +431,10 @@
   height: 22px;
   flex: 0 0 auto;
   color: currentColor;
+}
+
+.lc-preview-cta--mobile {
+  display: none;
 }
 
 .lc-sr-only {
@@ -1347,10 +1333,6 @@
 }
 
 @media (max-width: 920px) {
-  .lc-nav {
-    display: none;
-  }
-
   .lc-pain-grid,
   .lc-benefits__grid,
   .lc-hero__stats {
@@ -1397,10 +1379,6 @@
   }
 
   .lc-header-back__label {
-    display: none;
-  }
-
-  .lc-header__start + .lc-nav {
     display: none;
   }
 
@@ -1462,6 +1440,14 @@
   .lc-hero__resume {
     justify-content: center;
     gap: 22px;
+  }
+
+  .lc-preview-cta--desktop {
+    display: none;
+  }
+
+  .lc-preview-cta--mobile {
+    display: inline-flex;
   }
 
   .lc-resume-showcase {

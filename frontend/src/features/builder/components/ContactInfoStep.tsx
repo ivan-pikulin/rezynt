@@ -41,6 +41,53 @@ const SimpleInput: React.FC<{
   );
 };
 
+const formatRussianPhoneNumber = (value: string): string => {
+  const trimmedValue = value.trim();
+  if (!trimmedValue) {
+    return '';
+  }
+
+  const digits = trimmedValue.replace(/\D/g, '');
+  if (!digits) {
+    return '';
+  }
+
+  let normalizedDigits = digits;
+  if (digits.startsWith('8')) {
+    normalizedDigits = `7${digits.slice(1)}`;
+  } else if (!digits.startsWith('7')) {
+    normalizedDigits = `7${digits}`;
+  }
+
+  normalizedDigits = normalizedDigits.slice(0, 11);
+  const localDigits = normalizedDigits.slice(1);
+  if (!localDigits) {
+    return '+7';
+  }
+
+  if (localDigits.length <= 3) {
+    return `+7 (${localDigits}`;
+  }
+
+  const operatorCode = localDigits.slice(0, 3);
+  const firstGroup = localDigits.slice(3, 6);
+  const secondGroup = localDigits.slice(6, 8);
+  const thirdGroup = localDigits.slice(8, 10);
+
+  let formattedPhone = `+7 (${operatorCode})`;
+  if (firstGroup) {
+    formattedPhone += ` ${firstGroup}`;
+  }
+  if (secondGroup) {
+    formattedPhone += `-${secondGroup}`;
+  }
+  if (thirdGroup) {
+    formattedPhone += `-${thirdGroup}`;
+  }
+
+  return formattedPhone;
+};
+
 interface ContactInfoStepProps {
   state: BuilderState;
   onUpdate: <K extends keyof BuilderState>(field: K, value: BuilderState[K]) => void;
@@ -180,7 +227,7 @@ export const ContactInfoStep: React.FC<ContactInfoStepProps> = ({ state, onUpdat
               type="tel"
               placeholder={t('builder.contactInfo.phonePlaceholder')}
               value={getContactValue('phone')}
-              onChange={(value) => handleContactChange('phone', value)}
+              onChange={(value) => handleContactChange('phone', formatRussianPhoneNumber(value))}
             />
           </Box>
         </Box>
@@ -238,4 +285,3 @@ export const ContactInfoStep: React.FC<ContactInfoStepProps> = ({ state, onUpdat
     </Box>
   );
 };
-

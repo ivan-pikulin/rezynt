@@ -46,7 +46,7 @@ export const UpgradePage: React.FC = () => {
             <span className="lc-header-back__label">{t('upgrade.backToTemplates')}</span>
           </Link>
 
-          <Link to="/landing-concept" className="lc-brand" aria-label="Резинт">
+          <Link to="/" className="lc-brand" aria-label="Резинт">
             <img
               src="/rezynt-logo-with-name.svg"
               alt="Резинт"
@@ -57,9 +57,6 @@ export const UpgradePage: React.FC = () => {
           </Link>
         </div>
 
-        <nav className="lc-nav" aria-label={t('landingConcept.nav.label')}>
-          <Link to="/landing-concept#builder">{t('landingConcept.nav.builder')}</Link>
-        </nav>
       </div>
     </header>
   );

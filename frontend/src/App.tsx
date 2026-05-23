@@ -32,6 +32,7 @@ const BuilderPage = React.lazy(() => import('./features/builder/BuilderPage'));
 const ProfileSettingsPage = React.lazy(() => import('./features/profile/ProfileSettingsPage'));
 const UpgradePage = React.lazy(() => import('./features/upgrade/UpgradePage'));
 const LegalPage = React.lazy(() => import('./features/legal/LegalPage'));
+const LandingPage = React.lazy(() => import('./features/landing/LandingPage'));
 const LandingConceptPage = React.lazy(() => import('./features/landing-concept/LandingConceptPage'));
 
 function AppRoutes() {
@@ -108,6 +109,7 @@ function AppRoutes() {
         <Route path="/terms" element={<LegalPage kind="terms" />} />
         <Route path="/privacy-policy.html" element={<LegalPage kind="privacy" />} />
         <Route path="/terms-of-service.html" element={<LegalPage kind="terms" />} />
+        <Route path="/old-landing" element={<LandingPage />} />
         <Route path="/landing-concept" element={<LandingConceptPage />} />
 
         <Route path="/" element={<DomainAwareHome />} />

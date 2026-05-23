@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import GradientSpinnerAnimation from "./GradientSpinnerAnimation";
 import HomeRedirect from "./HomeRedirect";
-import LandingPage from "../../features/landing/LandingPage";
+import LandingConceptPage from "../../features/landing-concept/LandingConceptPage";
 
 type HomeVariant = "landing" | "app";
 
@@ -42,7 +42,7 @@ const DomainAwareHome: React.FC = () => {
 		);
 	}
 
-	return variant === "landing" ? <LandingPage /> : <HomeRedirect />;
+	return variant === "landing" ? <LandingConceptPage /> : <HomeRedirect />;
 };
 
 export default DomainAwareHome;

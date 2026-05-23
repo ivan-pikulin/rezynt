@@ -25,6 +25,7 @@ Builder - пошаговый editor для ручного заполнения �
 - После успешного сохранения builder очищает local state и переводит пользователя на `/refine` или `/onboarding?redirect=/refine`.
 - Есть desktop preview через `ResumeRenderer`.
 - Russian locale placeholders use Russian examples for contact info, work experience, and education. Avoid US-specific placeholder examples such as Google, San Francisco, United States, Stanford, or +1 phone formats in the Russian UI.
+- The contact phone field auto-formats Russian numbers while typing: leading `8` becomes `+7`, leading `7` is preserved as the country code, and any other leading digit gets `+7` prepended. Russian digits are displayed as `+7 (985) 279-91-76`.
 - Contact location fields in Russian UI are labeled `Город` and `Страна`; do not use US-market labels like state/territory or city/suburb.
 - Delete icon controls in repeatable builder sections use fixed circular dimensions from `shared/design/iconButtonStyles.ts`, so they stay round next to textareas and other stretched flex content.
 - Professional advice blocks in builder steps use `ProTipBox` with a Material icon, not emoji.
@@ -37,4 +38,4 @@ Builder - пошаговый editor для ручного заполнения �
 - `frontend/src/features/builder/types/builder.ts`
 - `frontend/src/features/builder/components/*`
 
-*Последнее обновление: 2026-05-22*
+*Последнее обновление: 2026-05-23*

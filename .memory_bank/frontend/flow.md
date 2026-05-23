@@ -4,7 +4,7 @@
 
 Лендинговый быстрый маршрут:
 
-1. `/landing-concept#builder`
+1. `/#builder`
 2. автоматическое создание и авторизация полноценного пользователя по email из формы
 3. `/export`
 4. `/upgrade`
@@ -43,4 +43,4 @@
 - `frontend/src/features/export/ExportPage.tsx`
 - `frontend/src/features/upgrade/UpgradePage.tsx`
 
-*Последнее обновление: 2026-05-21*
+*Последнее обновление: 2026-05-23*

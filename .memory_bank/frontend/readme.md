@@ -11,13 +11,13 @@ React/Vite приложение в `frontend/`.
 - `src/features/refine` - AI review и улучшение резюме.
 - `src/features/export` - экспорт и оплата.
 - `src/features/profile` - настройки профиля.
-- `src/features/landing` - публичный landing, который рендерится на `/`.
-- `src/features/landing-concept` - экспериментальный landing на `/landing-concept` с встроенным builder questionnaire.
+- `src/features/landing` - старый публичный landing, доступный на `/old-landing`.
+- `src/features/landing-concept` - основной публичный landing на `/` с встроенным builder questionnaire; `/landing-concept` сохранен как совместимый маршрут.
 - `src/features/legal` - privacy / terms страницы.
 
 ## Важное
 
-- Публичный `"/"` рендерит landing через `DomainAwareHome`, а `/landing-concept` доступен как отдельный экспериментальный маршрут.
+- Публичный `"/"` рендерит landing-concept через `DomainAwareHome`; старый landing доступен на `/old-landing`.
 - Все UI-строки лежат в `src/shared/i18n`.
 - Все цвета и токены для landing заведены в `src/shared/theme/theme.ts`.
 
@@ -25,4 +25,4 @@ React/Vite приложение в `frontend/`.
 
 - [`landing.md`](./landing.md) - структура публичного marketing landing.
 
-Последнее обновление: 2026-05-22
+Последнее обновление: 2026-05-23

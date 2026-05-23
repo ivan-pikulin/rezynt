@@ -36,12 +36,12 @@ const ExportPage: React.FC = () => {
     <header className="lc-header">
       <div className="lc-shell lc-header__inner">
         <div className="lc-header__start">
-          <Link to="/landing-concept#builder" className="lc-header-back" aria-label={t('export.backToEdit')}>
+          <Link to="/#builder" className="lc-header-back" aria-label={t('export.backToEdit')}>
             <ArrowBackRoundedIcon aria-hidden="true" />
             <span className="lc-header-back__label">{t('export.backToEdit')}</span>
           </Link>
 
-          <Link to="/landing-concept" className="lc-brand" aria-label="Резинт">
+          <Link to="/" className="lc-brand" aria-label="Резинт">
             <img
               src="/rezynt-logo-with-name.svg"
               alt="Резинт"
@@ -52,9 +52,6 @@ const ExportPage: React.FC = () => {
           </Link>
         </div>
 
-        <nav className="lc-nav" aria-label={t("landingConcept.nav.label")}>
-          <Link to="/landing-concept#builder">{t("landingConcept.nav.builder")}</Link>
-        </nav>
       </div>
     </header>
   );

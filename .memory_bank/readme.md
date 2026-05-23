@@ -12,8 +12,8 @@
 ## Актуальные заметки
 
 - Legacy `landing/` как отдельный проект удалён.
-- Публичный лендинг теперь живёт внутри `frontend/src/features/landing`.
-- Экспериментальный from-scratch landing живёт в `frontend/src/features/landing-concept`.
+- Основной публичный лендинг теперь живёт внутри `frontend/src/features/landing-concept`.
+- Старый публичный лендинг живёт в `frontend/src/features/landing` и доступен на `/old-landing`.
 - Публичный домен обслуживается через `nginx` и `frontend`, без отдельного landing-контейнера.
 
-Последнее обновление: 2026-05-22
+Последнее обновление: 2026-05-23

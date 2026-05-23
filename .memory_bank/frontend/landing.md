@@ -1,6 +1,6 @@
 # Public Landing
 
-Public marketing landing for `Резинт` rendered at `/`.
+Legacy public marketing landing for `Резинт`, now rendered at `/old-landing`.
 
 ## Key files
 
@@ -35,4 +35,4 @@ Public marketing landing for `Резинт` rendered at `/`.
 - New marketing copy should stay `Резинт`-specific: AI analysis, create-from-scratch or upload flow, ATS readability, templates, and PDF export.
 - The SEO guide should paraphrase references and not copy external text verbatim.
 
-*Последнее обновление: 2026-05-22*
+*Последнее обновление: 2026-05-23*

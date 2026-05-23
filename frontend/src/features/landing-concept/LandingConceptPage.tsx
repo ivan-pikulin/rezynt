@@ -116,6 +116,34 @@ function LandingConceptPage() {
   }, [t]);
 
   useEffect(() => {
+    if (window.location.hash !== "#builder") {
+      return undefined;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      const firstBuilderStep = document.getElementById("landing-builder-contact-info");
+      const builder = firstBuilderStep ?? document.getElementById("builder");
+      if (!builder) {
+        return;
+      }
+
+      const builderHandledScroll = !document.dispatchEvent(
+        new CustomEvent(OPEN_LANDING_BUILDER_STEP_EVENT, {
+          cancelable: true,
+          detail: { stepId: "contact-info", focusFirstField: false },
+        }),
+      );
+      if (builderHandledScroll) {
+        return;
+      }
+
+      builder.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+  }, []);
+
+  useEffect(() => {
     const revealElements = document.querySelectorAll<HTMLElement>("[data-lc-reveal]");
     if (!revealElements.length) {
       return undefined;
@@ -148,7 +176,7 @@ function LandingConceptPage() {
 
       <header className="lc-header">
         <div className="lc-shell lc-header__inner">
-          <Link to="/landing-concept" className="lc-brand" aria-label="Резинт">
+          <Link to="/" className="lc-brand" aria-label="Резинт">
             <img
               src="/rezynt-logo-with-name.svg"
               alt="Резинт"
@@ -158,9 +186,6 @@ function LandingConceptPage() {
             />
           </Link>
 
-          <nav className="lc-nav" aria-label={t("landingConcept.nav.label")}>
-            <a href="#builder">{t("landingConcept.nav.builder")}</a>
-          </nav>
         </div>
       </header>
 
@@ -180,7 +205,7 @@ function LandingConceptPage() {
               <span className="lc-title__lead">{t("landingConcept.hero.titleTail")}</span>
             </h1>
             <p className="lc-lead">{t("landingConcept.hero.subtitle")}</p>
-            <a className="lc-preview-cta" href="#builder" onClick={scrollToBuilder}>
+            <a className="lc-preview-cta lc-preview-cta--desktop" href="#builder" onClick={scrollToBuilder}>
               <span>{t("landingConcept.hero.cta")}</span>
               <KeyboardArrowDownRoundedIcon className="lc-preview-cta__icon" aria-hidden="true" />
             </a>
@@ -203,6 +228,10 @@ function LandingConceptPage() {
                 ]}
               />
             </div>
+            <a className="lc-preview-cta lc-preview-cta--mobile" href="#builder" onClick={scrollToBuilder}>
+              <span>{t("landingConcept.hero.cta")}</span>
+              <KeyboardArrowDownRoundedIcon className="lc-preview-cta__icon" aria-hidden="true" />
+            </a>
           </div>
         </div>
       </section>
