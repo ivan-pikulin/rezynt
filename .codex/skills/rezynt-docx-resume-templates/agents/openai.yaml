@@ -1,0 +1,4 @@
+interface:
+  display_name: "Rezynt DOCX Resume Templates"
+  short_description: "Build Word resume templates matching Rezynt HTML"
+  default_prompt: "Use $rezynt-docx-resume-templates to create or refine a DOCX resume template that matches a Rezynt HTML/PDF template."
