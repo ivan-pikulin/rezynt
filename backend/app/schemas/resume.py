@@ -111,6 +111,13 @@ class PDFExportRequest(BaseModel):
     template_slug: Optional[str] = None  # Options: clarity, sidebar, professional, frame
 
 
+# DOCX Export Schema
+class DOCXExportRequest(BaseModel):
+    """Schema for DOCX export request"""
+    filename: Optional[str] = None
+    template_slug: Optional[str] = None  # Options: clarity, sidebar, professional, frame
+
+
 # OpenAI Structured Output Schema for resume parsing
 class OpenAIStructuredResume(BaseModel):
     """Schema for OpenAI structured output when parsing resumes"""
@@ -121,4 +128,3 @@ class OpenAIStructuredResume(BaseModel):
     education: Optional[List[Education]] = None
     languages_spoken: Optional[List[Language]] = None
     awards: Optional[List[Award]] = None
-

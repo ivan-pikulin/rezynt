@@ -7,6 +7,7 @@ from .analysis import (
 from .resume import (
     Award,
     Contacts,
+    DOCXExportRequest,
     Education,
     Language,
     OpenAIStructuredResume,
@@ -59,6 +60,7 @@ __all__ = [
     # Resume schemas
     "Award",
     "Contacts",
+    "DOCXExportRequest",
     "Education",
     "Language",
     "OpenAIStructuredResume",

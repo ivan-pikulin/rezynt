@@ -6,7 +6,8 @@ from app.core.config import settings
 from app.core.tasks import process_resume_upload_task
 from app.database.crud.crud_temp_resume_file import temp_resume_file_crud
 from app.database.crud.crud_user import user_crud
-from app.schemas.resume import PDFExportRequest, ResumeUpdate, ResumeResponse
+from app.schemas.resume import DOCXExportRequest, PDFExportRequest, ResumeUpdate, ResumeResponse
+from app.services.docx_service import docx_service
 from app.services.pdf_service import pdf_service
 from fastapi import APIRouter, File, HTTPException, UploadFile, status, Body
 from fastapi.responses import Response
@@ -435,6 +436,62 @@ async def export_resume_pdf(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Не удалось экспортировать PDF: {str(e)}"
+        )
+
+
+@router.post("/export-docx")
+async def export_resume_docx(
+    *,
+    db: AsyncDB,
+    export_request: DOCXExportRequest,
+    current_user: CurrentUser,
+):
+    """
+    Export stored resume data to DOCX using a prepared Word template.
+    Template slug is provided in request body.
+    Only available for users with verified email.
+    """
+    template_slug = export_request.template_slug
+    if not template_slug or template_slug not in settings.VALID_TEMPLATE_SLUGS:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Недопустимый template_slug. Допустимы только: {', '.join(settings.VALID_TEMPLATE_SLUGS)}"
+        )
+
+    try:
+        resume_data = await user_crud.get_resume_data(db, user_id=current_user.id)
+        if not resume_data:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Резюме не найдено"
+            )
+
+        filename = export_request.filename
+        if not filename:
+            personal_info = resume_data.get('personal_info', {}) if resume_data else {}
+            first_name = personal_info.get('first_name')
+            last_name = personal_info.get('last_name')
+
+            if first_name and last_name:
+                full_name = f"{first_name}_{last_name}"
+            else:
+                full_name = f"resume_{current_user.id}"
+            filename = f"{full_name}_resume.docx"
+
+        docx_bytes, final_filename = docx_service.generate_docx_from_resume(
+            resume_data=resume_data,
+            template_slug=template_slug,
+            filename=filename,
+        )
+
+        return docx_service.create_file_response(docx_bytes, final_filename)
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Не удалось экспортировать DOCX: {str(e)}"
         )
 
 

@@ -32,6 +32,13 @@
 - Backend PDF generation.
 - WeasyPrint-based rendering и watermark support.
 
+## DOCXService
+
+- Backend DOCX generation for `POST /resume/export-docx`.
+- Uses prepared `docxtpl` Word templates from `backend/app/templates/docx/`.
+- Builds the same resume context as the DOCX prototype generator: contact lines, skill pairs, formatted dates, company/location rows and education rows.
+- Generates the Professional template monogram as a temporary PNG image before rendering, then deletes it after packaging the DOCX.
+
 ## DOCX export prototype
 
 - Первый DOCX-прототип использует `docxtpl`/`python-docx`.
@@ -39,7 +46,7 @@
 - `professional.docx` использует image placeholder для монограммы, потому что Word/LibreOffice нестабильно рендерят диагональные границы ячеек.
 - Одноразовый генератор артефактов для проверки: `scripts/generate_clarity_resume_prototype.py`.
 - Пример заполненного DOCX/PDF лежит в `artifacts/resume_export/`.
-- Полноценный backend endpoint для DOCX export пока не реализован.
+- Полноценный backend endpoint реализован через `DOCXService`; прототипный генератор остается QA-инструментом для настройки шаблонов.
 
 ## Analysis package
 

@@ -41,6 +41,7 @@ API v1 - основной HTTP контракт backend.
 - `POST /resume/claim-temp-file`
 - `GET /resume/upload/status/{task_id}`
 - `POST /resume/export-pdf`
+- `POST /resume/export-docx`
 - `GET /resume/export-txt`
 
 ### Analysis
@@ -69,6 +70,7 @@ API v1 - основной HTTP контракт backend.
 - `confirm-email` redirects to frontend with tokens on success and error page on failure.
 - `landing-signup` creates a full verified, free-tier user from the landing questionnaire resume data and returns tokens immediately. Existing emails return conflict instead of logging in by email alone.
 - Resume upload uses Celery task ids as user-visible progress state.
+- `resume/export-docx` принимает `template_slug` и optional `filename`, генерирует DOCX из сохраненного `User.resume_data` через подготовленные Word-шаблоны.
 - Analysis endpoints operate on `User.analysis_result` JSONB cache.
 
 *Последнее обновление: 2026-05-21*
