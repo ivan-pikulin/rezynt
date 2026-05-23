@@ -142,7 +142,7 @@ jobs:
             start = "# BEGIN REZYNT MANAGED BLOCK"
             end = "# END REZYNT MANAGED BLOCK"
             block = f"""{start}
-            rezynt.ru, www.rezynt.ru {{
+            rezynt.ru, www.rezynt.ru, rezynt.com, www.rezynt.com {{
               handle /api* {{
                 reverse_proxy rezynt-backend:8000
               }}

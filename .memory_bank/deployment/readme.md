@@ -13,7 +13,7 @@
 
 ## Важное
 
-- Публичный домен `rezynt.ru` проксируется на `frontend` через общий Caddy в `/opt/shared-proxy`.
+- Публичные домены `rezynt.ru`, `www.rezynt.ru`, `rezynt.com` и `www.rezynt.com` проксируются на `frontend` через общий Caddy в `/opt/shared-proxy`.
 - `/api`, `/docs` и `/openapi.json` проксируются на `backend`.
 - На сервере нельзя запускать Rezynt `nginx`/`certbot` на портах 80/443, потому что эти порты уже заняты `shared-proxy-caddy-1`.
 - Production deploy должен использовать опубликованные GHCR images и `docker compose up -d --no-build`; сервер не собирает application images.
