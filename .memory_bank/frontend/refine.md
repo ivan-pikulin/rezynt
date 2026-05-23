@@ -31,7 +31,7 @@ Refine - центральный экран анализа и редактиро�
 ## Связанные utils
 
 - `frontend/src/features/refine/utils/resumeDataConverter.ts`
-- `frontend/src/features/refine/utils/resumeFieldPath.ts`
+- `frontend/src/features/refine/utils/resumeFieldPath.ts` supports string and string-array fix content for replace/add suggestions.
 - `frontend/src/features/refine/utils/generatePremiumPoints.ts`
 
 ## API
@@ -41,4 +41,4 @@ Refine - центральный экран анализа и редактиро�
 - `POST /analysis/mark-fixed`
 - `GET /resume/upload/status/{task_id}`
 
-*Последнее обновление: 2026-05-21*
+*Последнее обновление: 2026-05-23*

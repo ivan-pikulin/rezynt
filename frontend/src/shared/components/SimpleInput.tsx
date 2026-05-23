@@ -31,7 +31,6 @@ export const SimpleInput: React.FC<SimpleInputProps> = ({
       placeholder={placeholder}
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      onBlur={onBlur}
       onKeyPress={onKeyPress}
       required={required}
       disabled={disabled}
@@ -103,4 +102,3 @@ export const SimpleTextarea: React.FC<SimpleTextareaProps> = ({
     />
   );
 };
-

@@ -21,6 +21,7 @@ Profile settings - отдельная страница для аккаунта �
 - Изменения синхронизируются с AuthContext.
 - Logout требует подтверждения.
 - Возврат со страницы ведёт обратно в `/refine`.
+- Email confirmation resend treats missing `user.email` as an explicit error before calling the API.
 
 ## API
 
@@ -30,4 +31,4 @@ Profile settings - отдельная страница для аккаунта �
 - `DELETE /user/me`
 - `POST /auth/resend-verification-code`
 
-*Последнее обновление: 2026-05-21*
+*Последнее обновление: 2026-05-23*

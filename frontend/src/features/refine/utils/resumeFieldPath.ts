@@ -32,7 +32,7 @@ export function getFieldValue(resume: Resume, fieldPath: string): any {
  * Set value in resume by field path (immutable)
  * Returns new resume object with updated value
  */
-export function setFieldValue(resume: Resume, fieldPath: string, value: string): Resume {
+export function setFieldValue(resume: Resume, fieldPath: string, value: string | string[]): Resume {
   const newResume = JSON.parse(JSON.stringify(resume)); // Deep clone
   
   try {
@@ -151,4 +151,3 @@ export function applyFixToResume(
       return resume;
   }
 }
-

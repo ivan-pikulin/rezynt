@@ -1,5 +1,11 @@
 import { User } from '../../types/user';
-import { UserFromApi } from './types';
+
+interface UserFromApi {
+    id: number;
+    username: string;
+    is_admin: boolean;
+    last_login: string | null;
+}
 
 export const mapUserFromApi = (userFromApi: UserFromApi): User => {
     return {
@@ -8,4 +14,4 @@ export const mapUserFromApi = (userFromApi: UserFromApi): User => {
         isAdmin: userFromApi.is_admin,
         lastLogin: userFromApi.last_login,
     };
-}; 
+};

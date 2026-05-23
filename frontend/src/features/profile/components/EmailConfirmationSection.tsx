@@ -21,6 +21,11 @@ export const EmailConfirmationSection: React.FC<EmailConfirmationSectionProps> =
   const [error, setError] = useState<string | null>(null);
 
   const handleResend = async () => {
+    if (!user.email) {
+      setError(t('profileSettings.emailConfirmation.error'));
+      return;
+    }
+
     setLoading(true);
     setSuccess(false);
     setError(null);

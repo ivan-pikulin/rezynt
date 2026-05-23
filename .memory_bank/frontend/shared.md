@@ -47,5 +47,7 @@ Shared-слой содержит всё, что переиспользуется
 - API base: `frontend/src/shared/services/api/baseApi.ts`
 - Auth state: `frontend/src/shared/contexts/AuthContext.tsx`
 - Resume data hooks: `frontend/src/shared/hooks/useResumeData.ts`, `frontend/src/shared/hooks/useResumeQuery.ts`. `useResumeQuery` uses `AuthContext` for authenticated resume loading and switches to `guestResumeService` when called in guest mode.
+- `useResumeData` is a legacy cache wrapper for the single-resume API and calls `resumeApi.getResume()` without a resume id.
+- `shared/utils/resumeDataConverter.ts` copies the current JSONB resume shape (`personal_info`, `work_experience`, etc.) into `ResumeData`; it does not expose legacy flat resume fields.
 
 *Последнее обновление: 2026-05-23*
