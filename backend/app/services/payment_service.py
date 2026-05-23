@@ -48,16 +48,23 @@ class PaymentService:
         user.is_verified = True
         user.is_registered = True
 
-        email_sent = EmailService().send_paid_access_email(user.email, password)
-        if not email_sent:
-            await db.rollback()
-            raise RuntimeError(f"Failed to send paid access email for payment {payment_id}")
-
         await db.commit()
         await db.refresh(user)
 
+        email_sent = EmailService().send_paid_access_email(user.email, password)
+        if not email_sent:
+            logger.error(
+                "Payment %s activated paid access for user %s, but paid access email was not sent",
+                payment_id,
+                user.id,
+            )
+
         logger.info("Payment %s activated paid access for user %s", payment_id, user.id)
-        return PaymentActivationResult(user=user, email_sent=True, already_active=False)
+        return PaymentActivationResult(
+            user=user,
+            email_sent=email_sent,
+            already_active=False,
+        )
 
 
 payment_service = PaymentService()

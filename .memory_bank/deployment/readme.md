@@ -18,6 +18,7 @@
 - На сервере нельзя запускать Rezynt `nginx`/`certbot` на портах 80/443, потому что эти порты уже заняты `shared-proxy-caddy-1`.
 - Production deploy должен использовать опубликованные GHCR images и `docker compose up -d --no-build`; сервер не собирает application images.
 - `YOOKASSA_WEBHOOK_SECRET` хранится отдельным GitHub Actions secret и дописывается workflow в runtime `/opt/rezynt/.env` после `PROD_ENV`.
+- Production email runtime использует `EMAIL_HOST=smtp.timeweb.ru` и `EMAIL_PORT=465`; неверный SMTP host блокирует paid-access письмо и должен правиться в `PROD_ENV`.
 - Для локальной разработки с UI использовать `scripts/dev-hot.sh`; он выводит фактические адреса frontend, backend API, OpenAPI docs, PostgreSQL и Redis, включая автоматически выбранные порты при локальных конфликтах.
 
 Последнее обновление: 2026-05-23

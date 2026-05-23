@@ -11,6 +11,8 @@ logger = logging.getLogger(__name__)
 
 
 class EmailService:
+    SMTP_TIMEOUT_SECONDS = 10
+
     def __init__(self):
         self.smtp_server = settings.email.EMAIL_HOST
         self.smtp_port = settings.email.EMAIL_PORT
@@ -22,7 +24,6 @@ class EmailService:
         # Log configuration (without sensitive data)
         logger.info(f"Email service initialized with SMTP server: {self.smtp_server}:{self.smtp_port}")
         logger.info(f"Sender email: {self.sender_email}")
-        logger.info(f"Sender password: {self.sender_password}")
         logger.info(f"Domain: {self.domain}")
         logger.info(f"DKIM selector: {self.selector}")
         
@@ -85,9 +86,15 @@ class EmailService:
             else:
                 logger.warning("No DKIM private key available - sending without DKIM signature")
             
-            # Send email via smtplib with SSL as in test_email_send.py
             logger.info(f"Connecting to SMTP server {self.smtp_server}:{self.smtp_port}")
-            with smtplib.SMTP_SSL(self.smtp_server, self.smtp_port) as smtp:
+            smtp_class = smtplib.SMTP_SSL if self.smtp_port == 465 else smtplib.SMTP
+            with smtp_class(
+                self.smtp_server,
+                self.smtp_port,
+                timeout=self.SMTP_TIMEOUT_SECONDS,
+            ) as smtp:
+                if self.smtp_port != 465:
+                    smtp.starttls()
                 logger.info("SMTP connection established, attempting login")
                 smtp.login(self.sender_email, self.sender_password)
                 logger.info("SMTP login successful")
