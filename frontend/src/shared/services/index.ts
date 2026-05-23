@@ -2,7 +2,7 @@
 export * from './api';
 
 // Analytics
-export { ga4Service } from './ga4Service';
+export { yandexMetrikaService } from './yandexMetrikaService';
 
 // Other Services
 export { guestResumeMigration } from './guestResumeMigration';

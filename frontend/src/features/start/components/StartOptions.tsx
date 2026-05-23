@@ -15,6 +15,7 @@ import { useTranslation } from 'react-i18next';
 import { COLORS } from '../../../shared/theme/theme';
 import { useAuthContext } from '../../../shared/contexts/AuthContext';
 import { guestResumeService } from '../../../shared/services/guestResumeService';
+import { yandexMetrikaService } from '../../../shared/services/yandexMetrikaService';
 
 interface StartOptionsProps {
   onGuardStartFromScratch?: () => boolean;
@@ -100,6 +101,7 @@ const StartOptions: React.FC<StartOptionsProps> = ({
     
     setIsCreating(true);
     try {
+      yandexMetrikaService.trackStartFromScratchStarted();
       if (!isAuthenticated) {
         // Guest flow: create local resume and go to builder
         guestResumeService.createOrGet();
@@ -129,6 +131,11 @@ const StartOptions: React.FC<StartOptionsProps> = ({
     if (!file) return;
 
     if (!isUploading) {
+      const extension = file.name.split('.').pop()?.toLowerCase() || '';
+      yandexMetrikaService.trackStartResumeUploadStarted({
+        file_extension: extension,
+        file_size_mb: Number((file.size / 1024 / 1024).toFixed(2)),
+      });
       setIsUploading(true);
       try {
         // Upload file via resumeApi directly
@@ -136,6 +143,10 @@ const StartOptions: React.FC<StartOptionsProps> = ({
         const { task_id } = await resumeApi.uploadResume(file);
 
         if (task_id) {
+          yandexMetrikaService.trackStartResumeUploadSuccess({
+            file_extension: extension,
+            file_size_mb: Number((file.size / 1024 / 1024).toFixed(2)),
+          });
           onUploadTaskCreated?.(task_id);
         }
       } catch (error) {
@@ -369,4 +380,4 @@ const StartOptions: React.FC<StartOptionsProps> = ({
   );
 };
 
-export default StartOptions; 
+export default StartOptions;

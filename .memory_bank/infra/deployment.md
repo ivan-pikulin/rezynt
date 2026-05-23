@@ -30,7 +30,7 @@
 - Workflow: `.github/workflows/deploy.yml`.
 - Runtime env хранится в GitHub secret `PROD_ENV`.
 - Server SSH uses secrets `DEPLOY_HOST`, `DEPLOY_USER`, `SSH_PRIVATE_KEY`.
-- Frontend build inputs use repository variables for non-sensitive values and `VITE_GOOGLE_CLIENT_ID` secret for Google OAuth client ID.
+- Frontend build inputs use repository variables for non-sensitive values, including `VITE_YANDEX_METRIKA_COUNTER_ID`, and `VITE_GOOGLE_CLIENT_ID` secret for Google OAuth client ID.
 - Сервер использует read-only deploy key alias `github.com-rezynt` для checkout репозитория.
 - Shared proxy source files live in the `sara-help` repo under `shared-proxy/`; Rezynt workflow only updates the Rezynt managed block in `/opt/shared-proxy/Caddyfile`.
 
@@ -40,6 +40,7 @@
 - Для полного локального hot-reload запуска используется `scripts/dev-hot.sh`.
 - `scripts/dev-hot.sh` поднимает PostgreSQL, Redis, FastAPI backend и Celery через Docker, монтирует `backend/app` для `uvicorn --reload`, запускает Vite frontend из `frontend/` с HMR и перезапускает Celery worker при изменениях backend-файлов.
 - Локальные адреса по умолчанию: frontend `http://localhost:5173`, backend API `http://localhost:8012/api/v1`, OpenAPI docs `http://localhost:8012/docs`, PostgreSQL `localhost:5432`, Redis `localhost:6379`.
+- Local analytics uses `VITE_YANDEX_METRIKA_COUNTER_ID=109386388` in `.env` / `frontend/.env.local`.
 - Если дефолтный порт занят, `scripts/dev-hot.sh` выбирает следующий свободный порт и печатает фактические адреса. Явно заданные через shell env порты fail-fast падают при конфликте.
 - Порты можно переопределить через env: `FRONTEND_HOST_PORT`, `BACKEND_HOST_PORT`, `POSTGRES_HOST_PORT`, `REDIS_HOST_PORT`.
 - Не пытайся искать production-контейнеры локально.

@@ -8,7 +8,7 @@ import ProtectedRoute from './shared/components/ProtectedRoute';
 import OnboardingGuard from './shared/components/OnboardingGuard';
 import PublicOnboardingGuard from './shared/components/PublicOnboardingGuard';
 import GradientSpinnerAnimation from './shared/components/GradientSpinnerAnimation';
-import { ga4Service } from './shared/services/ga4Service';
+import { yandexMetrikaService } from './shared/services/yandexMetrikaService';
 import { usePageTracking } from './shared/hooks/usePageTracking';
 import { theme } from './shared/theme/theme';
 
@@ -120,12 +120,11 @@ function AppRoutes() {
 
 function App() {
   useEffect(() => {
-    // Initialize GA4 if measurement ID is provided
-    const measurementId = import.meta.env.VITE_GA4_MEASUREMENT_ID;
-    if (measurementId) {
-      ga4Service.initialize(measurementId);
+    const counterId = import.meta.env.VITE_YANDEX_METRIKA_COUNTER_ID;
+    if (counterId) {
+      yandexMetrikaService.initialize(counterId);
     } else {
-      console.warn('VITE_GA4_MEASUREMENT_ID not found in environment variables');
+      console.warn('VITE_YANDEX_METRIKA_COUNTER_ID not found in environment variables');
     }
   }, []);
 

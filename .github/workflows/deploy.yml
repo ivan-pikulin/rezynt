@@ -60,10 +60,8 @@ jobs:
           push: true
           build-args: |
             VITE_API_URL=${{ vars.VITE_API_URL || 'https://rezynt.ru' }}
-            VITE_GA4_MEASUREMENT_ID=${{ vars.VITE_GA4_MEASUREMENT_ID }}
+            VITE_YANDEX_METRIKA_COUNTER_ID=${{ vars.VITE_YANDEX_METRIKA_COUNTER_ID }}
             VITE_GOOGLE_CLIENT_ID=${{ secrets.VITE_GOOGLE_CLIENT_ID }}
-            VITE_PUBLIC_POSTHOG_KEY=${{ vars.VITE_PUBLIC_POSTHOG_KEY }}
-            VITE_PUBLIC_POSTHOG_HOST=${{ vars.VITE_PUBLIC_POSTHOG_HOST || 'https://rezynt.ru/ingest' }}
           tags: |
             ${{ steps.meta.outputs.image_prefix }}/rezynt-frontend:${{ github.sha }}
             ${{ steps.meta.outputs.image_prefix }}/rezynt-frontend:${{ env.IMAGE_TAG }}
@@ -149,19 +147,6 @@ jobs:
 
               handle /openapi.json {{
                 reverse_proxy rezynt-backend:8000
-              }}
-
-              handle /ingest/* {{
-                uri strip_prefix /ingest
-                reverse_proxy https://us.i.posthog.com {{
-                  header_up Host us.i.posthog.com
-                }}
-              }}
-
-              handle /static/* {{
-                reverse_proxy https://us-assets.i.posthog.com {{
-                  header_up Host us-assets.i.posthog.com
-                }}
               }}
 
               handle {{

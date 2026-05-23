@@ -7,7 +7,7 @@ Shared-слой содержит всё, что переиспользуется
 - `components/` - Header, guards, templates, renderer, модалки и общие элементы.
 - `hooks/` - `useAuth`, `useResumeData`, `useTemplate`, `useUser`, `useOnboarding`, `usePolling`, `usePageTracking`, `useDesignVariant`.
 - `services/api/` - `baseApi`, `authApi`, `resumeApi`, `analysisApi`, `userApi`, `tokenService`.
-- `services/` - `guestResumeService`, `guestResumeMigration`, `resumeCacheService`, `templateService`, `ga4Service`.
+- `services/` - `guestResumeService`, `guestResumeMigration`, `resumeCacheService`, `templateService`, `yandexMetrikaService`.
 - `theme/` - единая тема приложения.
 - `i18n/` - переводы.
 - `types/` - общие типы `user.ts` и `resume.ts`.
@@ -37,7 +37,8 @@ Shared-слой содержит всё, что переиспользуется
 - Все API-запросы идут через `shared/services/api`.
 - `authApi.signupFromLanding` creates and authenticates a full user account from landing questionnaire data; the auth context `login` method returns `Promise<boolean>` because it stores tokens and verifies them through `/user/me`.
 - `tokenService` shares auth and guest cookies across `rezynt.ru`/subdomains and keeps legacy `rezynt.com` support during migration.
-- GA4 cross-domain linking includes `rezynt.ru`, `www.rezynt.ru`, `app.rezynt.ru` and legacy `rezynt.com` hosts.
+- Yandex Metrika is initialized from `VITE_YANDEX_METRIKA_COUNTER_ID` through `shared/services/yandexMetrikaService.ts`.
+- `usePageTracking` sends route changes as Metrika `hit` calls. Funnel actions use `reachGoal` targets for landing CTA/form progress, resume uploads, template selection, export/download intent, payment intent, payment success, and export success.
 - Все текстовые строки должны быть в `shared/i18n`.
 - Все цвета и токены дизайна должны жить в `shared/theme/theme.ts`.
 
@@ -47,4 +48,4 @@ Shared-слой содержит всё, что переиспользуется
 - Auth state: `frontend/src/shared/contexts/AuthContext.tsx`
 - Resume data hooks: `frontend/src/shared/hooks/useResumeData.ts`, `frontend/src/shared/hooks/useResumeQuery.ts`. `useResumeQuery` uses `AuthContext` for authenticated resume loading and switches to `guestResumeService` when called in guest mode.
 
-*Последнее обновление: 2026-05-22*
+*Последнее обновление: 2026-05-23*

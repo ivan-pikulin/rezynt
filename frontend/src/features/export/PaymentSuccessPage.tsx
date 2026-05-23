@@ -4,12 +4,13 @@ import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../shared/components/Header/Header';
 import { useAuthContext } from '../../shared/contexts/AuthContext';
 import { useUser } from '../../shared/hooks';
+import { yandexMetrikaService } from '../../shared/services/yandexMetrikaService';
 import { COLORS } from '../../shared/theme/theme';
 
 const PaymentSuccessPage: React.FC = () => {
@@ -17,8 +18,13 @@ const PaymentSuccessPage: React.FC = () => {
   const { t } = useTranslation();
   const { refetch: refetchUser } = useUser();
   const { updateUser, user } = useAuthContext();
+  const hasTrackedPaymentSuccessRef = useRef(false);
 
   useEffect(() => {
+    if (!hasTrackedPaymentSuccessRef.current) {
+      hasTrackedPaymentSuccessRef.current = true;
+      yandexMetrikaService.trackPaymentSuccess({ is_premium: user?.is_premium ?? false });
+    }
     (async () => {
       try {
         const res = await refetchUser();
@@ -29,7 +35,7 @@ const PaymentSuccessPage: React.FC = () => {
         // Ignore refresh errors, page still usable
       }
     })();
-  }, [refetchUser, updateUser]);
+  }, [refetchUser, updateUser, user?.is_premium]);
 
   const handleGoToResumes = () => {
     // Navigate to editor (user has one resume)

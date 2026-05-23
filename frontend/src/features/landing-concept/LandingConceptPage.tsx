@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
 import ResumeRenderer from "../../shared/components/ResumeRenderer";
 import type { ResumeData } from "../../shared/types/resume";
+import { yandexMetrikaService } from "../../shared/services/yandexMetrikaService";
 import { landingConceptVars } from "./LandingConceptTheme";
 import "./LandingConceptPage.css";
 import LandingConceptQuestionnaire from "./LandingConceptQuestionnaire";
@@ -23,6 +24,7 @@ function LandingConceptPage() {
     }
 
     event.preventDefault();
+    yandexMetrikaService.trackLandingCtaClick("hero");
     const builderHandledScroll = !document.dispatchEvent(
       new CustomEvent(OPEN_LANDING_BUILDER_STEP_EVENT, {
         cancelable: true,

@@ -8,7 +8,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuthContext } from '../../shared/contexts/AuthContext';
 import { useResumeQuery } from '../../shared/hooks/useResumeQuery';
 import { useTemplate } from '../../shared/hooks/useTemplate';
+import { yandexMetrikaService } from '../../shared/services/yandexMetrikaService';
 import { COLORS } from '../../shared/theme/theme';
+import { TemplateConfig } from '../../shared/types/resume';
 import ErrorMessage from '../refine/components/ErrorMessage';
 import LoadingSpinner from '../refine/components/LoadingSpinner';
 import { convertApiResumeToDisplayData } from '../refine/utils/resumeDataConverter';
@@ -21,7 +23,7 @@ const ExportPage: React.FC = () => {
   const navigate = useNavigate();
   
   // No more resume_id in URL - each user has one resume
-  const { isAuthenticated, isLoading: authLoading } = useAuthContext();
+  const { isAuthenticated, isLoading: authLoading, user } = useAuthContext();
   const isGuestResume = !authLoading && !isAuthenticated;
   const { resume, isLoading: loading, error: queryError } = useResumeQuery(isGuestResume);
   const { selectedTemplate, updateTemplate } = useTemplate(null, undefined);
@@ -29,7 +31,18 @@ const ExportPage: React.FC = () => {
   // Authentication check removed - guest users can access this page
 
   const handleDownloadClick = () => {
+    yandexMetrikaService.trackExportDownloadClick({
+      template_id: selectedTemplate?.id,
+      is_authenticated: isAuthenticated,
+      is_premium: user?.is_premium ?? false,
+      format: 'pdf',
+    });
     navigate('/upgrade');
+  };
+
+  const handleTemplateSelect = (template: TemplateConfig) => {
+    updateTemplate(template);
+    yandexMetrikaService.trackTemplateSelected(template.id);
   };
 
   const landingHeader = (
@@ -119,7 +132,7 @@ const ExportPage: React.FC = () => {
           {displayData && (
             <TemplateSelectionCards
               selectedTemplateId={selectedTemplate?.id}
-              onSelect={(tpl) => updateTemplate(tpl)}
+              onSelect={handleTemplateSelect}
               resumeData={displayData}
             />
           )}

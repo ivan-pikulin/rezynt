@@ -16,7 +16,7 @@ import { useTranslation } from 'react-i18next';
 import { authApi } from '../../../shared/services/api';
 import { tokenService } from '../../../shared/services/api/tokenService';
 import { SignupCredentials } from '../types/auth';
-import { ga4Service } from '../../../shared/services/ga4Service';
+import { yandexMetrikaService } from '../../../shared/services/yandexMetrikaService';
 
 interface SignupFormProps {
   onSuccess: (email?: string) => void;
@@ -78,7 +78,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSuccess, onSwitchToLogin, tem
         }
         
         // Track successful signup
-        ga4Service.trackSignUp('email');
+        yandexMetrikaService.trackSignUp('email');
         
         onSuccess(values.email);
       } catch (err: any) {

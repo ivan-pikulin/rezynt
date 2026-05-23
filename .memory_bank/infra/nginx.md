@@ -19,8 +19,7 @@
 - `/api` -> backend
 - `/docs` -> backend
 - `/health` -> frontend/backend route depending on app implementation; Caddy owns the public entrypoint.
-- `/ingest/` -> PostHog proxy
-- `/static/` -> PostHog static assets proxy
+- No analytics proxy routes are configured. Yandex Metrika loads directly from `mc.yandex.ru`.
 
 ## SSL
 
@@ -35,4 +34,4 @@
 - `sara-help/shared-proxy/` - source of truth for the shared Caddy compose and base Caddyfile.
 - `nginx/nginx.conf` - legacy standalone nginx config, not used by the new shared-server deployment.
 
-*Последнее обновление: 2026-05-22*
+*Последнее обновление: 2026-05-23*

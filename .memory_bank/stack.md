@@ -7,6 +7,7 @@
 - React Router
 - TanStack React Query
 - i18next
+- Yandex Metrika
 - Yarn, не npm
 
 ## Backend
@@ -16,6 +17,8 @@
 - PostgreSQL
 - Redis
 - Celery
+- WeasyPrint для PDF export
+- docxtpl/python-docx для DOCX template prototype
 - uv для Python-пакетов
 
 ## Deployment

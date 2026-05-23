@@ -30,7 +30,7 @@ rezynt/
 - **Forms:** Formik 2.4.6 + Yup 1.7.0
 - **PDF Export:** jsPDF 3.0.1 + html2canvas 1.4.1
 - **i18n:** i18next 25.1.2 + react-i18next 15.5.1
-- **Analytics:** React GA4 2.1.0
+- **Analytics:** Yandex Metrika
 - **Package Manager:** Yarn (NOT npm)
 
 ### Backend
@@ -228,7 +228,7 @@ Backend AI service integrates with OpenAI API for resume enhancement and content
 ### Frontend (.env)
 ```
 VITE_API_URL=http://localhost:8000
-VITE_GA4_MEASUREMENT_ID=G-XXXXXXXXXX
+VITE_YANDEX_METRIKA_COUNTER_ID=109386388
 ```
 
 ### Backend (.env)
@@ -422,11 +422,11 @@ GitHub Actions workflow (`.github/workflows/deploy.yml`) triggers on push to `ma
 
 ## Analytics
 
-Google Analytics 4 (GA4) integration tracks:
+Yandex Metrika integration tracks:
 - Page views (automatic)
-- Authentication events
-- Resume creation/updates
-- PDF exports (watermarked vs clean)
-- Feature usage
+- Landing CTA and form funnel events
+- Resume uploads
+- Template selection
+- Export and payment funnel events
 
-Configuration in `frontend/src/shared/services/ga4Service.ts`
+Configuration in `frontend/src/shared/services/yandexMetrikaService.ts`

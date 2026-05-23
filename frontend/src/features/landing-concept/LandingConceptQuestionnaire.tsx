@@ -1,10 +1,11 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { Box, Button, Paper } from "@mui/material";
 import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
 import { useAuthContext } from "../../shared/contexts/AuthContext";
+import { yandexMetrikaService } from "../../shared/services/yandexMetrikaService";
 import { useBuilder } from "../builder/hooks/useBuilder";
 import { BUILDER_STEPS, type BuilderState, type BuilderStep } from "../builder/types/builder";
 import { ContactInfoStep } from "../builder/components/ContactInfoStep";
@@ -53,6 +54,8 @@ function LandingConceptQuestionnaire() {
   const [hasPersonalDataConsent, setHasPersonalDataConsent] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [finishError, setFinishError] = useState<string | null>(null);
+  const hasTrackedFormStartRef = useRef(false);
+  const trackedCompletedStepsRef = useRef<Set<BuilderStep>>(new Set());
   const [expandedStepIds, setExpandedStepIds] = useState<Record<BuilderStep, boolean>>({
     "contact-info": true,
     "work-experience": false,
@@ -70,18 +73,45 @@ function LandingConceptQuestionnaire() {
     () => BUILDER_STEPS.map((step) => t(`builder.steps.${step.id}`)),
     [t],
   );
+  const trackFormStartedOnce = useCallback((stepId: BuilderStep) => {
+    if (hasTrackedFormStartRef.current) {
+      return;
+    }
+
+    hasTrackedFormStartRef.current = true;
+    yandexMetrikaService.trackLandingFormStarted(stepId);
+  }, []);
+
+  const trackStepCompletedOnce = useCallback((stepId: BuilderStep, stepIndex: number) => {
+    if (trackedCompletedStepsRef.current.has(stepId)) {
+      return;
+    }
+
+    trackedCompletedStepsRef.current.add(stepId);
+    yandexMetrikaService.trackLandingFormStepCompleted(stepId, stepIndex);
+  }, []);
+
+  const handleStepUpdate = useCallback((stepId: BuilderStep, field: keyof BuilderState, value: BuilderState[keyof BuilderState]) => {
+    trackFormStartedOnce(stepId);
+    updateField(field as any, value as any);
+  }, [trackFormStartedOnce, updateField]);
+
   const renderStepContent = (stepId: BuilderStep) => {
+    const onUpdate = (field: keyof BuilderState, value: BuilderState[keyof BuilderState]) => {
+      handleStepUpdate(stepId, field, value);
+    };
+
     switch (stepId) {
       case "contact-info":
-        return <ContactInfoStep state={state} onUpdate={updateField} />;
+        return <ContactInfoStep state={state} onUpdate={onUpdate} />;
       case "work-experience":
-        return <WorkExperienceStep state={state} onUpdate={updateField} />;
+        return <WorkExperienceStep state={state} onUpdate={onUpdate} />;
       case "education":
-        return <EducationStep state={state} onUpdate={updateField} />;
+        return <EducationStep state={state} onUpdate={onUpdate} />;
       case "skills":
-        return <SkillsStep state={state} onUpdate={updateField} />;
+        return <SkillsStep state={state} onUpdate={onUpdate} />;
       case "summary":
-        return <SummaryStep state={state} onUpdate={updateField} />;
+        return <SummaryStep state={state} onUpdate={onUpdate} />;
       default:
         return null;
     }
@@ -97,13 +127,26 @@ function LandingConceptQuestionnaire() {
 
   const openStepAndScroll = useCallback((stepId: BuilderStep, focusFirstField = false) => {
     setExpandedStepIds((previous) => ({ ...previous, [stepId]: true }));
+    yandexMetrikaService.trackLandingFormStepOpened(
+      stepId,
+      BUILDER_STEPS.findIndex((step) => step.id === stepId),
+    );
     window.requestAnimationFrame(() => {
       window.requestAnimationFrame(() => scrollToStep(stepId, focusFirstField));
     });
   }, [scrollToStep]);
 
   const toggleStep = (stepId: BuilderStep) => {
-    setExpandedStepIds((previous) => ({ ...previous, [stepId]: !previous[stepId] }));
+    setExpandedStepIds((previous) => {
+      const willExpand = !previous[stepId];
+      if (willExpand) {
+        yandexMetrikaService.trackLandingFormStepOpened(
+          stepId,
+          BUILDER_STEPS.findIndex((step) => step.id === stepId),
+        );
+      }
+      return { ...previous, [stepId]: willExpand };
+    });
   };
 
   useEffect(() => {
@@ -132,6 +175,12 @@ function LandingConceptQuestionnaire() {
 
     try {
       const resumeData = getResumePayload(state);
+      const finalStepIndex = BUILDER_STEPS.length - 1;
+      trackStepCompletedOnce(BUILDER_STEPS[finalStepIndex].id, finalStepIndex);
+      yandexMetrikaService.trackLandingFormSubmitAttempt({
+        is_authenticated: isAuthenticated,
+        completed_steps: trackedCompletedStepsRef.current.size,
+      });
 
       if (isAuthenticated) {
         const { resumeApi } = await import("../../shared/services/api");
@@ -141,6 +190,10 @@ function LandingConceptQuestionnaire() {
         const email = state.personal_info?.contacts?.email?.trim() ?? "";
 
         if (!emailPattern.test(email)) {
+          yandexMetrikaService.trackLandingFormSubmitError({
+            reason: "missing_or_invalid_email",
+            completed_steps: trackedCompletedStepsRef.current.size,
+          });
           setFinishError(t("landingConcept.builder.emailRequiredForAccount"));
           openStepAndScroll("contact-info", true);
           return;
@@ -166,11 +219,20 @@ function LandingConceptQuestionnaire() {
         queryClient.removeQueries({ queryKey: ["resume", "guest"] });
       }
 
+      yandexMetrikaService.trackLandingFormSubmitSuccess({
+        is_authenticated: isAuthenticated,
+        completed_steps: trackedCompletedStepsRef.current.size,
+      });
       clearBuilder();
       navigate(TEMPLATE_SELECTION_ROUTE);
     } catch (error) {
       console.error("Error saving resume from builder:", error);
       const responseStatus = (error as { response?: { status?: number } }).response?.status;
+      yandexMetrikaService.trackLandingFormSubmitError({
+        reason: responseStatus === 409 ? "email_already_exists" : "submit_failed",
+        status: responseStatus,
+        completed_steps: trackedCompletedStepsRef.current.size,
+      });
       setFinishError(
         responseStatus === 409
           ? t("landingConcept.builder.emailAlreadyExists")
@@ -218,7 +280,10 @@ function LandingConceptQuestionnaire() {
                         <Button
                           variant="contained"
                           endIcon={<KeyboardArrowDownRoundedIcon />}
-                          onClick={() => openStepAndScroll(nextStep.id, true)}
+                          onClick={() => {
+                            trackStepCompletedOnce(step.id, index);
+                            openStepAndScroll(nextStep.id, true);
+                          }}
                           sx={{
                             borderRadius: "999px",
                             textTransform: "none",

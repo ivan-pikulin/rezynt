@@ -27,6 +27,7 @@ Legacy public marketing landing for `Резинт`, now rendered at `/old-landin
   - Rezynt advantages list
   - final job-search CTA copy
 - Footer with support email and legal links.
+- Analytics: the current public landing (`/`) tracks hero CTA clicks, builder form start, step opens, step completions, submit attempts, successful form submits, and submit errors through Yandex Metrika. The legacy `/old-landing` upload flow tracks upload start and upload success.
 
 ## Content rules
 

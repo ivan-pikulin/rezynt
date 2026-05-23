@@ -2,10 +2,8 @@
 
 interface ImportMetaEnv {
   readonly VITE_API_URL: string;
-  readonly VITE_GA4_MEASUREMENT_ID?: string;
+  readonly VITE_YANDEX_METRIKA_COUNTER_ID?: string;
   readonly VITE_GOOGLE_CLIENT_ID?: string;
-  readonly VITE_PUBLIC_POSTHOG_KEY: string;
-  readonly VITE_PUBLIC_POSTHOG_HOST?: string;
 }
 
 interface ImportMeta {
@@ -35,6 +33,10 @@ interface GoogleButtonConfiguration {
 }
 
 interface Window {
+  ym?: ((counterId: number, method: string, ...args: unknown[]) => void) & {
+    a?: unknown[];
+    l?: number;
+  };
   google?: {
     accounts: {
       id: {

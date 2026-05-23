@@ -20,7 +20,7 @@ import { tokenService } from '../../../shared/services/api/tokenService';
 import { LoginCredentials } from '../types/auth';
 import { useAuthContext } from '../../../shared/contexts/AuthContext';
 import GradientSpinnerAnimation from '../../../shared/components/GradientSpinnerAnimation';
-import { ga4Service } from '../../../shared/services/ga4Service';
+import { yandexMetrikaService } from '../../../shared/services/yandexMetrikaService';
 import GoogleSignInButton from './GoogleSignInButton';
 
 interface LoginFormProps {
@@ -69,7 +69,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, onSwitchToSignup, onSw
         queryClient.invalidateQueries({ queryKey: ['resume'] });
         
         // Track successful login
-        ga4Service.trackLogin('email');
+        yandexMetrikaService.trackLogin('email');
         
         onSuccess();
       } catch (err: any) {
@@ -94,7 +94,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, onSwitchToSignup, onSw
 
       login(tokens);
       queryClient.invalidateQueries({ queryKey: ['resume'] });
-      ga4Service.trackLogin('google');
+      yandexMetrikaService.trackLogin('google');
       onSuccess();
     } catch (err: any) {
       console.error('Google login error:', err);

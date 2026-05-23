@@ -18,6 +18,12 @@ Export - экран выбора шаблона и выгрузки резюме
 - Внизу страницы есть одна основная кнопка `Скачать`; она ведет на `/upgrade`, где находится paywall.
 - Показывает preview резюме через `ResumeRenderer`.
 - Даёт выбор шаблонов через `TemplateSelectionCards`.
+- Yandex Metrika events:
+  - `template_selected` when a template is clicked.
+  - `export_download_click` when the download CTA sends the user to `/upgrade`.
+  - `payment_button_click` on the `/upgrade` pay button.
+  - `payment_success` on `/payment/success`.
+  - `resume_export_success` when legacy direct export components complete PDF generation.
 - TXT export идёт напрямую через backend.
 - PDF export для premium users идёт через backend PDF generation.
 - Non-premium users отправляются на `/upgrade`.

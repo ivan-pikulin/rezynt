@@ -9,7 +9,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { COLORS } from '../../../shared/theme/theme';
-import { ga4Service } from '../../../shared/services/ga4Service';
+import { yandexMetrikaService } from '../../../shared/services/yandexMetrikaService';
 
 interface DownloadOptionsProps {
   onExportPDF?: () => Promise<void>;
@@ -27,8 +27,7 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({ onExportPDF, isPremiu
       setIsWatermarkedExporting(true);
       if (onExportPDF) {
         await onExportPDF();
-        // Track watermarked PDF export
-        ga4Service.trackResumeExport('pdf_watermarked');
+        yandexMetrikaService.trackResumeExportSuccess('pdf', { variant: 'watermarked' });
       }
     } catch (error) {
       console.error('Error downloading PDF:', error);
@@ -44,8 +43,7 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({ onExportPDF, isPremiu
         setIsCleanExporting(true);
         if (onExportPDF) {
           await onExportPDF();
-          // Track clean PDF export
-          ga4Service.trackResumeExport('pdf_clean');
+          yandexMetrikaService.trackResumeExportSuccess('pdf', { variant: 'clean' });
         }
       } catch (error) {
         console.error('Error downloading PDF:', error);
@@ -54,6 +52,7 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({ onExportPDF, isPremiu
       }
     } else {
       // For regular users, navigate to upgrade page
+      yandexMetrikaService.trackExportDownloadClick({ format: 'pdf', variant: 'clean', is_premium: false });
       navigate('/upgrade');
     }
   };
@@ -264,4 +263,4 @@ const DownloadOptions: React.FC<DownloadOptionsProps> = ({ onExportPDF, isPremiu
   );
 };
 
-export default DownloadOptions; 
+export default DownloadOptions;

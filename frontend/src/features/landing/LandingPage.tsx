@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { resumeApi } from "../../shared/services/api";
+import { yandexMetrikaService } from "../../shared/services/yandexMetrikaService";
 import { COLORS } from "../../shared/theme/theme";
 import "./LandingPage.css";
 
@@ -252,6 +253,13 @@ function LandingPage() {
   const handleUpload = useCallback(
     async (file: File) => {
       const extension = file.name.split(".").pop()?.toLowerCase() || "";
+      yandexMetrikaService.trackLandingUploadStarted({
+        source: "hero_upload",
+        file_extension: extension,
+        file_size_mb: Number((file.size / 1024 / 1024).toFixed(2)),
+        is_allowed_format: uploadedFileExtensions.includes(extension),
+      });
+
       if (!uploadedFileExtensions.includes(extension)) {
         setErrorMessage(t("landing.hero.upload.allowedFormats"));
         return;
@@ -262,6 +270,11 @@ function LandingPage() {
 
       try {
         const { task_id } = await resumeApi.uploadResume(file);
+        yandexMetrikaService.trackLandingUploadSuccess({
+          source: "hero_upload",
+          file_extension: extension,
+          file_size_mb: Number((file.size / 1024 / 1024).toFixed(2)),
+        });
         navigate(buildRefineRedirect(task_id), { replace: true });
       } catch (error) {
         console.error("Landing upload failed:", error);

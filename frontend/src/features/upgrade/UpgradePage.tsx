@@ -7,6 +7,7 @@ import Typography from '@mui/material/Typography';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import { yandexMetrikaService } from '../../shared/services/yandexMetrikaService';
 import { COLORS } from '../../shared/theme/theme';
 import { landingConceptVars } from '../landing-concept/LandingConceptTheme';
 import '../landing-concept/LandingConceptPage.css';
@@ -34,6 +35,7 @@ export const UpgradePage: React.FC = () => {
   const [selectedPlanId, setSelectedPlanId] = useState<UpgradePlanId | null>(null);
 
   const handleUpgrade = (planId: UpgradePlanId) => {
+    yandexMetrikaService.trackPaymentButtonClick(planId);
     setSelectedPlanId(planId);
   };
 
