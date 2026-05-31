@@ -16,19 +16,23 @@ class EmailService:
     def __init__(self):
         self.smtp_server = settings.email.EMAIL_HOST
         self.smtp_port = settings.email.EMAIL_PORT
-        self.sender_email = settings.email.EMAIL_USERNAME
+        self.smtp_username = settings.email.EMAIL_USERNAME
+        self.sender_email = settings.email.EMAIL_FROM or settings.email.EMAIL_USERNAME
         self.sender_password = settings.email.EMAIL_PASSWORD.get_secret_value()
         self.domain = settings.email.EMAIL_DOMAIN
         self.selector = settings.email.EMAIL_DKIM_SELECTOR
+        self.dkim_enabled = settings.email.EMAIL_DKIM_ENABLED
         
         # Log configuration (without sensitive data)
         logger.info(f"Email service initialized with SMTP server: {self.smtp_server}:{self.smtp_port}")
+        logger.info(f"SMTP username: {self.smtp_username}")
         logger.info(f"Sender email: {self.sender_email}")
         logger.info(f"Domain: {self.domain}")
         logger.info(f"DKIM selector: {self.selector}")
+        logger.info(f"Local DKIM signing enabled: {self.dkim_enabled}")
         
         # Load DKIM private key
-        self.dkim_private_key = self._load_dkim_private_key()
+        self.dkim_private_key = self._load_dkim_private_key() if self.dkim_enabled else ""
     
     def _load_dkim_private_key(self) -> str:
         """Loads DKIM private key from file"""
@@ -83,8 +87,10 @@ class EmailService:
                 sig_header = signature[len("DKIM-Signature: "):].decode()
                 msg['DKIM-Signature'] = sig_header
                 logger.info("DKIM signature added to message headers")
-            else:
+            elif self.dkim_enabled:
                 logger.warning("No DKIM private key available - sending without DKIM signature")
+            else:
+                logger.info("Local DKIM signing disabled - SMTP provider is expected to sign email")
             
             logger.info(f"Connecting to SMTP server {self.smtp_server}:{self.smtp_port}")
             smtp_class = smtplib.SMTP_SSL if self.smtp_port == 465 else smtplib.SMTP
@@ -96,7 +102,7 @@ class EmailService:
                 if self.smtp_port != 465:
                     smtp.starttls()
                 logger.info("SMTP connection established, attempting login")
-                smtp.login(self.sender_email, self.sender_password)
+                smtp.login(self.smtp_username, self.sender_password)
                 logger.info("SMTP login successful")
                 
                 # Send email

@@ -23,6 +23,8 @@ x-backend-variables: &backend-variables
   EMAIL_PORT: 465
   EMAIL_USERNAME: team@rezynt.com
   EMAIL_PASSWORD: ${EMAIL_PASSWORD}
+  EMAIL_FROM: ${EMAIL_FROM:-team@rezynt.com}
+  EMAIL_DKIM_ENABLED: ${EMAIL_DKIM_ENABLED:-true}
   EMAIL_DKIM_PRIVATE_KEY_PATH: /app/dkim-key.private
   FRONTEND_BASE_URL: ${FRONTEND_BASE_URL}
   API_BASE_URL: ${API_BASE_URL}

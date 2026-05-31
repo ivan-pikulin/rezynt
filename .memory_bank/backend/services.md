@@ -21,6 +21,8 @@
 - В пользовательских письмах используется бренд `Резинт`.
 - Используется для confirmation, password reset и onboarding notification.
 - SMTP-соединение имеет 10-секундный timeout; порт 465 использует SMTP SSL, остальные порты используют SMTP + STARTTLS.
+- SMTP login uses `EMAIL_USERNAME`; visible sender address uses `EMAIL_FROM` and falls back to `EMAIL_USERNAME`.
+- `EMAIL_DKIM_ENABLED=false` disables local DKIM signing when the SMTP provider, such as Resend, signs authenticated domains itself.
 - После успешной оплаты отправляет письмо с логином (email) и сгенерированным паролем, не разлогинивая текущую сессию.
 
 ## PaymentService
