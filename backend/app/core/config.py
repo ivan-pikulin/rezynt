@@ -7,6 +7,7 @@ import cyrtranslit
 
 
 class EmailSettings(BaseSettings):
+    EMAIL_PROVIDER: str = "smtp"
     EMAIL_HOST: str
     EMAIL_PORT: int
     EMAIL_USERNAME: str

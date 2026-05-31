@@ -20,7 +20,8 @@
 - Отправляет HTML emails с DKIM signature.
 - В пользовательских письмах используется бренд `Резинт`.
 - Используется для confirmation, password reset и onboarding notification.
-- SMTP-соединение имеет 10-секундный timeout; порт 465 использует SMTP SSL, остальные порты используют SMTP + STARTTLS.
+- `EMAIL_PROVIDER=smtp` sends through SMTP with a 10-second timeout; port 465 uses SMTP SSL and other ports use SMTP + STARTTLS.
+- `EMAIL_PROVIDER=resend` sends through the Resend HTTPS API using `EMAIL_PASSWORD` as the API key, avoiding outbound SMTP port restrictions.
 - SMTP login uses `EMAIL_USERNAME`; visible sender address uses `EMAIL_FROM` and falls back to `EMAIL_USERNAME`.
 - `EMAIL_DKIM_ENABLED=false` disables local DKIM signing when the SMTP provider, such as Resend, signs authenticated domains itself.
 - После успешной оплаты отправляет письмо с логином (email) и сгенерированным паролем, не разлогинивая текущую сессию.

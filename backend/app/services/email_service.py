@@ -1,5 +1,6 @@
 import smtplib
 import dkim
+import httpx
 from email.mime.text import MIMEText
 from jinja2 import Template
 import logging
@@ -12,8 +13,11 @@ logger = logging.getLogger(__name__)
 
 class EmailService:
     SMTP_TIMEOUT_SECONDS = 10
+    RESEND_TIMEOUT_SECONDS = 10
+    RESEND_API_URL = "https://api.resend.com/emails"
 
     def __init__(self):
+        self.provider = settings.email.EMAIL_PROVIDER.lower()
         self.smtp_server = settings.email.EMAIL_HOST
         self.smtp_port = settings.email.EMAIL_PORT
         self.smtp_username = settings.email.EMAIL_USERNAME
@@ -24,6 +28,7 @@ class EmailService:
         self.dkim_enabled = settings.email.EMAIL_DKIM_ENABLED
         
         # Log configuration (without sensitive data)
+        logger.info(f"Email provider: {self.provider}")
         logger.info(f"Email service initialized with SMTP server: {self.smtp_server}:{self.smtp_port}")
         logger.info(f"SMTP username: {self.smtp_username}")
         logger.info(f"Sender email: {self.sender_email}")
@@ -33,6 +38,41 @@ class EmailService:
         
         # Load DKIM private key
         self.dkim_private_key = self._load_dkim_private_key() if self.dkim_enabled else ""
+
+    def _sender_header(self) -> str:
+        return f"Резинт <{self.sender_email}>"
+
+    def _send_resend_email(self, to_email: str, subject: str, body: str) -> bool:
+        try:
+            logger.info(f"Sending email via Resend API to {to_email}")
+            response = httpx.post(
+                self.RESEND_API_URL,
+                headers={
+                    "Authorization": f"Bearer {self.sender_password}",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "from": self._sender_header(),
+                    "to": [to_email],
+                    "subject": subject,
+                    "html": body,
+                },
+                timeout=self.RESEND_TIMEOUT_SECONDS,
+            )
+        except httpx.HTTPError as error:
+            logger.error(f"Resend API request failed: {error}")
+            return False
+
+        if response.status_code >= 400:
+            logger.error(
+                "Resend API rejected email: status=%s body=%s",
+                response.status_code,
+                response.text,
+            )
+            return False
+
+        logger.info(f"Email accepted by Resend API for {to_email}")
+        return True
     
     def _load_dkim_private_key(self) -> str:
         """Loads DKIM private key from file"""
@@ -61,11 +101,14 @@ class EmailService:
             bool: True if email sent successfully, False otherwise
         """
         try:
+            if self.provider == "resend":
+                return self._send_resend_email(to_email, subject, body)
+
             logger.info(f"Attempting to send email to {to_email}")
             
             # Create MIME message as in test_email_send.py
             msg = MIMEText(body, 'html')
-            msg['From'] = f"Резинт <{self.sender_email}>"
+            msg['From'] = self._sender_header()
             msg['To'] = to_email
             msg['Subject'] = subject
             
