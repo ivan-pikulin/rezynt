@@ -26,7 +26,7 @@
 ## PaymentService
 
 - Создаёт YooKassa redirect payment через HTTP API и активирует платный доступ для mock-payment endpoint и YooKassa webhook.
-- `payment/checkout` возвращает `confirmation_url`, а `payment/welcome` используется как `return_url`.
+- `payment/checkout` возвращает `confirmation_url`, а `payment/welcome` используется как `return_url`; входящий ответ YooKassa не обязан повторять `return_url` внутри `confirmation`.
 - Для успешной оплаты выставляет `is_premium=True`, `is_verified=True`, `is_registered=True`, генерирует новый пароль, сохраняет hash и отправляет письмо с доступом.
 - Premium-доступ коммитится до отправки письма; письмо ставится в Celery через `send_paid_access_email_task`, поэтому payment response не блокируется на SMTP.
 - Повторный вызов для уже premium пользователя с паролем считается идемпотентным no-op.
@@ -66,4 +66,4 @@
 - Отдельный пакет `backend/app/services/analysis/` содержит analysis engine, scoring, config и rule loader.
 - Подробности по правилам - в [`rules.md`](./rules.md).
 
-*Последнее обновление: 2026-05-23*
+*Последнее обновление: 2026-05-31*

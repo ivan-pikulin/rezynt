@@ -78,9 +78,9 @@ API v1 - основной HTTP контракт backend.
 - Resume upload uses Celery task ids as user-visible progress state.
 - `resume/export-docx` принимает `template_slug` и optional `filename`, генерирует DOCX из сохраненного `User.resume_data` через подготовленные Word-шаблоны.
 - Analysis endpoints operate on `User.analysis_result` JSONB cache.
-- `payment/checkout` создаёт YooKassa redirect payment с `amount=149.00 RUB`, `capture=true` и `metadata.user_id`, а ответ возвращает `confirmation_url` для редиректа пользователя.
+- `payment/checkout` создаёт YooKassa redirect payment с `amount=149.00 RUB`, `capture=true` и `metadata.user_id`, а ответ возвращает `confirmation_url` для редиректа пользователя. YooKassa response validation treats `confirmation.return_url` as optional.
 - `payment/simulate-success` оставлен как локальный/QA shortcut и активирует `is_premium` тем же сервисом, что webhook; response включает `email_queued`.
 - YooKassa webhook обрабатывает только `payment.succeeded`, берет `user_id` из metadata, проверяет query-secret из env и активирует premium без сброса текущей авторизации; письмо с доступом уходит через Celery.
 - Refresh tokens теперь содержат `exp` и живут по `REFRESH_TOKEN_EXPIRE_MINUTES` (по умолчанию 7 дней).
 
-*Последнее обновление: 2026-05-23*
+*Последнее обновление: 2026-05-31*

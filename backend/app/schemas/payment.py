@@ -10,8 +10,8 @@ class PaymentCheckoutResponse(BaseModel):
 
 class YookassaPaymentConfirmation(BaseModel):
     type: str
-    return_url: str
     confirmation_url: str | None = None
+    return_url: str | None = None
 
 
 class YookassaPaymentCreateResponse(BaseModel):
