@@ -7,12 +7,15 @@ import Typography from '@mui/material/Typography';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { paymentApi } from '../../shared/services/api';
+import { useAuthContext } from '../../shared/contexts/AuthContext';
+import { useResumeQuery } from '../../shared/hooks/useResumeQuery';
+import { authApi, paymentApi } from '../../shared/services/api';
 import { yandexMetrikaService } from '../../shared/services/yandexMetrikaService';
 import { COLORS } from '../../shared/theme/theme';
 import { landingConceptVars } from '../landing-concept/LandingConceptTheme';
 import '../landing-concept/LandingConceptPage.css';
 
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const planIds = ['best'] as const;
 
 type UpgradePlanId = (typeof planIds)[number];
@@ -33,13 +36,37 @@ const plans: UpgradePlan[] = [
 
 export const UpgradePage: React.FC = () => {
   const { t } = useTranslation();
+  const { user, login } = useAuthContext();
+  const { resume } = useResumeQuery(false);
   const [selectedPlanId, setSelectedPlanId] = useState<UpgradePlanId | null>(null);
+
+  const ensureCheckoutUser = async () => {
+    if (user?.is_registered && user.email) {
+      return;
+    }
+
+    const currentResume = resume;
+    const email = currentResume?.personal_info?.contacts?.email?.trim() ?? '';
+    if (!currentResume || !emailPattern.test(email)) {
+      throw new Error('Cannot start payment without user email');
+    }
+
+    const tokens = await authApi.signupFromLanding({
+      email,
+      resume_data: currentResume,
+    });
+    const loginSucceeded = await login(tokens);
+    if (!loginSucceeded) {
+      throw new Error('Landing signup created tokens, but user authorization failed');
+    }
+  };
 
   const handleUpgrade = async (planId: UpgradePlanId) => {
     yandexMetrikaService.trackPaymentButtonClick(planId);
     setSelectedPlanId(planId);
 
     try {
+      await ensureCheckoutUser();
       const response = await paymentApi.createYookassaCheckout();
       window.location.assign(response.confirmation_url);
     } catch (error) {

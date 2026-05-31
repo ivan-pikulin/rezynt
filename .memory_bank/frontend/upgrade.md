@@ -13,6 +13,7 @@ Upgrade - full-page paywall вместо старого modal-only flow.
 - Список преимуществ включает пункт о разовом платеже без дополнительных списаний.
 - Нижняя заметка сообщает про разовый платеж и отсутствие автопродления; гарантия возврата не используется.
 - Кнопка оплаты создаёт YooKassa redirect payment через backend `POST /payment/checkout` и редиректит пользователя на `confirmation_url`.
+- Перед checkout страница проверяет, что текущий пользователь зарегистрирован и имеет `email`; если пользователь оказался guest с email в сохраненном resume, она создаёт landing account через `authApi.signupFromLanding`, обновляет auth tokens через `login`, и только затем запускает checkout.
 - Тексты тарифов, цены, сроки доступа и feature bullets хранятся в `upgrade.plans`.
 - Страница использует visual shell нового лендинга: `lc-page`, `lc-header`, `/rezynt-logo-with-name.svg` и `LandingConceptTheme`, без правой ссылки `Опросник`.
 - В шапке есть ненавязчивая back-ссылка `К выбору шаблона`, ведущая обратно на `/export`.
@@ -29,4 +30,4 @@ Upgrade - full-page paywall вместо старого modal-only flow.
 - Profile subscription section.
 - Любых paywall-trigger сценариев.
 
-*Последнее обновление: 2026-05-23*
+*Последнее обновление: 2026-05-31*

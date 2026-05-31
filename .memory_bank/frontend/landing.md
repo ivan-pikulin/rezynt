@@ -28,6 +28,7 @@ Legacy public marketing landing for `Резинт`, now rendered at `/old-landin
   - final job-search CTA copy
 - Footer with support email and legal links.
 - Analytics: the current public landing (`/`) tracks hero CTA clicks, builder form start, step opens, step completions, submit attempts, successful form submits, and submit errors through Yandex Metrika. The legacy `/old-landing` upload flow tracks upload start and upload success.
+- Submit behavior: the landing questionnaire treats only a registered user with `user.email` as an existing profile. Guest JWT sessions are not enough; guest users with a filled email go through `authApi.signupFromLanding`, receive tokens through `AuthContext.login`, and then continue to template selection.
 
 ## Content rules
 
@@ -36,4 +37,4 @@ Legacy public marketing landing for `Резинт`, now rendered at `/old-landin
 - New marketing copy should stay `Резинт`-specific: AI analysis, create-from-scratch or upload flow, ATS readability, templates, and PDF export.
 - The SEO guide should paraphrase references and not copy external text verbatim.
 
-*Последнее обновление: 2026-05-23*
+*Последнее обновление: 2026-05-31*

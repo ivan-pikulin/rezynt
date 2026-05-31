@@ -50,7 +50,7 @@ function LandingConceptQuestionnaire() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { isAuthenticated, login } = useAuthContext();
+  const { isAuthenticated, login, user } = useAuthContext();
   const [hasPersonalDataConsent, setHasPersonalDataConsent] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [finishError, setFinishError] = useState<string | null>(null);
@@ -68,6 +68,7 @@ function LandingConceptQuestionnaire() {
     updateField,
     clearBuilder,
   } = useBuilder();
+  const hasRegisteredProfile = Boolean(isAuthenticated && user?.is_registered && user.email);
 
   const stepLabels = useMemo(
     () => BUILDER_STEPS.map((step) => t(`builder.steps.${step.id}`)),
@@ -178,11 +179,11 @@ function LandingConceptQuestionnaire() {
       const finalStepIndex = BUILDER_STEPS.length - 1;
       trackStepCompletedOnce(BUILDER_STEPS[finalStepIndex].id, finalStepIndex);
       yandexMetrikaService.trackLandingFormSubmitAttempt({
-        is_authenticated: isAuthenticated,
+        is_authenticated: hasRegisteredProfile,
         completed_steps: trackedCompletedStepsRef.current.size,
       });
 
-      if (isAuthenticated) {
+      if (hasRegisteredProfile) {
         const { resumeApi } = await import("../../shared/services/api");
         const savedResume = await resumeApi.updateResume(resumeData);
         queryClient.setQueryData(["resume", "user"], savedResume);
@@ -220,7 +221,7 @@ function LandingConceptQuestionnaire() {
       }
 
       yandexMetrikaService.trackLandingFormSubmitSuccess({
-        is_authenticated: isAuthenticated,
+        is_authenticated: hasRegisteredProfile,
         completed_steps: trackedCompletedStepsRef.current.size,
       });
       clearBuilder();
