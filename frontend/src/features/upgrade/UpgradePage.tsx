@@ -6,8 +6,7 @@ import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuthContext } from '../../shared/contexts/AuthContext';
+import { Link } from 'react-router-dom';
 import { paymentApi } from '../../shared/services/api';
 import { yandexMetrikaService } from '../../shared/services/yandexMetrikaService';
 import { COLORS } from '../../shared/theme/theme';
@@ -34,8 +33,6 @@ const plans: UpgradePlan[] = [
 
 export const UpgradePage: React.FC = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
-  const { updateUser } = useAuthContext();
   const [selectedPlanId, setSelectedPlanId] = useState<UpgradePlanId | null>(null);
 
   const handleUpgrade = async (planId: UpgradePlanId) => {
@@ -43,9 +40,8 @@ export const UpgradePage: React.FC = () => {
     setSelectedPlanId(planId);
 
     try {
-      const response = await paymentApi.simulateSuccessfulPayment();
-      updateUser(response.user);
-      navigate('/payment/welcome');
+      const response = await paymentApi.createYookassaCheckout();
+      window.location.assign(response.confirmation_url);
     } catch (error) {
       setSelectedPlanId(null);
     }

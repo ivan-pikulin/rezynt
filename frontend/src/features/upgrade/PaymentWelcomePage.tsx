@@ -1,4 +1,5 @@
 import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
+import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
@@ -7,7 +8,8 @@ import React, { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuthContext } from '../../shared/contexts/AuthContext';
-import { useUser } from '../../shared/hooks';
+import { usePolling, useUser } from '../../shared/hooks';
+import { User } from '../../shared/services/api/types';
 import { yandexMetrikaService } from '../../shared/services/yandexMetrikaService';
 import { COLORS } from '../../shared/theme/theme';
 import { landingConceptVars } from '../landing-concept/LandingConceptTheme';
@@ -19,24 +21,32 @@ export const PaymentWelcomePage: React.FC = () => {
   const { user, updateUser } = useAuthContext();
   const { refetch: refetchUser } = useUser();
   const hasTrackedRef = useRef(false);
+  const { data: polledUser } = usePolling<User>({
+    fetchFn: async () => {
+      const response = await refetchUser();
+      if (!response.data) {
+        throw new Error('User data unavailable');
+      }
+      return response.data;
+    },
+    shouldStop: (data) => data.is_premium,
+    interval: 2500,
+  });
 
   useEffect(() => {
-    if (!hasTrackedRef.current) {
-      hasTrackedRef.current = true;
-      yandexMetrikaService.trackPaymentSuccess({ is_premium: user?.is_premium ?? false });
+    if (polledUser) {
+      updateUser(polledUser);
     }
+  }, [polledUser, updateUser]);
 
-    (async () => {
-      try {
-        const response = await refetchUser();
-        if (response.data) {
-          updateUser(response.data);
-        }
-      } catch (error) {
-        // The page remains usable with the user already stored after payment activation.
-      }
-    })();
-  }, [refetchUser, updateUser, user?.is_premium]);
+  const isPremium = user?.is_premium ?? polledUser?.is_premium ?? false;
+
+  useEffect(() => {
+    if (!hasTrackedRef.current && isPremium) {
+      hasTrackedRef.current = true;
+      yandexMetrikaService.trackPaymentSuccess({ is_premium: true });
+    }
+  }, [isPremium]);
 
   return (
     <Box
@@ -85,15 +95,19 @@ export const PaymentWelcomePage: React.FC = () => {
             width: { xs: 78, sm: 92 },
             height: { xs: 78, sm: 92 },
             borderRadius: '50%',
-            bgcolor: COLORS.success.light,
-            color: COLORS.success.main,
+            bgcolor: isPremium ? COLORS.success.light : COLORS.button.primary.backgroundDisabled,
+            color: isPremium ? COLORS.success.main : COLORS.button.primary.textDisabled,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             mb: 3,
           }}
         >
-          <CheckCircleRoundedIcon sx={{ fontSize: { xs: 48, sm: 58 } }} />
+          {isPremium ? (
+            <CheckCircleRoundedIcon sx={{ fontSize: { xs: 48, sm: 58 } }} />
+          ) : (
+            <CircularProgress size={34} color="inherit" />
+          )}
         </Box>
 
         <Typography
@@ -118,11 +132,12 @@ export const PaymentWelcomePage: React.FC = () => {
             mb: 4,
           }}
         >
-          {t('payment.welcome.message')}
+          {isPremium ? t('payment.welcome.message') : t('payment.welcome.waiting')}
         </Typography>
 
         <Button
           variant="contained"
+          disabled={!isPremium}
           onClick={() => navigate('/export')}
           sx={{
             minWidth: { xs: '100%', sm: 220 },
@@ -138,9 +153,14 @@ export const PaymentWelcomePage: React.FC = () => {
               bgcolor: COLORS.primary.dark,
               boxShadow: COLORS.landing.shadowButtonHover,
             },
+            '&:disabled': {
+              bgcolor: COLORS.button.primary.backgroundDisabled,
+              color: COLORS.button.primary.textDisabled,
+              boxShadow: 'none',
+            },
           }}
         >
-          {t('payment.welcome.continue')}
+          {isPremium ? t('payment.welcome.continue') : t('payment.welcome.processing')}
         </Button>
       </Container>
     </Box>

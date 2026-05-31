@@ -1,5 +1,6 @@
 .env
 frontend/.env.local
+.secrets/
 
 # Landing build output
 landing_html/

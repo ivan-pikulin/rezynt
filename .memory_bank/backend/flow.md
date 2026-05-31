@@ -7,6 +7,8 @@
 - `GET/POST/PUT/PATCH/DELETE /resume/*` - резюме и загрузка файлов.
 - `GET/POST /analysis/*` - анализ, refresh и mark-fixed.
 - `POST /ai/*` - AI-assisted updates.
+- `POST /payment/checkout` - YooKassa redirect payment.
+- `POST /webhook/yookassa` - premium activation via webhook secret.
 - `GET /health` - health check.
 - `POST /test-pdf` - проверка PDF генерации.
 
@@ -30,5 +32,14 @@
 - `GET /analysis/` сначала возвращает сохранённый `analysis_result`, если он есть.
 - `POST /analysis/refresh` всегда пересчитывает анализ заново.
 - `POST /analysis/mark-fixed` меняет `is_fixed` у конкретного improvement point.
+
+## Payment flow
+
+1. Клиент вызывает `POST /payment/checkout`.
+2. Backend создаёт YooKassa payment и возвращает `confirmation_url`.
+3. Клиент редиректится на YooKassa.
+4. YooKassa шлёт `payment.succeeded` webhook на `/webhook/yookassa?secret=...`.
+5. Backend активирует premium, генерирует новый пароль и ставит письмо в Celery.
+6. YooKassa возвращает пользователя на `/payment/welcome`, где frontend refetch-ит user до `is_premium=true`.
 
 *Последнее обновление: 2026-05-21*

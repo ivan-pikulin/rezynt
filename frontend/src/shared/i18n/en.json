@@ -271,9 +271,16 @@
   "payment": {
     "success": {
       "title": "Payment successful!",
-      "message": "Your premium features will be unlocked within the next hour. If this doesn't happen, please contact us at team@rezynt.com.",
+      "message": "Your payment has been confirmed. Premium access is active and your login details have been sent to your email.",
       "goToExport": "Go to Export",
       "goToResumes": "Go to Resumes"
+    },
+    "welcome": {
+      "title": "Welcome to Pro",
+      "message": "Access is active. Your login details have been sent to your email.",
+      "waiting": "We're confirming your payment. This page will update automatically as soon as YooKassa notifies us.",
+      "continue": "Continue",
+      "processing": "Confirming payment..."
     }
   },
   "start": {

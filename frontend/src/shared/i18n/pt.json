@@ -261,9 +261,16 @@
   "payment": {
     "success": {
       "title": "Pagamento realizado com sucesso!",
-      "message": "Seus recursos premium serão desbloqueados dentro da próxima hora. Se isso não acontecer, entre em contato conosco em team@rezynt.com.",
+      "message": "Seu pagamento foi confirmado. O acesso premium já está ativo e seus dados de login foram enviados para o seu e-mail.",
       "goToExport": "Ir para Exportação",
       "goToResumes": "Ir para Currículos"
+    },
+    "welcome": {
+      "title": "Bem-vindo ao Pro",
+      "message": "O acesso está ativo. Seus dados de login foram enviados para o seu e-mail.",
+      "waiting": "Estamos confirmando seu pagamento. Esta página será atualizada automaticamente assim que a YooKassa nos notificar.",
+      "continue": "Continuar",
+      "processing": "Confirmando pagamento..."
     }
   },
   "start": {

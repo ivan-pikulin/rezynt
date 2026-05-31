@@ -18,6 +18,13 @@ from .resume import (
     ResumeUpdate,
     WorkExperience,
 )
+from .payment import (
+    PaymentCheckoutResponse,
+    YookassaPaymentConfirmation,
+    YookassaPaymentCreateResponse,
+    YookassaWebhookEvent,
+    YookassaWebhookPaymentObject,
+)
 
 from .token import RefreshRequest, Token, TokenPayload
 from .user import (ChangePasswordRequest, DeleteAccountRequest, EmailVerificationByCode,
@@ -75,4 +82,10 @@ __all__ = [
     "AnalysisSection",
     "FixSuggestion",
     "ImprovementPoint",
+    # Payment schemas
+    "PaymentCheckoutResponse",
+    "YookassaPaymentConfirmation",
+    "YookassaPaymentCreateResponse",
+    "YookassaWebhookEvent",
+    "YookassaWebhookPaymentObject",
 ] 

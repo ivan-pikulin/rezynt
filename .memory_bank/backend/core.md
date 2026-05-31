@@ -9,6 +9,7 @@ Core содержит settings, security, verification и celery integration.
 - `API_V1_STR = /api/v1`.
 - `CORS_ORIGINS` включает `rezynt.ru` production domains, legacy `rezynt.com` domains and local dev.
 - Есть отдельные settings для email, redis и OpenAI.
+- Для YooKassa хранятся `YOOKASSA_SHOP_ID`, `YOOKASSA_SECRET_KEY` и `YOOKASSA_WEBHOOK_SECRET`.
 - Хранятся `PLATFORM_*` keys и `TEMP_UPLOAD_DIR`.
 - Backend image keeps baked Alembic migrations in `/app/app/database/migrations_baked` for production seeding of persistent `versions/`.
 

@@ -25,7 +25,8 @@
 
 ## PaymentService
 
-- Единая активация платного доступа для mock-payment endpoint и YooKassa webhook.
+- Создаёт YooKassa redirect payment через HTTP API и активирует платный доступ для mock-payment endpoint и YooKassa webhook.
+- `payment/checkout` возвращает `confirmation_url`, а `payment/welcome` используется как `return_url`.
 - Для успешной оплаты выставляет `is_premium=True`, `is_verified=True`, `is_registered=True`, генерирует новый пароль, сохраняет hash и отправляет письмо с доступом.
 - Premium-доступ коммитится до отправки письма; письмо ставится в Celery через `send_paid_access_email_task`, поэтому payment response не блокируется на SMTP.
 - Повторный вызов для уже premium пользователя с паролем считается идемпотентным no-op.

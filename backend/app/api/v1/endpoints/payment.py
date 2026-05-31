@@ -4,10 +4,14 @@ import uuid
 from app.api.deps import AsyncDB, CurrentUser
 from app.core.config import settings
 from app.database.crud.crud_user import user_crud
+from app.schemas.payment import (
+    PaymentCheckoutResponse,
+    YookassaWebhookEvent,
+)
 from app.schemas.user import UserPublic
 from app.services.payment_service import payment_service
 from fastapi import APIRouter, HTTPException, Query, status
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 router = APIRouter()
 webhook_router = APIRouter()
@@ -21,16 +25,23 @@ class PaymentActivationResponse(BaseModel):
     already_active: bool
 
 
-class YookassaPaymentObject(BaseModel):
-    id: str
-    status: str
-    metadata: dict[str, str] = Field(default_factory=dict)
+@router.post("/checkout", response_model=PaymentCheckoutResponse)
+async def create_payment_checkout(
+    current_user: CurrentUser,
+) -> dict:
+    try:
+        result = await payment_service.create_yookassa_payment(current_user)
+    except ValueError as error:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(error))
+    except RuntimeError as error:
+        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=str(error))
 
-
-class YookassaEvent(BaseModel):
-    type: str | None = None
-    event: str
-    object: YookassaPaymentObject
+    return {
+        "payment_id": result.payment_id,
+        "status": result.status,
+        "confirmation_url": result.confirmation_url,
+        "return_url": result.return_url,
+    }
 
 
 @router.post("/simulate-success", response_model=PaymentActivationResponse)
@@ -66,7 +77,7 @@ async def simulate_payment_success(
 
 @webhook_router.post("/yookassa")
 async def yookassa_webhook(
-    event: YookassaEvent,
+    event: YookassaWebhookEvent,
     db: AsyncDB,
     secret: str = Query(...),
 ) -> dict:

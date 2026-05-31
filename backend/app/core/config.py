@@ -86,6 +86,8 @@ class Settings(BaseSettings):
     APP_API_KEY: str
 
     # Payment/webhook settings
+    YOOKASSA_SHOP_ID: str
+    YOOKASSA_SECRET_KEY: SecretStr
     YOOKASSA_WEBHOOK_SECRET: str
     
     # PDF settings
