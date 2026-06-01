@@ -19,6 +19,7 @@
 - Production deploy должен использовать опубликованные GHCR images и `docker compose up -d --no-build`; сервер не собирает application images.
 - `PROD_ENV` must already contain all runtime values, including `YOOKASSA_*`, `RESEND_API_KEY`, database, OpenAI and platform settings.
 - Production email runtime использует только `RESEND_API_KEY`. Все письма отправляются через Resend HTTPS API от имени `team@rezynt.ru`; legacy email env больше не используются.
+- Локальные production runbooks и stand-specific детали хранятся в ignored `.agents/skills/stand-ops/`; canonical runtime snapshot для GitHub Secret `PROD_ENV` хранится в ignored `secrets/prod/ENV_PROD.github`.
 - Для локальной разработки с UI использовать `scripts/dev-hot.sh`; он выводит фактические адреса frontend, backend API, OpenAPI docs, PostgreSQL и Redis, включая автоматически выбранные порты при локальных конфликтах.
 
 Последнее обновление: 2026-06-01
