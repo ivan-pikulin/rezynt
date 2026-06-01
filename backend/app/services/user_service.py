@@ -102,29 +102,18 @@ class UserService:
         return user
 
     async def confirm_user_by_code(self, code: str, email: str) -> User:
-        """Confirms user email by 6-digit verification code"""
-        print(f"DEBUG: confirm_user_by_code called with code={code}, email={email}")
+        """Confirms user email by 6-digit verification code and returns the user."""
         
         # Verify code against stored code in database
         user = await user_crud.verify_code(self.db, email=email, code=code, code_type='email_confirm')
         if not user:
-            print(f"DEBUG: Code verification failed - invalid code or user not found")
             raise ValueError("Недействительный код подтверждения")
-        
-        print(f"DEBUG: Code verification successful for user {user.id}")
-        
-        # Check if user is already confirmed
-        if user.is_verified:
-            print(f"DEBUG: User {user.id} is already verified")
-            raise ValueError("Электронная почта уже подтверждена")
-        
-        # Confirm email
+
+        # Confirm email if needed and clear any stored code so the same code cannot be reused.
         user = await user_crud.confirm_email(self.db, user_id=user.id)
         if not user:
-            print(f"DEBUG: Failed to confirm email for user {user.id}")
             raise ValueError("Пользователь не найден")
-        
-        print(f"DEBUG: Email confirmed successfully for user {user.id}")
+
         return user
 
     async def confirm_password_reset_by_code(self, code: str, email: str, new_password: str) -> User:
@@ -171,7 +160,7 @@ class UserService:
             return success, token
         except Exception as e:
             self.logger.error(f"Failed to resend verification code: {e}")
-            return False, ""
+            raise RuntimeError(f"Failed to resend verification code: {e}") from e
 
     async def send_email_change_code(self, user_id: int, new_email: str) -> Tuple[bool, str]:
         """Send verification code for email change"""

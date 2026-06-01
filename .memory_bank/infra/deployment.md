@@ -29,6 +29,7 @@
 
 - Workflow: `.github/workflows/deploy.yml`.
 - Runtime env хранится в GitHub secret `PROD_ENV`.
+- `PROD_ENV` must include all runtime values; workflow checks that the blob contains the required runtime keys before deploy.
 - Server SSH uses secrets `DEPLOY_HOST`, `DEPLOY_USER`, `SSH_PRIVATE_KEY`.
 - Frontend build inputs use repository variables for non-sensitive values, including `VITE_YANDEX_METRIKA_COUNTER_ID`, and `VITE_GOOGLE_CLIENT_ID` secret for Google OAuth client ID.
 - Сервер использует read-only deploy key alias `github.com-rezynt` для checkout репозитория.
@@ -45,4 +46,4 @@
 - Порты можно переопределить через env: `FRONTEND_HOST_PORT`, `BACKEND_HOST_PORT`, `POSTGRES_HOST_PORT`, `REDIS_HOST_PORT`.
 - Не пытайся искать production-контейнеры локально.
 
-*Последнее обновление: 2026-05-23*
+*Последнее обновление: 2026-06-01*

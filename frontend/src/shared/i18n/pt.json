@@ -119,6 +119,10 @@
       "invalidCode": "Código de verificação inválido ou expirado",
       "codeRequired": "Por favor, digite o código de 6 dígitos"
     },
+    "existingAccountCode": {
+      "title": "Confirme seu e-mail",
+      "subtitle": "Já existe uma conta com {{email}}. Para proteger seus dados, enviamos um código para essa caixa de entrada. Digite-o para entrar."
+    },
     "registration": {
       "modal": {
         "title": "Crie sua conta",

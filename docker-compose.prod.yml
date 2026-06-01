@@ -21,15 +21,7 @@ x-backend-variables: &backend-variables
   GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
   ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES}
   REFRESH_TOKEN_EXPIRE_MINUTES: ${REFRESH_TOKEN_EXPIRE_MINUTES}
-  EMAIL_PROVIDER: ${EMAIL_PROVIDER:-smtp}
-  EMAIL_HOST: ${EMAIL_HOST}
-  EMAIL_PORT: ${EMAIL_PORT}
-  EMAIL_USERNAME: ${EMAIL_USERNAME}
-  EMAIL_PASSWORD: ${EMAIL_PASSWORD}
-  EMAIL_FROM: ${EMAIL_FROM:-}
-  EMAIL_DOMAIN: ${EMAIL_DOMAIN:-rezynt.com}
-  EMAIL_DKIM_ENABLED: ${EMAIL_DKIM_ENABLED:-true}
-  EMAIL_DKIM_PRIVATE_KEY_PATH: /app/dkim-key.private
+  RESEND_API_KEY: ${RESEND_API_KEY}
   FRONTEND_BASE_URL: ${FRONTEND_BASE_URL}
   API_BASE_URL: ${API_BASE_URL}
   PLATFORM_SCRATCH_APP_KEY: ${PLATFORM_SCRATCH_APP_KEY}
@@ -71,7 +63,6 @@ services:
       /app/app/scripts/migrate.sh &&
       uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 --log-level info"
     volumes:
-      - ${EMAIL_DKIM_PRIVATE_KEY_PATH}:/app/dkim-key.private:ro
       - migrations_data:/app/app/database/migrations/versions
       - temp_uploads_data:/app/temp_uploads
     restart: unless-stopped
@@ -97,7 +88,6 @@ services:
         condition: service_healthy
     command: uv run celery -A app.core.celery_app worker --loglevel=info --concurrency=1 --prefetch-multiplier=1 --max-memory-per-child=500000
     volumes:
-      - ${EMAIL_DKIM_PRIVATE_KEY_PATH}:/app/dkim-key.private:ro
       - temp_uploads_data:/app/temp_uploads
     restart: unless-stopped
     deploy:

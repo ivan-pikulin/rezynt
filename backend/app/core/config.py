@@ -7,16 +7,7 @@ import cyrtranslit
 
 
 class EmailSettings(BaseSettings):
-    EMAIL_PROVIDER: str = "smtp"
-    EMAIL_HOST: str
-    EMAIL_PORT: int
-    EMAIL_USERNAME: str
-    EMAIL_PASSWORD: SecretStr
-    EMAIL_FROM: str | None = None
-    EMAIL_DOMAIN: str = "rezynt.com"
-    EMAIL_DKIM_SELECTOR: str = "mail"
-    EMAIL_DKIM_PRIVATE_KEY_PATH: str
-    EMAIL_DKIM_ENABLED: bool = True
+    RESEND_API_KEY: SecretStr | None = None
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf8", extra="ignore")
 

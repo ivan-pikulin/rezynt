@@ -15,6 +15,7 @@ Auth-флоу покрывает регистрацию, логин, подтв�
 ## Поведение
 
 - Подтверждение email может возвращать токены для авто-логина.
+- `POST /auth/confirm-email-by-code` теперь используется и как кодовый вход для уже существующего аккаунта: валидный код подтверждает почту, очищает старые verification code/token поля и возвращает JWT.
 - Сброс пароля работает через email token/code flow, а не через ручной парольный reset без подтверждения.
 - После успешного входа пользователь должен попадать в основной app flow через redirect/guard-логику, а не через отдельную ветку.
 
@@ -24,6 +25,7 @@ Auth-флоу покрывает регистрацию, логин, подтв�
 - `frontend/src/shared/services/api/authApi.ts`
 - `frontend/src/shared/services/api/tokenService.ts`
 - `frontend/src/shared/components/EmailConfirmationModal.tsx`
+- `frontend/src/shared/components/EmailVerificationCodeModal.tsx`
 - `frontend/src/shared/components/VerificationCodeInput.tsx`
 - `frontend/src/shared/components/ProtectedRoute.tsx`
 
@@ -32,4 +34,4 @@ Auth-флоу покрывает регистрацию, логин, подтв�
 - Валидация форм и локализация должны идти через shared-слой.
 - Любые изменения auth-флоу должны синхронно отражаться в backend endpoints `/auth/*`.
 
-*Последнее обновление: 2026-05-21*
+*Последнее обновление: 2026-06-01*

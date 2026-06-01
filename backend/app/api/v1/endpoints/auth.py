@@ -360,7 +360,7 @@ async def confirm_email_by_code(
     verification_request: EmailVerificationByCode,
 ) -> dict[str, str]:
     """
-    Confirm user registration by 6-digit verification code.
+    Confirm user registration or authenticate an existing account by 6-digit verification code.
     If user has a temp resume file, process it and return task_id.
     """
     import logging
@@ -394,7 +394,7 @@ async def confirm_email_by_code(
         temp_file = await temp_resume_file_crud.get_by_user_id(db, user.id)
         
         response_data = {
-            "message": "Электронная почта успешно подтверждена",
+            "message": "Вход выполнен успешно",
             "access_token": access_token,
             "refresh_token": refresh_token,
             "token_type": "bearer"
@@ -422,12 +422,12 @@ async def confirm_email_by_code(
                 
                 # Add task_id to response
                 response_data["task_id"] = task.id
-                response_data["message"] = "Email confirmed and resume processing started"
+                response_data["message"] = "Вход выполнен успешно, обработка резюме начата"
                 
             except Exception as e:
                 logger.error(f"Failed to process temp resume for user {user.id}: {e}")
                 # Don't fail email confirmation if resume processing fails
-                response_data["message"] = "Email confirmed (resume processing failed)"
+                response_data["message"] = "Вход выполнен успешно (обработка резюме не удалась)"
 
         return response_data
     except ValueError as e:
@@ -485,18 +485,21 @@ async def resend_verification_code(
             email=resend_request.email,
             code_type=resend_request.code_type
         )
-        
-        if success:
-            return {
-                "message": "Код подтверждения отправлен повторно",
-                "token": token
-            }
-        else:
-            return {
-                "message": "Не удалось отправить код подтверждения"
-            }
-    except Exception as e:
-        # For security, always return successful response
+
+        if not success:
+            raise HTTPException(
+                status_code=status.HTTP_502_BAD_GATEWAY,
+                detail="Не удалось отправить код подтверждения. Проверьте RESEND_API_KEY и verified domain."
+            )
+
         return {
-            "message": "Если аккаунт с таким адресом существует, код подтверждения отправлен."
+            "message": "Код подтверждения отправлен повторно",
+            "token": token
         }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"Не удалось отправить код подтверждения: {e}"
+        )

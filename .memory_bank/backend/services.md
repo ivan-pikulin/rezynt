@@ -17,13 +17,12 @@
 
 ## EmailService
 
-- Отправляет HTML emails с DKIM signature.
+- Отправляет HTML emails через Resend HTTPS API.
 - В пользовательских письмах используется бренд `Резинт`.
 - Используется для confirmation, password reset и onboarding notification.
-- `EMAIL_PROVIDER=smtp` sends through SMTP with a 10-second timeout; port 465 uses SMTP SSL and other ports use SMTP + STARTTLS.
-- `EMAIL_PROVIDER=resend` sends through the Resend HTTPS API using `EMAIL_PASSWORD` as the API key, avoiding outbound SMTP port restrictions.
-- SMTP login uses `EMAIL_USERNAME`; visible sender address uses `EMAIL_FROM` and falls back to `EMAIL_USERNAME`.
-- `EMAIL_DKIM_ENABLED=false` disables local DKIM signing when the SMTP provider, such as Resend, signs authenticated domains itself.
+- API key берётся только из `RESEND_API_KEY`.
+- Отправитель фиксирован: `team@rezynt.ru`.
+- Никаких legacy provider режимов больше нет; при ошибке отправка падает fail-fast и поднимает исключение.
 - После успешной оплаты отправляет письмо с логином (email) и сгенерированным паролем, не разлогинивая текущую сессию.
 
 ## PaymentService
@@ -31,7 +30,7 @@
 - Создаёт YooKassa redirect payment через HTTP API и активирует платный доступ для mock-payment endpoint и YooKassa webhook.
 - `payment/checkout` возвращает `confirmation_url`, а `payment/welcome` используется как `return_url`; входящий ответ YooKassa не обязан повторять `return_url` внутри `confirmation`.
 - Для успешной оплаты выставляет `is_premium=True`, `is_verified=True`, `is_registered=True`, генерирует новый пароль, сохраняет hash и отправляет письмо с доступом.
-- Premium-доступ коммитится до отправки письма; письмо ставится в Celery через `send_paid_access_email_task`, поэтому payment response не блокируется на SMTP.
+- Premium-доступ коммитится до отправки письма; письмо ставится в Celery через `send_paid_access_email_task`, поэтому payment response не блокируется на email delivery.
 - Повторный вызов для уже premium пользователя с паролем считается идемпотентным no-op.
 
 ## PlatformChatflow
@@ -69,4 +68,4 @@
 - Отдельный пакет `backend/app/services/analysis/` содержит analysis engine, scoring, config и rule loader.
 - Подробности по правилам - в [`rules.md`](./rules.md).
 
-*Последнее обновление: 2026-05-31*
+*Последнее обновление: 2026-06-01*

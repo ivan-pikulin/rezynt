@@ -1,7 +1,4 @@
-import smtplib
-import dkim
 import httpx
-from email.mime.text import MIMEText
 from jinja2 import Template
 import logging
 
@@ -12,35 +9,22 @@ logger = logging.getLogger(__name__)
 
 
 class EmailService:
-    SMTP_TIMEOUT_SECONDS = 10
     RESEND_TIMEOUT_SECONDS = 10
     RESEND_API_URL = "https://api.resend.com/emails"
+    RESEND_FROM_EMAIL = "team@rezynt.ru"
+    RESEND_FROM_NAME = "Резинт"
 
     def __init__(self):
-        self.provider = settings.email.EMAIL_PROVIDER.lower()
-        self.smtp_server = settings.email.EMAIL_HOST
-        self.smtp_port = settings.email.EMAIL_PORT
-        self.smtp_username = settings.email.EMAIL_USERNAME
-        self.sender_email = settings.email.EMAIL_FROM or settings.email.EMAIL_USERNAME
-        self.sender_password = settings.email.EMAIL_PASSWORD.get_secret_value()
-        self.domain = settings.email.EMAIL_DOMAIN
-        self.selector = settings.email.EMAIL_DKIM_SELECTOR
-        self.dkim_enabled = settings.email.EMAIL_DKIM_ENABLED
-        
-        # Log configuration (without sensitive data)
-        logger.info(f"Email provider: {self.provider}")
-        logger.info(f"Email service initialized with SMTP server: {self.smtp_server}:{self.smtp_port}")
-        logger.info(f"SMTP username: {self.smtp_username}")
-        logger.info(f"Sender email: {self.sender_email}")
-        logger.info(f"Domain: {self.domain}")
-        logger.info(f"DKIM selector: {self.selector}")
-        logger.info(f"Local DKIM signing enabled: {self.dkim_enabled}")
-        
-        # Load DKIM private key
-        self.dkim_private_key = self._load_dkim_private_key() if self.dkim_enabled else ""
+        resend_api_key = settings.email.RESEND_API_KEY
+        if not resend_api_key or not resend_api_key.get_secret_value().strip():
+            raise RuntimeError("RESEND_API_KEY is not configured")
+
+        self.resend_api_key = resend_api_key.get_secret_value().strip()
+        logger.info("Email service initialized for Resend API")
+        logger.info(f"Sender email: {self.RESEND_FROM_EMAIL}")
 
     def _sender_header(self) -> str:
-        return f"Резинт <{self.sender_email}>"
+        return f"{self.RESEND_FROM_NAME} <{self.RESEND_FROM_EMAIL}>"
 
     def _send_resend_email(self, to_email: str, subject: str, body: str) -> bool:
         try:
@@ -48,7 +32,7 @@ class EmailService:
             response = httpx.post(
                 self.RESEND_API_URL,
                 headers={
-                    "Authorization": f"Bearer {self.sender_password}",
+                    "Authorization": f"Bearer {self.resend_api_key}",
                     "Content-Type": "application/json",
                 },
                 json={
@@ -61,7 +45,7 @@ class EmailService:
             )
         except httpx.HTTPError as error:
             logger.error(f"Resend API request failed: {error}")
-            return False
+            raise RuntimeError(f"Resend API request failed: {error}") from error
 
         if response.status_code >= 400:
             logger.error(
@@ -69,102 +53,17 @@ class EmailService:
                 response.status_code,
                 response.text,
             )
-            return False
+            raise RuntimeError(
+                f"Resend API rejected email: status={response.status_code} body={response.text}"
+            )
 
         logger.info(f"Email accepted by Resend API for {to_email}")
         return True
-    
-    def _load_dkim_private_key(self) -> str:
-        """Loads DKIM private key from file"""
-        try:
-            with open(settings.email.EMAIL_DKIM_PRIVATE_KEY_PATH, 'r') as f:
-                key_content = f.read()
-                logger.info(f"DKIM private key loaded successfully from {settings.email.EMAIL_DKIM_PRIVATE_KEY_PATH}")
-                return key_content
-        except FileNotFoundError:
-            logger.warning(f"DKIM private key file not found at {settings.email.EMAIL_DKIM_PRIVATE_KEY_PATH}")
-            return ""
-        except Exception as e:
-            logger.error(f"Could not load DKIM key: {e}")
-            return ""
-    
-    def send_email(self, to_email: str, subject: str, body: str) -> bool:
-        """
-        Sends email with DKIM signature
-        
-        Args:
-            to_email: Recipient email
-            subject: Email subject
-            body: Email body
-            
-        Returns:
-            bool: True if email sent successfully, False otherwise
-        """
-        try:
-            if self.provider == "resend":
-                return self._send_resend_email(to_email, subject, body)
 
-            logger.info(f"Attempting to send email to {to_email}")
-            
-            # Create MIME message as in test_email_send.py
-            msg = MIMEText(body, 'html')
-            msg['From'] = self._sender_header()
-            msg['To'] = to_email
-            msg['Subject'] = subject
-            
-            # Add DKIM signature if private key is available
-            if self.dkim_private_key:
-                # Headers to sign
-                headers = [b"from", b"to", b"subject"]
-                
-                # Create DKIM signature as in test_email_send.py
-                signature = dkim.sign(
-                    message=msg.as_bytes(),
-                    selector=self.selector.encode(),
-                    domain=self.domain.encode(),
-                    privkey=self.dkim_private_key.encode(),
-                    include_headers=headers
-                )
-                
-                # Add DKIM signature to message headers
-                sig_header = signature[len("DKIM-Signature: "):].decode()
-                msg['DKIM-Signature'] = sig_header
-                logger.info("DKIM signature added to message headers")
-            elif self.dkim_enabled:
-                logger.warning("No DKIM private key available - sending without DKIM signature")
-            else:
-                logger.info("Local DKIM signing disabled - SMTP provider is expected to sign email")
-            
-            logger.info(f"Connecting to SMTP server {self.smtp_server}:{self.smtp_port}")
-            smtp_class = smtplib.SMTP_SSL if self.smtp_port == 465 else smtplib.SMTP
-            with smtp_class(
-                self.smtp_server,
-                self.smtp_port,
-                timeout=self.SMTP_TIMEOUT_SECONDS,
-            ) as smtp:
-                if self.smtp_port != 465:
-                    smtp.starttls()
-                logger.info("SMTP connection established, attempting login")
-                smtp.login(self.smtp_username, self.sender_password)
-                logger.info("SMTP login successful")
-                
-                # Send email
-                smtp.sendmail(msg['From'], [msg['To']], msg.as_string())
-                logger.info(f"Email sent successfully to {to_email}")
-            
-            return True
-            
-        except smtplib.SMTPAuthenticationError as auth_error:
-            logger.error(f"SMTP Authentication failed: {auth_error}")
-            logger.error(f"Error code: {auth_error.smtp_code}, Error message: {auth_error.smtp_error}")
-            return False
-        except smtplib.SMTPException as smtp_error:
-            logger.error(f"SMTP error occurred: {smtp_error}")
-            return False
-        except Exception as e:
-            logger.error(f"Unexpected error sending email: {e}")
-            return False
-    
+    def send_email(self, to_email: str, subject: str, body: str) -> bool:
+        """Send email through Resend only."""
+        return self._send_resend_email(to_email, subject, body)
+
     def send_confirmation_email(self, to_email: str, confirmation_token: str, verification_code: str = None) -> bool:
         """
         Sends confirmation email for registration

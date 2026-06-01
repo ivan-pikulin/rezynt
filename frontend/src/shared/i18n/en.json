@@ -119,6 +119,10 @@
       "invalidCode": "Invalid or expired verification code",
       "codeRequired": "Please enter the 6-digit code"
     },
+    "existingAccountCode": {
+      "title": "Confirm your email",
+      "subtitle": "An account with {{email}} already exists. To protect your data, we sent a code to that inbox. Enter it to sign in."
+    },
     "registration": {
       "modal": {
         "title": "Create your account",

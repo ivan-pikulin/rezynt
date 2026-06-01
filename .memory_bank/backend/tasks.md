@@ -28,11 +28,11 @@ Celery используется для email, onboarding notification и обр�
 ## Payment email
 
 - `send_paid_access_email_task` отправляет логин и сгенерированный пароль после успешной оплаты.
-- Payment endpoint/webhook не ждут SMTP: premium-доступ активируется сразу, а ошибка отправки видна в Celery task result и логах.
+- Payment endpoint/webhook не ждут email delivery: premium-доступ активируется сразу, а ошибка отправки видна в Celery task result и логах.
 
 ## Что важно для агентов
 
 - Не предполагай, что task state хранится отдельно от Celery.
 - Не добавляй silent fallback, если задача ломается: ошибки должны быть видимы в логах и в результате задачи.
 
-*Последнее обновление: 2026-05-23*
+*Последнее обновление: 2026-06-01*

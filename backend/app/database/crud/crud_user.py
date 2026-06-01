@@ -235,6 +235,8 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         user = result.scalar_one_or_none()
         if user:
             user.is_verified = True
+            user.verification_token = None
+            user.verification_code = None
             await db.commit()
             await db.refresh(user)
         return user

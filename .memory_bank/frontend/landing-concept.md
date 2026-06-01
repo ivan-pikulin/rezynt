@@ -42,7 +42,7 @@ Experimental marketing page for `Резинт` focused on creating a resume from
 - The final section has no internal CTA. A separate final CTA block renders below all section cards.
 - The final CTA block is always visible below all accordion section cards. The button says `Перейти к выбору шаблона`, is more prominent than section-scroll buttons without using oversized desktop text, and remains disabled until the user checks personal data processing consent.
 - Clicking the final CTA saves the builder data and navigates directly to the existing template selection/export screen at `/export`: authenticated users are saved through `resumeApi.updateResume`; unauthenticated users are registered through `authApi.signupFromLanding` using the email from the contacts step, receive auth tokens, are stored as full logged-in users with onboarding already completed, and then continue to `/export` without the survey intercept.
-- The landing signup flow rejects existing emails instead of silently logging in by email alone. The UI shows a diagnostic error and keeps the user on the form.
+- If landing signup hits an existing email, the page now opens a modal `Подтвердите email`, sends a 6-digit code to that mailbox, and lets the user sign in with the code before saving the current resume into the existing account.
 - The consent text links to `/privacy-policy.html`.
 - The summary step is labeled `Саммари` in Russian builder UI to avoid confusing the section with the whole resume document.
 - The page ends immediately after the final questionnaire CTA/consent block with a footer copied from the public landing pattern: logo, copyright, email, privacy policy, and terms links.
@@ -54,4 +54,4 @@ Experimental marketing page for `Резинт` focused on creating a resume from
 - The questionnaire reuses the same builder state, navigation, and step content as the main product flow.
 - This page is the public `/` landing; the previous marketing landing remains available at `/old-landing`.
 
-*Последнее обновление: 2026-05-23*
+*Последнее обновление: 2026-06-01*

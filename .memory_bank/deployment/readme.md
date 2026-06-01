@@ -17,8 +17,8 @@
 - `/api`, `/docs` и `/openapi.json` проксируются на `backend`.
 - На сервере нельзя запускать Rezynt `nginx`/`certbot` на портах 80/443, потому что эти порты уже заняты `shared-proxy-caddy-1`.
 - Production deploy должен использовать опубликованные GHCR images и `docker compose up -d --no-build`; сервер не собирает application images.
-- `YOOKASSA_SHOP_ID`, `YOOKASSA_SECRET_KEY` и `YOOKASSA_WEBHOOK_SECRET` передаются из GitHub Actions secrets и дописываются workflow в runtime `/opt/rezynt/.env` после `PROD_ENV`.
-- Production email runtime использует email env из `PROD_ENV`. Для Resend HTTPS API: `EMAIL_PROVIDER=resend`, `EMAIL_PASSWORD=<RESEND_API_KEY>`, `EMAIL_FROM=team@rezynt.ru`, `EMAIL_DOMAIN=rezynt.ru`, `EMAIL_DKIM_ENABLED=false`. SMTP-поля могут оставаться заполненными, но при `EMAIL_PROVIDER=resend` отправка идет через `https://api.resend.com/emails`, а не через SMTP-порты.
+- `PROD_ENV` must already contain all runtime values, including `YOOKASSA_*`, `RESEND_API_KEY`, database, OpenAI and platform settings.
+- Production email runtime использует только `RESEND_API_KEY`. Все письма отправляются через Resend HTTPS API от имени `team@rezynt.ru`; legacy email env больше не используются.
 - Для локальной разработки с UI использовать `scripts/dev-hot.sh`; он выводит фактические адреса frontend, backend API, OpenAPI docs, PostgreSQL и Redis, включая автоматически выбранные порты при локальных конфликтах.
 
-Последнее обновление: 2026-05-31
+Последнее обновление: 2026-06-01

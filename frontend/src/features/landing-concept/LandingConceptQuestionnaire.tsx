@@ -5,6 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Box, Button, Paper } from "@mui/material";
 import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
 import { useAuthContext } from "../../shared/contexts/AuthContext";
+import EmailVerificationCodeModal from "../../shared/components/EmailVerificationCodeModal";
 import { yandexMetrikaService } from "../../shared/services/yandexMetrikaService";
 import { useBuilder } from "../builder/hooks/useBuilder";
 import { BUILDER_STEPS, type BuilderFieldUpdate, type BuilderState, type BuilderStep } from "../builder/types/builder";
@@ -54,8 +55,14 @@ function LandingConceptQuestionnaire() {
   const [hasPersonalDataConsent, setHasPersonalDataConsent] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [finishError, setFinishError] = useState<string | null>(null);
+  const [isEmailCodeModalOpen, setIsEmailCodeModalOpen] = useState(false);
+  const [emailCodeLoginEmail, setEmailCodeLoginEmail] = useState("");
+  const [emailCodeLoginError, setEmailCodeLoginError] = useState<string | null>(null);
+  const [isEmailCodeLoginSubmitting, setIsEmailCodeLoginSubmitting] = useState(false);
+  const [shouldStartEmailCodeTimer, setShouldStartEmailCodeTimer] = useState(false);
   const hasTrackedFormStartRef = useRef(false);
   const trackedCompletedStepsRef = useRef<Set<BuilderStep>>(new Set());
+  const pendingEmailCodeResumeRef = useRef<ResumeData | null>(null);
   const [expandedStepIds, setExpandedStepIds] = useState<Record<BuilderStep, boolean>>({
     "contact-info": true,
     "work-experience": false,
@@ -69,6 +76,96 @@ function LandingConceptQuestionnaire() {
     clearBuilder,
   } = useBuilder();
   const hasRegisteredProfile = Boolean(isAuthenticated && user?.is_registered && user.email);
+
+  const completeLandingFlow = useCallback(async (resumeData: ResumeData) => {
+    const { guestResumeService } = await import("../../shared/services");
+    guestResumeService.clear();
+    queryClient.setQueryData(["resume", "user"], resumeData);
+    queryClient.removeQueries({ queryKey: ["resume", "guest"] });
+
+    yandexMetrikaService.trackLandingFormSubmitSuccess({
+      is_authenticated: hasRegisteredProfile,
+      completed_steps: trackedCompletedStepsRef.current.size,
+    });
+
+    clearBuilder();
+    navigate(TEMPLATE_SELECTION_ROUTE);
+  }, [clearBuilder, hasRegisteredProfile, navigate, queryClient]);
+
+  const closeEmailCodeModal = useCallback(() => {
+    setIsEmailCodeModalOpen(false);
+    setEmailCodeLoginEmail("");
+    setEmailCodeLoginError(null);
+    setIsEmailCodeLoginSubmitting(false);
+    setShouldStartEmailCodeTimer(false);
+    pendingEmailCodeResumeRef.current = null;
+  }, []);
+
+  const openEmailCodeModal = useCallback((email: string, resumeData: ResumeData) => {
+    pendingEmailCodeResumeRef.current = resumeData;
+    setEmailCodeLoginEmail(email);
+    setEmailCodeLoginError(null);
+    setShouldStartEmailCodeTimer(true);
+    setIsEmailCodeModalOpen(true);
+  }, []);
+
+  const handleEmailCodeSubmit = useCallback(async (code: string) => {
+    const resumeData = pendingEmailCodeResumeRef.current;
+    if (!emailCodeLoginEmail || !resumeData) {
+      setEmailCodeLoginError(t("auth.verification.invalidCode"));
+      return;
+    }
+
+    setIsEmailCodeLoginSubmitting(true);
+    setEmailCodeLoginError(null);
+
+    try {
+      const { authApi, resumeApi } = await import("../../shared/services/api");
+      const tokens = await authApi.confirmEmailByCode({
+        email: emailCodeLoginEmail,
+        code,
+      });
+
+      const loginSucceeded = await login(tokens);
+      if (!loginSucceeded) {
+        throw new Error("Email code login created tokens, but user authorization failed");
+      }
+
+      await resumeApi.updateResume(resumeData);
+      closeEmailCodeModal();
+      await completeLandingFlow(resumeData);
+    } catch (error) {
+      console.error("Email code login failed:", error);
+      const responseStatus = (error as { response?: { status?: number; data?: { detail?: string } } }).response?.status;
+      setEmailCodeLoginError(
+        responseStatus === 400
+          ? (error as { response?: { data?: { detail?: string } } }).response?.data?.detail || t("auth.verification.invalidCode")
+          : t("landingConcept.builder.submitError"),
+      );
+    } finally {
+      setIsEmailCodeLoginSubmitting(false);
+    }
+  }, [closeEmailCodeModal, completeLandingFlow, emailCodeLoginEmail, login, t]);
+
+  const handleResendEmailCode = useCallback(async () => {
+    if (!emailCodeLoginEmail) {
+      return;
+    }
+
+    try {
+      const { authApi } = await import("../../shared/services/api");
+      await authApi.resendVerificationCode({
+        email: emailCodeLoginEmail,
+        code_type: "email_confirm",
+      });
+      setEmailCodeLoginError(null);
+    } catch (error) {
+      console.error("Failed to resend verification code:", error);
+      const responseDetail = (error as { response?: { data?: { detail?: string } } }).response?.data?.detail;
+      setEmailCodeLoginError(responseDetail || t("landingConcept.builder.submitError"));
+      throw error;
+    }
+  }, [emailCodeLoginEmail, t]);
 
   const stepLabels = useMemo(
     () => BUILDER_STEPS.map((step) => t(`builder.steps.${step.id}`)),
@@ -187,6 +284,7 @@ function LandingConceptQuestionnaire() {
         const { resumeApi } = await import("../../shared/services/api");
         const savedResume = await resumeApi.updateResume(resumeData);
         queryClient.setQueryData(["resume", "user"], savedResume);
+        await completeLandingFlow(savedResume);
       } else {
         const email = state.personal_info?.contacts?.email?.trim() ?? "";
 
@@ -200,32 +298,46 @@ function LandingConceptQuestionnaire() {
           return;
         }
 
-        const [{ authApi }, { guestResumeService }] = await Promise.all([
-          import("../../shared/services/api"),
-          import("../../shared/services/guestResumeService"),
-        ]);
+        const { authApi } = await import("../../shared/services/api");
 
-        const tokens = await authApi.signupFromLanding({
-          email,
-          resume_data: resumeData,
-        });
+        try {
+          const tokens = await authApi.signupFromLanding({
+            email,
+            resume_data: resumeData,
+          });
 
-        const loginSucceeded = await login(tokens);
-        if (!loginSucceeded) {
-          throw new Error("Landing signup created tokens, but user authorization failed");
+          const loginSucceeded = await login(tokens);
+          if (!loginSucceeded) {
+            throw new Error("Landing signup created tokens, but user authorization failed");
+          }
+
+          await completeLandingFlow(resumeData);
+        } catch (error) {
+          const responseStatus = (error as { response?: { status?: number } }).response?.status;
+          if (responseStatus === 409) {
+            yandexMetrikaService.trackLandingFormSubmitError({
+              reason: "email_already_exists",
+              status: responseStatus,
+              completed_steps: trackedCompletedStepsRef.current.size,
+            });
+
+            try {
+              await authApi.resendVerificationCode({
+                email,
+                code_type: "email_confirm",
+              });
+              openEmailCodeModal(email, resumeData);
+              return;
+            } catch (resendError) {
+              console.error("Failed to send verification code for existing account:", resendError);
+              setFinishError(t("landingConcept.builder.emailAlreadyExists"));
+              return;
+            }
+          }
+
+          throw error;
         }
-
-        guestResumeService.clear();
-        queryClient.setQueryData(["resume", "user"], resumeData);
-        queryClient.removeQueries({ queryKey: ["resume", "guest"] });
       }
-
-      yandexMetrikaService.trackLandingFormSubmitSuccess({
-        is_authenticated: hasRegisteredProfile,
-        completed_steps: trackedCompletedStepsRef.current.size,
-      });
-      clearBuilder();
-      navigate(TEMPLATE_SELECTION_ROUTE);
     } catch (error) {
       console.error("Error saving resume from builder:", error);
       const responseStatus = (error as { response?: { status?: number } }).response?.status;
@@ -309,7 +421,7 @@ function LandingConceptQuestionnaire() {
             className="lc-builder__final-button"
             variant="contained"
             onClick={handleFinish}
-            disabled={!hasPersonalDataConsent || isSubmitting}
+            disabled={!hasPersonalDataConsent || isSubmitting || isEmailCodeModalOpen || isEmailCodeLoginSubmitting}
           >
             {isSubmitting ? t("landingConcept.builder.finalCtaLoading") : t("landingConcept.builder.finalCta")}
           </Button>
@@ -336,6 +448,17 @@ function LandingConceptQuestionnaire() {
           </label>
         </div>
       </div>
+
+      <EmailVerificationCodeModal
+        open={isEmailCodeModalOpen}
+        email={emailCodeLoginEmail}
+        onClose={closeEmailCodeModal}
+        onSubmitCode={handleEmailCodeSubmit}
+        onResendCode={handleResendEmailCode}
+        isLoading={isEmailCodeLoginSubmitting}
+        error={emailCodeLoginError}
+        shouldStartTimer={shouldStartEmailCodeTimer}
+      />
     </section>
   );
 }
