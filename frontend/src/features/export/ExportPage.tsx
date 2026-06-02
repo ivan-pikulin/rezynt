@@ -71,26 +71,121 @@ const ExportPage: React.FC = () => {
     URL.revokeObjectURL(url);
   };
 
+  const exportStyleProperties = [
+    'appearance',
+    'background-attachment',
+    'background-color',
+    'background-image',
+    'background-position',
+    'background-repeat',
+    'background-size',
+    'border-bottom-color',
+    'border-bottom-left-radius',
+    'border-bottom-right-radius',
+    'border-bottom-style',
+    'border-bottom-width',
+    'border-left-color',
+    'border-left-style',
+    'border-left-width',
+    'border-right-color',
+    'border-right-style',
+    'border-right-width',
+    'border-top-color',
+    'border-top-left-radius',
+    'border-top-right-radius',
+    'border-top-style',
+    'border-top-width',
+    'box-shadow',
+    'box-sizing',
+    'color',
+    'column-gap',
+    'display',
+    'flex-basis',
+    'flex-direction',
+    'flex-grow',
+    'flex-shrink',
+    'flex-wrap',
+    'font-family',
+    'font-size',
+    'font-style',
+    'font-weight',
+    'gap',
+    'grid-template-columns',
+    'height',
+    'justify-content',
+    'left',
+    'letter-spacing',
+    'line-height',
+    'list-style-type',
+    'margin-bottom',
+    'margin-left',
+    'margin-right',
+    'margin-top',
+    'margin',
+    'max-height',
+    'max-width',
+    'min-height',
+    'min-width',
+    'opacity',
+    'overflow',
+    'overflow-wrap',
+    'padding-bottom',
+    'padding-left',
+    'padding-right',
+    'padding-top',
+    'padding',
+    'position',
+    'right',
+    'text-align',
+    'text-decoration',
+    'text-overflow',
+    'text-transform',
+    'top',
+    'transform',
+    'transform-origin',
+    'white-space',
+    'width',
+    'word-break',
+    'z-index',
+  ];
+
+  const inlineComputedStyles = (sourceRoot: HTMLElement, targetRoot: HTMLElement) => {
+    const sourceElements = [sourceRoot, ...Array.from(sourceRoot.querySelectorAll<HTMLElement>('*'))];
+    const targetElements = [targetRoot, ...Array.from(targetRoot.querySelectorAll<HTMLElement>('*'))];
+
+    sourceElements.forEach((sourceElement, index) => {
+      const targetElement = targetElements[index];
+      if (!targetElement) {
+        return;
+      }
+
+      const computed = window.getComputedStyle(sourceElement);
+      const inlineStyle = exportStyleProperties
+        .map((property) => `${property}: ${computed.getPropertyValue(property)};`)
+        .join(' ');
+
+      targetElement.setAttribute('style', inlineStyle);
+    });
+  };
+
   const getPdfHtml = () => {
     if (!exportContentRef.current) {
       throw new Error('Export content is not ready');
     }
 
-    const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]'))
-      .map((element) => element.outerHTML)
-      .join('\n');
+    const clonedContent = exportContentRef.current.cloneNode(true) as HTMLElement;
+    inlineComputedStyles(exportContentRef.current, clonedContent);
 
     return `<!doctype html>
 <html>
 <head>
 <meta charset="utf-8" />
-${styles}
 <style>
 html, body { margin: 0; padding: 0; width: 794px; min-height: 1123px; background: ${COLORS.landing.background}; }
-body { overflow: hidden; }
+body { box-sizing: border-box; overflow: hidden; }
 </style>
 </head>
-<body>${exportContentRef.current.innerHTML}</body>
+<body>${clonedContent.outerHTML}</body>
 </html>`;
   };
 

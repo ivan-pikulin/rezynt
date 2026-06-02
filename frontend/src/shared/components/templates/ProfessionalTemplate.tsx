@@ -229,15 +229,10 @@ export class ProfessionalTemplate extends BaseTemplate {
                 variant="body2" 
                 sx={{ 
                   fontSize: '14px',
-                  color: '#555',
-                  '&::before': {
-                    content: '"•"',
-                    marginRight: '8px',
-                    color: '#8B4513'
-                  }
+                  color: '#555'
                 }}
               >
-                {skill}
+                {`• ${skill}`}
               </Typography>
             ))}
           </Box>
@@ -398,4 +393,3 @@ export class ProfessionalTemplate extends BaseTemplate {
     );
   }
 }
-

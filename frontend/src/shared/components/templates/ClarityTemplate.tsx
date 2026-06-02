@@ -95,16 +95,9 @@ export class ClarityTemplate extends BaseTemplate {
                 sx={{ 
                   fontSize: '14px',
                   color: '#555',
-                  '&:not(:last-child)': {
-                    '&::after': {
-                      content: '"•"',
-                      margin: '0 8px',
-                      color: '#bdc3c7'
-                    }
-                  }
                 }}
               >
-                {skill}
+                {skill}{index < (data.skills?.length ?? 0) - 1 ? ' •' : ''}
               </Typography>
             ))}
           </Box>
@@ -264,4 +257,3 @@ export class ClarityTemplate extends BaseTemplate {
     );
   }
 }
-

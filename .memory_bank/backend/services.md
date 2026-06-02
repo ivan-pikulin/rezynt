@@ -44,6 +44,7 @@
 - Backend PDF generation.
 - WeasyPrint-based rendering и watermark support.
 - HTML export получает `FRONTEND_BASE_URL` как `base_url`, чтобы относительные `/assets/...` ссылки из frontend HTML не ломали генерацию.
+- Frontend now sends a self-contained HTML snapshot with computed styles inlined, so WeasyPrint receives the actual template layout rather than relying on Emotion-generated CSS in the page.
 - FileResponse оставляет Starlette сформировать `Content-Disposition`, потому что имена файлов могут содержать UTF-8.
 
 ## DOCXService
@@ -68,4 +69,4 @@
 - Отдельный пакет `backend/app/services/analysis/` содержит analysis engine, scoring, config и rule loader.
 - Подробности по правилам - в [`rules.md`](./rules.md).
 
-*Последнее обновление: 2026-06-01*
+*Последнее обновление: 2026-06-02*

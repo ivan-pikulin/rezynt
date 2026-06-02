@@ -27,7 +27,7 @@ Export - экран выбора шаблона и выгрузки резюме
   - `payment_success` on `/payment/success`.
   - `resume_export_success` when legacy direct export components complete PDF generation.
 - TXT export идёт напрямую через backend.
-- PDF export для premium users идёт через backend PDF generation с HTML выбранного шаблона.
+- PDF export для premium users идёт через backend PDF generation с HTML-снимком выбранного шаблона, где frontend инлайнит computed styles в self-contained HTML перед отправкой.
 - Non-premium users отправляются на `/upgrade`.
 - Unauthenticated users открывают registration modal.
 - После удачного экспорта показывается success page.
@@ -46,4 +46,4 @@ Export - экран выбора шаблона и выгрузки резюме
 - `SuccessPage`
 - `UnauthenticatedExportView`
 
-*Последнее обновление: 2026-05-23*
+*Последнее обновление: 2026-06-02*
