@@ -28,6 +28,7 @@ Export - экран выбора шаблона и выгрузки резюме
   - `resume_export_success` when legacy direct export components complete PDF generation.
 - TXT export идёт напрямую через backend.
 - PDF export для premium users идёт через backend PDF generation с HTML-снимком выбранного шаблона, где frontend инлайнит computed styles в self-contained HTML перед отправкой.
+- В export-режиме `ResumeRenderer` больше не центрирует шаблон как preview; контейнер отдаёт блочную раскладку, чтобы PDF не уезжал вправо.
 - Non-premium users отправляются на `/upgrade`.
 - Unauthenticated users открывают registration modal.
 - После удачного экспорта показывается success page.

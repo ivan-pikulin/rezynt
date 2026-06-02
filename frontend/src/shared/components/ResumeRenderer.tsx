@@ -88,10 +88,10 @@ const ResumeRenderer: React.FC<ResumeRendererProps> = ({
       sx={{
         width: '100%',
         height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
+        display: isPreview ? 'flex' : 'block',
+        flexDirection: isPreview ? 'column' : 'initial',
+        justifyContent: isPreview ? 'center' : 'flex-start',
+        alignItems: isPreview ? 'center' : 'flex-start',
         overflow: 'hidden',
         position: 'relative',
         p: 0,
@@ -110,9 +110,9 @@ const ResumeRenderer: React.FC<ResumeRendererProps> = ({
             width: '794px', // Fixed A4 width
             height: '1123px' // Fixed A4 height
           }),
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
+          display: isPreview ? 'flex' : 'block',
+          justifyContent: isPreview ? 'center' : 'flex-start',
+          alignItems: isPreview ? 'center' : 'flex-start',
           borderRadius: isPreview ? '12px' : '0',
           boxShadow: 'none',
           overflow: 'hidden',
@@ -126,4 +126,4 @@ const ResumeRenderer: React.FC<ResumeRendererProps> = ({
   );
 };
 
-export default ResumeRenderer; 
+export default ResumeRenderer;
